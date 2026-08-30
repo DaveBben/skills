@@ -1,7 +1,7 @@
 ---
 name: adr
-version: "0.2.0"
-description: "Fire when an expensive, irreversible architectural decision is made, a system hazard is accepted without a test, or a technical alternative is explicitly rejected. Fire on: 'let's document that decision', 'write an adr', 'we will accept that risk', 'let's go with X instead of Y'."
+version: "0.2.1"
+description: "Use this skill whenever the reasoning behind a technical decision needs to outlive the conversation: an expensive or irreversible choice is made, a hazard is accepted without a test, or an alternative is explicitly rejected. Use it on: 'adr', 'write an adr', 'make an adr', 'create an adr', 'record this architecture decision', 'note this architecture decision', 'this is an architectural decision', 'we need to record the why', 'let's document that decision', 'we will accept that risk', 'let's go with X instead of Y'. Use it on the bare word 'adr' alone, and on 'record the why' even when no artefact is named \u2014 the why is the artefact. Write the decision, the alternatives turned down and the consequences to an ADR file immediately, not at the end of the work."
 license: MIT
 compatibility: any-agent
 ---
