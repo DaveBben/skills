@@ -1,7 +1,7 @@
 ---
 name: spike
-version: "0.1.0"
-description: "Fire when the user has a buildable idea they want to prove works before committing to it, or wants to explore what integrating a new feature into an existing system would look like. Fire on: 'can we prove this works first', 'let me try an approach before building it for real', 'spike this out', 'I want to see if X is feasible', 'explore how Y would plug into this codebase', 'throwaway prototype to test an assumption'. Build the smallest thing that answers the open question, record findings as they surface, and treat all code as disposable."
+version: "0.1.1"
+description: "Use this skill whenever the user wants to find something out by building, rather than to ship what they build: proving an approach, prototyping an idea, mocking something up, standing up a demo, or exploring what an integration or change would involve. Use it on: 'let's prove this works first', 'let's try an approach before building', 'let's prototype this idea', 'let's create a mock', 'create a throwaway project', 'build a quick throwaway', 'build a demo', 'let's do a spike on it', 'let's see if X is feasible', 'let's see how this integration would work', 'let's see the changes which would be needed', 'explore how this would fit into the system'. Use it on the words prototype, mock, demo, throwaway, spike, feasible and explore even when the ask sounds small \u2014 deciding what is disposable is the whole point. Build the smallest thing that answers the open question, record findings as they surface, and treat all code as disposable. Do not use it for code meant to ship; that is `agile`."
 license: MIT
 compatibility: any-agent
 ---
