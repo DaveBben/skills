@@ -1,0 +1,10 @@
+.DS_Store
+
+# build-like-an-engineer: the task list is per-change scratch, never committed
+
+# build-like-an-engineer: throwaway fixture repos built by tools/gauge.py
+.gauge-fixtures/
+.gauge-fixtures-routing/
+
+__pycache__/
+*.pyc
