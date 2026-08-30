@@ -1,7 +1,7 @@
 ---
 name: harness
 version: "0.4.0"
-description: "Fire when a repository gives an agent no deterministic feedback: no formatter, linter, type check, custom rules, architectural contracts, or commit gate, or when those exist but nothing feeds their output back to the agent. Fire on: 'set this repo up for my AI agent', 'bootstrap this repo', 'initialize a repo', 'set up guardrails', 'we have no linting or rules', 'the agent keeps making the same mistake'. Not for making a change; that is `agile`."
+description: "Fire whenever the user asks to prepare, set up, or configure a repository or environment for an AI agent or for Claude, or when a repository gives an agent no deterministic feedback: no formatter, linter, type check, custom rules, architectural contracts, or commit gate, or those exist but nothing feeds their output back to the agent. Fire on: 'setup my repo for my agent', 'setup my repo for claude', 'configure my environment for claude', 'setup my environment for my ai agent', 'make this repo ready for an ai agent', 'make repo ai ready', 'setup harness in this repo', 'set up guardrails', 'we have no linting or rules', 'the agent keeps making the same mistake'. Not for making a code change; that is `agile`."
 license: MIT
 compatibility: any-agent
 ---

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Measure whether the right skill of the three auto-triggers.
+"""Measure whether the right skill auto-triggers across the SDLC and context plugins.
 
 Self-contained: builds its own throwaway fixture repos in .gauge-fixtures/, then
 runs `claude -p` once per query with `--plugin-dir` pointed at the working copy.
@@ -45,7 +45,8 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PLUGIN_DIR = os.path.join(REPO, "plugins", "sdlc")
+PLUGIN_DIRS = [os.path.join(REPO, "plugins", "SDLC"),
+               os.path.join(REPO, "plugins", "context")]
 # Bound the run; a skill firing anywhere inside it counts as triggered. Keep
 # this generous. These skills instruct the agent to read the ground before it
 # acts, and fires have been observed at tool call 8, so a tight bound truncates
@@ -54,7 +55,8 @@ PLUGIN_DIR = os.path.join(REPO, "plugins", "sdlc")
 # 7, and the third run was still exploring when the budget ran out.
 TURNS = 12
 MODEL = None  # set from --model; None leaves the harness default
-OURS = {"engineering", "bootstrapping", "handing-off"}
+OURS = {"agile", "harness", "adr", "greenfield", "spike", "handing-off"}
+TARGET = 0.80  # suite passes at 80% or better
 
 FILES = {
     "package.json": '{ "name": "orders-api", "version": "0.4.1",\n'
@@ -173,68 +175,74 @@ def build_fixtures(root):
 
 
 def cases(fresh, mid, bare):
+    """(query, expected skill or None, fixture). The positives are the phrases
+    each description is being tuned for; the negatives are near-misses that
+    share vocabulary with a skill but need no skill at all."""
     return [
-        # engineering fires on any request to change a system, at any stage. Most of
-        # the suite is here on purpose: it now carries every stage, and the
-        # hard part is firing before the user has decided to use a skill.
-        ("I want to change the layout divs in this page's markup.", "engineering", fresh),
-        ("I'm thinking of adding a new schema to the database.", "engineering", fresh),
-        ("I'm thinking of adding RAG to my pipeline.", "engineering", fresh),
-        ("Help me work out what would happen if I replaced the lambda with ECS.", "engineering", fresh),
-        ("My PO handed me this story and I need to implement it.", "engineering", fresh),
-        # decision still open. A cluster failing together is a wording defect
-        # in engineering's opening sentence rather than variance.
-        ("I'm thinking about adding rate limiting to this API. Not sure how to approach it.", "engineering", fresh),
-        ("How should I integrate Stripe into the checkout flow here?", "engineering", fresh),
-        ("What's the best way to cache these query results?", "engineering", fresh),
-        ("Should I keep Postgres for this or move to DynamoDB?", "engineering", fresh),
-        ("I'm going to use Redis for the order idempotency keys.", "engineering", fresh),
-        ("I want to add a notification system. Thinking about how to design it.", "engineering", fresh),
-        ("Been mulling over whether to split this service in two. What do you reckon?", "engineering", fresh),
-        ("I'm swapping the order export for a streaming one. Just need to pick the format.", "engineering", fresh),
-        ("Trying to work out how to handle multi-tenancy here.", "engineering", fresh),
-        ("I reckon we should move order processing to a job queue.", "engineering", fresh),
-        # A bare one-line ask is NOT settled, however decided it sounds. Each
-        # names a mechanism or a removal whose blast radius nobody has priced.
-        ("Add a password reset feature to this app.", "engineering", fresh),
-        ("We need to rip out the order export module entirely.", "engineering", fresh),
-        ("Change how the export endpoint paginates so it uses cursors.", "engineering", fresh),
-        # resume: work already underway, which engineering detects and routes
-        ("A co-worker started this task, I need to pick it up and finish it.", "engineering", mid),
-        ("Where did we get to on the cursor pagination change?", "engineering", mid),
-        # bootstrapping: no system yet, and the ask is about preparing one
-        ("I'm starting a new service from scratch to ingest vehicle telemetry. How should I structure it?", "bootstrapping", bare),
-        ("We're building this platform greenfield. Where do I even begin?", "bootstrapping", bare),
-        ("Set this repo up so an agent can check its own work.", "bootstrapping", bare),
-        ("We have no linting or rules in this codebase. Fix that.", "bootstrapping", fresh),
-        # engineering: nobody knows what they want yet
-        ("Just build me a rough version so I can see it.", "engineering", fresh),
-        ("I want to try something. Not sure what I want yet.", "engineering", fresh),
-        # engineering: the problem itself is the question
-        ("What do we actually need here? I'm not sure the ask is right.", "engineering", fresh),
-        # engineering: a spec exists and the approach is the question
-        ("How should we build this, now that we've agreed what it does?", "engineering", mid),
-        ("Cut this into slices I can build one at a time.", "engineering", mid),
-        # engineering: the contract or the code is the ask
-        ("The design's settled and written up. Turn it into failing tests.", "engineering", mid),
-        ("Write the contract tests for the cursor pagination we scoped.", "engineering", mid),
-        ("Let's implement the CSV import feature we agreed on.", "engineering", mid),
-        ("Build the next slice.", "engineering", mid),
-        # engineering: it shipped, and the question is whether it works
-        ("We deployed the cursor paging change last week. Is it working?", "engineering", mid),
-        ("Did that fix actually take in production?", "engineering", mid),
-        # handing-off: the session is the subject
-        ("Write a handoff so I can pick this up tomorrow.", "handing-off", mid),
-        ("I'm running low on context. Summarise this for next time.", "handing-off", mid),
-        # true negatives: no skill should fire. The bare-repo pair matters
-        # because "empty directory + general question" would otherwise match a
-        # greenfield trigger keyed on repo state alone.
+        # greenfield: no system yet, and the ask is to stand one up
+        ("Let's setup a new project.", "greenfield", bare),
+        ("I want to start a new python project.", "greenfield", bare),
+        ("I want to start a new javascript project.", "greenfield", bare),
+        ("Let's create scaffolding for an iOS app.", "greenfield", bare),
+        ("Let's put together the blueprint for this project.", "greenfield", bare),
+        ("I need scaffolding for this.", "greenfield", bare),
+        ("Let's put together the walking skeleton.", "greenfield", bare),
+        ("I need a walking skeleton.", "greenfield", bare),
+        ("Python project template.", "greenfield", bare),
+        ("Template project.", "greenfield", bare),
+        # adr: a decision exists and the why is the artefact
+        ("Record this architecture decision.", "adr", fresh),
+        ("Make an adr.", "adr", fresh),
+        ("Write an adr.", "adr", fresh),
+        ("This is an architectural decision.", "adr", fresh),
+        ("We need to record the why.", "adr", fresh),
+        ("Adr", "adr", fresh),
+        ("Create an adr.", "adr", fresh),
+        ("Note this architecture decision.", "adr", fresh),
+        # harness: the repo gives the agent no feedback of its own
+        ("Setup my repo for my agent.", "harness", fresh),
+        ("Setup my repo for Claude.", "harness", fresh),
+        ("Configure my environment for Claude.", "harness", fresh),
+        ("Setup my environment for my AI agent.", "harness", fresh),
+        ("Make this repo ready for an AI agent.", "harness", fresh),
+        ("Setup harness in this repo.", "harness", fresh),
+        ("Make repo AI ready.", "harness", fresh),
+        # spike: prove or explore before committing, code is disposable
+        ("Let's prove this works first.", "spike", fresh),
+        ("Let's try an approach before building.", "spike", fresh),
+        ("Let's prototype this idea.", "spike", fresh),
+        ("Let's create a mock.", "spike", fresh),
+        ("Create a throwaway project.", "spike", fresh),
+        ("Let's see if Redis Streams is feasible here.", "spike", fresh),
+        ("Let's see how this integration would work.", "spike", fresh),
+        ("Let's see the changes which would be needed.", "spike", fresh),
+        ("Explore how this would fit into the system.", "spike", fresh),
+        ("Build a quick throwaway.", "spike", fresh),
+        ("Build a demo.", "spike", fresh),
+        ("Let's do a spike on it.", "spike", fresh),
+        # agile: any request to write, change or remove code in a system
+        ("I want to add rate limiting to the export endpoint.", "agile", fresh),
+        ("I want to remove the order export module.", "agile", fresh),
+        ("Add code to validate the order payload.", "agile", fresh),
+        ("Modify the code so the export paginates with cursors.", "agile", fresh),
+        ("Implement the CSV import feature.", "agile", fresh),
+        ("Build the next slice.", "agile", mid),
+        ("Fix the bug where placeOrder ignores quantity.", "agile", fresh),
+        # handing-off: the session itself is the subject
+        ("Create a handoff.", "handing-off", mid),
+        ("Make a handoff.", "handing-off", mid),
+        ("Write a handoff document.", "handing-off", mid),
+        ("Your context is getting full.", "handing-off", mid),
+        ("You are running out of context.", "handing-off", mid),
+        ("You are running low on context.", "handing-off", mid),
+        ("There's context rot.", "handing-off", mid),
+        # true negatives: shared vocabulary, no skill needed
         ("What's the difference between optimistic and pessimistic locking?", None, bare),
         ("Explain how consistent hashing works.", None, bare),
         ("What does the -u flag do in git push?", None, fresh),
-        ("Fix this typo: 'recieve' should be 'receive' in README.md", None, fresh),
         ("What's the difference between a mutex and a semaphore?", None, fresh),
         ("Run the test suite and show me the output.", None, fresh),
+        ("Fix this typo: 'recieve' should be 'receive' in README.md", None, fresh),
     ]
 
 
@@ -242,9 +250,10 @@ def run_one(case):
     query, expected, cwd = case
     try:
         proc = subprocess.run(
-            ["claude", "-p", query, "--plugin-dir", PLUGIN_DIR,
+            ["claude", "-p", query,
+             *[a for d in PLUGIN_DIRS for a in ("--plugin-dir", d)],
              "--output-format", "stream-json", "--verbose",
-             "--max-turns", str(TURNS), "--setting-sources", "user"]
+             "--max-turns", str(TURNS), "--setting-sources", "project"]
             + (["--model", MODEL] if MODEL else []),
             cwd=cwd, capture_output=True, text=True,
             stdin=subprocess.DEVNULL, timeout=420)
@@ -322,8 +331,9 @@ def main():
     for expected, hits in buckets.items():
         print(f"  {expected:20s} {sum(hits)}/{len(hits)}")
         total += sum(hits)
-    print(f"  {'TOTAL':20s} {total}/{len(results)}")
-    return 0 if total == len(results) else 1
+    rate = total / len(results) if results else 0.0
+    print(f"  {'TOTAL':20s} {total}/{len(results)}  ({rate:.0%}, target {TARGET:.0%})")
+    return 0 if rate >= TARGET else 1
 
 
 if __name__ == "__main__":

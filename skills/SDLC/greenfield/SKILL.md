@@ -1,7 +1,7 @@
 ---
 name: greenfield
 version: "0.1.0"
-description: "Fire when the user starts a new project from nothing or asks to scaffold, bootstrap, or set up a fresh codebase. Fire on: 'start a new project', 'set up a new repo', 'scaffold a Python service', 'bootstrap a codebase', 'create a new app from scratch'. Clone a language template, rename it, prove the default state passes tests, and strip it to only what the project needs — committing every step."
+description: "Fire whenever a project does not exist yet and the user wants one stood up, or asks for a template, scaffolding, a blueprint, a bootstrap, or a walking skeleton. Fire on: 'let's setup a new project', 'I want to start a new python project', 'I want to start a new javascript project', 'let's create scaffolding for an iOS app', 'I need scaffolding for this', 'let's put together the blueprint for this project', 'let's put together the walking skeleton', 'I need a walking skeleton', 'python project template', 'template project', 'bootstrap a codebase', 'set up a new repo', 'create a new app from scratch'. Fire even on a bare two-word ask like 'template project' \u2014 a new codebase is never a one-step answer. Clone a language template, rename it, prove the default state passes tests, and strip it to only what the project needs, committing every step. Not for changing a codebase that already exists; that is `agile`."
 license: MIT
 compatibility: any-agent
 ---
