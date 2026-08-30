@@ -1,7 +1,7 @@
 ---
 name: agile
 version: "1.0.0"
-description: "Fire on every request to write, add, remove, change, modify, implement, or fix code in a system that already exists, before touching any file. Fire on: 'I want to add X', 'I want to remove X', 'add code to X', 'modify the code to X', 'implement X', 'fix the bug where X', 'build the next slice', 'pick up where we left off'. Fire even when the change looks small enough to just do \u2014 a one-line edit still needs a failing test and a verified commit. Execute as an Extreme Programming (XP) pair: working software in the smallest valuable increments, tight feedback loops, executable specs (TDD), continuous delivery. Not for standing up a project that does not exist yet (`greenfield`), throwaway exploration (`spike`), or repo tooling (`harness`)."
+description: "Use this skill on every request to write, add, remove, change, modify, implement or fix code in a system that already exists, before touching any file. Use it on: 'I want to add X', 'I want to remove X', 'add code to X', 'modify the code to X', 'implement X', 'fix the bug where X', 'build the next slice', 'pick up where we left off'. Use it whether the ask arrives as an instruction, a want, a complaint, or a need someone else is pressing for, and even when the change looks small enough to just do \u2014 a one-line edit still earns a failing test and a verified commit. Work as an Extreme Programming pair: working software in the smallest valuable increments, tight feedback loops, executable specs (TDD), continuous delivery. Do not use it to stand up a project that does not exist yet (`greenfield`), for throwaway exploration (`spike`), or for repo tooling (`harness`)."
 license: MIT
 compatibility: any-agent
 ---

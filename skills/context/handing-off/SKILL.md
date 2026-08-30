@@ -1,7 +1,7 @@
 ---
 name: handing-off
 version: "0.3.0"
-description: "Fire whenever this session has to be picked up by a later one, or the user says the context window is filling, full, running out, running low, or rotting. Fire on: 'create a handoff', 'make a handoff', 'write a handoff document', 'your context is getting full', 'you are running out of context', 'you are running low on context', 'there's context rot', 'I want to pick this up later', 'summarise this for next time'. A remark about your context is a request for a handoff, not an observation to agree with \u2014 fire on it. Record the dead ends, not just the progress."
+description: "Use this skill whenever this session's work has to survive into another one, or the user says the context window is filling, full, running out, running low or rotting. Use it on: 'create a handoff', 'make a handoff', 'write a handoff document', 'your context is getting full', 'you are running out of context', 'you are running low on context', 'there's context rot', 'I want to pick this up later', 'summarise this for next time'. A remark about your context is a request for a handoff, not an observation to agree with \u2014 write the handoff. Record the dead ends, not just the progress."
 license: MIT
 compatibility: any-agent
 ---

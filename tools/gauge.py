@@ -174,10 +174,11 @@ def build_fixtures(root):
     return fresh, mid, bare
 
 
-def cases(fresh, mid, bare):
-    """(query, expected skill or None, fixture). The positives are the phrases
-    each description is being tuned for; the negatives are near-misses that
-    share vocabulary with a skill but need no skill at all."""
+def tuning_cases(fresh, mid, bare):
+    """(query, expected skill or None, fixture). The phrases each description is
+    tuned against. A number from here is a train score: the wording of these
+    queries went into the descriptions, so it measures fit, not generalisation.
+    Read validation_cases() for the honest number."""
     return [
         # greenfield: no system yet, and the ask is to stand one up
         ("Let's setup a new project.", "greenfield", bare),
@@ -246,6 +247,60 @@ def cases(fresh, mid, bare):
     ]
 
 
+def validation_cases(fresh, mid, bare):
+    """Held out. None of this wording was used to write a description, so this
+    is the set that says whether a gain generalises or was memorised. Phrased
+    the way a user actually types: file paths, backstory, lowercase, typos."""
+    return [
+        # greenfield
+        ("brand new repo for a go service that serves feature flags, nothing in "
+         "it yet. get me to a green test run", "greenfield", bare),
+        ("my team lead wants the ops-console repo spun up before standup "
+         "tomorrow, its an empty dir right now", "greenfield", bare),
+        ("kicking off a rust cli this weekend, cargo workspace, one bin one lib. "
+         "where do we start", "greenfield", bare),
+        # adr
+        ("we just settled on sqs over kafka cos nobody here can run kafka. "
+         "capture that somewhere permanent", "adr", fresh),
+        ("future me is gonna wonder why we didnt just use the vendor sdk. put it "
+         "on record", "adr", fresh),
+        ("we're accepting that the nightly recon job can double count across DST. "
+         "no test for it, but it needs writing down", "adr", fresh),
+        # harness
+        ("every PR here turns into a style argument, theres no formatter or type "
+         "check. wire it up so the tooling tells the agent off, not me", "harness", fresh),
+        ("claude keeps putting business logic in the route handlers, ive told it "
+         "three times. make it a rule it cant ignore", "harness", fresh),
+        ("i want a pre-commit gate that runs fmt, types and tests so nothing "
+         "lands broken", "harness", fresh),
+        # spike
+        ("before we commit to duckdb i want to know if it chews through our 40gb "
+         "of parquet. throwaway is fine", "spike", fresh),
+        ("ive got two customers on friday and want something clickable for the "
+         "new onboarding flow", "spike", fresh),
+        ("roughly what would it take to move us off celery onto arq? dont build "
+         "it properly", "spike", fresh),
+        # agile
+        ("the retry loop in src/db.js gives up after 3 tries, make it exponential "
+         "backoff with jitter capped at 30s", "agile", fresh),
+        ("deleting a user leaves orphaned sessions lying around. sort it out", "agile", fresh),
+        ("we need csv upload in the admin panel, my PM has been asking for weeks", "agile", fresh),
+        # handing-off
+        ("im knackered, stopping for the day. capture where we got to including "
+         "the two approaches that didnt work", "handing-off", mid),
+        ("we're at like 15% context left, write it up before we lose it", "handing-off", mid),
+        ("someone else picks this up tomorrow morning, leave them what they need", "handing-off", mid),
+        # near-miss negatives: each shares vocabulary with a skill above
+        ("whats the difference between arq and celery?", None, fresh),
+        ("heres the EXPLAIN output for our slow orders query, what's it telling me?", None, fresh),
+        ("our oncall handoff doc lives in docs/oncall.md, add the new pager "
+         "rotation to it", None, fresh),
+        ("summarise today's architecture review meeting notes into bullets", None, fresh),
+        ("which python lib should i use for parsing ical files?", None, fresh),
+        ("write the release notes for the 2.1 tag", None, fresh),
+    ]
+
+
 def run_one(case):
     query, expected, cwd = case
     try:
@@ -283,6 +338,12 @@ def run_one(case):
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--suite", choices=("tuning", "validation", "all"),
+                    default="tuning",
+                    help="tuning: the phrases the descriptions were written "
+                         "against (a train score). validation: held-out wording "
+                         "that never fed a description, which is the number to "
+                         "believe. all: both.")
     ap.add_argument("--only", help="substring filter on the expected skill")
     ap.add_argument("--jobs", type=int, default=5)
     ap.add_argument("--repeat", type=int, default=1,
@@ -304,7 +365,12 @@ def main():
     subprocess.run(["rm", "-rf", root], check=True)
     os.makedirs(root)
     fresh, mid, bare = build_fixtures(root)
-    selected = [c for c in cases(fresh, mid, bare)
+    pool_cases = []
+    if args.suite in ("tuning", "all"):
+        pool_cases += tuning_cases(fresh, mid, bare)
+    if args.suite in ("validation", "all"):
+        pool_cases += validation_cases(fresh, mid, bare)
+    selected = [c for c in pool_cases
                 if (not args.only or args.only in (c[1] or "none"))
                 and (not args.grep or args.grep.lower() in c[0].lower())]
     selected = selected * args.repeat
