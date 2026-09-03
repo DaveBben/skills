@@ -10,14 +10,16 @@
       "name": "SDLC",
       "source": "./plugins/SDLC",
       "description": "Engineering practice run with the human rather than recited at them. One skill carries the whole change loop, from a vague ask through discovery, a throwaway, the spec, the design, failing tests, slice-by-slice implementation, progressive rollout, verification and cleanup. Two more sit outside it: preparing a codebase for agents in any language, and recording an expensive or irreversible decision. The user, not the model, makes every judgment call.",
-      "version": "0.6.1",
+      "version": "0.8.0",
       "license": "MIT",
       "skills": [
         "./skills/agile",
         "./skills/harness",
         "./skills/adr",
         "./skills/greenfield",
-        "./skills/spike"
+        "./skills/spike",
+        "./skills/prd",
+        "./skills/pair-programming"
       ],
       "author": {
         "name": "DaveBben"
