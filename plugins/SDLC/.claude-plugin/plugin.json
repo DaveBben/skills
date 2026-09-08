@@ -1,7 +1,7 @@
 {
   "name": "SDLC",
-  "version": "0.8.0",
-  "description": "Engineering practice run with the human rather than recited at them. One skill carries the whole change loop, from a vague ask through discovery, a throwaway, the spec, the design, failing tests, slice-by-slice implementation, progressive rollout, verification and cleanup. Two more sit outside it: preparing a codebase for agents in any language, and recording an expensive or irreversible decision. The user, not the model, makes every judgment call.",
+  "version": "1.0.0",
+  "description": "Engineering practice run with the human rather than recited at them. The agile loop takes a change to an existing system from a one-sentence outcome through slices, a user-written acceptance criterion, a proposed test table, failing tests, generated code and a three-pass review. Around it: prd, spike, greenfield, pair-programming, harness and adr. The user, not the model, makes every judgment call.",
   "license": "MIT",
   "author": {
     "name": "DaveBben"
