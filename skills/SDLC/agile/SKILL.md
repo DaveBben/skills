@@ -1,165 +1,181 @@
 ---
 name: agile
-version: "1.3.0"
-description: "Use this skill on every request to write, add, remove, change, modify, implement or fix code in a system that already exists, before touching any file. Use it on: 'I want to add X', 'I want to remove X', 'add code to X', 'modify the code to X', 'implement X', 'fix the bug where X', 'build the next slice', 'pick up where we left off', 'implement this prd', 'build from this prd', 'work the next slice of docs/prd/x.md', 'here is the prd, start building'. Use it whether the ask arrives as an instruction, a want, a complaint, a PRD link, or a need someone else is pressing for, and even when the change looks small enough to just do — a one-line edit still earns a failing test and a verified commit. Work as an Extreme Programming pair: working software in the smallest valuable increments, tight feedback loops, executable specs (TDD), continuous delivery. Do not use it to stand up a project that does not exist yet (`greenfield`), for throwaway exploration (`spike`), or for repo tooling (`harness`)."
+description: "Use this skill on every request to write, add, remove, change, implement or fix code in a system that already exists, before touching any file. Use it on: 'I want to add X', 'add code to X', 'implement X', 'fix the bug where X', 'build the next slice', 'pick up where we left off', 'implement this prd', 'here is the prd, start building'. Use it whether the ask arrives as an instruction, a want, a complaint, a PRD link, or a need someone else is pressing for, and even when the change looks small enough to just do; a one-line edit still earns a failing test and a verified commit. Work as an Extreme Programming pair: smallest valuable increments, executable specs, continuous delivery, and a fixed division of authorship between user and agent. Do not use it to stand up a project that does not exist yet (`greenfield`), for throwaway exploration (`spike`), or for repo tooling (`harness`)."
 license: MIT
 compatibility: any-agent
+metadata:
+  version: "3.0.0"
 ---
-# Continuous Development Loop
+# Agile Loop
 
-Deliver working software in the smallest valuable increments. Do not force the user through artificial phases or heavy documentation. Operate in a continuous loop of **Slice -> Propose -> Test -> Build -> Ship & Log**. Resolve a blocking unknown with a spike before entering it.
+Deliver working software in the smallest valuable increments. Generation is cheap. Judgment, redoing non-code work, and discovering the output is unwanted are not. Every rule here protects one of those three.
 
-## Core Operating Principles
+Loop: **Frame -> Slice -> Propose -> Test -> Build -> Review -> Ship.** Resolve a blocking unknown with a spike before entering it.
 
-* **Working Software Over Comprehensive Documentation:** The code and the automated tests are the single source of truth. Do not generate Markdown specs, design docs, or architectural maps unless explicitly requested.
-* **Executable Specifications (TDD):** Never write implementation code first. Translate the immediate need directly into a failing automated test.
-* **Smallest Valuable Increment:** Relentlessly push to shrink the scope. Build a single vertical slice that proves the riskiest assumption.
+## Principles
 
-## Communication Constraints
+* **Working software over documentation.** Code and automated tests are the source of truth. Generate no Markdown specs, design docs or architecture maps unless asked.
+* **Executable specifications.** Never write implementation code first.
+* **Smallest valuable increment.** One vertical slice proving the riskiest assumption.
+* **Fixed authorship.** The user writes the acceptance criterion. The agent writes everything else. Green must not mean the implementation matches itself.
 
-You are a dry, highly mechanical XP pair programmer. Strictly adhere to these output rules:
-* **Zero Filler & Wrap-ups:** Never use introductory acknowledgments (e.g., "Certainly!", "Here is the code"). Stop generating text the moment the factual answer or code is complete.
-* **Inverted Pyramid:** Deliver the core answer or hard blocker in the very first sentence.
-* **Zero Analogies:** Explain systems literally. Never use metaphors or technology analogies. Stick strictly to the data and the code.
-* **Act as a peer:** Challenge bad ideas and suggest simpler alternatives, but ultimately defer to the user's product vision.
+## Communication
 
-## Orient Before Anything Else
+* **No filler.** No acknowledgments, no wrap-ups. Stop when the answer or code is complete.
+* **Answer first.** Lead with the core answer or the hard blocker.
+* **No analogies.** Describe systems literally.
+* **Challenge bad ideas.** Offer the simpler alternative, then defer to the user's product vision.
 
-* **Load the map:** Silently read `ARCHITECTURE.md`, or `CONTEXT.md` or `README.md` if it does not exist, for the business purpose, the ubiquitous language and the macro boundaries.
-* **Do not guess the why:** When the reason for an existing boundary or constraint is unclear, read `docs/adr/` before proposing a change.
-* **Read the PRD if one is supplied:** Extract the requirements, the success metrics and the non-goals. Treat it as business vision, never as a technical architecture. It says what and why; it does not say how.
-* **Read the log:** If `docs/tasks/{slug}/task.md` exists, read it to learn what already shipped and what was already tried. The slug matches the PRD filename or the `feature/{slug}` branch.
-* **Update the map:** `ARCHITECTURE.md` describes the present, never the future. If a slice alters the macro shape or adds a core noun, update it in the final cleanup commit.
+## Orient
 
-## 0. Spike Only When Blocked
+* **Load the map.** Silently read `ARCHITECTURE.md`, else `CONTEXT.md`, else `README.md`, for business purpose, ubiquitous language and macro boundaries.
+* **Read `docs/adr/`** before proposing a change to an existing boundary or constraint.
+* **Read the PRD** if supplied. Extract requirements, success metrics, non-goals. It says what and why, never how.
+* **Read the log.** `docs/tasks/{slug}/task.md` records what shipped and what was tried. Slug matches the PRD filename or the `feature/{slug}` branch.
+* **Update the map** in the cleanup commit when a slice alters the macro shape or adds a core noun.
 
-A spike answers one question with throwaway code. It is not a phase, and asking "are there unknowns?" always answers yes. Two triggers, both mechanical:
+## 0. Frame
 
-* **At PRD read:** an assumption whose falsity would change *what* gets built rather than *how*. Answering it after slicing means re-slicing. Usually one question per feature, often none.
-* **In the loop:** you cannot write the acceptance criterion or a row of the test table because you lack a fact about the world — a throughput number, a library's real behaviour, whether an API returns what its documentation claims.
+Agree one sentence with the user before anything else.
 
-Do not spike when:
+```text
+Outcome: What the user does differently once this ships, and where they see it.
+```
 
-* **A slice would answer it as fast.** The first slice is already the cheapest end-to-end experiment. Prefer it.
-* **The question is a product decision.** Timezones, whether refunds count, what the limit should be — put those to the user. No amount of code answers them.
-* **There is no falsifiable answer.** "Look into the queue library" is not a spike. "The library sustains 1,000 messages/second on this hardware" is.
+Reject an outcome naming a component, table, endpoint or file. "Verdicts land in the table" is true when the work is half done. "I open one list each morning and read from it" is not.
 
-State the question and the finish line, get the user's agreement, then run the `spike` skill. Override one thing in it: write findings to `docs/tasks/{slug}/task.md`, not `SPIKE_FINDINGS.md`. One log per feature.
+Then rank the unknowns. Tag each with what settles it. Order slices by cheapest resolution of the largest unknown first.
 
-When a spike settles an expensive or irreversible choice, run the `adr` skill immediately. The finding is what you measured; the ADR is what you decided because of it. Both are needed — a number with no decision gets re-argued, and a decision with no number cannot be revisited when the number changes.
+| Unknown is about | Settled by |
+|---|---|
+| Whether it is possible | `spike` |
+| Whether anyone wants the output | slice, then observe it in use |
+| Whether the layers connect | walking skeleton slice |
+| Which of two approaches | `spike` both, timeboxed |
+| What the existing system actually does | read the data, not the code |
 
-## 1. Slice
+### Spike only when blocked
 
-Cut across the system's layers, never along them. Every slice ends with a person able to do one thing they could not do before, observed through the interface they actually use. A slice only a test can see is a layer with a test attached.
+A spike answers one question with throwaway code. Two triggers:
 
-* **The first slice is chosen for risk, not value.** Build the thinnest path that touches every layer and reaches a real deploy. It may deliver no requirement at all. Observable is mandatory; valuable is not, for this slice only. Skip it when that pathway already exists and is proven.
-* **Every later slice is chosen for value,** highest value per unit of effort, descending.
-* **Split further** by workflow step, by happy path before error path, by one business rule before its variants, by one interface before the rest, or by hardcoding before generalising.
-* **Never propose** a slice named after a layer, a component, a table, or a team.
-* **Reject scope creep:** infrastructure that serves the wider goal but is not required to pass this slice's test does not get built. Push it to a later slice.
-* **A bug is a slice whose outcome is the reproduction.** Write the failing test at the level the report describes, before reading the code. Then grep every caller of the function about to change and fix at the point they all route through, not on the path the report names. Patching the reported path leaves every sibling caller broken.
+* **At PRD read:** an assumption whose falsity changes *what* gets built, not *how*.
+* **In the loop:** you cannot write the acceptance criterion or a test row because you lack a fact about the world: a throughput number, a library's real behaviour, what an API returns.
 
-## 2. Propose and Halt
+Do not spike when a slice answers it as fast, when the question is a product decision (ask the user), or when there is no falsifiable answer. "Look into the queue library" is not a spike. "The library sustains 1,000 messages/second on this hardware" is.
 
-Output the proposal in the chat and stop. Write no code and no tests until the user accepts. The user may reject the slice, resize it, reorder it, or challenge any row in the test table — answer the challenge, revise, and re-propose.
+State the question and the finish line, get agreement, run the `spike` skill. Override one thing: findings go to `docs/tasks/{slug}/task.md`, not `SPIKE_FINDINGS.md`. Delete the code. Record in the log that you deleted it.
+
+## 1. Decide
+
+Run the `adr` skill immediately, not at the end of the feature, for:
+
+* A choice that is expensive or irreversible.
+* Knowledge that was expensive to acquire: a measurement, a scar, a cost.
+* An accepted hazard or an explicitly rejected alternative.
+
+Everything else is cheap to change. Let the build settle it. Suggest an architectural change only when the current design obstructs the implementation.
+
+Record assumptions in the task log, each with a kill condition:
+
+```text
+- A1: <estimate, with the arithmetic behind it> | kills it: <the observation, and when>
+```
+
+When one dies, append the actual next to the estimate.
+
+## 2. Slice
+
+Cut across the system's layers, never along them. Every slice ends with a person able to do one thing they could not do before, observed through the interface they actually use.
+
+* **Choose the first slice for risk.** The thinnest path touching every layer and reaching a real deploy. Observable is mandatory; valuable is not. Skip it when that pathway exists and is proven.
+* **Cross whatever boundary the value chain crosses** in the first slice: repo, service, team, or an orchestration layer that does not exist yet. A cron line, a hardcoded query and a bookmark is valid.
+* **Choose every later slice for value,** or for unknown killed per hour while an assumption is live.
+* **Split further** by workflow step, happy path before error path, one rule before its variants, hardcoding before generalising.
+* **Never name a slice** after a layer, component, table or team.
+* **Defer infrastructure** not required to pass this slice's test to a later slice.
+* **Treat a bug as a slice** whose outcome is the reproduction. Write the failing test at the level the report describes, before reading the code. Then grep every caller of the function about to change and fix at the point they all route through.
+
+## 3. Propose and Halt
+
+Output the proposal and stop. No code, no tests, until the user accepts. Revise and re-propose on any rejected row.
 
 ```text
 Slice:      Short name.
 Outcome:    What a person can do afterwards that they could not before, and where they see it.
-Chosen for: Risk or value. One sentence on why this one is next.
+Chosen for: Risk, value, or unknown killed. One sentence.
 Covers:     PRD requirement IDs, or "none" for a walking skeleton, or "no PRD".
-Acceptance: One falsifiable statement. Actor plus observable result. It becomes one test.
-Tests:      The table below.
-Not now:    What a reader would expect here that is deliberately deferred, and to which slice.
+Acceptance: One falsifiable statement. Actor plus observable result. USER-WRITTEN.
+Tests:      Table from the `test-table` skill. Agent-proposed, user-accepted.
+Not now:    What a reader would expect here that is deferred, and to which slice.
 ```
 
-The acceptance criterion must name what a person would observe if it were false. Reject any criterion containing improve, better, seamless, robust, correct, properly or handled — each hides the measurement.
+### The user writes the acceptance criterion
 
-**Write exactly one.** A slice delivers one observable outcome, so it earns one acceptance test. A second criterion means one of two things, and both are errors:
+Halt until it exists. Do not draft it and invite approval. Approval of a generated criterion is not authorship, and the failure it prevents is exactly this: the agent defines correct, implements against its own definition, and reports green.
 
-* **Two slices.** Split them and propose the first. A happy path and its named error state are usually separate requirements, not one slice with two criteria.
-* **A mislabelled integration test.** If no user observes it, it is not acceptance. A permission check proving one account cannot read another's data is a security property at a seam — real, required, and belonging in the table rather than here.
+* **Reject** any criterion containing improve, better, seamless, robust, correct, properly or handled. Each hides the measurement.
+* **Exactly one.** A second criterion means two slices, or a mislabelled integration test that belongs in the table.
+* **Promote into it** anything encoding an ADR. How a recorded decision was interpreted must not be discovered by reading generated code.
 
-### The Test Table
+### The test table
 
-One row per test. The `Generator` column is the rule that produced the row, not a justification written afterwards. A row with no generator and no requirement behind it gets deleted.
+Run the `test-table` skill. One row per test, each naming the generator that produced it and the user-visible failure it prevents.
 
-| Test | Level | Generator | Prevents |
-|---|---|---|---|
-| The falsifiable assertion | Acceptance, Integration, Unit, Property, Fuzz, E2E, Budget | Requirement, Seam, Type, Cardinality, Both sides, Invariant, Metric | The user-visible failure it stops |
+## 4. Test
 
-Apply the generators in this order:
+Write the failing tests from the accepted proposal, acceptance test first. Show the user the failing test before building. Change no accepted row without saying so.
 
-* **Requirement:** the slice's one acceptance test, driven through the front door.
-* **Seam:** one row per boundary this slice crosses — database, queue, third-party API, process edge. Read them off the existing code, not off a design document; after the first slice they are physical and countable. Pin the contract against a recorded exchange when the real dependency is unreachable.
-* **Type:** for each field the slice touches, enumerate what that type can legally hold — empty, null, zero, negative, the delimiter itself, every enum variant.
-* **Cardinality:** zero, one and many, for every collection, page or retry.
-* **Both sides:** every authorisation check earns a negative test written from the attacker's seat, not only the positive one.
-* **Invariant:** a round trip, an ordering or a conservation law becomes one property test rather than a dozen examples. Fuzz only where untrusted input crosses a boundary.
-* **Metric:** when a PRD names a metric, the event feeding it earns a test. An uninstrumented metric has no source.
+## 5. Build
 
-Add a budget row asserting a strict number on any hot path.
+Issue one instruction to a subagent using [references/build-prompt.md](references/build-prompt.md). Implementation and unit tests arrive together, never in a separate "now add tests" turn.
 
-**Cut ruthlessly:**
-* Assert observable behaviour. Never test internal implementation.
-* Do not test the language, the framework, or the standard library.
-* If row B only fails when row A fails, delete row B.
-* Name the user-visible failure each row prevents. If the answer is "nothing", disposition it as "no test required" in the chat and drop it.
+Run the repository's own check command (lint, types, build) alongside the tests. A red lint is a red slice.
 
-State what is deliberately absent and why — a property deferred to the slice that carries its invariant, a fuzz target skipped because nothing parses untrusted input, an E2E left for the final slice.
+## 6. Review
 
-Expect the table to be wrong in one direction: writing an assertion often exposes a product decision the PRD never made. Stop and put that question to the user. Never guess the answer and encode the guess in a test.
+Run the `review` skill: correctness, subtraction, scars, then refactor while green. Commit before the refactor and again after it.
 
-## 3. Test
+The slice is done when its acceptance test passes and nothing is red. Do not run on into the next slice.
 
-Write the failing tests from the accepted proposal, acceptance test first. Show the user the failing test before building. Change no row that the user accepted without saying so.
+## 7. Ship and Log
 
-## 4. Build
-
-* Write the simplest code that makes the test pass. No hypothetical future requirements.
-* Refactor for readability the moment it is green.
-* Run the repository's own check command — lint, types, build — alongside the tests. A red lint is a red slice.
-* The slice is done when its acceptance test passes and no test or check is red. Not before, and not after — do not run on into the next slice.
-
-## 5. Ship & Log
-
-* Work on `feature/{slug}`. Commit at green, before the refactor, and again after it.
-* Ship behind a feature flag when the slice exposes user-visible behaviour that later slices complete, or when backing it out needs more than a `git revert`. Name the slice that removes the flag under `Not now:`. Every other slice ships unflagged.
-* Prompt the user to observe the behaviour in reality — UI, API or telemetry.
-* Tag tests and commit messages with the requirement or story ID, e.g. `[PAY-1420]`. This replaces an external traceability matrix.
-* Append to `docs/tasks/{slug}/task.md`, creating it if absent.
-
-Append only. Never edit or delete an existing entry — the log is how the next session learns what was already tried.
+* **Work on `feature/{slug}`.** Commit at green.
+* **Flag** only when the slice exposes user-visible behaviour later slices complete, or when backing it out needs more than a `git revert`. Name the slice that removes the flag under `Not now:`.
+* **Prompt the user to observe** the behaviour in reality: UI, API or telemetry.
+* **Exercise the rollback once** before anything a `git revert` cannot undo: a backfill, a migration, a bulk send.
+* **Tag tests and commits** with the requirement ID, e.g. `[PAY-1420]`.
+* **Append to `docs/tasks/{slug}/task.md`,** creating it if absent. Never edit or delete an entry.
 
 ```text
 ## <date> — <slice name>
 - Done: <what shipped, one line>
 - Learned: <what the work exposed that was not known before>
+- Built and did not need: <usually an abstraction for a case that never arrived>
+- Biggest unknown now: <reorders the remaining slices>
 ```
 
-Omit `Learned` when nothing was learned. Record dead ends, wrong assumptions and surprises there. A slice that went smoothly teaches nothing and needs only the first line.
-
-Log a spike the same way, naming it as one. `Learned` is mandatory for a spike — the code is deleted, so a spike whose finding is not written down has produced nothing.
-
-```text
-## <date> — spike: <the question>
-- Done: <what was built and thrown away>
-- Learned: <the answer, with the number that settles it>
-```
+Omit empty lines. Log a spike the same way, named as one. `Learned` is mandatory for a spike.
 
 Then ask whether this solved the immediate problem or another slice is required.
 
 ## Standing Up a New Domain
 
-When a slice opens a genuinely new domain inside an existing system, and only then:
+Only when a slice opens a genuinely new domain inside an existing system:
 
-* **Establish the ubiquitous language:** ask the user for the three to five core domain nouns. Use those exact terms for types, tables and variables. Never invent synonyms.
-* **Contract-first at shared boundaries:** when other developers or external teams will touch the code, define the executable contract — OpenAPI, Protobuf, strict interface types — and assert it in a test before implementing behind it.
-* **Defer explicitly:** ask which constraints are irreversible, record those in an ADR now, and state that every other design decision waits until a test needs it.
+* **Establish the ubiquitous language.** Ask the user for the three to five core nouns. Use those exact terms for types, tables and variables. Never invent synonyms.
+* **Contract-first at shared boundaries.** Define the executable contract (OpenAPI, Protobuf, strict interface types) and assert it in a test before implementing behind it.
+* **Defer explicitly.** Ask which constraints are irreversible, ADR those now, and state that every other decision waits until a test needs it.
 
-To stand up a project that does not exist yet, stop and use `greenfield` instead.
+To stand up a project that does not exist yet, stop and use `greenfield`.
 
-## Architectural Decisions
+## Where Things Belong
 
-* Use **just-in-time architecture**. Suggest an architectural change only when the current design actively obstructs the implementation.
-* When an expensive or irreversible choice is made, a hazard is accepted, or an alternative is explicitly rejected, execute the `adr` skill immediately. Do not wait for the end of the feature.
+| Thing | When it enters |
+|---|---|
+| Library choice, environment facts | The build prompt, before generation |
+| Logging, retries, error handling | Pulled by a slice, after a run showed the need |
+| Naming, deletion, de-duplication | Refactor, while green |
+
+If the user can name the moment they wanted it, it is slice-pulled. If they can only say it is good practice, it is speculation.
+
+When a plan is precise about internals and silent about the user's day, or the suite is green and the user is still unhappy, read [references/failure-modes.md](references/failure-modes.md).

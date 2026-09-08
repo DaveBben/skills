@@ -23,7 +23,7 @@ Write one PRD per feature or initiative, never one per project. A project is a c
 
 Never draft a PRD from the opening request. A feature request is a proposed solution; the need sits underneath it and is usually different.
 
-Ask in rounds. Batch the questions in each round into one message. Ask only what you cannot already answer from the conversation or the repository. Stop as soon as you can write falsifiable requirements — an interview that continues past that point is stalling.
+Ask in rounds (do not announce rounds numbers; make it natural). Batch the questions in each round into one message. Ask only what you cannot already answer from the conversation or the repository. Stop as soon as you can write falsifiable requirements — an interview that continues past that point is stalling.
 
 **Round 1 — the problem.** Who hits it, how often, and what do they do today instead? What did the last person who complained actually say? What does the current workaround cost, in time or money or lost customers?
 
