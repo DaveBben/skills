@@ -4,7 +4,7 @@ description: "Use this skill on every request to write, add, remove, change, imp
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "3.0.0"
+  version: "3.1.0"
 ---
 # Agile Loop
 
@@ -31,7 +31,7 @@ Loop: **Frame -> Slice -> Propose -> Test -> Build -> Review -> Ship.** Resolve 
 * **Load the map.** Silently read `ARCHITECTURE.md`, else `CONTEXT.md`, else `README.md`, for business purpose, ubiquitous language and macro boundaries.
 * **Read `docs/adr/`** before proposing a change to an existing boundary or constraint.
 * **Read the PRD** if supplied. Extract requirements, success metrics, non-goals. It says what and why, never how.
-* **Read the log.** `docs/tasks/{slug}/task.md` records what shipped and what was tried. Slug matches the PRD filename or the `feature/{slug}` branch.
+* **Read the log.** `docs/tasks/{slug}/task.md` opens with the Plan (the outcome and the ordered slices that remain) and records what shipped and what was tried. Slug matches the PRD filename or the `feature/{slug}` branch.
 * **Update the map** in the cleanup commit when a slice alters the macro shape or adds a core noun.
 
 ## 0. Frame
@@ -45,6 +45,16 @@ Outcome: What the user does differently once this ships, and where they see it.
 Reject an outcome naming a component, table, endpoint or file. "Verdicts land in the table" is true when the work is half done. "I open one list each morning and read from it" is not.
 
 Then rank the unknowns. Tag each with what settles it. Order slices by cheapest resolution of the largest unknown first.
+
+Write the result as the Plan at the top of `docs/tasks/{slug}/task.md`, creating the file if absent. This is the only section of the log that is rewritten. Rewrite it after every slice ships. Keep it under twenty lines.
+
+```text
+# Plan
+Outcome:   <the sentence above>
+Problem:   <who hits it, how often, what they do today instead>
+Not doing: <checkable non-goals, one per line>
+Slices:    <ordered list of what remains, one line each; the first is next>
+```
 
 | Unknown is about | Settled by |
 |---|---|
@@ -144,14 +154,15 @@ The slice is done when its acceptance test passes and nothing is red. Do not run
 * **Prompt the user to observe** the behaviour in reality: UI, API or telemetry.
 * **Exercise the rollback once** before anything a `git revert` cannot undo: a backfill, a migration, a bulk send.
 * **Tag tests and commits** with the requirement ID, e.g. `[PAY-1420]`.
-* **Append to `docs/tasks/{slug}/task.md`,** creating it if absent. Never edit or delete an entry.
+* **Rewrite the Plan** at the top of `docs/tasks/{slug}/task.md`: drop the shipped slice, reorder the rest by the biggest unknown now.
+* **Append the entry below** to the same file. Never edit or delete an entry.
 
 ```text
 ## <date> — <slice name>
 - Done: <what shipped, one line>
 - Learned: <what the work exposed that was not known before>
 - Built and did not need: <usually an abstraction for a case that never arrived>
-- Biggest unknown now: <reorders the remaining slices>
+- Biggest unknown now: <the reason the Plan was reordered, if it was>
 ```
 
 Omit empty lines. Log a spike the same way, named as one. `Learned` is mandatory for a spike.
