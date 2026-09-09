@@ -4,7 +4,7 @@ description: "Use this skill whenever generated or freshly written code is to be
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.0.0"
+  version: "1.2.0"
 ---
 # Review
 
@@ -14,7 +14,7 @@ Inputs: the change, its acceptance test (the one test a person's observable outc
 
 ## 1. Correctness
 
-* **Prove the acceptance test can fail.** Revert or mutate one line of the implementation and confirm the test goes red. A test that stays green asserts nothing.
+* **Apply every `Killed by` mutation** from the accepted test table, one at a time, and confirm the named row goes red. A row that stays green asserts nothing: fix the test, not the mutation. When no table exists, mutate one line per test.
 * **Check every accepted test is present** and asserts observable behaviour.
 * **Delete tests asserting incidental detail** of how the code was built: a private function, internal call order, a log line.
 
@@ -53,4 +53,19 @@ Order: passes the tests, reveals intent, no duplication, fewest elements.
 
 Refactor only toward duplication or confusion pointable-at now. Restructuring toward an anticipated shape is speculation.
 
-Commit before the refactor and again after it. The review is done when nothing is red.
+Commit before the refactor and again after it.
+
+## Done
+
+Print this block when all three passes have run. It is the only evidence the review happened. Every line is a fact from this session, never a summary.
+
+```text
+DONE
+Correctness: <n> mutations applied, <n> red, <n> survived and fixed: <row numbers>
+Subtraction: <what was deleted, one line each, or "nothing">
+Scars:       <each pinned value checked, or "none pinned">
+Refactor:    <renames and merges, or "none">
+Gate:        <the check command and its result>
+```
+
+A survived mutation that is not fixed, or a scar that is not checked, means the block cannot be printed and the change is not done.

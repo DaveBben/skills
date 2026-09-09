@@ -9,11 +9,12 @@ The workflow is derived from two podcast episodes, and most of what is specific 
 - **[Florian Buetow on Beyond Coding](https://www.youtube.com/watch?v=W1uG25of2t0)** with Patrick Akil, 10 June 2026. Code review as the bottleneck once agents write the code, and shaping the environment so corrections become rules instead of repeat conversations.
 - **[Dex Horthy on The Pragmatic Engineer](https://www.youtube.com/watch?v=Usufn8IQJgw)** with Gergely Orosz, 15 July 2026. Context engineering, why prose specs drift out from under you, and slicing sized to what a human will actually read.
 
-The plugin is eight skills. Plain Markdown, no build step, nothing to compile.
+The plugin is nine skills. Plain Markdown, no build step, nothing to compile.
 
 | Skill | Fires on |
 |---|---|
 | `agile` | any request to change a system, at any stage: "add X", "what's the best way to Y", "build the next slice", "did that fix it" |
+| `charter` | "write the charter", "what is this project for", "what's out of scope" |
 | `test-table` | "what tests should this have", "propose the tests", "is this covered" |
 | `review` | "review this", "review the diff", "what can be deleted" |
 | `spike` | "prototype this", "let's see if X is feasible", "throwaway" |

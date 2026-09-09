@@ -4,7 +4,7 @@ description: "Use this skill whenever the tests for a change need to be enumerat
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.0.0"
+  version: "1.2.0"
 ---
 # Test Table
 
@@ -14,11 +14,13 @@ Inputs: the change's acceptance criterion (one falsifiable statement of what a p
 
 ## The Table
 
-One row per test. `Generator` names the rule below that produced the row. Delete any row with no generator and no requirement behind it.
+One row per test. `Generator` names the rule below that produced the row. `Killed by` names the one-line implementation change that must turn the row red. Delete any row with no generator and no requirement behind it. Delete any row whose `Killed by` is a change production never makes.
 
-| Test | Level | Generator | Prevents |
-|---|---|---|---|
-| The falsifiable assertion | Acceptance, Integration, Unit, Property, Fuzz, E2E, Budget | Requirement, Seam, Type, Cardinality, Both sides, Invariant, Metric, Budget | The user-visible failure it stops |
+| Test | Level | Generator | Prevents | Killed by |
+|---|---|---|---|---|
+| The falsifiable assertion | Acceptance, Integration, Unit, Property, Fuzz, E2E, Budget | Requirement, Seam, Type, Cardinality, Both sides, Invariant, Metric, Budget | The user-visible failure it stops | The mutation: `WORKERS = 2` to `8`, drop the second `ILIKE` clause, read `a` instead of `u` |
+
+`Killed by` is the assertion made explicit. A test that passes an argument production never passes, or checks one clause of three, has no mutation that kills it. Name the mutation at proposal time; the review pass applies it.
 
 ## Generators
 
@@ -31,7 +33,7 @@ Apply in order. A generator that finds nothing to fire on produces no row.
 * **Both sides:** every authorisation check earns a negative test written from the attacker's seat.
 * **Invariant:** a round trip, ordering or conservation law becomes one property test. Fuzz only where untrusted input crosses a boundary.
 * **Metric:** when a requirement names a metric, the event feeding it earns a test. An uninstrumented metric has no source.
-* **Budget:** a strict number on any hot path: latency, memory, row count, cost.
+* **Budget:** a strict number on any hot path: latency, memory, row count, cost. Read `CONTEXT.md` Constraints; every constraint this change touches earns a row, with the constraint's own number as the assertion.
 
 ## Cut Rules
 

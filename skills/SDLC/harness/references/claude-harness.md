@@ -253,9 +253,11 @@ root="${CLAUDE_PROJECT_DIR:-.}"
 
 cmd="$(read_json_field command)"
 
-# Strip heredoc bodies and quoted segments before matching, or a commit message
-# that merely mentions a blocked phrase gets blocked.
-scan="$(printf '%s' "$cmd" | sed -e "s/'[^']*'//g" -e 's/"[^"]*"//g' -e '/<</,$d')"
+# Strip quoted segments, then cut each command at its heredoc marker and drop
+# the body that follows, so a commit message that merely mentions a blocked
+# phrase passes. Cutting at the marker, not the line, keeps the flags before it:
+# `git commit --no-verify -F - <<EOF` must still be seen.
+scan="$(printf '%s' "$cmd" | sed -e "s/'[^']*'//g" -e 's/"[^"]*"//g' -e '/<</{s/<<.*//;q;}')"
 
 case "$scan" in
   # Substitute this repository's own direct-install commands. Shipping a block
@@ -264,10 +266,21 @@ case "$scan" in
     echo "Install dependencies with $deps_fix. A direct install desyncs the" >&2
     echo "environment from the lockfile." >&2
     exit 2 ;;
-  *--no-verify*|*" -n "*commit*)
+  *--no-verify*)
     echo "The pre-commit gate is the quality gate. To skip one hook that needs" >&2
     echo "the network, use SKIP=<hook> git commit. Never --no-verify." >&2
     exit 2 ;;
+esac
+# `-n` is --no-verify's short form. Match it as a whole word anywhere in a git
+# commit command: padding with spaces catches it at either end, and requiring
+# `git` before `commit` leaves `grep -n commit` alone.
+case "$scan" in
+  *git*commit*)
+    case " $scan " in
+      *" -n "*)
+        echo "-n is --no-verify. Use SKIP=<hook> git commit to skip one hook." >&2
+        exit 2 ;;
+    esac ;;
 esac
 exit 0
 ```

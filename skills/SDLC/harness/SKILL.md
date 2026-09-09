@@ -1,6 +1,6 @@
 ---
 name: harness
-version: "0.4.1"
+version: "0.6.1"
 description: "Use this skill whenever the user wants a repository or environment prepared for an AI agent or for Claude, or when a repo gives an agent no feedback of its own: no formatter, linter, type check, custom rules, architectural contracts or commit gate, or those exist but nothing routes their output back to the agent. Use it on: 'setup my repo for my agent', 'setup my repo for claude', 'configure my environment for claude', 'setup my environment for my ai agent', 'make this repo ready for an ai agent', 'make repo ai ready', 'setup harness in this repo', 'set up guardrails'. Use it too on the complaint underneath them \u2014 we have no linting or rules, every PR is a style argument, or the agent keeps repeating a mistake a human keeps correcting by hand. Do not use it to make a code change; that is `agile`."
 license: MIT
 compatibility: any-agent
@@ -125,16 +125,18 @@ Three scopes. Put each rule in the narrowest one that still loads when it is nee
 * **Cap the root file at 100 lines.** Every line costs context on every turn, and a bloated file makes the agent ignore the rules that matter. Anything longer belongs in a nested or path-scoped file.
 * **Alias the other conventional filenames to it** with a symlink, so every tool reads one file.
 * **Record where a future correction goes.** State the routing in the root file: a static check into the rules directory, a dependency direction into the contracts, a file-specific instruction into a path-scoped rule, anything conversational into the root file itself.
+* **Offer a decision rule for the root file:** before choosing between alternatives the user has not seen, put the choice and its tradeoff to them; when the choice is expensive or irreversible, run the `adr` skill before the code that depends on it. A generated codebase accumulates dozens of unconsulted choices per session, and the ones that cost money to reverse look identical to the ones that do not. This governs the conversation, so it is never path-scoped.
 * **Offer an answer-length rule for the root file:** give the finding, what it means, and the question, then stop; name a document or diff just written rather than reproducing it. Ask before adding it. That file is the user's.
 * **Never path-scope an instruction that governs the conversation.** Path frontmatter loads it only when a matching file is touched.
 
 ## Gate
 
-* **Commit hook and CI run the same command list**, so "passes locally" and "passes in CI" are the same contract.
+* **Commit one check command** that runs the canonical gate in order and stops at the first failure: a task-runner target or a `check` script at the root. Commit hook, CI and the agent call that one command, so "passes locally" and "passes in CI" are the same contract. Name it in the root instructions file.
 * **Pin every hook version.** An unpinned hook makes the gate non-reproducible.
 * **Run each CI check as its own step**, install from the lockfile, and run the full supported runtime matrix without stopping at the first failure.
 * **Scope the dependency audit to lockfile changes.** It needs the network, and a registry outage must not block a pure code commit. Give the user the command that skips one hook, and state that skipping the whole gate is never the answer.
 * **Wire automated dependency updates** so the lockfile and CI pins do not rot.
+* **Gate on mutation over the diff in CI.** Coverage proves a line ran. Only a mutant proves a test would notice it changing. Scope the run to changed files so it stays bounded.
 
 ## Landing rules on existing code
 
