@@ -1,6 +1,6 @@
 ---
 name: greenfield
-version: "0.1.1"
+version: "0.2.0"
 description: "Use this skill whenever a project does not exist yet and the user wants one stood up, or asks for a template, scaffolding, a blueprint, a bootstrap or a walking skeleton. Use it on: 'let's setup a new project', 'I want to start a new python project', 'I want to start a new javascript project', 'let's create scaffolding for an iOS app', 'I need scaffolding for this', 'let's put together the blueprint for this project', 'let's put together the walking skeleton', 'I need a walking skeleton', 'python project template', 'template project', 'bootstrap a codebase', 'create a new app from scratch'. Use it even on a bare two-word ask like 'template project' \u2014 a new codebase is never the one-step answer it sounds like. Clone a language template, rename it, prove the default state passes tests, then strip it to what this project needs, committing every step. Do not use it to change a codebase that already exists; that is `agile`."
 license: MIT
 compatibility: any-agent
@@ -54,6 +54,7 @@ Execute these steps in order. Commit at the end of each numbered step with the s
 ### 4. Strip docs to the project
 
 * Replace the template `README.md` with a minimal one stating the project name and its one-line purpose.
+* Run the `charter` skill to write `CONTEXT.md`: purpose, users, non-goals, nouns, boundaries. Under thirty lines. This is the file every later session reads first.
 * Remove template-authored docs that describe the template itself rather than the project (contributing guides, changelogs, example docs).
 * Preserve `LICENSE`, CI config, and any doc the project will keep filling in.
 * **Commit:** `docs: reset template docs for <name>`

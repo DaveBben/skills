@@ -8,7 +8,7 @@ The skills are plain Markdown (`SKILL.md`) and work with any skills-compatible a
 
 | Plugin | What it does | Status |
 |---|---|---|
-| [SDLC](plugins/SDLC/) | Take an engineering change from a vague ask to a verified production change: frame the outcome, slice it, write failing tests first, build, review in three passes, ship and log. Eight skills. | live |
+| [SDLC](plugins/SDLC/) | Take an engineering change from a vague ask to a verified production change: frame the outcome, slice it, write failing tests first, build, review in three passes, ship and log. Nine skills. | live |
 | [context](plugins/context/) | Manage an agent session's context across boundaries. Hands a session over when context fills or work stops partway, recording the dead ends. One skill. | live |
 
 Open a plugin's folder for its own README and the detail behind it.

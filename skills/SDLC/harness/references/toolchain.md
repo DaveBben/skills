@@ -66,7 +66,7 @@ Take the tool's defaults everywhere except these. Each has a silent failure mode
 - **Suppression comments must name a code.** A bare suppression silences everything on the line forever.
 - **The lint tool's target language version equals the support floor**, where the tool has that setting. Set above the floor, an auto-fix running in the edit-time hook rewrites code into syntax the floor runtime cannot parse.
 - **Property-based test profiles**, where the ecosystem has such a runner: a small example count locally, a large one with no per-example deadline in CI. CI runners are noisy, and a per-example timeout turns that noise into a flaky failure.
-- **Mutation testing configured but in no gate.** It answers what coverage cannot, which is whether the tests assert anything. It is too slow to gate on.
+- **Mutation testing scoped to the diff, in CI.** It answers what coverage cannot, which is whether the tests assert anything. Whole-tree runs are too slow to gate on; a run over the files the change touched is bounded by the change. Configure the runner to take a path list, and have CI pass it the changed source files. A surviving mutant fails the step. Opt-in and never run is the same as absent: a suite with two tests that assert nothing passed every other check in this list.
 
 ## The canonical gate
 
@@ -82,6 +82,8 @@ deadcode
 audit
 tests (with coverage)
 ```
+
+Commit one command that runs this list in this order and stops at the first failure: a task-runner target or a script named `check`, at the repository root. The commit hook, CI and the agent all call that one command, so "passes locally" and "passes in CI" are the same contract. Name it in the root instructions file; the change loop and the review call it "the check command".
 
 ## Commit time
 
@@ -102,3 +104,4 @@ Scope `audit` to lockfile changes only. It needs the network, and a registry out
 - Run each check as its own step rather than chaining them, so the failure points at the check.
 - Where the ecosystem has more than one supported runtime version, run the whole span and do not stop the matrix at the first failure.
 - Set the thorough property-test profile here.
+- Run mutation testing over the changed source files as its own step. A surviving mutant fails it.
