@@ -351,7 +351,7 @@ Judgment calls go to you. The skills surface the decision, the failure mode or t
 /plugin install SDLC@davebben-skills
 ```
 
-The three skills surface under their own names.
+The nine skills surface under their own names.
 
 **Any other agent** (Codex, Cursor, Windsurf, and more), via the [`skills` CLI](https://github.com/vercel-labs/skills):
 

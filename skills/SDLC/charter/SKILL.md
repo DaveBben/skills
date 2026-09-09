@@ -4,7 +4,7 @@ description: "Use this skill whenever a project needs its one-page product chart
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 # Charter
 
@@ -20,13 +20,13 @@ Ask only what the conversation and the repository do not already answer. Batch t
 * **Users.** Who uses it, and what do they do with the output? When the answer is "me", say what the user does with it.
 * **Not doing.** What would a reader expect this product to do that it never will? Each as a checkable statement.
 * **Nouns.** The three to five domain terms the code, tables and tests must use. Never invent synonyms.
-* **Boundaries.** The systems this product reads from, writes to, or runs inside, each by name and address.
-* **Constraints.** What must stay true for every slice: where data may live, what it may cost, what it runs on, who must be able to use it. Each as a checkable statement, and each naming where it is enforced: a Budget row in the test table, a harness check, or an ADR. A constraint with no enforcer is a wish; leave it out and say so.
+* **Boundaries.** The systems this product reads from, writes to, or runs inside, each by name and address. Include the backlog when one exists outside the repository ("Backlog: Jira project TAG"); the change loop reads it from here.
+* **Constraints.** What must stay true for every slice: where data may live, what it may cost, what it runs on, who must be able to use it. Each as a checkable statement, and each naming where it is enforced: a Budget row (a test asserting the constraint's number, proposed for every change that touches it), a check in the repository's commit gate, or an ADR. A constraint with no enforcer is a wish; leave it out and say so.
 
 ## Rules
 
 * **Name an actor and an observable outcome** in Purpose. "Tags articles" fails. "Each morning Dave opens one feed and reads only what the tagger judged relevant" passes.
-* **Ban unfalsifiable words:** improve, better, seamless, robust, intuitive, flexible, scalable, modern. Replace each with the thing observed.
+* **Ban unfalsifiable words:** improve, better, seamless, robust, correct, properly, handled, intuitive, flexible, scalable, modern. Replace each with the thing observed.
 * **Write non-goals as statements.** "No backfill of articles older than the first run" can be checked. "Keep it simple" cannot.
 * **Refuse to fill a section with furniture.** An empty section is better than "Users: our users". Leave it out and say so.
 * **Record what is imposed.** When the user supplies a technology or a constraint, put it under Boundaries and name who imposed it.
@@ -53,5 +53,5 @@ When a `CONTEXT.md` already exists, read it whole and report, quoting the line f
 * **Requirements leaking in.** A numbered list, a priority, a metric, a schema or an endpoint. Say which file it belongs in.
 * **Statements that cannot fail.** Every banned word, every purpose with no actor.
 * **Stale boundaries.** A system named that the code no longer touches, or one the code touches that is not named.
-* **Unenforced constraints.** A constraint with no Budget row, harness check or ADR behind it.
+* **Unenforced constraints.** A constraint with no Budget row, commit-gate check or ADR behind it.
 * **Length.** Over thirty lines is a finding on its own.

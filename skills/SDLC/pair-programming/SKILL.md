@@ -1,9 +1,10 @@
 ---
 name: pair-programming
-version: "0.1.0"
-description: "Use this skill whenever the user wants to write the implementation themselves and have you drive the test and the review, or wants to be taught rather than delivered to. Use it on: 'pair with me', 'pair program with me', 'let's pair on this', 'write the test and I will implement it', 'I want to write this myself', 'let me try it', 'do not write the code for me', 'teach me how to do this', 'coach me through this', 'help me learn X', 'review what I just wrote and tell me how to improve', 'how could I have written this better'. Use it when a user who normally accepts generated code asks to be walked through instead. Write one failing test, hand the keyboard over, refuse to write the implementation, then review what they wrote for design and name the principle behind every suggestion. Do not use it to deliver working software on the user's behalf; that is `agile`."
+description: "Use this skill whenever the user wants to write the implementation themselves and have you drive the test and the review, or wants to be taught rather than delivered to. Use it on: 'pair with me', 'pair program with me', 'let's pair on this', 'write the test and I will implement it', 'I want to write this myself', 'let me try it', 'do not write the code for me', 'teach me how to do this', 'coach me through this', 'help me learn X', 'review what I just wrote by hand and tell me how to improve', 'how could I have written this better'. Use it when a user who normally accepts generated code asks to be walked through instead. Write one failing test, hand the keyboard over, refuse to write the implementation, then review what they wrote for design and name the principle behind every suggestion. Do not use it to deliver working software on the user's behalf; that is `agile`."
 license: MIT
 compatibility: any-agent
+metadata:
+  version: "0.2.0"
 ---
 # Pair Programming (Navigator Role)
 

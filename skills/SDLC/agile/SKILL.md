@@ -4,7 +4,7 @@ description: "Use this skill on every request to write, add, remove, change, imp
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "3.8.0"
+  version: "4.0.0"
 ---
 # Agile Loop
 
@@ -28,11 +28,10 @@ Loop: **Frame -> Slice -> Propose -> Test -> Halt -> Build -> Review -> Ship.** 
 
 ## Orient
 
-* **Load the charter.** Silently read `CONTEXT.md` for purpose, users, non-goals, nouns and boundaries. Fall back to `ARCHITECTURE.md`, then `README.md`. When none states a purpose, offer the `charter` skill once, then proceed.
+* **Load the charter.** Silently read `CONTEXT.md`, the file the `charter` skill writes: purpose, users, non-goals, nouns, boundaries, constraints. Fall back to `ARCHITECTURE.md`, then `README.md`. When none states a purpose, offer the `charter` skill once, then proceed.
 * **Read `docs/adr/`** before proposing a change to an existing boundary or constraint.
 * **Read the PRD** if supplied. Extract requirements, success metrics, non-goals. It says what and why, never how.
 * **Read the log.** `docs/tasks/{slug}/task.md`, or the tracker epic `CONTEXT.md` names, opens with the Plan (the outcome and the ordered slices) and records what shipped and what was tried. Slug matches the issue key or the `feature/{slug}` branch.
-* **Rewrite `CONTEXT.md`** in the slice's final commit when the slice adds a noun, crosses a new boundary, or turns a non-goal into a goal. Use the `charter` skill's format.
 
 ## 0. Frame
 
@@ -44,7 +43,9 @@ Outcome: What the user does differently once this ships, and where they see it.
 
 Reject an outcome naming a component, table, endpoint or file, and one that contradicts a `Not doing` line in `CONTEXT.md` without the user saying so. "Verdicts land in the table" is true when the work is half done. "I open one list each morning and read from it" is not.
 
-Then rank the unknowns. Tag each with what settles it. Order slices by cheapest resolution of the largest unknown first.
+Choose the slug: the issue key when `CONTEXT.md` names a tracker, else a kebab-case name for the outcome. Create the branch `feature/{slug}` from main.
+
+Then rank the unknowns. Tag each with what settles it. After the walking skeleton, the slice that resolves the largest unknown most cheaply goes first.
 
 Then play the planning game: name every slice you can see now, one line each, ordered. Titles only, no detail. This is the release plan. It tells the next session that slice 1 is one of six, not the whole feature. Split, add and reorder it after every slice.
 
@@ -53,8 +54,8 @@ Write the result as the Plan at the top of the log, creating the file if absent.
 ```text
 # {slug}
 Committed so every developer and session reads the same plan. Delete this file when
-the last slice ships, after each Learned line has become a test, an ADR, or a line
-in CONTEXT.md. Anything left in it after that is a scar nobody will find.
+the last slice ships, after each Learned and A1 line has become a test, an ADR, or
+a line in CONTEXT.md. Anything left in it after that is a scar nobody will find.
 
 ## Plan
 Outcome:   <the sentence above>
@@ -82,7 +83,7 @@ A spike answers one question with throwaway code. Two triggers:
 
 Do not spike when a slice answers it as fast, when the question is a product decision (ask the user), or when there is no falsifiable answer. "Look into the queue library" is not a spike. "The library sustains 1,000 messages/second on this hardware" is.
 
-State the question and the finish line, get agreement, run the `spike` skill. Override one thing: findings go to `docs/tasks/{slug}/task.md`, not `SPIKE_FINDINGS.md`. Delete the code. Record in the log that you deleted it.
+State the question and the finish line, get agreement, run the `spike` skill. Override two things. Findings go to the log, not `SPIKE_FINDINGS.md`, as the spike entry in section 7: the spike's Outcome and Approach become `Learned`, its Quirks and Dead ends become sub-lines under `Learned`, its Open questions become `Biggest unknown now`. The code is deleted, not offered for keeping; record in the log that you deleted it. When an edit-time hook blocks a spike edit, work in a directory outside the hook's paths, such as the session scratchpad.
 
 ## 1. Decide
 
@@ -92,7 +93,7 @@ Run the `adr` skill immediately, not at the end of the feature, for:
 * Knowledge that was expensive to acquire: a measurement, a scar, a cost.
 * An accepted hazard or an explicitly rejected alternative.
 
-Everything else is cheap to change. Let the build settle it. Suggest an architectural change only when the current design obstructs the implementation.
+Below that threshold, ask before any choice a later slice inherits: a new dependency, a port, address or schedule, a file or wire format, a schema, a name that becomes a domain noun. Put the alternatives and the tradeoff to the user in one message and wait. Everything below that line is the agent's to decide, and every such decision is listed under `Decided alone:` in the review's Done block, with what was chosen, why, and the tradeoff. Suggest an architectural change only when the current design obstructs the implementation.
 
 Record assumptions in the task log, each with a kill condition:
 
@@ -100,7 +101,7 @@ Record assumptions in the task log, each with a kill condition:
 - A1: <estimate, with the arithmetic behind it> | kills it: <the observation, and when>
 ```
 
-When one dies, append the actual next to the estimate.
+When one dies, append the actual next to the estimate. An assumption a recorded decision depends on goes in that ADR's `Assumes` line instead.
 
 ## 2. Slice
 
@@ -108,7 +109,7 @@ Cut across the system's layers, never along them. Every slice ends with a person
 
 * **Choose the first slice for risk.** The thinnest path touching every layer and reaching a real deploy. Observable is mandatory; valuable is not. Skip it when that pathway exists and is proven.
 * **Hardcode everything the skeleton does not test.** Count the seams the user's criterion crosses: database, model, queue, third-party API, container, host. When more than one is unmeasured, the first slice fakes all but one. A served feed holding one hardcoded article is a slice. A feed fed by real verdicts from a real database in a real container is three.
-* **Ask for the skeleton's own criterion.** The user's story stays the feature's criterion. Propose the skeleton under it, name what the user will observe (a fake entry in the real reader), and halt for a one-sentence criterion for that slice alone.
+* **The skeleton is a slice like any other.** The user's story stays the feature's criterion in the Plan. The skeleton gets its own one-sentence criterion in section 3, naming what the user will observe (a fake entry in the real reader).
 * **Cross whatever boundary the value chain crosses** in the first slice: repo, service, team, or an orchestration layer that does not exist yet. A cron line, a hardcoded query and a bookmark is valid.
 * **Choose every later slice for value,** or for unknown killed per hour while an assumption is live.
 * **Split further** by workflow step, happy path before error path, one rule before its variants, hardcoding before generalising.
@@ -119,57 +120,62 @@ Cut across the system's layers, never along them. Every slice ends with a person
 
 ## 3. Propose and Halt
 
-Output the proposal and stop. No code, no tests, until the user accepts. Revise and re-propose on any rejected row.
+Two halts, in this order. No code, no tests, until both have passed.
+
+**First halt: the criterion.** Output the top of the proposal and stop.
 
 ```text
 Slice:      Short name.
 Outcome:    What a person can do afterwards that they could not before, and where they see it.
 Chosen for: Risk, value, or unknown killed. One sentence.
 Covers:     PRD requirement IDs, or "none" for a walking skeleton, or "no PRD".
-Acceptance: One falsifiable statement. Actor plus observable result. USER-WRITTEN.
-Tests:      Table from the `test-table` skill. Agent-proposed, user-accepted.
-Not now:    What a reader would expect here that is deferred, and to which slice.
+Acceptance: USER-WRITTEN. Blank until the user writes it.
 ```
 
-### The user writes the acceptance criterion
+The user writes the acceptance criterion. Do not draft it and invite approval. Approval of a generated criterion is not authorship, and the failure it prevents is exactly this: the agent defines correct, implements against its own definition, and reports green.
 
-Halt until it exists. Do not draft it and invite approval. Approval of a generated criterion is not authorship, and the failure it prevents is exactly this: the agent defines correct, implements against its own definition, and reports green.
-
-* **Reject** any criterion containing improve, better, seamless, robust, correct, properly or handled. Each hides the measurement.
+* **Reject** any criterion containing improve, better, seamless, robust, correct, properly, handled, intuitive, flexible, scalable or modern. Each hides the measurement.
 * **Exactly one.** A second criterion means two slices, or a mislabelled integration test that belongs in the table.
 * **Promote into it** anything encoding an ADR. How a recorded decision was interpreted must not be discovered by reading generated code.
 
-### The test table
+**Second halt: the rows.** With the criterion in hand, run the `test-table` skill. It proposes one row per test with the columns Test, Level, Generator, Prevents and Killed by, where Killed by is the one-line mutation that must turn the row red. Output the table and the rest of the proposal, then stop until the user accepts or cuts every row.
 
-Run the `test-table` skill. One row per test, each naming the generator that produced it, the user-visible failure it prevents, and the one-line mutation that kills it.
+```text
+Tests:      The table. Agent-proposed, user-accepted.
+Not now:    What a reader would expect here that is deferred, and to which slice.
+```
+
+Revise and re-propose on any rejected line.
 
 ## 4. Test and Halt
 
-Write the failing tests from the accepted proposal, acceptance test first. Run them. Output the test names and the red run, then stop. Write no implementation until the user says go. The failing tests are the specification, and the only artifact a person reads in one pass. Change no accepted row without saying so.
+Write every accepted row as a failing test, acceptance test first. Run them. Output the test names and the red run, then stop. Write no implementation until the user says go. The failing tests are the specification, and the only artifact a person reads in one pass. Change no accepted row without saying so.
+
+When a turn-end hook blocks the red run because the tests name symbols that do not exist yet, add the symbols as stubs whose only body raises. The types pass and the tests still fail on behaviour.
 
 ## 5. Build
 
-Issue one instruction to a subagent using [references/build-prompt.md](references/build-prompt.md). Implementation and unit tests arrive together, never in a separate "now add tests" turn.
+Issue one instruction to a subagent using [references/build-prompt.md](references/build-prompt.md). The builder makes the accepted rows pass and may add tests for cases the table missed, listing each one and why. It never rewrites an accepted row.
 
-Run the repository's own check command (lint, types, build) alongside the tests. A red lint is a red slice.
+Run the check command the root instructions file names, alongside the tests. The `harness` skill commits one; when none exists, run the linter, the type checker and the build. A red check is a red slice.
 
 ## 6. Review
 
 Run the `review` skill: correctness, subtraction, scars, then refactor while green. Commit before the refactor and again after it.
 
-A green gate is not a finished slice. Before reporting done, print the review's Done block. A slice reported without it is unreviewed. Do not run on into the next slice.
+A green gate is not a finished slice. Before reporting done, print the review's Done block: Correctness, Subtraction, Scars, Refactor, Decided alone, Gate. `Decided alone` lists every choice made below the ask-first line in section 1, with what was chosen, why, and the tradeoff. A slice reported without the block is unreviewed. Do not run on into the next slice.
 
 ## 7. Ship and Log
 
-* **Work on `feature/{slug}`.** Commit at every green row, not once per slice. A commit is the unit a person reviews.
-* **Merge to main when the Done block prints.** One slice, one merge. A branch that outlives its slice is a queue of unreviewed work.
-* **Deploy from main, by a command in the repo.** A `deploy` script or task target, committed with the slice that first needs it. Never from the working tree, never from a branch, never by commands that live only in chat.
+* **Commit at every green row,** not once per slice. A commit is the unit a person reviews.
 * **Flag** only when the slice exposes user-visible behaviour later slices complete, or when backing it out needs more than a `git revert`. Name the slice that removes the flag under `Not now:`.
-* **Prompt the user to observe** the behaviour in reality: UI, API or telemetry.
-* **Exercise the rollback once** before anything a `git revert` cannot undo: a backfill, a migration, a bulk send.
 * **Tag tests and commits** with the requirement ID, e.g. `[PAY-1420]`.
-* **Rewrite the Plan** at the top of the log: drop the shipped slice, split or add what the slice exposed, reorder by the biggest unknown now. When the list is empty, promote every `Learned` line, then delete the file or close the epic.
-* **Append the entry below** to the same file. Never edit or delete an entry.
+* **Make the last commit the log.** After the Done block prints: rewrite the Plan at the top of the log (drop the shipped slice, split or add what the slice exposed, reorder by the biggest unknown now), append the entry below, and rewrite `CONTEXT.md` if the slice added a noun, crossed a new boundary, or turned a non-goal into a goal. One commit.
+* **Merge to main.** One slice, one merge. A branch that outlives its slice is a queue of unreviewed work. Delete the branch.
+* **Deploy from main, by a command in the repo.** A `deploy` script or task target, committed with the slice that first needs it. Never from the working tree, never from a branch, never by commands that live only in chat.
+* **Exercise the rollback once** before anything a `git revert` cannot undo: a backfill, a migration, a bulk send.
+* **Prompt the user to observe** the behaviour in reality: UI, API or telemetry.
+* **Close out** when the Plan's slice list is empty: promote every `Learned` and `A1` line to a test, an ADR or a `CONTEXT.md` line, then delete the log or close the epic.
 
 ```text
 ## <date> — <slice name>
@@ -179,7 +185,7 @@ A green gate is not a finished slice. Before reporting done, print the review's 
 - Biggest unknown now: <the reason the Plan was reordered, if it was>
 ```
 
-Omit empty lines. Log a spike the same way, named as one. `Learned` is mandatory for a spike.
+Omit empty lines. Never edit or delete an entry. Log a spike the same way, titled `spike: <the question>`, with the field mapping from section 0. `Learned` is mandatory for a spike.
 
 Then ask whether this solved the immediate problem or another slice is required.
 

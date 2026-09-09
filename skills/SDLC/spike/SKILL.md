@@ -1,9 +1,10 @@
 ---
 name: spike
-version: "0.1.1"
-description: "Use this skill whenever the user wants to find something out by building, rather than to ship what they build: proving an approach, prototyping an idea, mocking something up, standing up a demo, or exploring what an integration or change would involve. Use it on: 'let's prove this works first', 'let's try an approach before building', 'let's prototype this idea', 'let's create a mock', 'create a throwaway project', 'build a quick throwaway', 'build a demo', 'let's do a spike on it', 'let's see if X is feasible', 'let's see how this integration would work', 'let's see the changes which would be needed', 'explore how this would fit into the system'. Use it on the words prototype, mock, demo, throwaway, spike, feasible and explore even when the ask sounds small \u2014 deciding what is disposable is the whole point. Build the smallest thing that answers the open question, record findings as they surface, and treat all code as disposable. Do not use it for code meant to ship; that is `agile`."
+description: "Use this skill whenever the user wants to find something out by building, rather than to ship what they build: proving an approach, prototyping an idea, mocking something up (not a test double), standing up a demo, or exploring what an integration or change would involve. Use it on: 'let's prove this works first', 'let's try an approach before building', 'let's prototype this idea', 'let's mock this up', 'create a throwaway project', 'build a quick throwaway', 'build a demo', 'let's do a spike on it', 'let's see if X is feasible', 'let's see how this integration would work', 'let's see the changes which would be needed', 'explore how this would fit into the system'. Use it on the words prototype, mock, demo, throwaway, spike, feasible and explore even when the ask sounds small \u2014 deciding what is disposable is the whole point. Build the smallest thing that answers the open question, record findings as they surface, and treat all code as disposable. Do not use it for code meant to ship; that is `agile`."
 license: MIT
 compatibility: any-agent
+metadata:
+  version: "0.2.0"
 ---
 # Spike
 
@@ -26,7 +27,7 @@ This framing changes what you build. Hardcode values. Skip abstraction. Inline e
 
 ## Skip Tests and Linting
 
-Do not write tests. Do not run the linter or formatter. Do not fix type errors that do not block the question.
+Do not write tests. Do not run the linter or formatter. Do not fix type errors that do not block the question. When an edit-time hook blocks an edit, work in a directory outside the hook's paths, such as the session scratchpad.
 
 The single exception: when the outcome you are measuring is itself only observable through a test or a strict check. A performance budget, a contract assertion, or a race condition may require a test to observe at all. Write that one test, and only that one, because it is the instrument — not because the code needs coverage.
 
@@ -65,4 +66,4 @@ Stop building the moment the finish-line signal appears. Then:
 * **One question per spike:** A spike answers a single assumption. If a second unknown appears, record it as an open question and scope a separate spike — do not let the spike sprawl into an implementation.
 * **Findings before code quality:** Never spend spike time making throwaway code clean. Spend it producing and recording findings.
 * **Never ship a spike:** Spike code does not become production code by momentum. State this whenever the user proposes keeping it.
-* **Time and scope are bounded:** If the spike outgrows "smallest thing that answers the question," halt and report that the question is larger than a spike. Hand off to the feature loop.
+* **Time and scope are bounded:** If the spike outgrows "smallest thing that answers the question," halt and report that the question is larger than a spike. Hand off to `agile`.

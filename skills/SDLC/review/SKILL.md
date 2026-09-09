@@ -4,13 +4,13 @@ description: "Use this skill whenever generated or freshly written code is to be
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.2.0"
+  version: "1.4.0"
 ---
 # Review
 
 Run three passes, separately and in order. Merged passes mean the second and third do not happen.
 
-Inputs: the change, its acceptance test (the one test a person's observable outcome hangs on), and the accepted list of tests it was supposed to carry. When no list exists, use the tests the change added.
+Inputs: the change, its acceptance test (the one test a person's observable outcome hangs on), and the accepted test table (one row per test, with a `Killed by` column naming the one-line mutation that must turn the row red). When no table exists, use the tests the change added. The check command is the one the root instructions file names; when none is named, run the linter, the type checker and the tests. The permitted directory is the one the build instruction named; when none was named, it is the repository root.
 
 ## 1. Correctness
 
@@ -61,11 +61,12 @@ Print this block when all three passes have run. It is the only evidence the rev
 
 ```text
 DONE
-Correctness: <n> mutations applied, <n> red, <n> survived and fixed: <row numbers>
+Correctness: <n> mutations applied, <n> red, <n> survived and fixed: <test names>
 Subtraction: <what was deleted, one line each, or "nothing">
 Scars:       <each pinned value checked, or "none pinned">
 Refactor:    <renames and merges, or "none">
+Decided alone: <one line per choice made without the user: what was chosen, why, the tradeoff>
 Gate:        <the check command and its result>
 ```
 
-A survived mutation that is not fixed, or a scar that is not checked, means the block cannot be printed and the change is not done.
+A survived mutation that is not fixed, or a scar that is not checked, means the block cannot be printed and the change is not done. `Decided alone:` lists every choice between alternatives the user did not see and did not have to: an internal name, a helper split, a fixture shape, a default a test pins. A choice a later change inherits (a dependency, a port, an address, a schedule, a format, a schema, a domain noun) is asked before it is made, never listed here after. The user reverses what they dislike while it is still one commit. An empty line means no such choice was made, not that none was noticed.
