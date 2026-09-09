@@ -4,7 +4,7 @@ description: "Use this skill whenever the tests for a change need to be enumerat
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 # Test Table
 
@@ -20,7 +20,7 @@ One row per test. `Generator` names the rule below that produced the row. `Kille
 |---|---|---|---|---|
 | The falsifiable assertion | Acceptance, Integration, Unit, Property, Fuzz, E2E, Budget | Requirement, Seam, Type, Cardinality, Both sides, Invariant, Metric, Budget | The user-visible failure it stops | The mutation: `WORKERS = 2` to `8`, drop the second `ILIKE` clause, read `a` instead of `u` |
 
-`Killed by` is the assertion made explicit. A test that passes an argument production never passes, or checks one clause of three, has no mutation that kills it. Name the mutation at proposal time; the review pass applies it.
+`Killed by` is the assertion made explicit. A test that passes an argument production never passes, or checks one clause of three, has no mutation that kills it. Name the mutation at proposal time. The `review` skill's correctness pass applies it; run alone, apply each mutation yourself once the tests exist and confirm the row goes red.
 
 ## Generators
 

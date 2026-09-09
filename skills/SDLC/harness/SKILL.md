@@ -1,9 +1,10 @@
 ---
 name: harness
-version: "0.6.1"
 description: "Use this skill whenever the user wants a repository or environment prepared for an AI agent or for Claude, or when a repo gives an agent no feedback of its own: no formatter, linter, type check, custom rules, architectural contracts or commit gate, or those exist but nothing routes their output back to the agent. Use it on: 'setup my repo for my agent', 'setup my repo for claude', 'configure my environment for claude', 'setup my environment for my ai agent', 'make this repo ready for an ai agent', 'make repo ai ready', 'setup harness in this repo', 'set up guardrails'. Use it too on the complaint underneath them \u2014 we have no linting or rules, every PR is a style argument, or the agent keeps repeating a mistake a human keeps correcting by hand. Do not use it to make a code change; that is `agile`."
 license: MIT
 compatibility: any-agent
+metadata:
+  version: "0.8.0"
 ---
 # Repository harness
 
@@ -11,7 +12,7 @@ Build the checks that reach the agent without a human carrying them. Every corre
 
 Language agnostic. This skill names each slot and the test a filled slot must pass. Identify the language, pick the tool yourself, and say which you picked.
 
-It does not decide what the system should be. Discovery, specs and design belong to `agile`.
+It does not decide what the system should be. Framing, slicing and building belong to `agile`.
 
 ```text
 SURVEY        language, package manager, harness, slots already filled
@@ -35,7 +36,7 @@ GATE          commit hook and CI running the same list
   * *Greenfield:* No code, or code you will discard. Every rule applies from the first commit and nothing needs grandfathering.
   * *Brownfield:* Code that predates the rules. Existing code violates every rule you add.
 * **The branch is not project age.** A two-week-old repo with a thousand lines and no linter is brownfield.
-* **Halt before writing anything** if a change is in flight: an open `feature/` or `fix/` branch with slices merged into it, or an uncommitted spec or design document for a change underway. Cleanups rewrite the tree and will collide. Offer the config-only subset now with cleanups deferred, or finishing the slice first.
+* **Halt before writing anything** if a change is in flight: an open `feature/{slug}` branch, or a `docs/tasks/{slug}/task.md` whose Plan still lists unshipped slices. Cleanups rewrite the tree and will collide. Offer the config-only subset now with cleanups deferred, or finishing the slice first.
 * **Resume at the first missing output** when a repository is part-way through this skill.
 
 ## What never bends
@@ -121,11 +122,22 @@ Three scopes. Put each rule in the narrowest one that still loads when it is nee
 | Nested instructions file | a file in that directory is touched | conventions for one module |
 | Path-scoped rule file | a matching path is touched | instructions tied to a file type |
 
-* **Create the root file if the repo has none**, even empty with a heading, and say where it is. The change loop appends to it.
+* **Create the root file if the repo has none**, even empty with a heading, and say where it is.
 * **Cap the root file at 100 lines.** Every line costs context on every turn, and a bloated file makes the agent ignore the rules that matter. Anything longer belongs in a nested or path-scoped file.
 * **Alias the other conventional filenames to it** with a symlink, so every tool reads one file.
 * **Record where a future correction goes.** State the routing in the root file: a static check into the rules directory, a dependency direction into the contracts, a file-specific instruction into a path-scoped rule, anything conversational into the root file itself.
-* **Offer a decision rule for the root file:** before choosing between alternatives the user has not seen, put the choice and its tradeoff to them; when the choice is expensive or irreversible, run the `adr` skill before the code that depends on it. A generated codebase accumulates dozens of unconsulted choices per session, and the ones that cost money to reverse look identical to the ones that do not. This governs the conversation, so it is never path-scoped.
+* **Offer a decision rule for the root file,** verbatim. It governs the conversation, so it is never path-scoped. Ask before adding it.
+
+  ```text
+  # Decisions are the user's
+  Before choosing between alternatives the user has not seen, put the choice and
+  its tradeoff to them and wait. When the choice is expensive or irreversible,
+  accepts a hazard without a test, or rejects an alternative, record it as an ADR
+  before the code that depends on it: docs/adr/<slug>/<decision>.md for one
+  change, docs/adr/architecture/<decision>.md for the whole repository.
+  At the end of every piece of work, list every choice made without the user,
+  one line each: what was chosen, why, and the tradeoff.
+  ```
 * **Offer an answer-length rule for the root file:** give the finding, what it means, and the question, then stop; name a document or diff just written rather than reproducing it. Ask before adding it. That file is the user's.
 * **Never path-scope an instruction that governs the conversation.** Path frontmatter loads it only when a matching file is touched.
 

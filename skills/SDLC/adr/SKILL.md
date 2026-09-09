@@ -1,13 +1,14 @@
 ---
 name: adr
-version: "0.2.1"
 description: "Use this skill whenever the reasoning behind a technical decision needs to outlive the conversation: an expensive or irreversible choice is made, a hazard is accepted without a test, or an alternative is explicitly rejected. Use it on: 'adr', 'write an adr', 'make an adr', 'create an adr', 'record this architecture decision', 'note this architecture decision', 'this is an architectural decision', 'we need to record the why', 'let's document that decision', 'we will accept that risk', 'let's go with X instead of Y'. Use it on the bare word 'adr' alone, and on 'record the why' even when no artefact is named \u2014 the why is the artefact. Write the decision, the alternatives turned down and the consequences to an ADR file immediately, not at the end of the work."
 license: MIT
 compatibility: any-agent
+metadata:
+  version: "0.3.0"
 ---
 # Architecture Decision Records (ADR)
 
-Write an ADR to document an expensive or irreversible decision, or to formally justify a "Known Permanent Gap" (an accepted hazard or a "no test" disposition from the Design Document). 
+Write an ADR to document an expensive or irreversible decision, an accepted hazard, or a test row dispositioned "no test required" whose absence a later reader would question.
 
 Write it immediately when the decision is made, not at the end of the feature development.
 

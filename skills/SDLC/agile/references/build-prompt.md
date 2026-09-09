@@ -1,6 +1,6 @@
 # Build Prompt
 
-Issue one instruction per slice. Implementation and unit tests arrive in the same turn. Tests written after the code are derived from it, pass by construction, and pin its accidents.
+Issue one instruction per slice. The accepted rows already exist as failing tests. The builder makes them pass and may add tests for cases the table missed, in the same turn as the implementation. It never rewrites an accepted row.
 
 ```text
 CONTRACT
@@ -8,10 +8,10 @@ CONTRACT
 
 IMPLEMENT
 Only what makes the contract test pass.
-Do NOT add: config options, feature flags, retry or backoff, a logging
-framework, abstract classes or interfaces, plugin points, CLI flags, caching,
-error handling for cases not in the accepted table, docstrings describing
-future extensions, a class where a function does.
+Do NOT add: config with one value, an interface with one implementation, a
+parameter only ever passed its default, retry, backoff, caching, feature
+flags, error handling for cases no test names, logging no one asked to read,
+a class where a function does, docstrings describing future extensions.
 If something above is genuinely required to pass the test, say so and stop.
 
 NON-NEGOTIABLE
@@ -21,10 +21,10 @@ as slow>
 Do not modify anything outside <directory>.
 
 EDGE CASES
-<the accepted table's Type and Cardinality rows>
+<the accepted table's Type and Cardinality rows, already failing>
 Test behaviour, not implementation. No assertion on a private function, on
 internal call order, or on a log line.
-List anything you tested that is not in the table, and say why.
+List any test you added that is not in the table, and say why.
 ```
 
 * **Name specifics in the prohibition list.** "Keep it simple" produces nothing. Extend the list as the model's defaults become apparent.
