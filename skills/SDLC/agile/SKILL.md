@@ -17,7 +17,7 @@ Loop: **Frame -> Slice -> Propose -> Test -> Halt -> Build -> Review -> Ship.** 
 * **Working software over documentation.** Code and automated tests are the source of truth. Generate no Markdown specs, design docs or architecture maps unless asked.
 * **Executable specifications.** Never write implementation code first.
 * **Smallest valuable increment.** One vertical slice proving the riskiest assumption.
-* **Fixed authorship.** The user writes the acceptance criterion. The agent writes everything else. Green must not mean the implementation matches itself.
+* **Fixed authorship.** The user writes the cards and the acceptance criterion. The agent writes everything else. Green must not mean the implementation matches itself.
 
 ## Communication
 
@@ -30,7 +30,7 @@ Loop: **Frame -> Slice -> Propose -> Test -> Halt -> Build -> Review -> Ship.** 
 
 * **Load the charter.** Silently read `CONTEXT.md`, the file the `charter` skill writes: purpose, users, non-goals, nouns, boundaries, constraints. Fall back to `ARCHITECTURE.md`, then `README.md`. When none states a purpose, offer the `charter` skill once, then proceed.
 * **Read `docs/adr/`** before proposing a change to an existing boundary or constraint.
-* **Read the PRD** if supplied. Extract requirements, success metrics, non-goals. It says what and why, never how.
+* **Read the PRD** if supplied, as raw material for the user's cards, never as a list of IDs to trace. Note its success metrics and non-goals. It says what and why, never how.
 * **Read the log.** `docs/tasks/{slug}/task.md`, or the tracker epic `CONTEXT.md` names, opens with the Plan (the outcome and the ordered slices) and records what shipped and what was tried. Slug matches the issue key or the `feature/{slug}` branch.
 
 ## 0. Frame
@@ -47,21 +47,22 @@ Choose the slug: the issue key when `CONTEXT.md` names a tracker, else a kebab-c
 
 Then rank the unknowns. Tag each with what settles it. After the walking skeleton, the slice that resolves the largest unknown most cheaply goes first.
 
-Then play the planning game: name every slice you can see now, one line each, ordered. Titles only, no detail. This is the release plan. It tells the next session that slice 1 is one of six, not the whole feature. Split, add and reorder it after every slice.
+Then play the planning game. Two roles, never swapped. The user writes the cards: one line each, in their words, naming something they want to do, as many as they can see now and no more. The agent estimates each card in one word (hours, a day, more), splits any card over a day into cards the user re-words, and proposes a risk-first order. The user sets the final order. A card is a title; the conversation and the criterion wait until it is picked in section 3. This is the release plan. It tells the next session that slice 1 is one of six, not the whole feature. Add, split and reorder it after every slice, with the same roles. When the user has no cards yet, ask for the first three, do not write them.
 
 Write the result as the Plan at the top of the log, creating the file if absent. The Plan is the only section that is rewritten. Keep it under twenty lines.
 
 ```text
 # {slug}
-Committed so every developer and session reads the same plan. Delete this file when
-the last slice ships, after each Learned and A1 line has become a test, an ADR, or
-a line in CONTEXT.md. Anything left in it after that is a scar nobody will find.
+Committed so every developer and session reads the same plan, and kept after the
+last slice ships as the record of what git cannot show: why, what was accepted,
+what was learned, what was decided. Skim it in two minutes. Every line that
+carries knowledge names the test, ADR or CONTEXT.md line that pins it.
 
 ## Plan
 Outcome:   <the sentence above>
 Problem:   <who hits it, how often, what they do today instead>
 Not doing: <checkable non-goals, one per line>
-Slices:    <every slice nameable now, one line each, ordered; the first is next>
+Slices:    <user-written cards, one line each, agent estimate beside each, user-ordered; the first is next>
 ```
 
 The log defaults to `docs/tasks/{slug}/task.md`. When `CONTEXT.md` Boundaries names a tracker ("Backlog: Jira project TAG"), the Plan is the epic, each slice is a story under it, a spike is a spike issue, and log entries are resolution comments. Use whatever tracker tool the session has. The slug is the issue key.
@@ -83,7 +84,7 @@ A spike answers one question with throwaway code. Two triggers:
 
 Do not spike when a slice answers it as fast, when the question is a product decision (ask the user), or when there is no falsifiable answer. "Look into the queue library" is not a spike. "The library sustains 1,000 messages/second on this hardware" is.
 
-State the question and the finish line, get agreement, run the `spike` skill. Override two things. Findings go to the log, not `SPIKE_FINDINGS.md`, as the spike entry in section 7: the spike's Outcome and Approach become `Learned`, its Quirks and Dead ends become sub-lines under `Learned`, its Open questions become `Biggest unknown now`. The code is deleted, not offered for keeping; record in the log that you deleted it. When an edit-time hook blocks a spike edit, work in a directory outside the hook's paths, such as the session scratchpad.
+State the question and the finish line, get agreement, run the `spike` skill. Override two things. Findings go to the log, not `SPIKE_FINDINGS.md`, as the spike entry in section 7: the spike's Outcome and Approach become `Learned`, its Quirks and Dead ends become further `Learned` lines, its Open questions become assumptions in the Plan. The code is deleted, not offered for keeping; record in the log that you deleted it. When an edit-time hook blocks a spike edit, work in a directory outside the hook's paths, such as the session scratchpad.
 
 ## 1. Decide
 
@@ -111,12 +112,12 @@ Cut across the system's layers, never along them. Every slice ends with a person
 * **Hardcode everything the skeleton does not test.** Count the seams the user's criterion crosses: database, model, queue, third-party API, container, host. When more than one is unmeasured, the first slice fakes all but one. A served feed holding one hardcoded article is a slice. A feed fed by real verdicts from a real database in a real container is three.
 * **The skeleton is a slice like any other.** The user's story stays the feature's criterion in the Plan. The skeleton gets its own one-sentence criterion in section 3, naming what the user will observe (a fake entry in the real reader).
 * **Cross whatever boundary the value chain crosses** in the first slice: repo, service, team, or an orchestration layer that does not exist yet. A cron line, a hardcoded query and a bookmark is valid.
-* **Choose every later slice for value,** or for unknown killed per hour while an assumption is live.
+* **The user picks every later slice** from the cards, by value. The agent argues for the card that kills the largest unknown per hour while an assumption is live, and adds only spike and constraint slices itself, flagged for the user.
 * **Split further** by workflow step, happy path before error path, one rule before its variants, hardcoding before generalising.
 * **Never name a slice** after a layer, component, table or team.
 * **Give a constraint its own slice** when no feature slice can carry it: a throughput floor, a memory ceiling, a data-residency rule. Its acceptance criterion is the number. Spike first when the number is unknown.
 * **Defer infrastructure** not required to pass this slice's test to a later slice.
-* **Treat a bug as a slice** whose outcome is the reproduction. Write the failing test at the level the report describes, before reading the code. Then grep every caller of the function about to change and fix at the point they all route through.
+* **Treat a bug as a card** with negative value. A bug in the slice under way is fixed now, no card. A bug in shipped work is a card the user writes and orders against the others; arrival is not priority, and the user may decline to fix it. Its outcome is the reproduction. Write the failing test at the level the report describes, before reading the code, then a unit test isolating the fault. Then grep every caller of the function about to change and fix at the point they all route through.
 
 ## 3. Propose and Halt
 
@@ -128,7 +129,7 @@ Two halts, in this order. No code, no tests, until both have passed.
 Slice:      Short name.
 Outcome:    What a person can do afterwards that they could not before, and where they see it.
 Chosen for: Risk, value, or unknown killed. One sentence.
-Covers:     PRD requirement IDs, or "none" for a walking skeleton, or "no PRD".
+Card:       The user's card, verbatim, or "walking skeleton".
 Acceptance: USER-WRITTEN. Blank until the user writes it.
 ```
 
@@ -169,23 +170,24 @@ A green gate is not a finished slice. Before reporting done, print the review's 
 
 * **Commit at every green row,** not once per slice. A commit is the unit a person reviews.
 * **Flag** only when the slice exposes user-visible behaviour later slices complete, or when backing it out needs more than a `git revert`. Name the slice that removes the flag under `Not now:`.
-* **Tag tests and commits** with the requirement ID, e.g. `[PAY-1420]`.
-* **Make the last commit the log.** After the Done block prints: rewrite the Plan at the top of the log (drop the shipped slice, split or add what the slice exposed, reorder by the biggest unknown now), append the entry below, and rewrite `CONTEXT.md` if the slice added a noun, crossed a new boundary, or turned a non-goal into a goal. One commit.
+* **Tag tests and commits** with the card's issue key when a tracker exists, e.g. `[PAY-1420]`.
+* **Make the last commit the log.** After the Done block prints: rewrite the Plan at the top of the log (drop the shipped card; put any split or new card the slice exposed to the user, who words and orders it; never add a feature card alone), append the entry below, and rewrite `CONTEXT.md` if the slice added a noun, crossed a new boundary, or turned a non-goal into a goal. One commit.
 * **Merge to main.** One slice, one merge. A branch that outlives its slice is a queue of unreviewed work. Delete the branch.
 * **Deploy from main, by a command in the repo.** A `deploy` script or task target, committed with the slice that first needs it. Never from the working tree, never from a branch, never by commands that live only in chat.
 * **Exercise the rollback once** before anything a `git revert` cannot undo: a backfill, a migration, a bulk send.
 * **Prompt the user to observe** the behaviour in reality: UI, API or telemetry.
-* **Close out** when the Plan's slice list is empty: promote every `Learned` and `A1` line to a test, an ADR or a `CONTEXT.md` line, then delete the log or close the epic.
+* **Close out** when the Plan's slice list is empty: promote every `Learned` line and every live assumption to a test, an ADR or a `CONTEXT.md` line, write the pin beside each, then close the epic. Keep the file.
 
 ```text
 ## <date> — <slice name>
 - Done: <what shipped, one line>
-- Learned: <what the work exposed that was not known before>
-- Built and did not need: <usually an abstraction for a case that never arrived>
-- Biggest unknown now: <the reason the Plan was reordered, if it was>
+- Acceptance: <the user's criterion, verbatim>
+- Learned: <one finding, bold headline, then the test, ADR ID or CONTEXT.md line that pins it>
+- Decided: <one choice from Decided alone, with its tradeoff, or a bare ADR ID>
+- Not caught by: <bugs only: why no test, check or review stopped it, and the rule, row or hook now added>
 ```
 
-Omit empty lines. Never edit or delete an entry. Log a spike the same way, titled `spike: <the question>`, with the field mapping from section 0. `Learned` is mandatory for a spike.
+Omit empty lines. One line per finding and per decision; repeat the field. The entry fits on one screen. A finding that needs more than a line is an ADR: write it, leave the ID. The reason the Plan was reordered goes in the Plan, not the entry. `Not caught by` is mandatory for a bug: name the gap in the harness or the test table and close it in the same slice, or hand it to the `harness` skill. Never edit or delete an entry. Log a spike the same way, titled `spike: <the question>`, with the field mapping from section 0. `Learned` is mandatory for a spike.
 
 Then ask whether this solved the immediate problem or another slice is required.
 
