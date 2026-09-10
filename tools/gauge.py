@@ -55,7 +55,8 @@ PLUGIN_DIRS = [os.path.join(REPO, "plugins", "SDLC"),
 # 7, and the third run was still exploring when the budget ran out.
 TURNS = 12
 MODEL = None  # set from --model; None leaves the harness default
-OURS = {"agile", "harness", "adr", "greenfield", "spike", "handing-off"}
+OURS = {"agile", "harness", "adr", "greenfield", "spike", "handing-off",
+        "test-table", "review", "charter", "pair-programming"}
 TARGET = 0.80  # suite passes at 80% or better
 
 FILES = {

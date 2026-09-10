@@ -1,10 +1,10 @@
 ---
 name: adr
-description: "Use this skill whenever the reasoning behind a technical decision needs to outlive the conversation: an expensive or irreversible choice is made, a hazard is accepted without a test, or an alternative is explicitly rejected. Use it on: 'adr', 'write an adr', 'make an adr', 'create an adr', 'record this architecture decision', 'note this architecture decision', 'this is an architectural decision', 'we need to record the why', 'let's document that decision', 'we will accept that risk', 'let's go with X instead of Y'. Use it on the bare word 'adr' alone, and on 'record the why' even when no artefact is named \u2014 the why is the artefact. Write the decision, the alternatives turned down and the consequences to an ADR file immediately, not at the end of the work."
+description: "Use this skill whenever a decision is made or proposed that must survive the conversation. Fires when you, the agent, pick a library, a data shape, a key, a sync/async boundary, a limit, a retry policy, or drop a supported version without the user choosing it. A default you'll act on without a reply counts too. Notice it and act before the dependent code lands. Fires on any choice costing more than a day to reverse, a hazard accepted without a test, an alternative explicitly rejected ('X instead of Y'), or knowledge expensive to acquire: a measurement, a scar, a cost. Fires too on: 'adr', 'write an adr', 'make an adr', 'create an adr', 'record this architecture decision', 'note this architecture decision', 'this is an architectural decision', 'we need to record the why', 'let's document that decision', 'we will accept that risk', 'let's go with X instead of Y'. Fires on the bare word 'adr', and on 'record the why' with no artefact named: the why is the artefact. Write it immediately, mid-task if needed."
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 # Architecture Decision Records (ADR)
 
