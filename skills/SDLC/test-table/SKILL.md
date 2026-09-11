@@ -33,7 +33,7 @@ Apply in order. A generator that finds nothing to fire on produces no row.
 * **Both sides:** every authorisation check earns a negative test written from the attacker's seat.
 * **Invariant:** a round trip, ordering or conservation law becomes one property test. Fuzz only where untrusted input crosses a boundary.
 * **Metric:** when a requirement names a metric, the event feeding it earns a test. An uninstrumented metric has no source.
-* **Budget:** a strict number on any hot path: latency, memory, row count, cost. Read `CONTEXT.md` Constraints; every constraint this change touches earns a row, with the constraint's own number as the assertion.
+* **Budget:** a strict number on any hot path: latency, memory, row count, cost. Read `AGENTS.md` Critical Constraints; every constraint this change touches earns a row, with the constraint's own number as the assertion.
 
 ## Cut Rules
 

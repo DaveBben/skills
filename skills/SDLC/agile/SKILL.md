@@ -25,16 +25,16 @@ Loop: **Frame -> Slice -> Propose -> Test -> Halt -> Build -> Review -> Ship.** 
 * **Answer first.** Lead with the core answer or the hard blocker.
 * **No analogies.** Describe systems literally.
 * **Challenge bad ideas.** Offer the simpler alternative, then defer to the user's product vision.
-* **Say when an instruction does not parse.** A card, a criterion or a constraint that is ambiguous, contradicts `CONTEXT.md`, or asks for what the code cannot do gets named and the turn stops there. Agreeing and proceeding on a guess is the failure this loop exists to prevent.
+* **Say when an instruction does not parse.** A card, a criterion or a constraint that is ambiguous, contradicts `AGENTS.md`, or asks for what the code cannot do gets named and the turn stops there. Agreeing and proceeding on a guess is the failure this loop exists to prevent.
 * **One decision per turn.** Put one choice to the user and wait. A turn that stacks three questions gets one answered and two guessed.
 
 ## Orient
 
-* **Load the charter.** Silently read `CONTEXT.md`, the file the `orient` skill writes: purpose, users, non-goals, nouns, boundaries, constraints. Fall back to `ARCHITECTURE.md`, then `README.md`. When none states a purpose, or the repository has no `AGENTS.md`, offer the `orient` skill once, then proceed.
+* **Load the charter.** Silently read `AGENTS.md`, the file the `orient` skill writes: purpose, users, non-goals, nouns, boundaries, commands, constraints. Fall back to `ARCHITECTURE.md`, then `README.md`. When none states a purpose, offer the `orient` skill once, then proceed.
 * **Check the floor.** When the root instructions file names no check command, the suite is red on main, or the log shows three `Not caught by` lines in its last ten entries, halt and offer the `harness` skill before the first slice. An agent amplifies the process it lands in; a repo with no gate gets faster at accumulating debt.
 * **Read `docs/adr/`** before proposing a change to an existing boundary or constraint.
 * **Read the PRD** if supplied, as raw material for the user's cards, never as a list of IDs to trace. Note its success metrics and non-goals. It says what and why, never how.
-* **Read the log.** `docs/tasks/{slug}/task.md`, or the tracker epic `CONTEXT.md` names, opens with the Plan (the outcome and the ordered slices) and records what shipped and what was tried. Slug matches the issue key or the `feature/{slug}` branch.
+* **Read the log.** `docs/tasks/{slug}/task.md`, or the tracker epic `AGENTS.md` names, opens with the Plan (the outcome and the ordered slices) and records what shipped and what was tried. Slug matches the issue key or the `feature/{slug}` branch.
 
 ## 0. Frame
 
@@ -44,9 +44,9 @@ Agree one sentence with the user before anything else.
 Outcome: What the user does differently once this ships, and where they see it.
 ```
 
-Reject an outcome naming a component, table, endpoint or file, and one that contradicts a `Not doing` line in `CONTEXT.md` without the user saying so. "Verdicts land in the table" is true when the work is half done. "I open one list each morning and read from it" is not.
+Reject an outcome naming a component, table, endpoint or file, and one that contradicts a `Not doing` line in `AGENTS.md` without the user saying so. "Verdicts land in the table" is true when the work is half done. "I open one list each morning and read from it" is not.
 
-Choose the slug: the issue key when `CONTEXT.md` names a tracker, else a kebab-case name for the outcome. Create the branch `feature/{slug}` from main.
+Choose the slug: the issue key when `AGENTS.md` names a tracker, else a kebab-case name for the outcome. Create the branch `feature/{slug}` from main.
 
 Then rank the unknowns. Tag each with what settles it. After the walking skeleton, the slice that resolves the largest unknown most cheaply goes first.
 
@@ -59,7 +59,7 @@ Write the result as the Plan at the top of the log, creating the file if absent.
 Committed so every developer and session reads the same plan, and kept after the
 last slice ships as the record of what git cannot show: why, what was accepted,
 what was learned, what was decided. Skim it in two minutes. Every line that
-carries knowledge names the test, commit, ADR or CONTEXT.md line that pins it.
+carries knowledge names the test, commit, ADR or AGENTS.md line that pins it.
 
 ## Plan
 Outcome:   <the sentence above>
@@ -68,7 +68,7 @@ Not doing: <checkable non-goals, one per line>
 Slices:    <user-written cards, one line each, agent estimate beside each, user-ordered; the first is next>
 ```
 
-The log defaults to `docs/tasks/{slug}/task.md`. When `CONTEXT.md` Boundaries names a tracker ("Backlog: Jira project TAG"), the Plan is the epic, each slice is a story under it, a spike is a spike issue, and log entries are resolution comments. Use whatever tracker tool the session has. The slug is the issue key.
+The log defaults to `docs/tasks/{slug}/task.md`. When `AGENTS.md` Boundaries names a tracker ("Backlog: Jira project TAG"), the Plan is the epic, each slice is a story under it, a spike is a spike issue, and log entries are resolution comments. Use whatever tracker tool the session has. The slug is the issue key.
 
 | Unknown is about | Settled by |
 |---|---|
@@ -190,18 +190,18 @@ A green gate is not a finished slice. Before reporting done, print the review's 
 * **Commit at every green row,** not once per slice. A commit is the unit a person reviews.
 * **Flag** only when the slice exposes user-visible behaviour later slices complete, or when backing it out needs more than a `git revert`. Name the slice that removes the flag under `Not now:`.
 * **Tag tests and commits** with the card's issue key when a tracker exists, e.g. `[PAY-1420]`.
-* **Make the last commit the log.** After the Done block prints: rewrite the Plan at the top of the log (drop the shipped card; put any split or new card the slice exposed to the user, who words and orders it; never add a feature card alone), append the entry below, and rewrite `CONTEXT.md` if the slice added a noun, crossed a new boundary, or turned a non-goal into a goal. One commit.
+* **Make the last commit the log.** After the Done block prints: rewrite the Plan at the top of the log (drop the shipped card; put any split or new card the slice exposed to the user, who words and orders it; never add a feature card alone), append the entry below, and rewrite `AGENTS.md` if the slice added a noun, crossed a new boundary, or turned a non-goal into a goal. One commit.
 * **The user merges.** Present the Done block and the diff; for a `high` slice, say that the diff is theirs to read before merging. The agent never merges to main. One slice, one merge. A branch that outlives its slice is a queue of unreviewed work. Delete the branch after the merge and clear the red-commit guard.
 * **Deploy from main, by a command in the repo.** A `deploy` script or task target, committed with the slice that first needs it. Never from the working tree, never from a branch, never by commands that live only in chat.
 * **Exercise the rollback once** before anything a `git revert` cannot undo: a backfill, a migration, a bulk send.
 * **Name the signal before merging:** the screen, the endpoint or the event the user will read to know the slice worked. Then prompt the user to observe it in reality.
-* **Close out** when the Plan's slice list is empty: promote every `Learned` line and every live assumption to a test, an ADR or a `CONTEXT.md` line, write the pin beside each, then close the epic. Keep the file.
+* **Close out** when the Plan's slice list is empty: promote every `Learned` line and every live assumption to a test, an ADR or an `AGENTS.md` line, write the pin beside each, then close the epic. Keep the file.
 
 ```text
 ## <date> — <slice name>
 - Done: <what shipped, one line>
 - Accepted: <red commit hash; its message holds the criterion and the table>
-- Learned: <one finding, bold headline, then the test, ADR ID or CONTEXT.md line that pins it>
+- Learned: <one finding, bold headline, then the test, ADR ID or AGENTS.md line that pins it>
 - Decided: <one choice from Decided alone, with its tradeoff, or a bare ADR ID>
 - Not caught by: <bugs only: why no test, check or review stopped it, and the rule, row or hook now added>
 ```
@@ -214,10 +214,10 @@ Then ask whether this solved the immediate problem or another slice is required.
 
 Other people and other agents change main while a slice is in flight. The loop assumes nothing about them beyond this:
 
-* **One slug, one branch, one session, one log file.** Two slices never share a branch or a log. Parallel work is parallel slugs, each with its own Plan; the shared backlog is the tracker `CONTEXT.md` names.
+* **One slug, one branch, one session, one log file.** Two slices never share a branch or a log. Parallel work is parallel slugs, each with its own Plan; the shared backlog is the tracker `AGENTS.md` names.
 * **Rebase on main before the red commit and again before the review.** Run the check command on the rebased tree. A green slice on a stale base is unverified.
 * **Open a merge request when the repo has a remote.** The Done block is its description. The user merges, after any reviewer the repo requires.
-* **Edit `CONTEXT.md` and `docs/adr/architecture/` only in the log commit, after the rebase.** They are the shared files; a stale rewrite erases someone else's slice.
+* **Edit `AGENTS.md` and `docs/adr/architecture/` only in the log commit, after the rebase.** They are the shared files; a stale rewrite erases someone else's slice.
 * **The red-commit guard is local git config**, per clone. It never travels with the branch.
 * **The harness is the repo's, not the developer's.** Hooks, rules, contracts and the check command are committed; nothing the loop depends on lives in one person's settings.
 
