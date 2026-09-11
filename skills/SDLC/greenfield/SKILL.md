@@ -55,7 +55,7 @@ Execute these steps in order. Commit at the end of each numbered step with the s
 ### 4. Strip docs to the project
 
 * Replace the template `README.md` with a minimal one stating the project name and its one-line purpose.
-* Run the `charter` skill to write `CONTEXT.md` with the sections it defines. This is the file every later session reads first.
+* Run the `orient` skill to write `CONTEXT.md` and `AGENTS.md`, with `CLAUDE.md` symlinked to it. These are the files every later session reads first; when the template shipped an instructions file, `orient` shows the mapping and asks before rewriting it.
 * Remove template-authored docs that describe the template itself rather than the project (contributing guides, changelogs, example docs).
 * Preserve `LICENSE`, CI config, and any doc the project will keep filling in.
 * **Commit:** `docs: reset template docs for <name>`
