@@ -18,11 +18,11 @@ The generated AGENTS.md should contain these five sections in this order. Omit a
 ```markdown
 ## Project Identity
 
-<!-- 1-3 sentences: what this project does, why it exists, and who it serves -->
+<!-- Purpose (one sentence: actor, observable result), Users, Not doing (checkable lines), Nouns (3-5 domain terms) -->
 
 ## Tech Stack and Codebase Map
 
-<!-- Language, framework versions, package manager, directory layout -->
+<!-- Language, framework versions, package manager, directory layout, Boundaries (external systems and the backlog) -->
 
 ## Operational Commands
 
@@ -30,7 +30,7 @@ The generated AGENTS.md should contain these five sections in this order. Omit a
 
 ## Critical Constraints
 
-<!-- Things that MUST or MUST NOT happen in this project -->
+<!-- Checkable statements, each ending with its enforcer (Budget row, gate check, ADR) or being a rule no tool can see -->
 
 ## Pointers to Deeper Docs
 
@@ -43,8 +43,7 @@ The generated AGENTS.md should contain these five sections in this order. Omit a
 
 ### 1. Project Identity
 
-1-3 sentences covering what the project does, why it exists, and who it serves. This is the "elevator
-pitch" that gives the agent the context to make decisions aligned with the project's purpose.
+The product charter. Purpose in one sentence naming an actor and an observable result, Users and what they do with the output, Not doing as checkable statements, and the three to five Nouns the code must use. This is what gives the agent the context to make decisions aligned with the project's purpose, and to refuse work outside it.
 
 **Good:**
 > Internal billing reconciliation service that pulls invoices from Stripe and NetSuite nightly,
@@ -100,6 +99,8 @@ The bad example lacks versions, omits the package manager, and gives no useful d
 
 Keep the directory layout to top-level directories only. The agent can explore subdirectories on its own.
 
+End the section with Boundaries: every external system the product reads from, writes to, or runs inside, by name and address, and the backlog when it lives outside the repository ("Backlog: Jira project TAG").
+
 ---
 
 ### 3. Operational Commands
@@ -135,8 +136,9 @@ instructions to figure them out.
 ### 4. Critical Constraints
 
 Hard rules that MUST or MUST NOT be followed in this project. These are the guardrails — things that
-would cause real damage if violated. Only include constraints that are universally applicable and
-not already enforced by tooling.
+would cause real damage if violated. Two kinds belong here: a checkable statement that ends with its
+enforcer (a Budget row in the test table, a check in the commit gate, an ADR), and a rule no tool can
+see. A constraint with neither is a wish; leave it out.
 
 **Good:**
 - Never commit `.env` files or credentials
