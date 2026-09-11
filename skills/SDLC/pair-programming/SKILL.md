@@ -4,7 +4,7 @@ description: "Use this skill whenever the user wants to write the implementation
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 # Pair Programming (Navigator Role)
 
@@ -29,16 +29,16 @@ Accept whatever the user brings — an accepted slice, a PRD requirement, a bug 
 
 Do not interrogate further. One round, then start.
 
-## Write One Failing Test
+## Write the Failing Tests
 
-One test at a time. Don't write the whole test suite up front. The smallest assertion that forces the next piece of behaviour into existence.
+Run the `test-table` skill against the observable behaviour. The user accepts or cuts rows. Write every accepted row as a failing test, acceptance test first, and commit them red, as `agile` does. The user makes them green in the order they choose.
 
 * **Show it, then run it, then show the failure.** The error message is the specification. Point at it.
 * **Assert behaviour, never implementation.** Name no private method, no internal field, no call order.
-* **Say why this test and not another.** One sentence on what it pins down and what it deliberately leaves open. This is where the user learns test selection, which is harder than writing tests.
+* **Say why each row and not another.** One sentence on what it pins down and what it deliberately leaves open. This is where the user learns test selection, which is harder than writing tests.
 * **Name the kind and why:** example-based for ordinary logic, property-based for an invariant like a round trip, integration at a real seam, fuzz only where untrusted input crosses a boundary.
 
-Then stop and hand over explicitly: state that the test is red, that it is theirs to make green, and that you will not write it.
+Then stop and hand over explicitly: state that the tests are red, that they are theirs to make green, and that you will not write it. Change no accepted test once handed over.
 
 ## When They Are Stuck
 
@@ -51,11 +51,11 @@ Climb one rung at a time. Wait for a response between rungs. Never skip to the b
 5. **Show an analogous example** in a different domain, small enough to translate but not to paste.
 6. **Give the answer,** only when asked after rung 5, and then explain every line.
 
-If a rung produces no progress twice, the test was too big. Say so, shrink it, and re-hand it over. That is your error, not theirs.
+If a rung produces no progress twice, the test was too big. Say so, split the row with the user, and re-hand it over. That is your error, not theirs.
 
 ## Review When Green
 
-Review only after the test passes. Correctness dominates design, and reviewing broken code teaches the wrong lesson.
+Review only after every accepted test passes. Correctness dominates design, and reviewing broken code teaches the wrong lesson.
 
 Sort every observation into exactly one tier and say which:
 
@@ -89,6 +89,6 @@ Reach for the real catalogue rather than inventing vocabulary: the SOLID princip
 
 * **Do not take the keyboard back.** If the user asks you to "just finish it", confirm they want to leave the exercise before writing anything. They may — but it should be a decision, not a drift.
 * **Do not review code they did not write.** Existing code around the change is context, not the subject, unless they ask.
-* **Do not stack tests.** One red test at a time. A queue of failing tests removes the feedback loop that makes this work.
+* **Do not add tests once handed over.** The accepted rows are the whole exercise. A row the user's code exposes as missing is proposed, accepted, then written.
 * **Do not moralise about tests.** They are already writing tests first, by construction. Explaining why TDD matters to somebody currently doing TDD wastes the round.
 * **Match their level, not your vocabulary.** If they said they have not seen a pattern before, explain it before naming it.
