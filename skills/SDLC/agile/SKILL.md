@@ -25,11 +25,13 @@ Loop: **Frame -> Slice -> Propose -> Test -> Halt -> Build -> Review -> Ship.** 
 * **Answer first.** Lead with the core answer or the hard blocker.
 * **No analogies.** Describe systems literally.
 * **Challenge bad ideas.** Offer the simpler alternative, then defer to the user's product vision.
+* **Say when an instruction does not parse.** A card, a criterion or a constraint that is ambiguous, contradicts `CONTEXT.md`, or asks for what the code cannot do gets named and the turn stops there. Agreeing and proceeding on a guess is the failure this loop exists to prevent.
+* **One decision per turn.** Put one choice to the user and wait. A turn that stacks three questions gets one answered and two guessed.
 
 ## Orient
 
 * **Load the charter.** Silently read `CONTEXT.md`, the file the `charter` skill writes: purpose, users, non-goals, nouns, boundaries, constraints. Fall back to `ARCHITECTURE.md`, then `README.md`. When none states a purpose, offer the `charter` skill once, then proceed.
-* **Check the floor.** When the root instructions file names no check command, or the suite is red on main, halt and offer the `harness` skill before the first slice. An agent amplifies the process it lands in; a repo with no gate gets faster at accumulating debt.
+* **Check the floor.** When the root instructions file names no check command, the suite is red on main, or the log shows three `Not caught by` lines in its last ten entries, halt and offer the `harness` skill before the first slice. An agent amplifies the process it lands in; a repo with no gate gets faster at accumulating debt.
 * **Read `docs/adr/`** before proposing a change to an existing boundary or constraint.
 * **Read the PRD** if supplied, as raw material for the user's cards, never as a list of IDs to trace. Note its success metrics and non-goals. It says what and why, never how.
 * **Read the log.** `docs/tasks/{slug}/task.md`, or the tracker epic `CONTEXT.md` names, opens with the Plan (the outcome and the ordered slices) and records what shipped and what was tried. Slug matches the issue key or the `feature/{slug}` branch.
@@ -117,6 +119,7 @@ Cut across the system's layers, never along them. Every slice ends with a person
 * **Split further** by workflow step, happy path before error path, one rule before its variants, hardcoding before generalising.
 * **Never name a slice** after a layer, component, table or team.
 * **Give a constraint its own slice** when no feature slice can carry it: a throughput floor, a memory ceiling, a data-residency rule. Its acceptance criterion is the number. Spike first when the number is unknown.
+* **Give a slice its signal.** When the slice changes behaviour no test can observe after deploy (a rate, a failure mode, a path taken), the same slice emits the event that makes it observable, and a `Metric` row asserts the event fires. Red and green stop being enough once the code is in use.
 * **Defer infrastructure** not required to pass this slice's test to a later slice.
 * **Pin untested legacy before changing it.** When the code the slice touches has no test of its current behaviour, write characterization tests asserting what it does today, bugs included, and commit them before the red commit. They are scaffolding: the review deletes any the accepted rows make redundant.
 * **Introduce the seam first.** When legacy code offers no point to test through, the first slice adds the seam (an injected dependency, an extracted function, a wrapper) and changes no behaviour. Where the old path resists a seam, build the slice beside it and route to the new path, rather than editing in place.
@@ -162,7 +165,7 @@ Revise and re-propose on any rejected line.
 
 ## 4. Test and Halt
 
-Write every accepted row as a failing test, acceptance test first. Run them. Output the test names and the red run, then stop. Commit the red tests as their own commit, with the criterion and the accepted table verbatim in the message; the review reads them from git, not chat, and diffs the accepted tests against it. Record the hash with `git config agile.redCommit <hash>`; the harness's test guard reads it and refuses edits to those files until the merge clears it. Write no implementation until the user says go. The failing tests are the specification, and the only artifact a person reads in one pass. Change no accepted row without saying so.
+Write every accepted row as a failing test, acceptance test first. Before running them, state the exact failure each will produce: the assertion, the error type, the value. Run them. A test that fails differently than predicted means the code is not what you believe; read it before going on. Output the test names and the red run, then stop. Commit the red tests as their own commit, with the criterion and the accepted table verbatim in the message; the review reads them from git, not chat, and diffs the accepted tests against it. Record the hash with `git config agile.redCommit <hash>`; the harness's test guard reads it and refuses edits to those files until the merge clears it. Write no implementation until the user says go. The failing tests are the specification, and the only artifact a person reads in one pass. Change no accepted row without saying so.
 
 When a turn-end hook blocks the red run because the tests name symbols that do not exist yet, add the symbols as stubs whose only body raises. The types pass and the tests still fail on behaviour.
 
@@ -170,7 +173,7 @@ When a turn-end hook blocks the red run because the tests name symbols that do n
 
 Issue one instruction to a subagent using [references/build-prompt.md](references/build-prompt.md). The builder makes the accepted rows pass and may add tests for cases the table missed, listing each one and why. It never rewrites an accepted row.
 
-Run the check command the root instructions file names, alongside the tests. The `harness` skill commits one; when none exists, run the linter, the type checker and the build. A red check is a red slice.
+Run the tests and the check command yourself, in this session, after the builder returns. The builder's report is a claim; a run here is the only green that counts. The check command is the one the root instructions file names; the `harness` skill commits one, and when none exists, run the linter, the type checker and the build. A red check is a red slice.
 
 When the builder reports red, or touched anything outside its directory, do not debug the attempt. Reset the tree to the red commit and reissue the prompt with the one new fact under NON-NEGOTIABLE; a second generation costs less than reading the first. Twice, then the slice is too big: return to section 2 and split it.
 
@@ -191,7 +194,7 @@ A green gate is not a finished slice. Before reporting done, print the review's 
 * **The user merges.** Present the Done block and the diff; for a `high` slice, say that the diff is theirs to read before merging. The agent never merges to main. One slice, one merge. A branch that outlives its slice is a queue of unreviewed work. Delete the branch after the merge and clear the red-commit guard.
 * **Deploy from main, by a command in the repo.** A `deploy` script or task target, committed with the slice that first needs it. Never from the working tree, never from a branch, never by commands that live only in chat.
 * **Exercise the rollback once** before anything a `git revert` cannot undo: a backfill, a migration, a bulk send.
-* **Prompt the user to observe** the behaviour in reality: UI, API or telemetry.
+* **Name the signal before merging:** the screen, the endpoint or the event the user will read to know the slice worked. Then prompt the user to observe it in reality.
 * **Close out** when the Plan's slice list is empty: promote every `Learned` line and every live assumption to a test, an ADR or a `CONTEXT.md` line, write the pin beside each, then close the epic. Keep the file.
 
 ```text

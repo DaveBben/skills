@@ -14,6 +14,11 @@ flags, error handling for cases no test names, logging no one asked to read,
 a class where a function does, docstrings describing future extensions.
 If something above is genuinely required to pass the test, say so and stop.
 
+REUSE
+Before writing a helper, a type, a fixture or a client, grep this directory
+and its siblings for one that exists, and report what you found. A second
+way to do what the codebase already does is a finding, not a feature.
+
 NON-NEGOTIABLE
 <environment facts a model cannot infer and will improve into something wrong:
 pinned addresses, concurrency limits, byte-frozen files, query shapes measured
@@ -30,5 +35,6 @@ List any test you added that is not in the table, and say why.
 ```
 
 * **Name specifics in the prohibition list.** "Keep it simple" produces nothing. Extend the list as the model's defaults become apparent.
+* **Name the search, not only the prohibition.** A model told not to duplicate still duplicates; a model told to grep first reports what it found.
 * **Keep the last line.** Unasked-for tests are often the best in the suite. Requesting them separately means they get read rather than skimmed.
 * **Pin load-bearing files with a hash test.** A request is advice; a test is a fact.
