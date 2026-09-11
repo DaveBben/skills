@@ -14,13 +14,13 @@ The plugin is nine skills. Plain Markdown, no build step, nothing to compile.
 | Skill | Fires on |
 |---|---|
 | `agile` | any request to change a system, at any stage: "add X", "what's the best way to Y", "build the next slice", "did that fix it" |
-| `orient` | "write the charter", "what is this project for", "write AGENTS.md", "set up CLAUDE.md" |
+| `orient` | "orient yourself", "setup claude in this repo", "get this repo ready for agents", "write the charter", "write AGENTS.md" |
 | `test-table` | "what tests should this have", "propose the tests", "is this covered" |
 | `review` | "review this", "review the diff", "what can be deleted" |
 | `spike` | "prototype this", "let's see if X is feasible", "throwaway" |
 | `greenfield` | "start a new project", "walking skeleton", "scaffolding" |
 | `pair-programming` | "pair with me", "write the test and I will implement it" |
-| `harness` | "get this repo ready for agents", "set up guardrails" |
+| `harness` | "set up guardrails", "add hooks for the agent", "set up the commit gate" |
 | `adr` | "write an adr", "let's document that decision", "we'll accept that risk" |
 
 Session handoff, once part of this plugin, now lives in the separate [context](../context/) plugin. The `agile` loop still offers a handoff when context runs low; installing `context` is what fulfils it.
