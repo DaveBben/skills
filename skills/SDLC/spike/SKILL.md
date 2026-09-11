@@ -35,9 +35,9 @@ The single exception: when the outcome you are measuring is itself only observab
 
 Maintain a running findings log from the first moment, not at the end. Write each finding as you hit it, while the detail is fresh. A spike whose findings live only in the final chat message has failed — the code gets deleted and the knowledge goes with it.
 
-Default the log to `SPIKE_FINDINGS.md` at the repository root. Confirm the location with the user if the repo has an established notes convention.
+Write the log as one entry in `docs/tasks/{slug}/task.md`, titled `spike: <the question>`. The slug is the slice's slug when `agile` called the spike, else a kebab-case name for the question. Create the file if absent. `agile` reads the same file, so a spike inside a slice and a spike on its own leave findings in one place.
 
-Record, as they surface:
+Record, as they surface, each as a `Learned` line with a bold headline:
 
 * **Outcome:** Did the spike resolve the question — proven, disproven, or inconclusive. Update this as evidence accumulates.
 * **Approach used:** The specific libraries, APIs, patterns, or sequence that produced the result. Enough for the official build to reproduce it.

@@ -107,6 +107,7 @@ Where the harness is Claude Code, load `references/claude-harness.md` now and wr
 ## Guards
 
 * **Hard blocks: two entries, and justify a third.** A rule earns a slot only when violating it is never correct and the harness cannot catch it afterwards. Blocking the flag that skips the commit gate qualifies. Blocking a package manager the project does not use is blocklist creep.
+* **Block edits to accepted tests.** While `agile` has a red commit recorded, any edit to a file that commit touched is refused at edit time. Asking the agent to leave tests alone does not work; the research and the users of every coding agent report it weakening tests to reach green. The guard makes the request a fact.
 * **Deny reads and writes outright** for secrets files, the lockfile, and the version control directory. These are not style rules and do not belong in a linter.
 * **Say plainly that the deny list stops accidents and is not a security boundary.** Anything pre-approved that executes code can read any file the user can.
 * **Pre-approve every verification command** the agent needs to check its own work. A check the agent must ask permission to run is a check it stops running.

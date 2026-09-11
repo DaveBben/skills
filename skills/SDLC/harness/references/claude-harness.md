@@ -14,6 +14,7 @@ Load when the harness is Claude Code. Everything here lives in `.claude/`. The c
     deps-guard.sh        edit time, manifest only
     session-start.sh     environment sanity
     bash-guard.sh        pre-execution hard blocks
+    tests-guard.sh       edit time, accepted tests only
   rules/                 path-scoped instructions
 ```
 
@@ -70,6 +71,9 @@ Merge into an existing file rather than replacing it.
     "PreToolUse": [{
       "matcher": "Bash",
       "hooks": [{"type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/bash-guard.sh"}]
+    }, {
+      "matcher": "Edit|Write|MultiEdit",
+      "hooks": [{"type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/tests-guard.sh"}]
     }],
     "PostToolUse": [{
       "matcher": "Edit|Write|MultiEdit",
@@ -286,6 +290,36 @@ exit 0
 ```
 
 Two entries, and justify a third. Match the install command at a shell boundary, so a wrapper whose name ends in the same token still passes.
+
+## Accepted-test guard
+
+`.claude/hooks/tests-guard.sh`, wired to `PreToolUse` on `Edit|Write|MultiEdit`. Exit 2 cancels the edit. It fires only while `agile` has recorded a red commit, and only for the files that commit touched. Hooks fire for subagents too, so the builder is bound by it.
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+root="${CLAUDE_PROJECT_DIR:-.}"
+. "$root/.claude/hooks/_slots.sh"
+cd "$root"
+
+red="$(git config --get agile.redCommit 2>/dev/null || true)"
+[ -n "$red" ] || exit 0
+git cat-file -e "$red^{commit}" 2>/dev/null || exit 0
+
+file="$(read_json_field file_path)"
+case "$file" in "$root"/*) file="${file#"$root"/}" ;; esac
+
+if git diff --name-only "$red^" "$red" | grep -qxF "$file"; then
+  echo "$file is an accepted test from red commit $red. It is the contract;" >&2
+  echo "the build makes it pass, never changes it. Add a new test file for a" >&2
+  echo "case the table missed. If the contract itself is wrong, stop and say so:" >&2
+  echo "the user re-accepts the row, then runs 'git config --unset agile.redCommit'." >&2
+  exit 2
+fi
+exit 0
+```
+
+`agile` sets the config at the red commit and unsets it at the merge. A deletion through the shell is not caught; `bash-guard.sh` may add `rm` on those paths as its third hard block. A rename in the refactor that a test names is the case that trips this guard legitimately: the user clears it, the refactor commits, and the review diff still reports the change.
 
 ## Path-scoped rules
 
