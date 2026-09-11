@@ -30,7 +30,7 @@ Loop: **Frame -> Slice -> Propose -> Test -> Halt -> Build -> Review -> Ship.** 
 
 ## Orient
 
-* **Load the charter.** Silently read `CONTEXT.md`, the file the `charter` skill writes: purpose, users, non-goals, nouns, boundaries, constraints. Fall back to `ARCHITECTURE.md`, then `README.md`. When none states a purpose, offer the `charter` skill once, then proceed.
+* **Load the charter.** Silently read `CONTEXT.md`, the file the `orient` skill writes: purpose, users, non-goals, nouns, boundaries, constraints. Fall back to `ARCHITECTURE.md`, then `README.md`. When none states a purpose, or the repository has no `AGENTS.md`, offer the `orient` skill once, then proceed.
 * **Check the floor.** When the root instructions file names no check command, the suite is red on main, or the log shows three `Not caught by` lines in its last ten entries, halt and offer the `harness` skill before the first slice. An agent amplifies the process it lands in; a repo with no gate gets faster at accumulating debt.
 * **Read `docs/adr/`** before proposing a change to an existing boundary or constraint.
 * **Read the PRD** if supplied, as raw material for the user's cards, never as a list of IDs to trace. Note its success metrics and non-goals. It says what and why, never how.

@@ -14,7 +14,7 @@ The plugin is nine skills. Plain Markdown, no build step, nothing to compile.
 | Skill | Fires on |
 |---|---|
 | `agile` | any request to change a system, at any stage: "add X", "what's the best way to Y", "build the next slice", "did that fix it" |
-| `charter` | "write the charter", "what is this project for", "what's out of scope" |
+| `orient` | "write the charter", "what is this project for", "write AGENTS.md", "set up CLAUDE.md" |
 | `test-table` | "what tests should this have", "propose the tests", "is this covered" |
 | `review` | "review this", "review the diff", "what can be deleted" |
 | `spike` | "prototype this", "let's see if X is feasible", "throwaway" |

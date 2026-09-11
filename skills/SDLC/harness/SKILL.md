@@ -124,9 +124,9 @@ Three scopes. Put each rule in the narrowest one that still loads when it is nee
 | Nested instructions file | a file in that directory is touched | conventions for one module |
 | Path-scoped rule file | a matching path is touched | instructions tied to a file type |
 
-* **Create the root file if the repo has none**, even empty with a heading, and say where it is.
+* **Create the root file if the repo has none** by running the `orient` skill, which writes `AGENTS.md` in five sections and symlinks `CLAUDE.md` to it. The check command goes under its Operational Commands; the rules below go under its Critical Constraints.
 * **Cap the root file at 100 lines.** Every line costs context on every turn, and a bloated file makes the agent ignore the rules that matter. Anything longer belongs in a nested or path-scoped file.
-* **Alias the other conventional filenames to it** with a symlink, so every tool reads one file.
+* **Alias the other conventional filenames to it** with a symlink, so every tool reads one file. `orient` makes `CLAUDE.md`; add any other name the repository carries.
 * **Record where a future correction goes.** State the routing in the root file: a static check into the rules directory, a dependency direction into the contracts, a file-specific instruction into a path-scoped rule, anything conversational into the root file itself.
 * **Offer a decision rule for the root file,** verbatim. It governs the conversation, so it is never path-scoped. Ask before adding it.
 

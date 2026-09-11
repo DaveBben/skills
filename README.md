@@ -34,7 +34,7 @@ Use the [`skills` CLI](https://github.com/vercel-labs/skills), which installs pl
 # see everything on offer, grouped by area
 npx skills add DaveBben/davebben-skills --list
 
-# install one skill (agile invokes test-table, review, spike, adr and charter by name; install those with it)
+# install one skill (agile invokes test-table, review, spike, adr and orient by name; install those with it)
 npx skills add DaveBben/davebben-skills --skill agile
 
 # install everything
