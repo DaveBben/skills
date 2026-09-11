@@ -21,14 +21,15 @@ Propose the migration. Do not perform it. On greenfield, take all of it.
 | `types` | turn end | check the whole project |
 | `contracts` | turn end | assert allowed dependency directions, and name the broken rule in the failure |
 | `rules` | turn end | match project-specific patterns and print a message you wrote |
+| `complexity` | turn end | fail any function over the project's cyclomatic limit and name the function |
 | `deps_check` | manifest edit, and commit | fail when the manifest and the lockfile disagree, without hitting the network |
 | `env_check` | session start | report whether the environment is built and in sync, naming the command that fixes it |
-| `tests` | commit | run the suite |
+| `tests` | turn end when the suite fits the turn-end budget, else commit | run the suite |
 | `deadcode` | commit | find unreferenced symbols |
 | `audit` | commit | check dependencies against a CVE feed |
 | `secrets` | commit | scan for credentials |
 
-`types`, `contracts` and `rules` compose the single `turn_end` slot. `references/claude-harness.md` writes the hooks and uses these names.
+`types`, `contracts`, `rules` and `complexity` compose the single `turn_end` slot, plus `tests` when the suite fits the budget. `references/claude-harness.md` writes the hooks and uses these names.
 
 ## Placement
 
@@ -36,7 +37,7 @@ Propose the migration. Do not perform it. On greenfield, take all of it.
 - Turn end: whole project, **under five seconds**.
 - Commit time: everything else, and anything needing the network.
 
-A slow check in a fast layer gets disabled within a week.
+A slow check in a fast layer gets disabled within a week. A suite under the turn-end budget runs at turn end: an agent that only sees the tests at commit time has already built on a regression.
 
 ## Filling a slot with no obvious tool
 
@@ -64,9 +65,10 @@ Take the tool's defaults everywhere except these. Each has a silent failure mode
 - **A dead-code allowlist file, committed, and in the tool's paths from day one.** Without it, the only moves on a false positive are deleting live code or lowering the confidence threshold for everything.
 - **Coverage thresholds left unset** until there is real code. Set on an empty project, the gate fails from day one and everyone learns to bypass it.
 - **Suppression comments must name a code.** A bare suppression silences everything on the line forever.
+- **A cyclomatic complexity limit per function, enforced.** Default 6. An agent splits a function to pass a number; it does not split one because prose asked for small functions. Set it once as a project decision and let the agent iterate against it.
 - **The lint tool's target language version equals the support floor**, where the tool has that setting. Set above the floor, an auto-fix running in the edit-time hook rewrites code into syntax the floor runtime cannot parse.
 - **Property-based test profiles**, where the ecosystem has such a runner: a small example count locally, a large one with no per-example deadline in CI. CI runners are noisy, and a per-example timeout turns that noise into a flaky failure.
-- **Mutation testing scoped to the diff, in CI.** It answers what coverage cannot, which is whether the tests assert anything. Whole-tree runs are too slow to gate on; a run over the files the change touched is bounded by the change. Configure the runner to take a path list, and have CI pass it the changed source files. A surviving mutant fails the step. Opt-in and never run is the same as absent: a suite with two tests that assert nothing passed every other check in this list.
+- **Mutation testing scoped to the diff, in CI.** It answers what coverage cannot, which is whether the tests assert anything. Whole-tree runs are too slow to gate on; a run over the files the change touched is bounded by the change. Configure the runner to take a path list, and have CI pass it the changed source files. A surviving mutant fails the step. Opt-in and never run is the same as absent: a suite with two tests that assert nothing passed every other check in this list. Where the runner takes a path list and finishes over the changed files within the commit-time budget, run it in the commit hook as well; feedback a commit later beats feedback a CI run later.
 
 ## The canonical gate
 
@@ -76,6 +78,7 @@ Every layer of the feedback loop is a subset of this list, in this order. Cheape
 format --check
 fast_check (whole tree)
 rules
+complexity
 types
 contracts
 deadcode

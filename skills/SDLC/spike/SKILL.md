@@ -4,7 +4,7 @@ description: "Use this skill whenever the user wants to find something out by bu
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.2.1"
+  version: "0.3.0"
 ---
 # Spike
 
@@ -50,6 +50,7 @@ Record, as they surface:
 A spike is the cheap place to try more than one path. When the question has multiple plausible answers, build the smallest version of each and compare, rather than committing to the first idea.
 
 * **Surface alternatives:** When you see a second viable approach, name it to the user instead of silently picking one. Present the trade-off.
+* **Run them at once:** Where the harness allows, build each approach in its own subagent and worktree in parallel, each keeping its own findings log, then compare the logs. Non-determinism is a source of options when the runs are side by side.
 * **Clarify the real need:** The stated question is often a proxy for a deeper need. Ask what the user actually intends to prove, and let that reshape which approaches are worth spiking.
 * **Compare on evidence:** Record each approach's outcome in the findings log. Recommend one based on what the spike measured, not on preference.
 

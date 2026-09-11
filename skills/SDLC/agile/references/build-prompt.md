@@ -18,6 +18,8 @@ NON-NEGOTIABLE
 <environment facts a model cannot infer and will improve into something wrong:
 pinned addresses, concurrency limits, byte-frozen files, query shapes measured
 as slow>
+<the architecture's name where the root instructions file records one, and the
+layer this slice's code lives in: two facts, no description>
 Do not modify anything outside <directory>.
 
 EDGE CASES

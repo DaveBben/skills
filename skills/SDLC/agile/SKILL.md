@@ -4,7 +4,7 @@ description: "Use this skill on every request to write, add, remove, change, imp
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "4.1.0"
+  version: "4.2.0"
 ---
 # Agile Loop
 
@@ -29,6 +29,7 @@ Loop: **Frame -> Slice -> Propose -> Test -> Halt -> Build -> Review -> Ship.** 
 ## Orient
 
 * **Load the charter.** Silently read `CONTEXT.md`, the file the `charter` skill writes: purpose, users, non-goals, nouns, boundaries, constraints. Fall back to `ARCHITECTURE.md`, then `README.md`. When none states a purpose, offer the `charter` skill once, then proceed.
+* **Check the floor.** When the root instructions file names no check command, or the suite is red on main, halt and offer the `harness` skill before the first slice. An agent amplifies the process it lands in; a repo with no gate gets faster at accumulating debt.
 * **Read `docs/adr/`** before proposing a change to an existing boundary or constraint.
 * **Read the PRD** if supplied, as raw material for the user's cards, never as a list of IDs to trace. Note its success metrics and non-goals. It says what and why, never how.
 * **Read the log.** `docs/tasks/{slug}/task.md`, or the tracker epic `CONTEXT.md` names, opens with the Plan (the outcome and the ordered slices) and records what shipped and what was tried. Slug matches the issue key or the `feature/{slug}` branch.
@@ -150,7 +151,7 @@ Revise and re-propose on any rejected line.
 
 ## 4. Test and Halt
 
-Write every accepted row as a failing test, acceptance test first. Run them. Output the test names and the red run, then stop. Write no implementation until the user says go. The failing tests are the specification, and the only artifact a person reads in one pass. Change no accepted row without saying so.
+Write every accepted row as a failing test, acceptance test first. Run them. Output the test names and the red run, then stop. Commit the red tests as their own commit, with the criterion and the accepted table verbatim in the message; the review reads them from git, not chat, and diffs the accepted tests against it. Write no implementation until the user says go. The failing tests are the specification, and the only artifact a person reads in one pass. Change no accepted row without saying so.
 
 When a turn-end hook blocks the red run because the tests name symbols that do not exist yet, add the symbols as stubs whose only body raises. The types pass and the tests still fail on behaviour.
 
@@ -160,9 +161,11 @@ Issue one instruction to a subagent using [references/build-prompt.md](reference
 
 Run the check command the root instructions file names, alongside the tests. The `harness` skill commits one; when none exists, run the linter, the type checker and the build. A red check is a red slice.
 
+When the builder reports red, or touched anything outside its directory, do not debug the attempt. Reset the tree to the red commit and reissue the prompt with the one new fact under NON-NEGOTIABLE; a second generation costs less than reading the first. Twice, then the slice is too big: return to section 2 and split it.
+
 ## 6. Review
 
-Run the `review` skill: correctness, subtraction, scars, then refactor while green. Commit before the refactor and again after it.
+Run the `review` skill in a subagent given only the diff, the red commit and the check command; the context that wrote the tests does not review them. Correctness, subtraction, scars, then refactor while green. Commit before the refactor and again after it.
 
 A green gate is not a finished slice. Before reporting done, print the review's Done block: Correctness, Subtraction, Scars, Refactor, Decided alone, Gate. `Decided alone` lists every choice made below the ask-first line in section 1, with what was chosen, why, and the tradeoff. A slice reported without the block is unreviewed. Do not run on into the next slice.
 
@@ -189,7 +192,7 @@ A green gate is not a finished slice. Before reporting done, print the review's 
 
 Omit empty lines. One line per finding and per decision; repeat the field. The entry fits on one screen. A finding that needs more than a line is an ADR: write it, leave the ID. The reason the Plan was reordered goes in the Plan, not the entry. `Not caught by` is mandatory for a bug: name the gap in the harness or the test table and close it in the same slice, or hand it to the `harness` skill. Never edit or delete an entry. Log a spike the same way, titled `spike: <the question>`, with the field mapping from section 0. `Learned` is mandatory for a spike.
 
-Then ask whether this solved the immediate problem or another slice is required.
+Then ask whether this solved the immediate problem or another slice is required. Either way, end the session here. The next slice starts fresh from the log; a context that carried one slice degrades through the next.
 
 ## Standing Up a New Domain
 

@@ -4,7 +4,7 @@ description: "Use this skill whenever the user wants a repository or environment
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.8.1"
+  version: "0.9.0"
 ---
 # Repository harness
 
@@ -79,6 +79,7 @@ The only check that sees a dependency reverse. A single-file linter and a type c
 * **Brownfield:** Derive the current dependency graph, render it as a diagram, and ask which edges they did not expect. Those are the ones nobody chose, and they become the first contracts. Never encode the whole current graph; that makes the mess permanent.
 * **One contract per allowed-dependency line.** Everything not listed is forbidden, and the config says so explicitly.
 * **Write each contract's name as the rule in plain English**, so a broken build prints the sentence that stopped being true.
+* **Name the shape when it has a name.** When the user's modules match a known pattern (hexagonal, layered, MVI), record the name and its one defining rule in the root instructions file. An agent inside a named pattern scopes its reading to the layer it is in; an agent given only edges does not.
 * **The contracts are the record.** Do not create a separate architecture document to describe them; two sources of truth drift, and the prose one is never the one that fails the build.
 
 ## Rules
