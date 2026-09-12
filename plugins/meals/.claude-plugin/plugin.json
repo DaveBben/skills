@@ -1,0 +1,9 @@
+{
+  "name": "meals",
+  "version": "0.1.0",
+  "description": "Skills for eating to numbers without cooking from a spreadsheet. Today it builds reusable meal templates: a recipe the user already makes, paired with a fixed add-on that closes the gap to a calorie ceiling and protein and fiber floors, proven as a real dish before it is proven as macros, then written back to the recipe manager with ingredients that scale.",
+  "license": "MIT",
+  "author": {
+    "name": "DaveBben"
+  }
+}
