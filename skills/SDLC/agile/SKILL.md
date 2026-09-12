@@ -165,13 +165,15 @@ Revise and re-propose on any rejected line.
 
 ## 4. Test and Halt
 
-Write every accepted row as a failing test, acceptance test first. Before running them, state the exact failure each will produce: the assertion, the error type, the value. Run them. A test that fails differently than predicted means the code is not what you believe; read it before going on. Output the test names and the red run, then stop. Commit the red tests as their own commit, with the criterion and the accepted table verbatim in the message; the review reads them from git, not chat, and diffs the accepted tests against it. Record the hash with `git config agile.redCommit <hash>`; the harness's test guard reads it and refuses edits to those files until the merge clears it. Write no implementation until the user says go. The failing tests are the specification, and the only artifact a person reads in one pass. Change no accepted row without saying so.
+Write every accepted row as a failing test, acceptance test first. Before running them, state the exact failure each will produce: the assertion, the error type, the value. Run them. A test that fails differently than predicted means the code is not what you believe; read it before going on. Output the test names and the red run, then stop with one question: does the user write the implementation, or does the builder. Commit the red tests as their own commit, with the criterion and the accepted table verbatim in the message; the review reads them from git, not chat, and diffs the accepted tests against it. Record the hash with `git config agile.redCommit <hash>`; the harness's test guard reads it and refuses edits to those files until the merge clears it. Write no implementation until the user says go. The failing tests are the specification, and the only artifact a person reads in one pass. Change no accepted row without saying so.
 
 When a turn-end hook blocks the red run because the tests name symbols that do not exist yet, add the symbols as stubs whose only body raises. The types pass and the tests still fail on behaviour.
 
 ## 5. Build
 
-Issue one instruction to a subagent using [references/build-prompt.md](references/build-prompt.md). The builder makes the accepted rows pass and may add tests for cases the table missed, listing each one and why. It never rewrites an accepted row.
+When the user takes the keyboard, run the `pair-programming` skill from its hand-over step: the accepted rows are already red and committed, so it writes no tests, refuses the implementation, and reviews what the user wrote when green. Then continue at section 6.
+
+Otherwise issue one instruction to a subagent using [references/build-prompt.md](references/build-prompt.md). The builder makes the accepted rows pass and may add tests for cases the table missed, listing each one and why. It never rewrites an accepted row.
 
 Run the tests and the check command yourself, in this session, after the builder returns. The builder's report is a claim; a run here is the only green that counts. The check command is the one the root instructions file names; the `harness` skill commits one, and when none exists, run the linter, the type checker and the build. A red check is a red slice.
 
