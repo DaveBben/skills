@@ -2,11 +2,26 @@
 
 Skills for eating to numbers without cooking from a spreadsheet.
 
-One skill today. More will follow as the other parts of the problem get their own handling: shopping lists, weekly assembly from finished templates, and nutrient gaps tracked across a week rather than a meal.
+Two skills: one builds templates, one plans days of meals from them.
 
 | Skill | Fires on |
 |---|---|
 | `meal-template` | "build a dinner template", "create breakfast templates", "make this recipe hit 40g protein", "I want 10 dinners I can repeat", "fit my recipes into my macros" |
+| `meal-plan` | "plan my meals for the week", "plan 5 days of dinners", "fill the mealie meal plan", "plan meals using up the leftover spinach" |
+
+## `meal-plan`
+
+Plans X days for two people from finished templates and writes the result to Mealie: the meal plan, and a shopping list scaled to the servings actually made.
+
+What the skill insists on:
+
+- **Leftover ingredients are asked for every time.** They pick the dinners, and they come off the shopping list.
+- **Breakfast and lunch are fixed** unless the user says otherwise: cottage cheese eggs and a honey espresso for two, granola yogurt for one.
+- **A 4-serving dinner covers two days.** Seafood is cooked fresh on day 2, never reheated.
+- **Targets are plan-wide daily averages** for the user only: ≤2,050 kcal, ≥110 g protein, ≥25 g fiber.
+- **Nothing is written until the user approves the plan table.** Existing meal plan entries are never replaced without asking.
+
+`references/mealie-mealplan.md` carries the meal plan and shopping list endpoints, and how recipe scaling onto a list behaves.
 
 ## `meal-template`
 
@@ -36,6 +51,7 @@ What the skill insists on:
 
 ```bash
 npx skills add DaveBben/davebben-skills --skill meal-template
+npx skills add DaveBben/davebben-skills --skill meal-plan
 ```
 
 The canonical `SKILL.md` lives at `skills/meals/` in the repo root.
