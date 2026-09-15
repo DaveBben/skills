@@ -4,7 +4,7 @@ description: "Use this skill on every request to write, add, remove, change, imp
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "4.3.0"
+  version: "4.4.0"
 ---
 # Agile Loop
 
@@ -14,7 +14,7 @@ Loop: **Frame -> Slice -> Propose -> Test -> Halt -> Build -> Review -> Ship.** 
 
 ## Principles
 
-* **Working software over documentation.** Code and automated tests are the source of truth. Generate no Markdown specs, design docs or architecture maps unless asked.
+* **Working software over documentation.** Code and automated tests are the source of truth. No documents beyond the task log, ADRs and `AGENTS.md` unless asked.
 * **Executable specifications.** Never write implementation code first.
 * **Smallest valuable increment.** One vertical slice proving the riskiest assumption.
 * **Fixed authorship.** The user writes the cards and the acceptance criterion. The agent writes everything else. Green must not mean the implementation matches itself.
@@ -31,7 +31,7 @@ Loop: **Frame -> Slice -> Propose -> Test -> Halt -> Build -> Review -> Ship.** 
 ## Orient
 
 * **Load the charter.** Silently read `AGENTS.md`, the file the `orient` skill writes: purpose, users, non-goals, nouns, boundaries, commands, constraints. Fall back to `ARCHITECTURE.md`, then `README.md`. When none states a purpose, offer the `orient` skill once, then proceed.
-* **Check the floor.** When the root instructions file names no check command, the suite is red on main, or the log shows three `Not caught by` lines in its last ten entries, halt and offer the `harness` skill before the first slice. An agent amplifies the process it lands in; a repo with no gate gets faster at accumulating debt.
+* **Check the floor.** When the root instructions file names no check command, the suite is red on main, or the log shows three `Not caught by` lines in its last ten entries, halt and offer the `harness` skill before the first slice. When the interface the outcome names has no runner in the repo (a screen and no browser test), the first slice adds the runner with one hardcoded front-door test, as the seam rule in section 2 does. An agent amplifies the process it lands in; a repo with no gate gets faster at accumulating debt.
 * **Read `docs/adr/`** before proposing a change to an existing boundary or constraint.
 * **Read the PRD** if supplied, as raw material for the user's cards, never as a list of IDs to trace. Note its success metrics and non-goals. It says what and why, never how.
 * **Read the log.** `docs/tasks/{slug}/task.md`, or the tracker epic `AGENTS.md` names, opens with the Plan (the outcome and the ordered slices) and records what shipped and what was tried. Slug matches the issue key or the `feature/{slug}` branch.
@@ -48,18 +48,12 @@ Reject an outcome naming a component, table, endpoint or file, and one that cont
 
 Choose the slug: the issue key when `AGENTS.md` names a tracker, else a kebab-case name for the outcome. Create the branch `feature/{slug}` from main.
 
-Then rank the unknowns. Tag each with what settles it. After the walking skeleton, the slice that resolves the largest unknown most cheaply goes first.
+Then play the planning game. Two roles, never swapped. The user writes the cards: one line each, in their words, naming something they want to do, as many as they can see now and no more. The agent estimates each card in one word (hours, a day, more), splits any card over a day into cards the user re-words, and proposes a risk-first order. The user sets the final order. A card is a title; the conversation and the criterion wait until it is picked in section 3. This is the release plan. It tells the next session that slice 1 is one of six, not the whole feature. Add, split and reorder it after every slice, with the same roles. When the user has no cards yet, ask for them; do not write them.
 
-Then play the planning game. Two roles, never swapped. The user writes the cards: one line each, in their words, naming something they want to do, as many as they can see now and no more. The agent estimates each card in one word (hours, a day, more), splits any card over a day into cards the user re-words, and proposes a risk-first order. The user sets the final order. A card is a title; the conversation and the criterion wait until it is picked in section 3. This is the release plan. It tells the next session that slice 1 is one of six, not the whole feature. Add, split and reorder it after every slice, with the same roles. When the user has no cards yet, ask for the first three, do not write them.
-
-Write the result as the Plan at the top of the log, creating the file if absent. The Plan is the only section that is rewritten. Keep it under twenty lines.
+Write the result as the Plan at the top of the log, creating the file if absent. The log is committed so every developer and session reads the same plan, and kept after the last slice ships as the record of what git cannot show. The Plan is the only section that is rewritten. Keep it under twenty lines.
 
 ```text
 # {slug}
-Committed so every developer and session reads the same plan, and kept after the
-last slice ships as the record of what git cannot show: why, what was accepted,
-what was learned, what was decided. Skim it in two minutes. Every line that
-carries knowledge names the test, commit, ADR or AGENTS.md line that pins it.
 
 ## Plan
 Outcome:   <the sentence above>
@@ -87,7 +81,7 @@ A spike answers one question with throwaway code. Two triggers:
 
 Do not spike when a slice answers it as fast, when the question is a product decision (ask the user), or when there is no falsifiable answer. "Look into the queue library" is not a spike. "The library sustains 1,000 messages/second on this hardware" is.
 
-State the question and the finish line, get agreement, run the `spike` skill. It writes its findings into this slug's log as the spike entry of section 7. Move its Open questions into the Plan as assumptions. The code is deleted, not offered for keeping; record in the log that you deleted it. When an edit-time hook blocks a spike edit, work in a directory outside the hook's paths, such as the session scratchpad.
+Run the `spike` skill. It writes its findings into this slug's log as the spike entry of section 7. The code is deleted, not offered for keeping; record in the log that you deleted it. When an edit-time hook blocks a spike edit, work in a directory outside the hook's paths, such as the session scratchpad.
 
 ## 1. Decide
 
@@ -99,13 +93,7 @@ Run the `adr` skill immediately, not at the end of the feature, for:
 
 Below that threshold, ask before any choice a later slice inherits: a new dependency, a port, address or schedule, a file or wire format, a schema, a name that becomes a domain noun. Put the alternatives and the tradeoff to the user in one message and wait. Everything below that line is the agent's to decide, and every such decision is listed under `Decided alone:` in the review's Done block, with what was chosen, why, and the tradeoff. Suggest an architectural change only when the current design obstructs the implementation.
 
-Record assumptions in the task log, each with a kill condition:
-
-```text
-- A1: <estimate, with the arithmetic behind it> | kills it: <the observation, and when>
-```
-
-When one dies, append the actual next to the estimate. An assumption a recorded decision depends on goes in that ADR's `Assumes` line instead.
+An assumption a recorded decision depends on goes in that ADR's `Assumes` line.
 
 ## 2. Slice
 
@@ -115,7 +103,7 @@ Cut across the system's layers, never along them. Every slice ends with a person
 * **Hardcode everything the skeleton does not test.** Count the seams the user's criterion crosses: database, model, queue, third-party API, container, host. When more than one is unmeasured, the first slice fakes all but one. A served feed holding one hardcoded article is a slice. A feed fed by real verdicts from a real database in a real container is three.
 * **The skeleton is a slice like any other.** The user's story stays the feature's criterion in the Plan. The skeleton gets its own one-sentence criterion in section 3, naming what the user will observe (a fake entry in the real reader).
 * **Cross whatever boundary the value chain crosses** in the first slice: repo, service, team, or an orchestration layer that does not exist yet. A cron line, a hardcoded query and a bookmark is valid.
-* **The user picks every later slice** from the cards, by value. The agent argues for the card that kills the largest unknown per hour while an assumption is live, and adds only spike and constraint slices itself, flagged for the user.
+* **The user picks every later slice** from the cards, by value. The agent argues for the card that kills the largest unknown per hour, and adds only spike and constraint slices itself, flagged for the user.
 * **Split further** by workflow step, happy path before error path, one rule before its variants, hardcoding before generalising.
 * **Never name a slice** after a layer, component, table or team.
 * **Give a constraint its own slice** when no feature slice can carry it: a throughput floor, a memory ceiling, a data-residency rule. Its acceptance criterion is the number. Spike first when the number is unknown.
@@ -123,7 +111,7 @@ Cut across the system's layers, never along them. Every slice ends with a person
 * **Defer infrastructure** not required to pass this slice's test to a later slice.
 * **Pin untested legacy before changing it.** When the code the slice touches has no test of its current behaviour, write characterization tests asserting what it does today, bugs included, and commit them before the red commit. They are scaffolding: the review deletes any the accepted rows make redundant.
 * **Introduce the seam first.** When legacy code offers no point to test through, the first slice adds the seam (an injected dependency, an extracted function, a wrapper) and changes no behaviour. Where the old path resists a seam, build the slice beside it and route to the new path, rather than editing in place.
-* **Treat a bug as a card** with negative value. A bug in the slice under way is fixed now, no card. A bug in shipped work is a card the user writes and orders against the others; arrival is not priority, and the user may decline to fix it. Its outcome is the reproduction. Write the failing test at the level the report describes, before reading the code, then a unit test isolating the fault. Then grep every caller of the function about to change and fix at the point they all route through.
+* **Treat a bug as a card** with negative value. A bug in the slice under way is fixed now, no card. A bug in shipped work is a card the user writes and orders against the others; arrival is not priority, and the user may decline to fix it. Its outcome and criterion are the reproduction; its table is two rows: the failing test at the level the report describes, written before reading the code, then a unit test isolating the fault. The halts of section 3 still run. Then grep every caller of the function about to change and fix at the point they all route through.
 
 ## 3. Propose and Halt
 
@@ -136,7 +124,7 @@ Slice:      Short name.
 Outcome:    What a person can do afterwards that they could not before, and where they see it.
 Chosen for: Risk, value, or unknown killed. One sentence.
 Card:       The user's card, verbatim, or "walking skeleton".
-Class:      low | normal | high, proposed with the reason. The user confirms or changes it.
+Class:      low | normal | high, proposed with the reason. It stands unless the user changes it.
 Acceptance: USER-WRITTEN. Blank until the user writes it.
 ```
 
@@ -144,7 +132,7 @@ The class is the evidence the slice must carry, set by what a wrong change costs
 
 | Class | Defines it | Runs |
 |---|---|---|
-| `low` | A `git revert` undoes it fully; no boundary, schema or data moves | Criterion, one acceptance test committed red, check command, commit. No table, no build subagent, no review subagent. |
+| `low` | Nobody is harmed and nothing a person reads is wrong before a `git revert` lands: copy, layout, a log line, a dev-only tool | Criterion, one acceptance test committed red, check command, commit. No table, no build subagent, no review subagent. |
 | `normal` | Everything else | Sections 3 to 7 as written, with the written explain-back in section 6 |
 | `high` | Money, auth, data loss, a migration, a public contract, anything a revert cannot undo | Everything, plus the second reviewer and the live walkthrough in section 6, and the rollback in section 7 rehearsed |
 
@@ -154,18 +142,20 @@ The user writes the acceptance criterion. Do not draft it and invite approval. A
 * **Exactly one.** A second criterion means two slices, or a mislabelled integration test that belongs in the table.
 * **Promote into it** anything encoding an ADR. How a recorded decision was interpreted must not be discovered by reading generated code.
 
-**Second halt: the rows.** With the criterion in hand, run the `test-table` skill. It proposes one row per test with the columns Test, Level, Generator, Prevents and Killed by, where Killed by is the one-line mutation that must turn the row red. Output the table and the rest of the proposal, then stop. The user cuts rows and adds rows; a row not cut is accepted. One turn, not a row-by-row approval: approvals are an attention budget, and this one is spent in section 6.
+**Second halt: the rows.** With the criterion in hand, run the `test-table` skill. It proposes one row per test with the columns Test, Level, Generator, Prevents and Killed by, where Killed by is the one-line mutation that must turn the row red. Put any product decision a row exposed before the table, one question. Output the table and the rest of the proposal, then stop. The user writes one line naming the failure they most fear from this change; the agent names the row that catches it or adds one. Then the user cuts rows and adds rows; a row not cut is accepted. One turn, not a row-by-row approval: approvals are an attention budget, and this one is spent in section 6.
 
 ```text
 Tests:      The table. Agent-proposed, user-accepted.
-Not now:    What a reader would expect here that is deferred, and to which slice.
+Not now:    What a reader would expect here that is deferred, and to which slice. Omit when empty.
 ```
 
 Revise and re-propose on any rejected line.
 
 ## 4. Test and Halt
 
-Write every accepted row as a failing test, acceptance test first. Before running them, state the exact failure each will produce: the assertion, the error type, the value. Run them. A test that fails differently than predicted means the code is not what you believe; read it before going on. Output the test names and the red run, then stop with one question: does the user write the implementation, or does the builder. Recommend the keyboard when the slice sets a shape later slices inherit: a new noun, a first crossing of a boundary, the walking skeleton, or a composition two engineers could argue about. That is a taste decision, and taste comes from having made it and lived with it; the builder has none. Every other slice defaults to the builder. Commit the red tests as their own commit, with the criterion and the accepted table verbatim in the message; the review reads them from git, not chat, and diffs the accepted tests against it. Record the hash with `git config agile.redCommit <hash>`; the harness's test guard reads it and refuses edits to those files until the merge clears it. Write no implementation until the user says go. The failing tests are the specification, and the only artifact a person reads in one pass. Change no accepted row without saying so.
+When the slice sets a shape later slices inherit (a new noun, a first crossing of a boundary, the walking skeleton), or the log's last five entries show no user-written interface, ask the user to write the acceptance test's call site before seeing yours: the noun, the function, the arguments. Design happens in choosing that interface, not in making it pass; the builder has no taste and the body carries none. The user also takes the rename pass in the refactor. This is a practice budget no source has sized; the floor of one in five is a guess, say so.
+
+Write every accepted row as a failing test, acceptance test first. Before running them, state the exact failure each will produce: the assertion, the error type, the value. Run them, and print prediction and actual side by side, one line per row. A test that fails differently than predicted means the code is not what you believe; read it before going on. Commit the red tests as their own commit, with the criterion and the accepted table verbatim in the message; the review reads them from git, not chat, and diffs the accepted tests against it. Record the hash with `git config agile.redCommit <hash>`; the harness's test guard reads it and refuses edits to those files until the merge clears it. Then stop with one question: does the user write the implementation, or does the builder. Write no implementation until the user answers. The failing tests are the specification, and the only artifact a person reads in one pass. Change no accepted row without saying so.
 
 When a turn-end hook blocks the red run because the tests name symbols that do not exist yet, add the symbols as stubs whose only body raises. The types pass and the tests still fail on behaviour.
 
@@ -181,33 +171,33 @@ When the builder reports red, or touched anything outside its directory, do not 
 
 ## 6. Review
 
-Run the `review` skill in a subagent given only the diff, the red commit and the check command; the context that wrote the tests does not review them. Correctness, subtraction, scars, then refactor while green. Commit before the refactor and again after it.
+Run the `review` skill in a subagent in the worktree, given the diff, the red commit, the check command and the build prompt's NON-NEGOTIABLE block, and nothing from this session's chat; the context that wrote the tests does not review them. Correctness, subtraction, scars, then refactor while green. Commit before the refactor and again after it.
 
 For a `high` slice, dispatch a second reviewer on a different model with one lens named in its prompt: security, concurrency, or the boundary the slice crosses. Its output is test rows, not edits. Merge them into the table, mark each in scope or deferred under `Not now:`, and write the in-scope rows red before the slice ships.
 
 **Explain-back.** Reading a diff is recognition; it feels like understanding and is not. Before the merge, the user produces the understanding:
 
 * `low`: nothing. The user has chosen not to understand this code, and a revert undoes it.
-* `normal`: the user writes the merge description in their own words: what changed, and one line per new function or branch saying what it is for. A fresh subagent, given only the diff and that text, lists every place the account and the diff disagree, and every function the account does not mention, as questions. The user answers them in the description or changes the code. The description is the merge request's body.
+* `normal`: the user writes the merge description in their own words: what changed, and one line per new function or branch saying what it is for. A fresh subagent, given only the diff and that text, lists every place the account and the diff disagree, and every function the account does not mention, as questions. The user answers them in the description or changes the code. The description is the merge request's body. Do not draft it, and do not answer the questions for the user; when asked, point at the diff. Refuse the Done block until it exists.
 * `high`: the same, then a live walkthrough with another person, function by function, with the subagent's questions as the agenda.
 
 A green gate is not a finished slice. Before reporting done, print the review's Done block: Correctness, Subtraction, Scars, Refactor, Decided alone, Gate. `Decided alone` lists every choice made below the ask-first line in section 1, with what was chosen, why, and the tradeoff. A slice reported without the block is unreviewed. Do not run on into the next slice.
 
 ## 7. Ship and Log
 
-* **Commit at every green row,** not once per slice. A commit is the unit a person reviews.
 * **Flag** only when the slice exposes user-visible behaviour later slices complete, or when backing it out needs more than a `git revert`. Name the slice that removes the flag under `Not now:`.
 * **Tag tests and commits** with the card's issue key when a tracker exists, e.g. `[PAY-1420]`.
 * **Make the last commit the log.** After the Done block prints: rewrite the Plan at the top of the log (drop the shipped card; put any split or new card the slice exposed to the user, who words and orders it; never add a feature card alone), append the entry below, and rewrite `AGENTS.md` if the slice added a noun, crossed a new boundary, or turned a non-goal into a goal. One commit.
-* **The user merges.** Present the Done block, the diff and the explain-back questions. The agent never merges to main. One slice, one merge. A branch that outlives its slice is a queue of unreviewed work. Delete the branch after the merge and clear the red-commit guard.
+* **The user merges.** Present the answered description, the Done block and the diff. The agent never merges to main. One slice, one merge. A branch that outlives its slice is a queue of unreviewed work. Delete the branch after the merge and clear the red-commit guard.
 * **Deploy from main, by a command in the repo.** A `deploy` script or task target, committed with the slice that first needs it. Never from the working tree, never from a branch, never by commands that live only in chat.
 * **Exercise the rollback once** before anything a `git revert` cannot undo: a backfill, a migration, a bulk send.
 * **Name the signal before merging:** the screen, the endpoint or the event the user will read to know the slice worked. Then prompt the user to observe it in reality.
-* **Close out** when the Plan's slice list is empty: promote every `Learned` line and every live assumption to a test, an ADR or an `AGENTS.md` line, write the pin beside each, then close the epic. Keep the file.
+* **Close out** when the Plan's slice list is empty: promote every `Learned` line to a test, an ADR or an `AGENTS.md` line, write the pin beside each, then close the epic. Keep the file.
 
 ```text
 ## <date> — <slice name>
 - Done: <what shipped, one line>
+- Interface: <user or builder; the floor in section 4 counts these>
 - Accepted: <red commit hash; its message holds the criterion and the table>
 - Learned: <one finding, bold headline, then the test, ADR ID or AGENTS.md line that pins it>
 - Decided: <one choice from Decided alone, with its tradeoff, or a bare ADR ID>
@@ -224,8 +214,8 @@ Other people and other agents change main while a slice is in flight. The loop a
 
 * **One slug, one branch, one session, one log file.** Two slices never share a branch or a log. Parallel work is parallel slugs, each with its own Plan; the shared backlog is the tracker `AGENTS.md` names.
 * **Rebase on main before the red commit and again before the review.** Run the check command on the rebased tree. A green slice on a stale base is unverified.
-* **Open a merge request when the repo has a remote.** The Done block is its description. The user merges, after any reviewer the repo requires.
-* **Edit `AGENTS.md` and `docs/adr/architecture/` only in the log commit, after the rebase.** They are the shared files; a stale rewrite erases someone else's slice.
+* **Open a merge request when the repo has a remote.** The explain-back description is its body; the Done block follows it. The user merges, after any reviewer the repo requires.
+* **Edit `AGENTS.md` and `docs/adr/architecture/` only in the log commit, after the rebase.** They are the shared files; a stale rewrite erases someone else's slice. Write an architecture ADR the moment the decision is made, as `adr` says, and commit it there.
 * **The red-commit guard is local git config**, per clone. It never travels with the branch.
 * **The harness is the repo's, not the developer's.** Hooks, rules, contracts and the check command are committed; nothing the loop depends on lives in one person's settings.
 

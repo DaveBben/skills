@@ -4,7 +4,7 @@ description: "Use this skill whenever the tests for a change need to be enumerat
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.4.0"
+  version: "1.5.0"
 ---
 # Test Table
 
@@ -18,9 +18,9 @@ One row per test. `Generator` names the rule below that produced the row. `Kille
 
 | Test | Level | Generator | Prevents | Killed by |
 |---|---|---|---|---|
-| Given <a concrete starting state>, when <a concrete action>, then <what the person sees>, in the domain's nouns with real values | Acceptance, Integration, Unit, Property, Fuzz, E2E, Budget | Requirement, Seam, Type, Cardinality, Both sides, Invariant, Metric, Budget | The user-visible failure it stops | The mutation: `WORKERS = 2` to `8`, drop the second `ILIKE` clause, read `a` instead of `u` |
+| Given <a concrete starting state>, when <a concrete action>, then <what the person sees>, in the domain's nouns with real values | Acceptance, Integration, Unit, Property, Fuzz, Budget | Requirement, Seam, Type, Cardinality, Both sides, Invariant, Metric, Budget | The user-visible failure it stops | The mutation: `WORKERS = 2` to `8`, drop the second `ILIKE` clause, read `a` instead of `u` |
 
-The Test column is written for a reader who will never open the diff. No class, method, symbol or call in it; that precision lives in `Killed by`. A concrete example ("the note already says 'reports fatigue'; the doctor adds 'cough for 3 days'; the screen shows both, fatigue first") beats the rule it illustrates; when the rule matters, put it after the example in the same cell. Before proposing, read the tables in the two most recent red commits and match their register.
+The Test column is written for a reader who will never open the diff. No class, method, symbol or call in it; that precision lives in `Killed by`. A concrete example ("the note already says 'reports fatigue'; the doctor adds 'cough for 3 days'; the screen shows both, fatigue first") beats the rule it illustrates. Before proposing, read the tables in the two most recent red commits and match their register where those rows pass the rule above; otherwise ignore them. Tell the user once per table: read Test and Prevents; Level, Generator and Killed by are for the review.
 
 `Killed by` is the assertion made explicit. A test that passes an argument production never passes, or checks one clause of three, has no mutation that kills it. Name the mutation at proposal time. The `review` skill's correctness pass applies it; run alone, apply each mutation yourself once the tests exist and confirm the row goes red.
 
@@ -28,7 +28,7 @@ The Test column is written for a reader who will never open the diff. No class, 
 
 Apply in order. A generator that finds nothing to fire on produces no row.
 
-* **Requirement:** the one acceptance test, driven through the front door the user actually uses. Its level is fixed by the interface the outcome names: a screen is a browser test against the real UI, an API is a request against a running service, a CLI is the command. Never propose it at unit level; a unit row cannot observe a click changing a field. One front-door row per criterion, edge cases in the rows below it. A browser row locates by role and label, never by CSS or XPath, and never waits on a clock.
+* **Requirement:** the one acceptance test, driven through the front door the user actually uses. Its level is fixed by the interface the outcome names: a screen is a browser test against the real UI, an API is a request against a running service, a CLI is the command. Never propose it at unit level; a unit row cannot observe a click changing a field. This row cannot be cut; cutting it means the criterion is wrong, so return to the criterion. One front-door row per criterion, edge cases in the rows below it. Under a screen, edge-case rows render the real component and drive it by role and label; a row that mocks the store or the renderer is cut. A browser row locates by role and label, never by CSS or XPath, and never waits on a clock.
 * **Seam:** one row per boundary crossed: database, queue, third-party API, process edge. Pin the contract against a recorded exchange when the real dependency is unreachable.
 * **Type:** for each field touched, what the type can legally hold: empty, null, zero, negative, the delimiter itself, every enum variant.
 * **Cardinality:** zero, one and many, for every collection, page or retry.

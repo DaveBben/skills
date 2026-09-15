@@ -31,7 +31,7 @@ EDGE CASES
 <the accepted table's Type and Cardinality rows, already failing>
 Test behaviour, not implementation. No assertion on a private function, on
 internal call order, or on a log line.
-List any test you added that is not in the table, and say why.
+List any test you added that is not in the table, why, and its Killed by.
 ```
 
 * **Name specifics in the prohibition list.** "Keep it simple" produces nothing. Extend the list as the model's defaults become apparent.
