@@ -29,6 +29,11 @@ or README; where the two disagree, say so>
 layer this slice's code lives in: two facts, no description>
 Do not modify anything outside <paths>.
 
+KEEP FOR THE USER
+Leave <function> unwritten: its signature, a one-line contract, and a body
+that only raises. Make every other row green; the acceptance row stays red
+until the user writes this body. Name the function in your report.
+
 EDGE CASES
 <the accepted table's Type and Cardinality rows, already failing>
 Test behaviour, not implementation. No assertion on a private function, on

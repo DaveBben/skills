@@ -4,7 +4,7 @@ description: "Use this skill on every request to write, add, remove, change, imp
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "4.5.0"
+  version: "4.6.0"
 ---
 # Agile Loop
 
@@ -34,6 +34,7 @@ Loop: **Frame -> Slice -> Propose -> Test -> Halt -> Build -> Review -> Ship.** 
 * **Check the floor.** When the root instructions file names no check command, names one that runs less than CI runs, the suite is red on main in CI, no mutation runner exists, or the log shows three `Not caught by` lines in its last ten entries, halt and offer the `harness` skill before the first slice. When the interface the outcome names has no runner in the repo (a screen and no browser test), the first slice adds the runner with one hardcoded front-door test, as the seam rule in section 2 does; for a command, the entry point called in-process is the runner. An agent amplifies the process it lands in; a repo with no gate gets faster at accumulating debt.
 * **Read `docs/adr/`** before proposing a change to an existing boundary or constraint.
 * **Read the PRD** if supplied, as raw material for the user's cards, never as a list of IDs to trace. Note its success metrics and non-goals. It says what and why, never how. When the PRD is the user's own and states an outcome, non-goals and decisions, copy them into the Plan and cite them wherever a halt would re-ask them; ask only for the cards. When the root instructions file names a per-change spec directory, the Plan and the entries go at the bottom of that change's spec; create no task.md.
+* **Recall before reading.** When the log has an entry, ask the user for one sentence from memory: what the last slice changed and why. Then read the log and name the gap, if any. Retrieval without notes is the strongest retention act in the evidence, and it costs one sentence.
 * **Read the log.** `docs/tasks/{slug}/task.md`, or the tracker epic `AGENTS.md` names, opens with the Plan (the outcome and the ordered slices) and records what shipped and what was tried. Slug matches the issue key or the `feature/{slug}` branch.
 
 ## 0. Frame
@@ -153,21 +154,19 @@ Revise and re-propose on any rejected line.
 
 ## 4. Test and Halt
 
-When the slice sets a shape later slices inherit (a new noun, a first crossing of a boundary, the walking skeleton), or the log's last five entries show no user-written interface (fewer than five entries counts), ask the user to write the acceptance test's call site before seeing yours: the noun, the function, the arguments. Design happens in choosing that interface, not in making it pass; the builder has no taste and the body carries none. The user also takes the rename pass in the refactor. This is a practice budget no source has sized; the floor of one in five is a guess, say so.
-
-Write every accepted row as a failing test, acceptance test first. Before running them, state the exact failure each will produce: the assertion, the error type, the value. Run them, and print prediction and actual side by side, one line per row. A test that fails differently than predicted means the code is not what you believe; read it before going on. Put new rows in a new test file. Delete or rewrite, in the same commit and listed in its message, every existing test that asserts behaviour this slice removes; the guard then blocks only what the build must not touch. Commit the red tests as their own commit, with the criterion and the accepted table verbatim in the message; the review reads them from git, not chat, and diffs the accepted tests against it. Where the harness installed the test guard, record the hash with `git config agile.redCommit <hash>`; the guard reads it and refuses edits to those files until the merge clears it. Then stop with one question: does the user write the implementation, or does the builder. Write no implementation until the user answers. The failing tests are the specification, and the only artifact a person reads in one pass. Change no accepted row without saying so.
+Write every accepted row as a failing test, acceptance test first. Before running them, state the exact failure each will produce: the assertion, the error type, the value. Run them, and print prediction and actual side by side, one line per row. A test that fails differently than predicted means the code is not what you believe; read it before going on. Put new rows in a new test file. Delete or rewrite, in the same commit and listed in its message, every existing test that asserts behaviour this slice removes; the guard then blocks only what the build must not touch. Commit the red tests as their own commit, with the criterion and the accepted table verbatim in the message; the review reads them from git, not chat, and diffs the accepted tests against it. Where the harness installed the test guard, record the hash with `git config agile.redCommit <hash>`; the guard reads it and refuses edits to those files until the merge clears it. Then stop. Write no implementation until the user says go. The failing tests are the specification, and the only artifact a person reads in one pass. Change no accepted row without saying so.
 
 When a turn-end hook blocks the red run because the tests name symbols that do not exist yet, add the symbols as stubs whose only body raises. The types pass and the tests still fail on behaviour.
 
 ## 5. Build
 
-When the user takes the keyboard, run the `pair-programming` skill from its hand-over step: the accepted rows are already red and committed, so it writes no tests, refuses the implementation, and reviews what the user wrote when green. Then continue at section 6.
+Issue one instruction to a subagent using [references/build-prompt.md](references/build-prompt.md). The builder makes the accepted rows pass and may add tests for cases the table missed, listing each one and why. It never rewrites an accepted row.
 
-Otherwise issue one instruction to a subagent using [references/build-prompt.md](references/build-prompt.md). The builder makes the accepted rows pass and may add tests for cases the table missed, listing each one and why. It never rewrites an accepted row.
+**One function is the user's.** On every `normal` and `high` slice, the builder leaves one function unwritten: the one the acceptance row's `Killed by` mutation lands in, or, when that is glue, the first function the acceptance test calls. The builder writes its signature and a one-line contract, and a body that only raises. It makes every other row green and returns with the acceptance row red. The user writes the body until the row is green, then section 6 runs. This is the practice: one function, every slice, chosen by the rule and not by anyone's judgment. Cognitive skill decays fastest of all skill types and short frequent practice beats rare large practice; no source sizes it beyond that, and the complexity cap bounds the function. A slice that adds no function skips this and says so. When the user asks for the whole slice, run the `pair-programming` skill from its hand-over step instead.
 
 Run the tests and the check command yourself, in this session, after the builder returns. The builder's report is a claim; a run here is the only green that counts. The check command is the one the root instructions file names; the `harness` skill commits one, and when none exists, run the linter, the type checker and the build. A red check is a red slice.
 
-When the builder reports red, or touched anything outside its paths, do not debug the attempt. Reset the tree to the red commit and reissue the prompt with the one new fact under NON-NEGOTIABLE; a second generation costs less than reading the first. Twice, then the slice is too big: return to section 2 and split it.
+When the builder reports red on any row but the acceptance row, or touched anything outside its paths, do not debug the attempt. Reset the tree to the red commit and reissue the prompt with the one new fact under NON-NEGOTIABLE; a second generation costs less than reading the first. Twice, then the slice is too big: return to section 2 and split it.
 
 ## 6. Review
 
@@ -175,7 +174,7 @@ Run the `review` skill in a subagent in the worktree, given the diff, the red co
 
 For a `high` slice, dispatch a second reviewer on a different model with one lens named in its prompt: security, concurrency, or the boundary the slice crosses. Its output is test rows, not edits. Merge them into the table, mark each in scope or deferred under `Not now:`, and write the in-scope rows red before the slice ships.
 
-**Explain-back.** Reading a diff is recognition; it feels like understanding and is not. Before the merge, the user produces the understanding:
+**Explain-back.** Reading a diff is recognition; it feels like understanding and is not. Before the merge, the user produces the understanding, and produces it before reading the builder's report or the review's Done block: a machine's account read first biases the human's at every experience level.
 
 * `low`: nothing. The user has chosen not to understand this code, and a revert undoes it.
 * `normal`: the user writes the merge description in their own words: what changed, and one line per new function or branch saying what it is for. A fresh subagent, given only the diff and that text, lists every place the account and the diff disagree, and every function the account does not mention, as questions. The user answers them in the description or changes the code. The description is the merge request's body. Do not draft it, and do not answer the questions for the user; when asked, point at the diff. The review returns its Done block; print it only after the description exists.
@@ -197,7 +196,7 @@ A green gate is not a finished slice. Before reporting done, print the review's 
 ```text
 ## <date> — <slice name>
 - Done: <what shipped, one line>
-- Interface: <user or builder; the floor in section 4 counts these>
+- By hand: <the function the user wrote, or "none: no new function">
 - Observed: <the section 7 signal, seen or not; the next session appends this line before its first slice>
 - Accepted: <red commit hash; its message holds the criterion and the table>
 - Learned: <one finding, bold headline, then the test, ADR ID or AGENTS.md line that pins it>
