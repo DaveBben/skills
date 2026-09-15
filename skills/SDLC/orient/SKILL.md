@@ -29,6 +29,8 @@ Ask only what the conversation and the repository do not already answer. Batch t
 * **Ban unfalsifiable words:** improve, better, seamless, robust, correct, properly, handled, intuitive, flexible, scalable, modern. Replace each with the thing observed.
 * **Write non-goals as statements.** "No backfill of articles older than the first run" can be checked. "Keep it simple" cannot.
 * **Refuse to fill a section with furniture.** An empty line is better than "Users: our users". Leave it out and say so.
+* **Mechanism before label.** A constraint or non-goal states what physically happens and what breaks when it is violated. "Keep the pool safe" is a label. "Never hold a plugin-runner worker for longer than one HTTP round trip; the pool has 5 and a full pool returns 502 to every user" is the mechanism.
+* **Resolve every pointer.** No project-local abbreviation, test ID, or config key without one sentence saying what it is, in this file. Industry-standard terms need no definition. The reader has no other file open. Never invent a mechanism: when the cause of a constraint is not known, write "cause not established".
 * **Record what is imposed.** When the user supplies a technology or a constraint, put it under Boundaries and name who imposed it.
 
 ## AGENTS.md

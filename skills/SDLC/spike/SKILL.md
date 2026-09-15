@@ -43,6 +43,8 @@ Record, as they surface, each as a `Learned` line with a bold headline:
 * **Dead ends:** Approaches tried that did not work, and why. This stops the official build from repeating the failure.
 * **Open questions:** What the spike did not answer and what the official build must still resolve.
 
+Write each line for a reader who was not in this session. State the mechanism, not a label: "the client retries 3 times with no backoff, so one timeout costs 4 × 30 s" rather than "retries are aggressive". Resolve every pointer: no project-local flag, error code, or abbreviation without one sentence saying what it is. Industry-standard terms need no definition. Check every "because" and "so": when the left clause does not cause the right, write two sentences. Before writing the entry, ask whether a reader could, from the entry alone, say what was found and why, and predict what changes if one input changes. When they could only repeat the sentences, rewrite. Never invent a mechanism: when the cause is not known, write "cause not established" and what would establish it.
+
 ## Explore Divergent Approaches
 
 A spike is the cheap place to try more than one path. When the question has multiple plausible answers, build the smallest version of each and compare, rather than committing to the first idea.

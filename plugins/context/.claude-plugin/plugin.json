@@ -1,6 +1,6 @@
 {
   "name": "context",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Skills for managing an agent session's context across boundaries. Today it hands a session over when context fills or work stops partway, recording the dead ends a fresh session would otherwise rediscover.",
   "license": "MIT",
   "author": {
