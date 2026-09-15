@@ -44,7 +44,7 @@
       "name": "meals",
       "source": "./plugins/meals",
       "description": "Skills for eating to numbers without cooking from a spreadsheet. It builds reusable meal templates: a recipe the user already makes, paired with a fixed add-on that closes the gap to a calorie ceiling and protein and fiber floors, proven as a real dish before it is proven as macros, then written back to the recipe manager with ingredients that scale. It then plans days of meals from those templates, stretching batch dinners across days, checking daily averages against targets, and writing the meal plan and a shopping list to the recipe manager.",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "license": "MIT",
       "skills": [
         "./skills/meal-template",
