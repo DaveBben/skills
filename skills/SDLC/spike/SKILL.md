@@ -42,6 +42,7 @@ Record, as they surface, each as a `Learned` line with a bold headline:
 * **Quirks and surprises:** Undocumented behavior, version constraints, ordering requirements, silent failures, rate limits, and anything else that cost time to discover.
 * **Dead ends:** Approaches tried that did not work, and why. This stops the official build from repeating the failure.
 * **Open questions:** What the spike did not answer and what the official build must still resolve.
+* **Decided:** Every choice made without the user while building: a library, a data shape, a key, a limit, a default, a version dropped, an alternative tried and abandoned. One line each: what was chosen, the alternative not taken, and why. Write it the moment the choice is made. A spike makes many of these and they are easy to lose.
 
 Write each line for a reader who was not in this session. State the mechanism, not a label: "the client retries 3 times with no backoff, so one timeout costs 4 × 30 s" rather than "retries are aggressive". Resolve every pointer: no project-local flag, error code, or abbreviation without one sentence saying what it is. Industry-standard terms need no definition. Check every "because" and "so": when the left clause does not cause the right, write two sentences. Before writing the entry, ask whether a reader could, from the entry alone, say what was found and why, and predict what changes if one input changes. When they could only repeat the sentences, rewrite. Never invent a mechanism: when the cause is not known, write "cause not established" and what would establish it.
 
@@ -60,6 +61,7 @@ Stop building the moment the finish-line signal appears. Then:
 
 * **State the verdict:** Report to the user whether the question is proven, disproven, or inconclusive, and point to the finding that settles it.
 * **Confirm the findings log is complete:** Every quirk, approach, dead end, and open question is written down before the code is discarded.
+* **Surface the decisions for review.** Read the `Decided` lines. Keep every one that meets the `adr` threshold: expensive or irreversible to change, a hazard accepted without a test, an alternative explicitly rejected, or knowledge that cost time to acquire. Put them to the user in one table, one row per decision: what was chosen, what was rejected, why, and what it costs to change later. The user marks each row `record`, `drop`, or `defer`. Run the `adr` skill for each `record`. A `drop` stays a `Decided` line in the log and nothing more. A `defer` becomes an open question. Do not write an ADR the user has not marked, and do not skip a row because it looked small; the user decides what is small.
 * **Hand off, do not merge:** The spike code is throwaway. Do not open a PR of spike code, do not merge it, do not evolve it in place into the real feature. The official build starts fresh from the findings. Offer to delete or branch-isolate the spike code so it cannot leak into production.
 
 ## Guardrails
