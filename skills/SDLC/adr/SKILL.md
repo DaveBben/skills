@@ -4,7 +4,7 @@ description: "Use this skill whenever a decision is made or proposed that must s
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.5.0"
+  version: "0.5.1"
 ---
 # Architecture Decision Records (ADR)
 
@@ -14,9 +14,9 @@ Write it immediately when the decision is made, not at the end of the feature de
 
 ## File Naming and Location
 
-* **Feature-scoped:** `docs/adr/{slug}/<decision-name>.md` — Use this when the decision belongs to a specific change. The `{slug}` must match the `feature/{slug}` branch name.
-* **Global:** `docs/adr/architecture/<decision-name>.md` — Use this when the decision applies to the entire repository rather than a single change.
-* **Format:** `<decision-name>` must be short and kebab-case (e.g., `use-redis-for-rate-limiting.md`).
+* **Feature-scoped:** `docs/adr/{slug}/<decision-name>.md` for a decision belonging to one change. The `{slug}` matches the `feature/{slug}` branch name.
+* **Global:** `docs/adr/architecture/<decision-name>.md` for a decision applying to the whole repository.
+* **Format:** `<decision-name>` is short and kebab-case, e.g. `use-redis-for-rate-limiting.md`.
 * **Already recorded:** when the change's own PRD records the decision with its rejected alternative, write no ADR; put the PRD path on the log entry's `Decided` line.
 
 ## The Template

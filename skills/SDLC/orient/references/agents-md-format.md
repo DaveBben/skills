@@ -13,7 +13,7 @@ Load when writing or rewriting `AGENTS.md`. `CLAUDE.md` is a symlink to it, so o
 
 ## Template
 
-The generated AGENTS.md should contain these five sections in this order. Omit a section entirely if it would be empty and no placeholder is warranted:
+Write these five sections in this order. Omit a section that would be empty and needs no placeholder:
 
 ```markdown
 ## Project Identity
@@ -43,7 +43,7 @@ The generated AGENTS.md should contain these five sections in this order. Omit a
 
 ### 1. Project Identity
 
-The product charter. Purpose in one sentence naming an actor and an observable result, Users and what they do with the output, Not doing as checkable statements, and the three to five Nouns the code must use. This is what gives the agent the context to make decisions aligned with the project's purpose, and to refuse work outside it.
+The product charter. Purpose in one sentence naming an actor and an observable result, Users and what they do with the output, Not doing as checkable statements, and the three to five Nouns the code must use.
 
 **Good:**
 > Internal billing reconciliation service that pulls invoices from Stripe and NetSuite nightly,
@@ -53,14 +53,14 @@ The product charter. Purpose in one sentence naming an actor and an observable r
 **Bad:**
 > This is a Python project that uses AWS CDK and boto3.
 
-The bad example describes *how* (technology), not *what* or *why*. Technology belongs in Tech Stack.
+Technology belongs in Tech Stack, not here.
 
 ---
 
 ### 2. Tech Stack and Codebase Map
 
 List the primary language and framework with versions, the package manager, and a brief directory
-layout. This section helps the agent locate code and understand the toolchain.
+layout.
 
 **Include:**
 - Language and version (e.g., "Python 3.11")
@@ -95,9 +95,7 @@ layout. This section helps the agent locate code and understand the toolchain.
 We use Python and AWS. The code is in src/.
 ```
 
-The bad example lacks versions, omits the package manager, and gives no useful directory information.
-
-Keep the directory layout to top-level directories only. The agent can explore subdirectories on its own.
+Keep the directory layout to top-level directories only.
 
 End the section with Boundaries: every external system the product reads from, writes to, or runs inside, by name and address, and the backlog when it lives outside the repository ("Backlog: Jira project TAG").
 
@@ -106,7 +104,7 @@ End the section with Boundaries: every external system the product reads from, w
 ### 3. Operational Commands
 
 Exact, copy-pasteable shell commands for the most common operations. One command per line with a brief
-description. These are the commands the agent will actually run.
+description.
 
 **Include:** build, test, lint, format, run/deploy — whatever applies to the project.
 
@@ -128,17 +126,15 @@ description. These are the commands the agent will actually run.
 - Install dependencies first
 ```
 
-The bad example describes *what to do*, not *how to do it*. The agent needs exact commands, not
-instructions to figure them out.
+The bad example names no command. Write the command, never the instruction to find it.
 
 ---
 
 ### 4. Critical Constraints
 
-Hard rules that MUST or MUST NOT be followed in this project. These are the guardrails — things that
-would cause real damage if violated. Two kinds belong here: a checkable statement that ends with its
-enforcer (a Budget row in the test table, a check in the commit gate, an ADR), and a rule no tool can
-see. A constraint with neither is a wish; leave it out.
+Hard rules that MUST or MUST NOT be followed in this project. Two kinds belong here: a checkable
+statement that ends with its enforcer (a Budget row in the test table, a check in the commit gate, an
+ADR), and a rule no tool can see. Leave out a constraint with neither.
 
 **Good:**
 - Never commit `.env` files or credentials
@@ -151,18 +147,15 @@ see. A constraint with neither is a wish; leave it out.
 - Follow best practices
 - Be careful with the database
 
-The bad examples are vague and unverifiable. If you cannot write a test or check for it, it is not
-a constraint — it is a wish.
-
-If you have no hard constraints, leave the HTML comment placeholder. An empty section is better than
-a section full of vague guidance.
+With no hard constraints, leave the HTML comment placeholder. Never fill the section with vague
+guidance.
 
 ---
 
 ### 5. Pointers to Deeper Docs
 
-One line per document: file path + dash + purpose. These point the agent to authoritative references
-without copying their content into AGENTS.md.
+One line per document: file path + dash + purpose. Never copy a pointed-to document's content into
+AGENTS.md.
 
 **Good:**
 ```markdown
@@ -177,7 +170,4 @@ without copying their content into AGENTS.md.
 - See the docs folder for more information
 ```
 
-The bad example gives no specific paths and no descriptions. The agent cannot efficiently find what it
-needs without concrete pointers.
-
-Only list docs that exist. Do not list aspirational documents.
+Only list docs that exist, each by its exact path. Never list an aspirational document.

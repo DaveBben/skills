@@ -4,18 +4,18 @@ description: "Use this skill whenever generated or freshly written code is to be
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.6.0"
+  version: "1.6.1"
 ---
 # Review
 
-Run three passes, separately and in order. Merged passes mean the second and third do not happen.
+Run three passes, separately and in order. Never merge them.
 
 Inputs: the change, its acceptance test (the one test a person's observable outcome hangs on), and the accepted test table (one row per test, with a `Killed by` column naming the one-line mutation that must turn the row red). When `agile` ran, both are in the red commit message; read them from git. When no table exists, use the tests the change added. The check command is the one the root instructions file names; when none is named, run the linter, the type checker and the tests. The permitted directory is the one the build instruction named; when none was named, it is the repository root.
 
 ## 1. Correctness
 
 * **Run the mutation step over the changed files** where the harness has one; a surviving mutant on an accepted row is the finding. Where no runner exists, apply every `Killed by` mutation from the accepted test table by hand, and every builder-added test by its listed `Killed by`, one at a time, and confirm the named row goes red. A row that stays green asserts nothing: fix the test, not the mutation. When no table exists either, mutate one line per test.
-* **Diff every accepted test file against the red commit**, the commit `agile` makes before the build. Any change to an accepted test is a finding: the builder graded its own work. When no red commit exists, say so in the Done block.
+* **Diff every accepted test file against the red commit**, the commit `agile` makes before the build. Any change to an accepted test is a finding. When no red commit exists, say so in the Done block.
 * **Check every accepted test is present** and asserts observable behaviour.
 * **Delete tests asserting incidental detail** of how the code was built: a private function, internal call order, a log line.
 
@@ -31,13 +31,13 @@ Delete anything no requirement asked for:
 * Logging no one asked to read.
 * A class where a function does.
 
-**Delete, do not research.** Research biases toward keeping. Deleting takes seconds and a failing test reports the mistake. If it is unclear whether something is load-bearing, that is a missing test: delete it and see what fails.
+**Delete, do not research.** When it is unclear whether something is load-bearing, delete it and see what fails; a green suite then means a missing test.
 
 **Invert this in old code.** Unexplained code in a system running for years is often an undocumented fix. Characterise it with a test first, then delete, then look.
 
 ## 3. Scars
 
-Check the silent failures. A model writing config reaches for what looks right, not what is true here.
+Check the silent failures.
 
 * Pinned addresses, ports and hostnames unchanged.
 * Concurrency and rate limits unchanged.
@@ -49,9 +49,9 @@ Check the silent failures. A model writing config reaches for what looks right, 
 
 Order: passes the tests, reveals intent, no duplication, fewest elements.
 
-* **Intent.** Rename to the domain's own terms. Generated names come from a tutorial. Split a function you cannot name without "and".
-* **Duplication.** Each generation has no memory of the last. Hunt duplicated *knowledge*: the same rule in the job, the metric and the query will drift.
-* **Mechanical change goes through the tool, not the model.** A rename, a signature change or a move across a package uses the language's refactoring tool or a codemod, which cannot miss a call site. The same edit in more than three places is a script, committed.
+* **Intent.** Rename to the domain's own terms. Split a function you cannot name without "and".
+* **Duplication.** Hunt duplicated *knowledge*: the same rule in the job, the metric and the query will drift.
+* **Mechanical change goes through the tool, not the model.** A rename, a signature change or a move across a package uses the language's refactoring tool or a codemod. The same edit in more than three places is a script, committed.
 
 Refactor only toward duplication or confusion pointable-at now. Restructuring toward an anticipated shape is speculation. A refactor that touches a file outside the slice's diff is proposed in the Done block, not made; the user decides whether it is this slice's work.
 
@@ -59,7 +59,7 @@ Commit before the refactor and again after it. After the refactor commit, re-run
 
 ## Done
 
-Print this block when all three passes have run. It is the only evidence the review happened. Every line is a fact from this session, never a summary.
+Print this block when all three passes have run. Every line is a fact from this session, never a summary.
 
 ```text
 DONE
@@ -71,4 +71,4 @@ Decided alone: <one line per choice made without the user: what was chosen, why,
 Gate:        <the check command and its result>
 ```
 
-A survived mutation that is not fixed, or a scar that is not checked, means the block cannot be printed and the change is not done. `Decided alone:` lists every choice between alternatives the user did not see and did not have to: an internal name, a helper split, a fixture shape, a default a test pins. A choice a later change inherits (a dependency, a port, an address, a schedule, a format, a schema, a domain noun) is asked before it is made, never listed here after. The user reverses what they dislike while it is still one commit. An empty line means no such choice was made, not that none was noticed.
+A survived mutation that is not fixed, or a scar that is not checked, means the block cannot be printed and the change is not done. `Decided alone:` lists every choice between alternatives the user did not see and did not have to: an internal name, a helper split, a fixture shape, a default a test pins. A choice a later change inherits (a dependency, a port, an address, a schedule, a format, a schema, a domain noun) is asked before it is made, never listed here after. An empty line means no such choice was made, not that none was noticed.

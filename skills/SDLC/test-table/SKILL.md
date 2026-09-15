@@ -4,7 +4,7 @@ description: "Use this skill whenever the tests for a change need to be enumerat
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.6.0"
+  version: "1.6.1"
 ---
 # Test Table
 
@@ -22,19 +22,19 @@ One row per test. `Generator` names the rule below that produced the row. `Kille
 
 The Test column is written for a reader who will never open the diff. No class, method, symbol or call in it; that precision lives in `Killed by`. A concrete example ("the note already says 'reports fatigue'; the doctor adds 'cough for 3 days'; the screen shows both, fatigue first") beats the rule it illustrates. Before proposing, read the tables in the two most recent red commits and match their register where those rows pass the rule above; otherwise ignore them. Tell the user once per table: read Test and Prevents; Level, Generator and Killed by are for the review.
 
-`Killed by` is the assertion made explicit. A test that passes an argument production never passes, or checks one clause of three, has no mutation that kills it. Name the mutation at proposal time. The `review` skill's correctness pass applies it; run alone, apply each mutation yourself once the tests exist and confirm the row goes red.
+`Killed by` is the assertion made explicit. Name the mutation at proposal time. The `review` skill's correctness pass applies it; run alone, apply each mutation yourself once the tests exist and confirm the row goes red.
 
 ## Generators
 
 Apply in order. A generator that finds nothing to fire on produces no row.
 
-* **Requirement:** the one acceptance test, driven through the front door the user actually uses. Its level is fixed by the interface the outcome names: a screen is a browser test against the real UI, an API is a request against a running service, a CLI is the command. Never propose it at unit level; a unit row cannot observe a click changing a field. This row cannot be cut; cutting it means the criterion is wrong, so return to the criterion. One front-door row per criterion, edge cases in the rows below it. Under a screen, edge-case rows render the real component and drive it by role and label; a row that mocks the store or the renderer is cut. Under a command, only the front-door row runs the command; edge-case rows drive the stage the command calls. A browser row locates by role and label, never by CSS or XPath, and never waits on a clock.
+* **Requirement:** the one acceptance test, driven through the front door the user actually uses. Its level is fixed by the interface the outcome names: a screen is a browser test against the real UI, an API is a request against a running service, a CLI is the command. Never propose it at unit level. This row cannot be cut; cutting it means the criterion is wrong, so return to the criterion. One front-door row per criterion, edge cases in the rows below it. Under a screen, edge-case rows render the real component and drive it by role and label; a row that mocks the store or the renderer is cut. Under a command, only the front-door row runs the command; edge-case rows drive the stage the command calls. A browser row locates by role and label, never by CSS or XPath, and never waits on a clock.
 * **Seam:** one row per boundary crossed: database, queue, third-party API, process edge. Pin the contract against a recorded exchange when the real dependency is unreachable.
 * **Type:** for each field touched, what the type can legally hold: empty, null, zero, negative, the delimiter itself, every enum variant.
 * **Cardinality:** zero, one and many, for every collection, page or retry.
 * **Both sides:** every authorisation check earns a negative test written from the attacker's seat.
 * **Invariant:** a round trip, ordering or conservation law becomes one property test. Fuzz only where untrusted input crosses a boundary.
-* **Metric:** when a requirement names a metric, the event feeding it earns a test. An uninstrumented metric has no source.
+* **Metric:** when a requirement names a metric, the event feeding it earns a test.
 * **Budget:** a strict number on any hot path: latency, memory, row count, cost. Read the root instructions file's constraints, whatever the section is called; every constraint this change touches earns a row, with the constraint's own number as the assertion.
 
 ## Cut Rules
