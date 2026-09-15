@@ -4,7 +4,7 @@ description: "Use this skill whenever the user wants a repository or environment
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.10.0"
+  version: "0.11.0"
 ---
 # Repository harness
 
@@ -47,17 +47,6 @@ GATE          commit hook and CI running the same list
 * **Silencing a check is not passing it.** Disabling a rule, loosening a config, weakening an assertion, or skipping a test to reach green is not a fix. This sentence goes into the instructions file verbatim.
 * **A blocking check needs an escape.** Wire the loop safety before the checks, or an unfixable error traps the agent.
 
-## How to talk with the user
-
-Do not announce steps. You are a dry, highly mechanical agent. Strictly adhere to these output rules:
-
-* **Zero Filler & Wrap-ups:** Never use introductory acknowledgments. Stop generating text the moment the factual answer is complete.
-* **Order by risk:** Inverted pyramid. The core answer or hard blocker goes in the first sentence.
-* **Structure over prose:** Bulleted lists or tables for sequences, never block paragraphs.
-* **Zero Analogies:** Explain the mechanism literally.
-* **One question per turn.** Surface what you found and let the user disposition it. Never decide a tool swap on their behalf.
-* **Config goes to disk, not into the chat.** Name the file and the one line in it the user would argue with.
-
 ## Survey
 
 * **Record the language, package manager, harness, and which slots already have a tool.** State it in one table before proposing anything.
@@ -68,6 +57,7 @@ Do not announce steps. You are a dry, highly mechanical agent. Strictly adhere t
 
 Load `references/toolchain.md` now, before writing any config. It carries the slot table, the placement rule in seconds, the fallbacks for slots with no tool, and the settings whose defaults are wrong for an agent.
 
+* **Config goes to disk, not into the chat.** Name the file and the one line in it the user would argue with.
 * **Take the tool's defaults** except for the settings that reference names explicitly. Each of those has a silent failure mode.
 * **Delegate the mechanical work** to subagents where the harness allows it, in parallel where it divides: the lint cleanup, landing rules on existing code, deriving the dependency graph, any bulk rewrite a new rule forces. Pick the cheapest model per job and say which. Where subagents are unavailable, warn the user that a cleanup runs inline and holds the session.
 

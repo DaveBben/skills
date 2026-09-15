@@ -4,7 +4,7 @@ description: "Use this skill whenever generated or freshly written code is to be
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.5.0"
+  version: "1.6.0"
 ---
 # Review
 
@@ -14,7 +14,7 @@ Inputs: the change, its acceptance test (the one test a person's observable outc
 
 ## 1. Correctness
 
-* **Run the mutation step over the changed files** where the harness has one; a surviving mutant on an accepted row is the finding. Where no runner exists, apply every `Killed by` mutation from the accepted test table by hand, one at a time, and confirm the named row goes red. A row that stays green asserts nothing: fix the test, not the mutation. When no table exists either, mutate one line per test.
+* **Run the mutation step over the changed files** where the harness has one; a surviving mutant on an accepted row is the finding. Where no runner exists, apply every `Killed by` mutation from the accepted test table by hand, and every builder-added test by its listed `Killed by`, one at a time, and confirm the named row goes red. A row that stays green asserts nothing: fix the test, not the mutation. When no table exists either, mutate one line per test.
 * **Diff every accepted test file against the red commit**, the commit `agile` makes before the build. Any change to an accepted test is a finding: the builder graded its own work. When no red commit exists, say so in the Done block.
 * **Check every accepted test is present** and asserts observable behaviour.
 * **Delete tests asserting incidental detail** of how the code was built: a private function, internal call order, a log line.
@@ -55,7 +55,7 @@ Order: passes the tests, reveals intent, no duplication, fewest elements.
 
 Refactor only toward duplication or confusion pointable-at now. Restructuring toward an anticipated shape is speculation. A refactor that touches a file outside the slice's diff is proposed in the Done block, not made; the user decides whether it is this slice's work.
 
-Commit before the refactor and again after it.
+Commit before the refactor and again after it. After the refactor commit, re-run the accepted-test diff against the red commit; a rename the guard let through is still a finding.
 
 ## Done
 
@@ -63,7 +63,7 @@ Print this block when all three passes have run. It is the only evidence the rev
 
 ```text
 DONE
-Correctness: <runner or by hand>, <n> mutations, <n> red, <n> survived and fixed: <test names>; accepted tests unchanged since <red commit>, or the diff
+Correctness: <runner or by hand>; one line per accepted and builder-added row: its Test cell, the mutation applied, red or survived; accepted tests unchanged since <red commit>, or the diff
 Subtraction: <what was deleted, one line each, or "nothing">
 Scars:       <each pinned value checked, or "none pinned">
 Refactor:    <renames and merges, or "none">
