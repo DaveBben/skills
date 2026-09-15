@@ -25,6 +25,7 @@ Propose the migration. Do not perform it. On greenfield, take all of it.
 | `deps_check` | manifest edit, and commit | fail when the manifest and the lockfile disagree, without hitting the network |
 | `env_check` | session start | report whether the environment is built and in sync, naming the command that fixes it |
 | `tests` | turn end when the suite fits the turn-end budget, else commit | run the suite |
+| `e2e` | CI, and commit when it runs under a minute | drive the interface the product's users use: a real browser, a running service, the command; one test per acceptance criterion |
 | `deadcode` | commit | find unreferenced symbols |
 | `audit` | commit | check dependencies against a CVE feed |
 | `secrets` | commit | scan for credentials |
@@ -84,6 +85,7 @@ contracts
 deadcode
 audit
 tests (with coverage)
+e2e
 ```
 
 Commit one command that runs this list in this order and stops at the first failure: a task-runner target or a script named `check`, at the repository root. The commit hook, CI and the agent all call that one command, so "passes locally" and "passes in CI" are the same contract. Name it in the root instructions file; the change loop and the review call it "the check command".
@@ -108,3 +110,4 @@ Scope `audit` to lockfile changes only. It needs the network, and a registry out
 - Where the ecosystem has more than one supported runtime version, run the whole span and do not stop the matrix at the first failure.
 - Set the thorough property-test profile here.
 - Run mutation testing over the changed source files as its own step. A surviving mutant fails it.
+- Run the e2e slot as its own step against a built artifact, with role-and-label locators and no clock waits; retry a failure once and label it flaky rather than green.
