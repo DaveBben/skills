@@ -27,6 +27,7 @@ Loop: **Frame -> Slice -> Propose -> Test -> Halt -> Build -> Review -> Ship.** 
 * **Challenge bad ideas.** Offer the simpler alternative, then defer to the user's product vision.
 * **Say when an instruction does not parse.** Name any card, criterion or constraint that is ambiguous, contradicts `AGENTS.md`, or asks for what the code cannot do, and stop the turn there. Never proceed on a guess.
 * **One decision per turn.** Put one choice to the user and wait.
+* **Mechanism before label,** in chat and in every file this skill writes. "Racy" is a label; "two requests both read 2 and both write 3" is the mechanism. Resolve every pointer: no bare test ID, config key, or abbreviation without one sentence saying what it is. Check every "because" and "so": when the left clause does not cause the right, write two sentences. The rules in full are under "Writing for a reader who was not here" below.
 
 ## Orient
 
@@ -104,7 +105,7 @@ Below that threshold:
 * **Decide everything below that line alone,** and list each one under `Decided alone:` in the review's Done block, with what was chosen, why, and the tradeoff.
 * **Suggest an architectural change only when the current design obstructs the implementation.**
 
-An assumption a recorded decision depends on goes in that ADR's `Assumes` line.
+An assumption a recorded decision depends on goes in that ADR's `What it doesn't buy` section.
 
 ## 2. Slice
 
@@ -218,9 +219,23 @@ Before reporting done, print the review's Done block: Correctness, Subtraction, 
 - Not caught by: <bugs only: why no test, check or review stopped it, and the rule, row or hook now added>
 ```
 
-Omit empty lines. One line per finding and per decision; repeat the field. The entry fits on one screen. A finding that needs more than a line is an ADR: write it, leave the ID. The reason the Plan was reordered goes in the Plan, not the entry. `Not caught by` is mandatory for a bug: name the gap in the harness or the test table and close it in the same slice, or hand it to the `harness` skill. Never edit or delete an entry beyond appending its `Observed` line. A spike's entry is titled `spike: <the question>`; the `spike` skill writes it. `Learned` is mandatory for a spike.
+Omit empty lines. One line per finding and per decision; repeat the field. The entry fits on one screen. A `Learned` or `Decided` line states the mechanism ("the pool has 5 workers and each LLM call holds one for the full round trip"), never a label alone ("pool exhaustion"). A finding that needs more than a line is an ADR: write it, leave the ID. The reason the Plan was reordered goes in the Plan, not the entry. `Not caught by` is mandatory for a bug: name the gap in the harness or the test table and close it in the same slice, or hand it to the `harness` skill. Never edit or delete an entry beyond appending its `Observed` line. A spike's entry is titled `spike: <the question>`; the `spike` skill writes it. `Learned` is mandatory for a spike.
 
 Then ask whether this solved the immediate problem or another slice is required. Either way, end the session here. The next slice starts fresh from the log.
+
+## Writing for a reader who was not here
+
+The reader did not see this conversation. Text that reads as complete to the writer and as a list of pointers to the reader is the failure to avoid. Each rule below removes one cause of it.
+
+* **Resolve every pointer on the page.** No bare test ID, config key, abbreviation, or "the X" without one sentence saying what it is. Write "clinician", not "NP". Write "the browser panel that sends one request per keystroke", not "the panel". A pointer is a name local to this project or this session. Do not define industry-standard terms a working engineer knows: SQLite, fsync, Linux, HTTP.
+* **Mechanism before label.** Write what physically happens ("the worker thread sits idle until the HTTP response arrives") before any name for it ("blocking"). A name never stands alone. "Racy at the margin" is a label; "two requests can both read 2, both write 3, and the cap admits one extra call" is the mechanism.
+* **Check every connective.** For each "because", "so", "therefore", "which means": confirm the left clause causes the right. When it does not, write two sentences and no connective.
+* **One rung at a time.** A claim about the system needs the component sentence, then the platform sentence, then the system sentence. Do not go from a function name to an outage in one sentence.
+* **Incident as narrative.** When something broke, write what was built, what it did, and what failed, in that order. Narrative is the shortest explanation of a mechanism.
+* **Before and after in the reader's units.** "Clinicians currently recording", not a formula, a variable, or "N".
+* **Floor, not ceiling.** No word cap. Every claim carries at least one sentence of mechanism. Length follows from that.
+* **Never invent a mechanism.** When the cause is not known, write "cause not established" and what would establish it. A plausible mechanism the evidence does not show is the same defect as a label, with a confident tone added. Every fact comes from the session, the code, or a source you can name. Do not add a rejected alternative nobody considered, a hardware rationale nobody measured, or a language or library the notes never named.
+* **Reconstruction test before writing the file.** From the text alone, can the reader say what breaks and why, predict what changes when one input changes, and name what to measure next? When they could only repeat the sentences, rewrite. Then list every "because", "so" and "therefore" in the draft and write the cause beside each. Delete any connective whose cause you could not write.
 
 ## Working in a Team
 
