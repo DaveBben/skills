@@ -1,6 +1,6 @@
 {
   "name": "SDLC",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Engineering practice run with the human rather than recited at them. The agile loop takes a change to an existing system from a one-sentence outcome through slices, a user-written acceptance criterion, a proposed test table, failing tests, generated code and a three-pass review. Around it: orient, spike, greenfield, pair-programming, harness and adr. The user, not the model, makes every judgment call.",
   "license": "MIT",
   "author": {

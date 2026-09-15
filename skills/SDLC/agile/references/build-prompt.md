@@ -8,6 +8,7 @@ CONTRACT
 
 IMPLEMENT
 Only what makes the contract test pass.
+Commit after each row goes green; the message is the row's Test cell.
 Do NOT add: config with one value, an interface with one implementation, a
 parameter only ever passed its default, retry, backoff, caching, feature
 flags, error handling for cases no test names, logging no one asked to read,
@@ -22,10 +23,11 @@ way to do what the codebase already does is a finding, not a feature.
 NON-NEGOTIABLE
 <environment facts a model cannot infer and will improve into something wrong:
 pinned addresses, concurrency limits, byte-frozen files, query shapes measured
-as slow>
+as slow. Every value from the code, with its file and line, never from a spec
+or README; where the two disagree, say so>
 <the architecture's name where the root instructions file records one, and the
 layer this slice's code lives in: two facts, no description>
-Do not modify anything outside <directory>.
+Do not modify anything outside <paths>.
 
 EDGE CASES
 <the accepted table's Type and Cardinality rows, already failing>
