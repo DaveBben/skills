@@ -22,11 +22,11 @@ Load when the harness is Claude Code. Everything here lives in `.claude/`. The c
 
 `.claude/hooks/_slots.sh` holds every command the hooks run. Nothing else in `.claude/hooks/` names a tool.
 
-Take what the project already uses. A team already on a formatter and a linter gets those wired; replacing a working toolchain is a separate decision and belongs to the user.
+Take what the project already uses. A team already on a formatter and a linter gets those wired.
 
 Two rules for the split. `fast_fix` and `fast_check` run on every edit, so anything needing more than the one file goes in `turn_end`. `turn_end` fires once a turn, so anything needing the network or minutes goes in the commit-time gate instead.
 
-If a project has no usable per-file checker, leave `fast_check` returning 0 and wire `turn_end` only. A half-wired loop beats none.
+If a project has no usable per-file checker, leave `fast_check` returning 0 and wire `turn_end` only.
 
 **Python / uv:**
 
@@ -98,7 +98,7 @@ Replace `uv.lock` in the deny list with the project's own lockfile. Add an `allo
 
 ## Shared preamble
 
-Every hook needs the edited path out of the JSON on stdin. Do not assume `python3` is installed: on a TypeScript or Go machine it may not be, and the failure is a silent no-op that disables the loop with no warning.
+Every hook needs the edited path out of the JSON on stdin. Never assume `python3` is installed; on a TypeScript or Go machine its absence is a silent no-op that disables the loop.
 
 ```bash
 # .claude/hooks/_slots.sh, above the slot definitions
@@ -192,7 +192,7 @@ rm -f "$counter"
 exit 0
 ```
 
-`pathspec` is an array and stays quoted at the call site. Verified under bash: unquoted, `git status --porcelain -- $(...)` returns empty on a repo with any root-level source file, and the turn-end check silently stops running.
+`pathspec` is an array and stays quoted at the call site. Unquoted, `git status --porcelain -- $(...)` returns empty on a repo with any root-level source file, and the turn-end check silently stops running.
 
 Do not replace the retry counter with a check-once guard: that verifies before the fix is made and never re-checks after.
 
@@ -243,7 +243,7 @@ fi
 exit 0
 ```
 
-Every message `env_check` prints must name the command that fixes it. "Environment is not ready" tells the agent nothing it can act on.
+Every message `env_check` prints must name the command that fixes it.
 
 ## Hard blocks
 
@@ -289,7 +289,7 @@ esac
 exit 0
 ```
 
-Two entries, and justify a third. Match the install command at a shell boundary, so a wrapper whose name ends in the same token still passes.
+Match the install command at a shell boundary, so a wrapper whose name ends in the same token still passes.
 
 ## Accepted-test guard
 
@@ -332,4 +332,4 @@ paths: ["*.py", "**/*.py"]
 <the instruction, and the files it governs>
 ```
 
-An instruction that has to hold for the whole conversation goes in the repository's agent instructions file instead, which loads every session. Path frontmatter would load it only when a matching file is touched.
+An instruction that has to hold for the whole conversation goes in the repository's agent instructions file instead, which loads every session.

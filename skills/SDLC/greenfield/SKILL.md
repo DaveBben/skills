@@ -4,13 +4,13 @@ description: "Use this skill whenever a project does not exist yet and the user 
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.4.0"
+  version: "0.4.1"
 ---
 # Greenfield Codebase Setup
 
 Stand up a new project from a known-good template instead of an empty directory. Clone the template for the project's language, rename it, prove the default state passes, then remove everything the project clearly will not use. Commit after every discrete change so the history shows the reduction from template to project.
 
-The template supplies the toolchain, test harness, linting, and CI already wired and passing. Do not rebuild these from scratch. Start from green and subtract.
+The template supplies the toolchain, test harness, linting, and CI already wired and passing. Never rebuild these from scratch. Start from green and subtract.
 
 ## Select the Template
 
@@ -49,7 +49,7 @@ Execute these steps in order. Commit at the end of each numbered step with the s
 
 * Install dependencies using the template's declared toolchain.
 * Run the full test suite. It must pass on the unmodified template.
-* If tests fail before any removal, halt. A failing default state is a template defect or an environment problem — do not proceed to strip files against a broken baseline. Report the failure to the user.
+* If tests fail before any removal, halt. Never strip files against a broken baseline. Report the failure to the user as a template defect or an environment problem.
 * **Commit:** only if install or the rename produced lockfile or config changes — `chore: verify default state passes`
 
 ### 4. Strip docs to the project
@@ -73,5 +73,5 @@ Execute these steps in order. Commit at the end of each numbered step with the s
 
 * **Green at every commit:** The test suite passes before step 4 and after step 5. Never commit a state where the suite is red.
 * **Subtract, do not add features:** This skill scaffolds. Do not write business logic, add new dependencies, or design architecture here. Hand off to `agile` once the skeleton is clean.
-* **Ask on ambiguity:** Removing a file is easy to reverse in git but easy to get wrong. When unsure whether the project needs a file or dependency, keep it and ask.
+* **Ask on ambiguity:** When unsure whether the project needs a file or dependency, keep it and ask.
 * **Preserve the toolchain:** Do not remove the test runner, linter, formatter, or CI configuration. These are the reason to start from a template.

@@ -4,15 +4,15 @@ description: "Use this skill whenever the user wants a repository or environment
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.12.0"
+  version: "0.12.1"
 ---
 # Repository harness
 
-Build the checks that reach the agent without a human carrying them. Every correction a human makes by hand is a rule nobody has written yet.
+Build the checks that reach the agent without a human carrying them.
 
 Language agnostic. This skill names each slot and the test a filled slot must pass. Identify the language, pick the tool yourself, and say which you picked.
 
-It does not decide what the system should be. Framing, slicing and building belong to `agile`.
+Decide nothing about what the system should be. Framing, slicing and building belong to `agile`.
 
 ```text
 SURVEY        language, package manager, harness, slots already filled
@@ -41,8 +41,8 @@ GATE          commit hook and CI running the same list
 
 ## What never bends
 
-* **The failure message is the prompt.** Every check states what is forbidden and what to do instead. `rule R2011 violated` has thrown away its value.
-* **Watch every check fail once.** Introduce the violation, confirm the non-zero exit and the message, remove it. A check nobody has seen fail is a check you do not know works.
+* **The failure message is the prompt.** Every check states what is forbidden and what to do instead, never a bare rule identifier such as `rule R2011 violated`.
+* **Watch every check fail once.** Introduce the violation, confirm the non-zero exit and the message, remove it.
 * **Feedback arrives on the developer's machine**, at the moment of the edit. CI is the backstop and never the first place a rule fires.
 * **Silencing a check is not passing it.** Disabling a rule, loosening a config, weakening an assertion, or skipping a test to reach green is not a fix. This sentence goes into the instructions file verbatim.
 * **A blocking check needs an escape.** Wire the loop safety before the checks, or an unfixable error traps the agent.
@@ -50,7 +50,7 @@ GATE          commit hook and CI running the same list
 ## Survey
 
 * **Record the language, package manager, harness, and which slots already have a tool.** State it in one table before proposing anything.
-* **Name every conflict before changing it:** two tools covering one slot, two package managers, a manifest with no lockfile, or config in a file the new tool will not read.
+* **Name every conflict before changing it:** two tools covering one slot, two package managers, a manifest with no lockfile, or config in a file the new tool will not read. Where a newer tool subsumes an older one, say which rules the older carries that the newer does not.
 * **Propose the migration; never perform it.** Replacing a working toolchain is the user's decision. On greenfield, take all of it.
 
 ## Slots
@@ -63,21 +63,21 @@ Load `references/toolchain.md` now, before writing any config. It carries the sl
 
 ## Contracts
 
-The only check that sees a dependency reverse. A single-file linter and a type checker both have no opinion about the shape of the package, and the cost of the wrong shape arrives months later, long after every test still passes.
+The only check that sees a dependency reverse. A single-file linter and a type checker have no opinion about the shape of the package.
 
 * **Greenfield:** Ask the user for the modules, what each owns, and which way dependencies run. It is theirs to draw. Where nothing is settled, say so, fill the language-level slots now, and encode contracts after the first change through `agile` has drawn the shape.
 * **Brownfield:** Derive the current dependency graph, render it as a diagram, and ask which edges they did not expect. Those are the ones nobody chose, and they become the first contracts. Never encode the whole current graph; that makes the mess permanent.
 * **One contract per allowed-dependency line.** Everything not listed is forbidden, and the config says so explicitly.
 * **Write each contract's name as the rule in plain English**, so a broken build prints the sentence that stopped being true.
-* **Name the shape when it has a name.** When the user's modules match a known pattern (hexagonal, layered, MVI), record the name and its one defining rule in the root instructions file. An agent inside a named pattern scopes its reading to the layer it is in; an agent given only edges does not.
-* **The contracts are the record.** Do not create a separate architecture document to describe them; two sources of truth drift, and the prose one is never the one that fails the build.
+* **Name the shape when it has a name.** When the user's modules match a known pattern (hexagonal, layered, MVI), record the name and its one defining rule in the root instructions file.
+* **The contracts are the record.** Never write a separate architecture document to describe them.
 
 ## Rules
 
 The deposit location for a correction a static check can express. One rule per file, in `.semgrep/` unless the project already has a pattern engine.
 
 * **Brownfield only.** Greenfield has nothing yet to violate a rule.
-* **Offer the anti-pattern sweep and the rules as one decision.** Apart they produce nothing.
+* **Offer the anti-pattern sweep and the rules as one decision.**
 * **Ask the agent what anti-patterns this codebase uses**, put the list to the user, then encode the practices already visible in the code and those anti-patterns as their inverse.
 * **Show each rule with one real violation it catches** before adding it. A rule with no current violation is a preference; say so and let the user choose.
 * **Scope with the engine's path filters**, never with exemptions written into the pattern.
@@ -97,11 +97,11 @@ Where the harness is Claude Code, load `references/claude-harness.md` now and wr
 ## Guards
 
 * **Hard blocks: two entries, and justify a third.** A rule earns a slot only when violating it is never correct and the harness cannot catch it afterwards. Blocking the flag that skips the commit gate qualifies. Blocking a package manager the project does not use is blocklist creep.
-* **Block edits to accepted tests.** While `agile` has a red commit recorded, any edit to a file that commit touched is refused at edit time. Asking the agent to leave tests alone does not work; the research and the users of every coding agent report it weakening tests to reach green. The guard makes the request a fact.
+* **Block edits to accepted tests.** While `agile` has a red commit recorded, refuse any edit to a file that commit touched, at edit time. An instruction to leave tests alone is not a substitute for the guard.
 * **Deny reads and writes outright** for secrets files, the lockfile, and the version control directory. These are not style rules and do not belong in a linter.
 * **Say plainly that the deny list stops accidents and is not a security boundary.** Anything pre-approved that executes code can read any file the user can.
-* **Pre-approve every verification command** the agent needs to check its own work. A check the agent must ask permission to run is a check it stops running.
-* **Report environment readiness at session start**, naming the command that fixes each problem. "Environment is not ready" tells the agent nothing it can act on.
+* **Pre-approve every verification command** the agent needs to check its own work.
+* **Report environment readiness at session start**, naming the command that fixes each problem.
 * **Offer an isolated container** where the harness supports one, so a permissive agent session has a bounded blast radius. Keep credentials out of environment variables, which are readable by every child process and by anyone inspecting the container.
 
 ## Instructions
@@ -115,7 +115,7 @@ Three scopes. Put each rule in the narrowest one that still loads when it is nee
 | Path-scoped rule file | a matching path is touched | instructions tied to a file type |
 
 * **Create the root file if the repo has none** by running the `orient` skill, which writes `AGENTS.md` in five sections and symlinks `CLAUDE.md` to it. The check command goes under its Operational Commands; the rules below go under its Critical Constraints.
-* **Cap the root file at 100 lines.** Every line costs context on every turn, and a bloated file makes the agent ignore the rules that matter. Anything longer belongs in a nested or path-scoped file.
+* **Cap the root file at 100 lines.** Anything longer belongs in a nested or path-scoped file.
 * **Alias the other conventional filenames to it** with a symlink, so every tool reads one file. `orient` makes `CLAUDE.md`; add any other name the repository carries.
 * **Record where a future correction goes.** State the routing in the root file: a static check into the rules directory, a dependency direction into the contracts, a file-specific instruction into a path-scoped rule, anything conversational into the root file itself.
 * **Offer a decision rule for the root file,** verbatim. It governs the conversation, so it is never path-scoped. Ask before adding it.
@@ -135,12 +135,12 @@ Three scopes. Put each rule in the narrowest one that still loads when it is nee
 
 ## Gate
 
-* **Commit one check command** that runs the canonical gate in order and stops at the first failure: a task-runner target or a `check` script at the root. Commit hook, CI and the agent call that one command, so "passes locally" and "passes in CI" are the same contract. Name it in the root instructions file.
+* **Commit one check command** that runs the canonical gate in order and stops at the first failure: a task-runner target or a `check` script at the root. Commit hook, CI and the agent all call that one command. Name it in the root instructions file.
 * **Pin every hook version.** An unpinned hook makes the gate non-reproducible.
 * **Run each CI check as its own step**, install from the lockfile, and run the full supported runtime matrix without stopping at the first failure.
 * **Scope the dependency audit to lockfile changes.** It needs the network, and a registry outage must not block a pure code commit. Give the user the command that skips one hook, and state that skipping the whole gate is never the answer.
 * **Wire automated dependency updates** so the lockfile and CI pins do not rot.
-* **Gate on mutation over the diff in CI.** Coverage proves a line ran. Only a mutant proves a test would notice it changing. Scope the run to changed files so it stays bounded. The `agile` loop's floor check halts when this slot or the `e2e` slot is missing: its trust in a green build rests on them, and the survivor report is what a reviewer reads instead of every assertion.
+* **Gate on mutation over the diff in CI.** Scope the run to changed files so it stays bounded. The `agile` loop's floor check halts when this slot or the `e2e` slot is missing.
 
 ## Landing rules on existing code
 
