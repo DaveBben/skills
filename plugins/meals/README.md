@@ -35,6 +35,7 @@ What the skill insists on:
 - **The add-on must be an established dish with the base, not a macro graft.** It has to survive a search for the pairing before it is allowed to survive the arithmetic. A macro-correct meal nobody cooks twice is a failed template.
 - **Macros are computed from the ingredient list, never read from stored nutrition.** Library nutrition is sparse and does not know about omissions.
 - **A subagent verifies the result.** Parsing, an independent USDA recompute, and instruction soundness. Checking your own arithmetic in the same pass finds nothing.
+- **A second subagent, on the most capable model, reviews realism.** It sets per-plate grams beside published recipes of the same dish and fixes add-ons sized to hit a number rather than to belong on the plate. It exists because a reviewer that confirmed arithmetic passed 106 of 118 templates, including 3 cups of wheat bran in yogurt bowls and 2 lb of green beans for 4 plates of curry. Realism outranks the targets: a small, stated miss beats a dish nobody would cook.
 
 `references/nutrient-priority.md` carries the per-100-kcal rankings for protein, fiber, fat quality and micronutrient density, including the portions that win the ratio and lose the meal. `references/mealie-api.md` carries the recipe-manager conventions, most of which exist because a scaled recipe lies in three places the serving slider never touches.
 
