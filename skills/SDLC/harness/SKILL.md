@@ -4,7 +4,7 @@ description: "Use this skill whenever the user wants a repository or environment
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.9.0"
+  version: "0.10.0"
 ---
 # Repository harness
 
@@ -150,7 +150,7 @@ Three scopes. Put each rule in the narrowest one that still loads when it is nee
 * **Run each CI check as its own step**, install from the lockfile, and run the full supported runtime matrix without stopping at the first failure.
 * **Scope the dependency audit to lockfile changes.** It needs the network, and a registry outage must not block a pure code commit. Give the user the command that skips one hook, and state that skipping the whole gate is never the answer.
 * **Wire automated dependency updates** so the lockfile and CI pins do not rot.
-* **Gate on mutation over the diff in CI.** Coverage proves a line ran. Only a mutant proves a test would notice it changing. Scope the run to changed files so it stays bounded.
+* **Gate on mutation over the diff in CI.** Coverage proves a line ran. Only a mutant proves a test would notice it changing. Scope the run to changed files so it stays bounded. Where the `agile` loop runs, this slot and the `e2e` slot are required, not offered: the loop's trust in a green build rests on them, and the survivor report is what a reviewer reads instead of every assertion.
 
 ## Landing rules on existing code
 

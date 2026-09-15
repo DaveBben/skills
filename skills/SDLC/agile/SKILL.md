@@ -4,7 +4,7 @@ description: "Use this skill on every request to write, add, remove, change, imp
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "4.2.0"
+  version: "4.3.0"
 ---
 # Agile Loop
 
@@ -145,8 +145,8 @@ The class is the evidence the slice must carry, set by what a wrong change costs
 | Class | Defines it | Runs |
 |---|---|---|
 | `low` | A `git revert` undoes it fully; no boundary, schema or data moves | Criterion, one acceptance test committed red, check command, commit. No table, no build subagent, no review subagent. |
-| `normal` | Everything else | Sections 3 to 7 as written |
-| `high` | Money, auth, data loss, a migration, a public contract, anything a revert cannot undo | Everything, plus the second reviewer in section 6, the rollback in section 7 rehearsed, and the user reads the diff before merging |
+| `normal` | Everything else | Sections 3 to 7 as written, with the written explain-back in section 6 |
+| `high` | Money, auth, data loss, a migration, a public contract, anything a revert cannot undo | Everything, plus the second reviewer and the live walkthrough in section 6, and the rollback in section 7 rehearsed |
 
 The user writes the acceptance criterion. Do not draft it and invite approval. Approval of a generated criterion is not authorship, and the failure it prevents is exactly this: the agent defines correct, implements against its own definition, and reports green.
 
@@ -154,7 +154,7 @@ The user writes the acceptance criterion. Do not draft it and invite approval. A
 * **Exactly one.** A second criterion means two slices, or a mislabelled integration test that belongs in the table.
 * **Promote into it** anything encoding an ADR. How a recorded decision was interpreted must not be discovered by reading generated code.
 
-**Second halt: the rows.** With the criterion in hand, run the `test-table` skill. It proposes one row per test with the columns Test, Level, Generator, Prevents and Killed by, where Killed by is the one-line mutation that must turn the row red. Output the table and the rest of the proposal, then stop until the user accepts or cuts every row.
+**Second halt: the rows.** With the criterion in hand, run the `test-table` skill. It proposes one row per test with the columns Test, Level, Generator, Prevents and Killed by, where Killed by is the one-line mutation that must turn the row red. Output the table and the rest of the proposal, then stop. The user cuts rows and adds rows; a row not cut is accepted. One turn, not a row-by-row approval: approvals are an attention budget, and this one is spent in section 6.
 
 ```text
 Tests:      The table. Agent-proposed, user-accepted.
@@ -185,6 +185,12 @@ Run the `review` skill in a subagent given only the diff, the red commit and the
 
 For a `high` slice, dispatch a second reviewer on a different model with one lens named in its prompt: security, concurrency, or the boundary the slice crosses. Its output is test rows, not edits. Merge them into the table, mark each in scope or deferred under `Not now:`, and write the in-scope rows red before the slice ships.
 
+**Explain-back.** Reading a diff is recognition; it feels like understanding and is not. Before the merge, the user produces the understanding:
+
+* `low`: nothing. The user has chosen not to understand this code, and a revert undoes it.
+* `normal`: the user writes the merge description in their own words: what changed, and one line per new function or branch saying what it is for. A fresh subagent, given only the diff and that text, lists every place the account and the diff disagree, and every function the account does not mention, as questions. The user answers them in the description or changes the code. The description is the merge request's body.
+* `high`: the same, then a live walkthrough with another person, function by function, with the subagent's questions as the agenda.
+
 A green gate is not a finished slice. Before reporting done, print the review's Done block: Correctness, Subtraction, Scars, Refactor, Decided alone, Gate. `Decided alone` lists every choice made below the ask-first line in section 1, with what was chosen, why, and the tradeoff. A slice reported without the block is unreviewed. Do not run on into the next slice.
 
 ## 7. Ship and Log
@@ -193,7 +199,7 @@ A green gate is not a finished slice. Before reporting done, print the review's 
 * **Flag** only when the slice exposes user-visible behaviour later slices complete, or when backing it out needs more than a `git revert`. Name the slice that removes the flag under `Not now:`.
 * **Tag tests and commits** with the card's issue key when a tracker exists, e.g. `[PAY-1420]`.
 * **Make the last commit the log.** After the Done block prints: rewrite the Plan at the top of the log (drop the shipped card; put any split or new card the slice exposed to the user, who words and orders it; never add a feature card alone), append the entry below, and rewrite `AGENTS.md` if the slice added a noun, crossed a new boundary, or turned a non-goal into a goal. One commit.
-* **The user merges.** Present the Done block and the diff; for a `high` slice, say that the diff is theirs to read before merging. The agent never merges to main. One slice, one merge. A branch that outlives its slice is a queue of unreviewed work. Delete the branch after the merge and clear the red-commit guard.
+* **The user merges.** Present the Done block, the diff and the explain-back questions. The agent never merges to main. One slice, one merge. A branch that outlives its slice is a queue of unreviewed work. Delete the branch after the merge and clear the red-commit guard.
 * **Deploy from main, by a command in the repo.** A `deploy` script or task target, committed with the slice that first needs it. Never from the working tree, never from a branch, never by commands that live only in chat.
 * **Exercise the rollback once** before anything a `git revert` cannot undo: a backfill, a migration, a bulk send.
 * **Name the signal before merging:** the screen, the endpoint or the event the user will read to know the slice worked. Then prompt the user to observe it in reality.
