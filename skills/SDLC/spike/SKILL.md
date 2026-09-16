@@ -4,7 +4,7 @@ description: "Use this skill whenever the user wants to find something out by bu
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.4.0"
+  version: "0.5.0"
 ---
 # Spike
 
@@ -44,7 +44,7 @@ Record, as they surface, each as a `Learned` line with a bold headline:
 * **Open questions:** What the spike did not answer and what the official build must still resolve.
 * **Decided:** Every choice made without the user while building: a library, a data shape, a key, a limit, a default, a version dropped, an alternative tried and abandoned. One line each: what was chosen, the alternative not taken, and why. Write it the moment the choice is made. A spike makes many of these and they are easy to lose.
 
-Write each line for a reader who was not in this session. State the mechanism, not a label: "the client retries 3 times with no backoff, so one timeout costs 4 × 30 s" rather than "retries are aggressive". Resolve every pointer: no project-local flag, error code, or abbreviation without one sentence saying what it is. Industry-standard terms need no definition. Check every "because" and "so": when the left clause does not cause the right, write two sentences. Before writing the entry, ask whether a reader could, from the entry alone, say what was found and why, and predict what changes if one input changes. When they could only repeat the sentences, rewrite. Never invent a mechanism: when the cause is not known, write "cause not established" and what would establish it.
+Write every line by `references/writing.md`: mechanism before label, every pointer resolved, every connective checked, no mechanism invented.
 
 ## Explore Divergent Approaches
 
@@ -66,21 +66,7 @@ Stop building the moment the finish-line signal appears. Then:
 
 ## Communication
 
-* **Follow the rule; never announce it.** No "one decision per turn", "offer once", "I will not decide this for you". The rule shows in what you do, not in what you say.
-* **Use the user's words for things.** A term this skill or an instructions file defines (slice, frame, front door, finish line, check, card, class, boundary, hold against) stays out of chat until the user uses it. Say what the thing is instead. Real names of files, commands and tools stay: say `CONTEXT.md`, not "the file that states what this product is". Write "lists" or "says" for what a file contains, never "names".
-* **Never describe a sentence you just wrote.** Write it once and stop. No "that sentence is X", no "it rejects itself if".
-* **People and code do things.** "The CI workflow also runs the formatter", not "CI at ci.yml runs more". Not "CLAUDE.md names", not "the spike leaves open", not "that fork belongs in".
-* **A fact stands alone.** Give the mechanism when the user is deciding something that turns on it, or asked why. "There is no mutation runner." is a complete sentence. State the conclusion and keep the evidence for when the user must judge it. Never explain why something matters; the reader can see that.
-* **No contrast frames.** Never "X, not Y" or "not X but Y". State X.
-* **A question is a question.** "Do you want me to set up the harness first? The CI workflow runs two checks the local command skips, so a slice can pass here and fail there." Then stop. Never script the user's reply.
-* **Full sentences in chat.** No headline fragments, no colon-led labels ("Frame —", "Offer once:"). Bold leads belong in documents.
-* **Old before new.** Start a sentence with what the reader already knows and end with the new fact. "CI runs two checks the local command skips: the formatter and the tests directory."
-* **Plain "is".** Say "is", "has", "does". Never "serves as", "holds", "marks", "represents", "stands as".
-* **Verbs, not nouns made from verbs.** "Decide", not "make a decision". "When we order the slices", not "slice ordering". Watch words ending in -tion, -ment, -ance.
-* **Short common word.** "Use", not "utilise". "Start", not "commence". "Enough", not "sufficient".
-* **No triplets, no synonym cycling.** A list has as many items as there are things. One name per thing, repeated every time.
-* **No intensifiers.** Not genuinely, truly, really, simply, crucially, importantly, clearly.
-* **Desk test, last.** Read each sentence as if saying it to the colleague at the next desk. Rewrite any sentence you would not say out loud.
+Load [references/writing.md](references/writing.md) now. It governs every chat reply and every line of the findings log.
 
 ## Guardrails
 
