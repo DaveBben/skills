@@ -1,10 +1,10 @@
 ---
 name: test-table
-description: "Use this skill whenever the tests for a change need to be enumerated before any test is written: proposing a test plan, deciding which tests a slice, feature or bug fix needs, or reviewing whether an existing set of tests is complete. Use it on: 'what tests should this have', 'propose the tests', 'which tests do we need', 'test plan for X', 'enumerate the tests', 'test table', 'is this covered', 'what am I missing in the tests', 'review the test coverage for X'. Use it on a bare 'tests?' after a proposal. Produce one table, one row per test, each row naming the rule that generated it and the user-visible failure it prevents; the user cuts rows and adds rows; a row not cut is accepted. Do not use it to write the tests; that follows acceptance."
+description: "Use this skill whenever the tests for a change need to be enumerated before any test is written: proposing a test plan, deciding which tests a slice, feature or bug fix needs, or reviewing whether an existing set of tests is complete. Use it on: 'what tests should this have', 'propose the tests', 'which tests do we need', 'test plan for X', 'enumerate the tests', 'test table', 'is this covered', 'what am I missing in the tests', 'review the test coverage for X'. Use it on a bare 'tests?' after a proposal. Produce one numbered list, one entry per test, each naming the rule that generated it and the user-visible failure it prevents; the user cuts entries by number and adds entries; an entry not cut is accepted. Do not use it to write the tests; that follows acceptance."
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.6.1"
+  version: "2.0.0"
 ---
 # Test Table
 
@@ -14,13 +14,17 @@ Inputs: the change's acceptance criterion (one falsifiable statement of what a p
 
 ## The Table
 
-One row per test. `Generator` names the rule below that produced the row. `Killed by` names the one-line implementation change that must turn the row red. Delete any row with no generator and no requirement behind it. Delete any row whose `Killed by` is a change production never makes.
+One numbered entry per test. Lay it out as below, never as a markdown table: a table whose Test cell is a sentence renders in a terminal as a broken list of field names, and the user cannot read it. The number is how the user cuts ("cut 3 and 5").
 
-| Test | Level | Generator | Prevents | Killed by |
-|---|---|---|---|---|
-| Given <a concrete starting state>, when <a concrete action>, then <what the person sees>, in the domain's nouns with real values | Acceptance, Integration, Unit, Property, Fuzz, Budget | Requirement, Seam, Type, Cardinality, Both sides, Invariant, Metric, Budget | The user-visible failure it stops | The mutation: `WORKERS = 2` to `8`, drop the second `ILIKE` clause, read `a` instead of `u` |
+```text
+1. <Test: Given a concrete starting state, when a concrete action, then what the person sees, in the domain's nouns with real values>
+   Prevents: <the user-visible failure it stops>
+   Level: <Acceptance | Integration | Unit | Property | Fuzz | Budget> · Generator: <the rule below that produced it> · Killed by: <the one-line implementation change that must turn it red: `WORKERS = 2` to `8`, drop the second `ILIKE` clause, read `a` instead of `u`>
+```
 
-The Test column is written for a reader who will never open the diff. No class, method, symbol or call in it; that precision lives in `Killed by`. A concrete example ("the note already says 'reports fatigue'; the doctor adds 'cough for 3 days'; the screen shows both, fatigue first") beats the rule it illustrates. Before proposing, read the tables in the two most recent red commits and match their register where those rows pass the rule above; otherwise ignore them. Tell the user once per table: read Test and Prevents; Level, Generator and Killed by are for the review.
+Delete any entry with no generator and no requirement behind it. Delete any entry whose `Killed by` is a change production never makes.
+
+The Test line is written for a reader who will never open the diff. No class, method, symbol or call in it; that precision lives in `Killed by`. A concrete example ("the note already says 'reports fatigue'; the doctor adds 'cough for 3 days'; the screen shows both, fatigue first") beats the rule it illustrates. Before proposing, read the tables in the two most recent red commits and match their register where those entries pass the rule above; otherwise ignore them. Tell the user once per table: read Test and Prevents; the third line is for the review.
 
 `Killed by` is the assertion made explicit. Name the mutation at proposal time. The `review` skill's correctness pass applies it; run alone, apply each mutation yourself once the tests exist and confirm the row goes red.
 

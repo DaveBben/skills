@@ -4,13 +4,13 @@ description: "Use this skill whenever generated or freshly written code is to be
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.6.1"
+  version: "1.6.2"
 ---
 # Review
 
 Run three passes, separately and in order. Never merge them.
 
-Inputs: the change, its acceptance test (the one test a person's observable outcome hangs on), and the accepted test table (one row per test, with a `Killed by` column naming the one-line mutation that must turn the row red). When `agile` ran, both are in the red commit message; read them from git. When no table exists, use the tests the change added. The check command is the one the root instructions file names; when none is named, run the linter, the type checker and the tests. The permitted directory is the one the build instruction named; when none was named, it is the repository root.
+Inputs: the change, its acceptance test (the one test a person's observable outcome hangs on), and the accepted test table (one numbered entry per test, with a `Killed by` field naming the one-line mutation that must turn the row red). When `agile` ran, both are in the red commit message; read them from git. When no table exists, use the tests the change added. The check command is the one the root instructions file names; when none is named, run the linter, the type checker and the tests. The permitted directory is the one the build instruction named; when none was named, it is the repository root.
 
 ## 1. Correctness
 

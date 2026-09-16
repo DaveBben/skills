@@ -56,7 +56,7 @@ PLUGIN_DIRS = [os.path.join(REPO, "plugins", "SDLC"),
 TURNS = 12
 MODEL = None  # set from --model; None leaves the harness default
 OURS = {"agile", "harness", "adr", "greenfield", "spike", "handing-off",
-        "test-table", "review", "charter", "pair-programming"}
+        "test-table", "review", "charter", "give-feedback"}
 TARGET = 0.80  # suite passes at 80% or better
 
 FILES = {

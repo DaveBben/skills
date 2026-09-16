@@ -19,7 +19,7 @@ The plugin is nine skills. Plain Markdown, no build step, nothing to compile.
 | `review` | "review this", "review the diff", "what can be deleted" |
 | `spike` | "prototype this", "let's see if X is feasible", "throwaway" |
 | `greenfield` | "start a new project", "walking skeleton", "scaffolding" |
-| `pair-programming` | "pair with me", "write the test and I will implement it" |
+| `give-feedback` | "give me feedback", "what do you think of this", "poke holes in this", "here is how I would fix it, thoughts?" |
 | `harness` | "set up guardrails", "add hooks for the agent", "set up the commit gate" |
 | `adr` | "write an adr", "let's document that decision", "we'll accept that risk" |
 
@@ -321,6 +321,17 @@ The two conflicts are worth naming because the resolutions shaped the skills:
 `research/example_artifacts.md` is the companion, showing what each artifact looks like and how long it lives.
 
 Neither source covers what happens when a feature is removed, what to do when a feature needs a boundary you drew wrong, or when to retire a rule that has stopped earning its slot. Those gaps are still open.
+
+## Where the hands go
+
+The split between what the user does and what the agent does follows how an airline crew works with an autopilot. The pilot hand-flies the takeoff and the landing and sets the autopilot's targets for the cruise; the autopilot never chooses the altitude. In the loop, the user writes the cards and the acceptance criterion, cuts the test rows, writes the merge description and merges. The build runs unattended in between.
+
+Four findings from that field shaped specific rules:
+
+- **Bainbridge, "Ironies of Automation" (1983).** Automation takes the routine part of a task and leaves the human the hard part, with less practice at it. FAA SAFO 13002 (2013) asks airlines to schedule manual flying so the skill stays current. The practice is the user writing code, a design or a fix idea by hand and running `give-feedback` on it; the `agile` loop never forces it, since a forced exercise in the middle of a delivery is an interruption, and the loop is for delivering.
+- **Asiana 214 (NTSB, 2013).** The crew flew an approach assuming the autothrottle held speed while it sat in a mode that did not. This is why the proposal lists what it assumes before the build, for the user to strike or confirm.
+- **Air France 447 (BEA, 2009).** The autopilot handed a stalling aircraft to a crew that had been monitoring for hours, with no statement of what it had stopped doing. This is why every stop in the loop ends with the branch, the last commit, which tests are red and what the agent does on "go".
+- **The stabilized-approach gate.** An approach that fails fixed criteria at a fixed height is abandoned without debate. This is why a builder that reports red, or touches a path outside its slice, is reset to the red commit and reissued once, and the slice is split after the second failure.
 
 ---
 
