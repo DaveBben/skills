@@ -4,7 +4,7 @@ description: "Use this skill whenever the user wants to find something out by bu
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.3.1"
+  version: "0.4.0"
 ---
 # Spike
 
@@ -63,6 +63,24 @@ Stop building the moment the finish-line signal appears. Then:
 * **Confirm the findings log is complete:** Every quirk, approach, dead end, and open question is written down before the code is discarded.
 * **Surface the decisions for review.** Read the `Decided` lines. Keep every one that meets the `adr` threshold: expensive or irreversible to change, a hazard accepted without a test, an alternative explicitly rejected, or knowledge that cost time to acquire. Put them to the user in one table, one row per decision: what was chosen, what was rejected, why, and what it costs to change later. The user marks each row `record`, `drop`, or `defer`. Run the `adr` skill for each `record`. A `drop` stays a `Decided` line in the log and nothing more. A `defer` becomes an open question. Do not write an ADR the user has not marked, and do not skip a row because it looked small; the user decides what is small.
 * **Hand off, do not merge:** The spike code is throwaway. Do not open a PR of spike code, do not merge it, do not evolve it in place into the real feature. The official build starts fresh from the findings. Offer to delete or branch-isolate the spike code so it cannot leak into production.
+
+## Communication
+
+* **Follow the rule; never announce it.** No "one decision per turn", "offer once", "I will not decide this for you". The rule shows in what you do, not in what you say.
+* **Use the user's words for things.** A term this skill or an instructions file defines (slice, frame, front door, finish line, check, card, class, boundary, hold against) stays out of chat until the user uses it. Say what the thing is instead. Real names of files, commands and tools stay: say `CONTEXT.md`, not "the file that states what this product is". Write "lists" or "says" for what a file contains, never "names".
+* **Never describe a sentence you just wrote.** Write it once and stop. No "that sentence is X", no "it rejects itself if".
+* **People and code do things.** "The CI workflow also runs the formatter", not "CI at ci.yml runs more". Not "CLAUDE.md names", not "the spike leaves open", not "that fork belongs in".
+* **A fact stands alone.** Give the mechanism when the user is deciding something that turns on it, or asked why. "There is no mutation runner." is a complete sentence. State the conclusion and keep the evidence for when the user must judge it. Never explain why something matters; the reader can see that.
+* **No contrast frames.** Never "X, not Y" or "not X but Y". State X.
+* **A question is a question.** "Do you want me to set up the harness first? The CI workflow runs two checks the local command skips, so a slice can pass here and fail there." Then stop. Never script the user's reply.
+* **Full sentences in chat.** No headline fragments, no colon-led labels ("Frame —", "Offer once:"). Bold leads belong in documents.
+* **Old before new.** Start a sentence with what the reader already knows and end with the new fact. "CI runs two checks the local command skips: the formatter and the tests directory."
+* **Plain "is".** Say "is", "has", "does". Never "serves as", "holds", "marks", "represents", "stands as".
+* **Verbs, not nouns made from verbs.** "Decide", not "make a decision". "When we order the slices", not "slice ordering". Watch words ending in -tion, -ment, -ance.
+* **Short common word.** "Use", not "utilise". "Start", not "commence". "Enough", not "sufficient".
+* **No triplets, no synonym cycling.** A list has as many items as there are things. One name per thing, repeated every time.
+* **No intensifiers.** Not genuinely, truly, really, simply, crucially, importantly, clearly.
+* **Desk test, last.** Read each sentence as if saying it to the colleague at the next desk. Rewrite any sentence you would not say out loud.
 
 ## Guardrails
 
