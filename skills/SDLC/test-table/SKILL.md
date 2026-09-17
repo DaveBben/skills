@@ -4,7 +4,7 @@ description: "Use this skill whenever the tests for a change need to be enumerat
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "2.0.0"
+  version: "2.2.0"
 ---
 # Test Table
 
@@ -14,17 +14,26 @@ Inputs: the change's acceptance criterion (one falsifiable statement of what a p
 
 ## The Table
 
-One numbered entry per test. Lay it out as below, never as a markdown table: a table whose Test cell is a sentence renders in a terminal as a broken list of field names, and the user cannot read it. The number is how the user cuts ("cut 3 and 5").
+Two parts, in this order. First an index table with short cells, which is what the review reads and how the user cuts ("cut 3 and 5"). Then one block per test with bold labels, which is what the user reads. Keep every index cell under forty characters so the terminal renders it as a table; a long cell turns the whole table into a broken list of field names. In the blocks, Given, When and Then each get their own line, and no line runs past one clause.
 
 ```text
-1. <Test: Given a concrete starting state, when a concrete action, then what the person sees, in the domain's nouns with real values>
-   Prevents: <the user-visible failure it stops>
-   Level: <Acceptance | Integration | Unit | Property | Fuzz | Budget> · Generator: <the rule below that produced it> · Killed by: <the one-line implementation change that must turn it red: `WORKERS = 2` to `8`, drop the second `ILIKE` clause, read `a` instead of `u`>
+| # | Test | Level | Generator | Killed by |
+|---|---|---|---|---|
+| 1 | <title: what the person can do, five to eight words> | Acceptance | Requirement | <the one-line change that turns it red> |
+| 2 | ... | Unit | Type | ... |
+
+**1. <the same title>**
+**Given** <a concrete starting state>
+**When** <a concrete action>
+**Then** <what the person sees, with real values>
+**Prevents** <the user-visible failure it stops>
+
+**2. ...**
 ```
 
 Delete any entry with no generator and no requirement behind it. Delete any entry whose `Killed by` is a change production never makes.
 
-The Test line is written for a reader who will never open the diff. No class, method, symbol or call in it; that precision lives in `Killed by`. A concrete example ("the note already says 'reports fatigue'; the doctor adds 'cough for 3 days'; the screen shows both, fatigue first") beats the rule it illustrates. Before proposing, read the tables in the two most recent red commits and match their register where those entries pass the rule above; otherwise ignore them. Tell the user once per table: read Test and Prevents; the third line is for the review.
+The Given, When and Then lines are written for a reader who will never open the diff, in the domain's nouns with real values. No class, method, symbol or call in them; that precision lives in the `Killed by` cell. A concrete example ("**Given** the note already says 'reports fatigue' / **When** the doctor adds 'cough for 3 days' / **Then** the screen shows both, fatigue first") beats the rule it illustrates. Before proposing, read the tables in the two most recent red commits and match their register where those entries pass the rule above; otherwise ignore them. Tell the user once per table: read the blocks; the index is for cutting and for the review.
 
 `Killed by` is the assertion made explicit. Name the mutation at proposal time. The `review` skill's correctness pass applies it; run alone, apply each mutation yourself once the tests exist and confirm the row goes red.
 
