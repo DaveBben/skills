@@ -330,7 +330,6 @@ Four findings from that field shaped specific rules:
 
 - **Bainbridge, "Ironies of Automation" (1983).** Automation takes the routine part of a task and leaves the human the hard part, with less practice at it. FAA SAFO 13002 (2013) asks airlines to schedule manual flying so the skill stays current. The practice is the user writing code, a design or a fix idea by hand and running `give-feedback` on it; the `agile` loop never forces it, since a forced exercise in the middle of a delivery is an interruption, and the loop is for delivering.
 - **Asiana 214 (NTSB, 2013).** The crew flew an approach assuming the autothrottle held speed while it sat in a mode that did not. This is why the proposal lists what it assumes before the build, for the user to strike or confirm.
-- **Air France 447 (BEA, 2009).** The autopilot handed a stalling aircraft to a crew that had been monitoring for hours, with no statement of what it had stopped doing. This is why every stop in the loop ends with the branch, the last commit, which tests are red and what the agent does on "go".
 - **The stabilized-approach gate.** An approach that fails fixed criteria at a fixed height is abandoned without debate. This is why a builder that reports red, or touches a path outside its slice, is reset to the red commit and reissued once, and the slice is split after the second failure.
 
 ---

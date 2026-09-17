@@ -4,13 +4,21 @@ description: "Use this skill whenever a decision is made or proposed that must s
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.6.0"
+  version: "0.7.0"
 ---
 # Architecture Decision Records (ADR)
 
 Write an ADR to document an expensive or irreversible decision, an accepted hazard, or a test row dispositioned "no test required" whose absence a later reader would question.
 
-Write it immediately when the decision is made, not at the end of the feature development.
+Write it immediately when the decision is made, not at the end of the feature development, and only after the user has given the reasons in their own words.
+
+## Ask before writing
+
+The reasons in the ADR are the user's. Never fill them in from what the agent can infer; an ADR whose "why" the agent wrote records what the agent would have decided.
+
+* **Ask three things in one message,** then wait: why they chose this, what they see as the tradeoffs, and why they are not going with the obvious route, naming the obvious route so they can say "that is not the obvious one". When the decision was the agent's own choice, state the agent's reason, the obvious alternative and the tradeoff in the same message, and ask the user to confirm, change or replace the reason.
+* **Give feedback on the answer before writing.** One message: a tradeoff the answer did not name, an alternative nobody considered, a hazard the answer accepts without a test, or a reason that does not hold against the code, each with its mechanism. When the answer holds up, say so in one line. The user amends the decision or the reason, or says write it.
+* **Quote the user's reasons** in the Decision paragraph and in "Why the obvious fixes don't work here", in their words. The agent's feedback goes in "What it doesn't buy" or "Alternatives rejected", marked as the agent's.
 
 ## File Naming and Location
 
