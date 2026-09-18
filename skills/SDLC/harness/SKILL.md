@@ -4,7 +4,7 @@ description: "Use this skill whenever the user wants a repository or environment
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.12.1"
+  version: "0.13.1"
 ---
 # Repository harness
 
@@ -36,7 +36,7 @@ GATE          commit hook and CI running the same list
   * *Greenfield:* No code, or code you will discard. Every rule applies from the first commit and nothing needs grandfathering.
   * *Brownfield:* Code that predates the rules. Existing code violates every rule you add.
 * **The branch is not project age.** A two-week-old repo with a thousand lines and no linter is brownfield.
-* **Halt before writing anything** if a change is in flight: an open `feature/{slug}` branch, or a `docs/tasks/{slug}/task.md` whose Plan still lists unshipped slices. Cleanups rewrite the tree and will collide. Offer the config-only subset now with cleanups deferred, or finishing the slice first.
+* **Halt before writing anything** if a change is in flight: an open `feature/{slug}` branch, or a `docs/features/{slug}/feature.md` (or the per-change spec the root instructions file names instead) whose feature header still lists unshipped stories. Cleanups rewrite the tree and will collide. Offer the config-only subset now with cleanups deferred, or finishing the story first.
 * **Resume at the first missing output** when a repository is part-way through this skill.
 
 ## What never bends
@@ -98,6 +98,7 @@ Where the harness is Claude Code, load `references/claude-harness.md` now and wr
 
 * **Hard blocks: two entries, and justify a third.** A rule earns a slot only when violating it is never correct and the harness cannot catch it afterwards. Blocking the flag that skips the commit gate qualifies. Blocking a package manager the project does not use is blocklist creep.
 * **Block edits to accepted tests.** While `agile` has a red commit recorded, refuse any edit to a file that commit touched, at edit time. An instruction to leave tests alone is not a substitute for the guard.
+* **Deny agent edits to the feature acceptance tests for good.** The `agile` loop keeps the user's acceptance test for a whole feature in a `feature-acceptance` directory inside the test tree. Deny edits, writes and deletes there permanently, for the agent and every subagent; it is the one test file the user owns outright.
 * **Deny reads and writes outright** for secrets files, the lockfile, and the version control directory. These are not style rules and do not belong in a linter.
 * **Say plainly that the deny list stops accidents and is not a security boundary.** Anything pre-approved that executes code can read any file the user can.
 * **Pre-approve every verification command** the agent needs to check its own work.
@@ -140,7 +141,7 @@ Three scopes. Put each rule in the narrowest one that still loads when it is nee
 * **Run each CI check as its own step**, install from the lockfile, and run the full supported runtime matrix without stopping at the first failure.
 * **Scope the dependency audit to lockfile changes.** It needs the network, and a registry outage must not block a pure code commit. Give the user the command that skips one hook, and state that skipping the whole gate is never the answer.
 * **Wire automated dependency updates** so the lockfile and CI pins do not rot.
-* **Gate on mutation over the diff in CI.** Scope the run to changed files so it stays bounded. The `agile` loop's floor check halts when this slot or the `e2e` slot is missing.
+* **Gate on mutation over the diff in CI.** Scope the run to changed files so it stays bounded. The `agile` loop's floor check halts when this slot is missing; a missing `e2e` slot becomes that loop's first story.
 
 ## Landing rules on existing code
 

@@ -1,6 +1,6 @@
 # Build Prompt
 
-Issue one instruction per slice. The accepted rows already exist as failing tests.
+Issue one instruction per story. The accepted rows already exist as failing tests.
 
 ```text
 CONTRACT
@@ -25,8 +25,9 @@ NON-NEGOTIABLE
 pinned addresses, concurrency limits, byte-frozen files, query shapes measured
 as slow. Every value from the code, with its file and line, never from a spec
 or README; where the two disagree, say so>
-<the architecture's name where the root instructions file records one, and the
-layer this slice's code lives in: two facts, no description>
+<from the module map, in the feature header's `Map:` line or in the root instructions
+file once written there: the module this story's code lives in, its pattern where one is set, and the modules it may depend on;
+three facts, no description>
 Do not modify anything outside <paths>.
 
 EDGE CASES

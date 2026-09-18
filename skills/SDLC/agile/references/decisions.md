@@ -1,10 +1,10 @@
 # Architecture decisions
 
-The dividing line: a choice that touches the data's shape, the system's trust or consistency boundaries, or the hardware or platform target is expensive to reverse and is decided before the first slice. A choice swappable behind an interface, or affecting one vertical slice, waits until the slice that needs it.
+The dividing line: a choice that touches the data's shape, the system's trust or consistency boundaries, or the hardware or platform target is expensive to reverse and is decided before the first story. A choice swappable behind an interface, or affecting one vertical story, waits until the story that needs it.
 
-Walk only the groups that match the system. An item the code already settles (an existing database, an existing auth scheme) is stated in the Plan, never asked.
+Walk only the groups that match the system. An item the code already settles (an existing database, an existing auth scheme) is stated in the feature header, never asked.
 
-## Before the first slice
+## Before the first story
 
 **Any system**
 
@@ -54,7 +54,7 @@ Walk only the groups that match the system. An item the code already settles (an
 * Batch or streaming processing.
 * Training-serving and feature-store architecture.
 
-## When a slice forces it
+## When a story forces it
 
 **Any system**
 

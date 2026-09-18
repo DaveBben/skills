@@ -4,7 +4,7 @@ description: "Use this skill whenever the user wants to find something out by bu
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.5.0"
+  version: "0.5.1"
 ---
 # Spike
 
@@ -33,9 +33,9 @@ The single exception: when the outcome you are measuring is only observable thro
 
 Maintain a running findings log from the first moment, not at the end. Write each finding as you hit it. Never leave a finding in the chat only; the code is deleted and the knowledge goes with it.
 
-Write the log as one entry in `docs/tasks/{slug}/task.md`, titled `spike: <the question>`. The slug is the slice's slug when `agile` called the spike, else a kebab-case name for the question. Create the file if absent. `agile` reads the same file, so a spike inside a slice and a spike on its own leave findings in one place.
+Write the log as one entry in `docs/features/{slug}/feature.md`, titled `spike: <the question>`. The slug is the story's slug when `agile` called the spike, else a kebab-case name for the question. Create the file if absent. `agile` reads the same file, so a spike inside a story and a spike on its own leave findings in one place.
 
-Record, as they surface, each as a `Learned` line with a bold headline:
+Record, as they surface, each as a `Learned` line whose bold headline is one of these:
 
 * **Outcome:** Whether the spike resolved the question: proven, disproven, or inconclusive. Update this as evidence accumulates.
 * **Approach used:** The specific libraries, APIs, patterns, or sequence that produced the result. Enough for the official build to reproduce it.

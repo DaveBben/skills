@@ -64,6 +64,7 @@ Merge into an existing file rather than replacing it.
     "deny": [
       "Read(./.env*)", "Edit(./.env*)", "Write(./.env*)",
       "Edit(./uv.lock)", "Write(./uv.lock)",
+      "Edit(./tests/feature-acceptance/**)", "Write(./tests/feature-acceptance/**)",
       "Edit(./.git/**)", "Write(./.git/**)"
     ]
   },
@@ -92,7 +93,7 @@ Merge into an existing file rather than replacing it.
 }
 ```
 
-Replace `uv.lock` in the deny list with the project's own lockfile. Add an `allow` list for the project's routine tool invocations, so ordinary checks do not prompt.
+Replace `uv.lock` in the deny list with the project's own lockfile, and `tests/feature-acceptance/` with the same directory inside the project's test tree; that directory holds the user's feature acceptance tests and stays denied for the life of the repo. Add `rm` and `mv` on it to `bash-guard.sh`, since the deny list does not see the shell. Add an `allow` list for the project's routine tool invocations, so ordinary checks do not prompt.
 
 **Exit codes differ by event.** On `PreToolUse` and `PostToolUse`, exit 2 blocks and feeds stderr to the agent. On `Stop`, exit 2 blocks the stop and feeds stderr back. On `SessionStart`, stderr goes to the user only and **stdout** is what reaches the agent, so that hook reports on stdout and never exits non-zero.
 
