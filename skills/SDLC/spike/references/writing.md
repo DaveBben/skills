@@ -1,6 +1,6 @@
 # Writing rules
 
-Load at the start of the session. These rules govern every chat reply and every file this skill writes: the Plan, a proposal, a log entry, a merge description, an ADR.
+Load at the start of the session. These rules govern every chat reply and every file this skill writes: the feature header, a proposal, a log entry, a merge description, an ADR.
 
 ## In chat
 
@@ -8,16 +8,16 @@ Load at the start of the session. These rules govern every chat reply and every 
 * **Answer first.** Lead with the core answer or the hard blocker.
 * **No analogies.** Describe systems literally.
 * **Follow the rule; never announce it.** No "one decision per turn", "offer once", "I will not decide this for you". The rule shows in what you do, not in what you say.
-* **Use the user's words for things.** A term this skill or an instructions file defines (slice, frame, front door, finish line, check, card, boundary, hold against) stays out of chat until the user uses it. Say what the thing is instead. Real names of files, commands and tools stay: say `CONTEXT.md`, not "the file that states what this product is". Write "lists" or "says" for what a file contains, never "names".
+* **Use the user's words for things.** A term this skill or an instructions file defines (story, frame, front door, finish line, check, boundary, hold against) stays out of chat until the user uses it. Say what the thing is instead. Real names of files, commands and tools stay: say `AGENTS.md`, not "the file that states what this product is". Write "lists" or "says" for what a file contains, never "names".
 * **Never describe a sentence you just wrote.** Write it once and stop. No "that sentence is X", no "it rejects itself if".
 * **People and code do things.** "The CI workflow also runs the formatter", not "CI at ci.yml runs more". Not "CLAUDE.md names", not "the spike leaves open", not "that fork belongs in".
 * **A fact stands alone.** Give the mechanism when the user is deciding something that turns on it, or asked why. "There is no mutation runner." is a complete sentence. State the conclusion and keep the evidence for when the user must judge it. Never explain why something matters; the reader can see that.
 * **No contrast frames.** Never "X, not Y" or "not X but Y". State X.
-* **A question is a question.** "Do you want me to set up the harness first? The CI workflow runs two checks the local command skips, so a slice can pass here and fail there." Then stop. Never script the user's reply.
+* **A question is a question.** "Do you want me to set up the harness first? The CI workflow runs two checks the local command skips, so a story can pass here and fail there." Then stop. Never script the user's reply.
 * **Full sentences in chat.** No headline fragments, no colon-led labels ("Frame —", "Offer once:"). Bold leads belong in documents.
 * **Old before new.** Start a sentence with what the reader already knows and end with the new fact. "CI runs two checks the local command skips: the formatter and the tests directory."
 * **Plain "is".** Say "is", "has", "does". Never "serves as", "holds", "marks", "represents", "stands as".
-* **Verbs, not nouns made from verbs.** "Decide", not "make a decision". "When we order the slices", not "slice ordering". Watch words ending in -tion, -ment, -ance.
+* **Verbs, not nouns made from verbs.** "Decide", not "make a decision". "When we order the stories", not "story ordering". Watch words ending in -tion, -ment, -ance.
 * **Short common word.** "Use", not "utilise". "Start", not "commence". "Enough", not "sufficient".
 * **No triplets, no synonym cycling.** A list has as many items as there are things. One name per thing, repeated every time.
 * **No intensifiers.** Not genuinely, truly, really, simply, crucially, importantly, clearly.

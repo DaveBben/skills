@@ -1,14 +1,14 @@
 ---
 name: test-table
-description: "Use this skill whenever the tests for a change need to be enumerated before any test is written: proposing a test plan, deciding which tests a slice, feature or bug fix needs, or reviewing whether an existing set of tests is complete. Use it on: 'what tests should this have', 'propose the tests', 'which tests do we need', 'test plan for X', 'enumerate the tests', 'test table', 'is this covered', 'what am I missing in the tests', 'review the test coverage for X'. Use it on a bare 'tests?' after a proposal. Produce one numbered list, one entry per test, each naming the rule that generated it and the user-visible failure it prevents; the user cuts entries by number and adds entries; an entry not cut is accepted. Do not use it to write the tests; that follows acceptance."
+description: "Use this skill whenever the tests for a change need to be enumerated before any test is written: proposing a test plan, deciding which tests a story, feature or bug fix needs, or reviewing whether an existing set of tests is complete. Use it on: 'what tests should this have', 'propose the tests', 'which tests do we need', 'test plan for X', 'enumerate the tests', 'test table', 'is this covered', 'what am I missing in the tests', 'review the test coverage for X'. Use it on a bare 'tests?' after a proposal. Produce one index table plus one block per test, each naming the rule that generated it and the user-visible failure it prevents; run alone, the user cuts entries by number and adds entries, and an entry not cut is accepted; run from `agile` on an unattended story, the agent applies the cut rules itself. Do not use it to write the tests; that follows acceptance."
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "2.2.0"
+  version: "2.3.1"
 ---
 # Test Table
 
-Propose the tests for one change as a table. The user cuts the rows they do not want and adds any they do; a row not cut is accepted. Write no test until the table has been in front of the user.
+Propose the tests for one change as a table. Run alone, the user cuts the rows they do not want and adds any they do; a row not cut is accepted, and no test is written until the table has been in front of the user. Run from `agile` on an unattended story, the agent applies the cut rules itself, writes the tests, and the table goes into the pull request body; a row that exposes a product decision is the one thing that still stops for the user.
 
 Inputs: the change's acceptance criterion (one falsifiable statement of what a person can observe afterwards) and the code the change touches. Read seams and fields off the existing code, not off a design document.
 
@@ -61,4 +61,4 @@ Apply in order. A generator that finds nothing to fire on produces no row.
 
 ## When a Row Exposes a Product Decision
 
-Writing an assertion often exposes a decision nobody has made: timezones, whether refunds count, what the limit is. Stop and put the question to the user. A decision the PRD already records is cited, not asked. Never guess and encode the guess in a test.
+Writing an assertion often exposes a decision nobody has made: timezones, whether refunds count, what the limit is. Stop and put the question to the user. A decision the PRD or an ADR already records is cited, not asked. Never guess and encode the guess in a test.

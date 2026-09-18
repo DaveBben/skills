@@ -4,7 +4,7 @@ description: "Use this skill whenever a decision is made or proposed that must s
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.7.0"
+  version: "0.7.1"
 ---
 # Architecture Decision Records (ADR)
 
@@ -25,7 +25,7 @@ The reasons in the ADR are the user's. Never fill them in from what the agent ca
 * **Feature-scoped:** `docs/adr/{slug}/<decision-name>.md` for a decision belonging to one change. The `{slug}` matches the `feature/{slug}` branch name.
 * **Global:** `docs/adr/architecture/<decision-name>.md` for a decision applying to the whole repository.
 * **Format:** `<decision-name>` is short and kebab-case, e.g. `use-redis-for-rate-limiting.md`.
-* **Already recorded:** when the change's own PRD records the decision with its rejected alternative, write no ADR; put the PRD path on the log entry's `Decided` line.
+* **Already recorded:** when the change's own PRD records the decision with its rejected alternative, write no ADR; put the PRD path on the feature header's `Decided:` line.
 
 ## Writing for a reader who was not here
 

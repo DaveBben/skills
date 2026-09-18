@@ -1,23 +1,23 @@
 ---
 name: review
-description: "Use this skill whenever generated or freshly written code is to be reviewed before it is committed or merged: a slice, a diff, a pull request, a batch of agent output. Use it on: 'review this', 'review the diff', 'review what you built', 'review the slice', 'review the PR', 'check this before I commit', 'what can be deleted', 'is any of this unnecessary', 'did it touch anything it should not have', 'three-pass review'. Run three separate passes in order: correctness (the test would fail if the behaviour were wrong), subtraction (delete everything no requirement asked for), scars (environment facts the model was told not to change). Then refactor while green. Do not use it to find product gaps; that is a question of whether the right thing was built, not whether it was built right."
+description: "Use this skill whenever generated or freshly written code is to be reviewed before it is committed or merged: a story, a diff, a pull request, a batch of agent output. Use it on: 'review this', 'review the diff', 'review what you built', 'review the story', 'review the PR', 'check this before I commit', 'what can be deleted', 'is any of this unnecessary', 'did it touch anything it should not have', 'three-pass review'. Run three separate passes in order: correctness (the test would fail if the behaviour were wrong), subtraction (delete everything no requirement asked for), scars (environment facts the model was told not to change). Then refactor while green. Do not use it to find product gaps; that is a question of whether the right thing was built, not whether it was built right."
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.6.2"
+  version: "1.6.4"
 ---
 # Review
 
 Run three passes, separately and in order. Never merge them.
 
-Inputs: the change, its acceptance test (the one test a person's observable outcome hangs on), and the accepted test table (one numbered entry per test, with a `Killed by` field naming the one-line mutation that must turn the row red). When `agile` ran, both are in the red commit message; read them from git. When no table exists, use the tests the change added. The check command is the one the root instructions file names; when none is named, run the linter, the type checker and the tests. The permitted directory is the one the build instruction named; when none was named, it is the repository root.
+Inputs: the change, its acceptance test (the one test a person's observable outcome hangs on), and the accepted test table (an index table with a `Killed by` column naming the one-line mutation that must turn the row red). When `agile` ran, both are in the red commit message; read them from git. When no table exists, use the tests the change added. The check command is the one the root instructions file names; when none is named, run the linter, the type checker and the tests. The permitted directory is the one the build instruction named; when none was named, it is the repository root.
 
 ## 1. Correctness
 
 * **Run the mutation step over the changed files** where the harness has one; a surviving mutant on an accepted row is the finding. Where no runner exists, apply every `Killed by` mutation from the accepted test table by hand, and every builder-added test by its listed `Killed by`, one at a time, and confirm the named row goes red. A row that stays green asserts nothing: fix the test, not the mutation. When no table exists either, mutate one line per test.
 * **Diff every accepted test file against the red commit**, the commit `agile` makes before the build. Any change to an accepted test is a finding. When no red commit exists, say so in the Done block.
 * **Check every accepted test is present** and asserts observable behaviour.
-* **Delete tests asserting incidental detail** of how the code was built: a private function, internal call order, a log line.
+* **Delete tests asserting incidental detail** of how the code was built: a private function, internal call order, a log line. The user's feature acceptance test, in the test tree's `feature-acceptance` directory, is outside every pass: never edit, delete or re-mark it.
 
 ## 2. Subtraction
 
@@ -53,7 +53,7 @@ Order: passes the tests, reveals intent, no duplication, fewest elements.
 * **Duplication.** Hunt duplicated *knowledge*: the same rule in the job, the metric and the query will drift.
 * **Mechanical change goes through the tool, not the model.** A rename, a signature change or a move across a package uses the language's refactoring tool or a codemod. The same edit in more than three places is a script, committed.
 
-Refactor only toward duplication or confusion pointable-at now. Restructuring toward an anticipated shape is speculation. A refactor that touches a file outside the slice's diff is proposed in the Done block, not made; the user decides whether it is this slice's work.
+Refactor only toward duplication or confusion pointable-at now. Restructuring toward an anticipated shape is speculation. A refactor that touches a file outside the story's diff is proposed in the Done block, not made; it becomes a story when the user wants it.
 
 Commit before the refactor and again after it. After the refactor commit, re-run the accepted-test diff against the red commit; a rename the guard let through is still a finding.
 

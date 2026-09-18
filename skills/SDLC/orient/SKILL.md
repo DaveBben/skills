@@ -4,13 +4,13 @@ description: "Use this skill whenever an agent needs to orient itself in a repos
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "3.1.1"
+  version: "3.1.2"
 ---
 # Orient
 
 Write the one file every session reads before it does anything: `AGENTS.md` at the repository root, with `CLAUDE.md` a symlink to it. It is rewritten in place, never appended to. The first and fourth sections are the product's charter; the rest are the agent's instructions.
 
-The charter holds no feature list, no priorities, no metrics, no architecture. Those live in slices, tests and ADRs.
+The charter holds no feature list, no priorities, no metrics, no architecture. Those live in stories, tests and ADRs.
 
 ## Interview
 
@@ -21,7 +21,7 @@ Ask only what the conversation and the repository do not already answer. Batch t
 * **Not doing.** What would a reader expect this product to do that it never will? Each as a checkable statement.
 * **Nouns.** The three to five domain terms the code, tables and tests must use. Never invent synonyms.
 * **Boundaries.** The systems this product reads from, writes to, or runs inside, each by name and address. Include the backlog when one exists outside the repository ("Backlog: Jira project TAG"); the change loop reads it from here.
-* **Constraints.** What must stay true for every slice: where data may live, what it may cost, what it runs on, who must be able to use it. Each as a checkable statement, and each naming where it is enforced: a Budget row (a test asserting the constraint's number, proposed for every change that touches it), a check in the repository's commit gate, or an ADR. Leave out a constraint with no enforcer, and say so.
+* **Constraints.** What must stay true for every story: where data may live, what it may cost, what it runs on, who must be able to use it. Each as a checkable statement, and each naming where it is enforced: a Budget row (a test asserting the constraint's number, proposed for every change that touches it), a check in the repository's commit gate, or an ADR. Leave out a constraint with no enforcer, and say so.
 
 ## Rules
 
@@ -57,14 +57,14 @@ Boundaries: <system: address or path, and whether read, write or host; the backl
 <one checkable statement per line, each ending with its enforcer, or a rule no tool can see>
 
 ## Pointers to Deeper Docs
-<path — purpose, one per line, only files that exist: docs/adr/, docs/tasks/, specs>
+<path — purpose, one per line, only files that exist: docs/adr/, docs/features/, specs>
 ```
 
 * **Charter from the interview, the rest from the repository.** Language and versions from the manifest, the package manager from the lockfile, the layout from the top-level directories, the commands from the task runner, the scripts directory or the package manifest. Run each safe command once (test, lint, format) before listing it; a command that does not run is not listed.
 * **Critical Constraints end with their enforcer.** A Budget row, a commit-gate check, or an ADR. A rule no tool can see is the other kind that belongs here: never commit credentials, every migration reversible, nothing edited under `vendor/`. Vague guidance belongs nowhere.
 * **Cap it at 100 lines,** the charter sections under thirty of them. A module's conventions belong in a nested instructions file in that module; a rule for one file type belongs in a path-scoped rule. The `harness` skill wires those.
 * **Symlink `CLAUDE.md` to it,** and symlink any other conventional name the repository already carries the same way.
-* **Commit the file and the symlink together.** Rewrite in place whenever a slice changes the shape: a new noun, a new boundary, a non-goal that became a goal. Commit that rewrite with the slice that caused it.
+* **Commit the file and the symlink together.** Rewrite in place whenever a story changes the shape: a new noun, a new boundary, a non-goal that became a goal. Commit that rewrite with the story that caused it.
 
 ### When an instructions file already exists
 
