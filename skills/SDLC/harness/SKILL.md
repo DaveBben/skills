@@ -4,7 +4,7 @@ description: "Use this skill whenever the user wants a repository or environment
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.13.1"
+  version: "0.14.0"
 ---
 # Repository harness
 
@@ -74,13 +74,12 @@ The only check that sees a dependency reverse. A single-file linter and a type c
 
 ## Rules
 
-The deposit location for a correction a static check can express. One rule per file, in `.semgrep/` unless the project already has a pattern engine.
+The deposit location for a correction a static check can express. Write each rule with the `semgrep-rules` skill, which carries the rule format, what a pattern engine can and cannot see, the fixture that proves a rule fires, and how a rule lands on code that already violates it.
 
 * **Brownfield only.** Greenfield has nothing yet to violate a rule.
 * **Offer the anti-pattern sweep and the rules as one decision.**
 * **Ask the agent what anti-patterns this codebase uses**, put the list to the user, then encode the practices already visible in the code and those anti-patterns as their inverse.
 * **Show each rule with one real violation it catches** before adding it. A rule with no current violation is a preference; say so and let the user choose.
-* **Scope with the engine's path filters**, never with exemptions written into the pattern.
 
 ## Loop
 

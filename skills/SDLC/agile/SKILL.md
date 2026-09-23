@@ -4,13 +4,13 @@ description: "Use this skill on every request to write, add, remove, change, imp
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "8.1.0"
+  version: "9.0.0"
 ---
 # Agile Loop
 
 Deliver working software in the smallest valuable increments.
 
-Two phases. **With the user, once per feature:** Orient -> Frame -> Decide -> Map -> Stories. **Unattended, per story:** Branch -> Table -> Red -> Build -> Review -> Verify -> Pull request -> Merge -> Log, then the next story. Resolve a blocking unknown with a spike before entering it. Stop for the user only on the list in "When to Pause".
+Two phases. **With the user, once per feature:** Orient -> Define -> Decide -> Map -> Record. **Unattended, per story:** Branch -> Table -> Red -> Build -> Review -> Verify -> Pull request -> Merge -> Log, then the next story. Resolve a blocking unknown with a spike before entering it. Stop for the user only on the list in "When to Pause".
 
 ## Principles
 
@@ -43,22 +43,16 @@ A pause stops the loop, states the question in one message, and waits. The loop 
 ## Orient
 
 * **Load the charter.** Silently read `AGENTS.md`, the file the `orient` skill writes: purpose, users, non-goals, nouns, boundaries, commands, constraints. Fall back to `ARCHITECTURE.md`, then `README.md`. When none states a purpose, offer the `orient` skill once, then proceed.
-* **Check the floor.** When the root instructions file names no check command, names one that runs less than CI runs, the suite is red on main in CI, no mutation runner exists, or the log shows three `Not caught by` lines in its last ten entries, halt and offer the `harness` skill before the first story. When the interface the outcome names has no runner in the repo (a screen and no browser test), the first story adds the runner with one hardcoded front-door test, as the hardcoding rule in section 3 does; for a command, the entry point called in-process is the runner.
+* **Check the floor.** When the root instructions file names no check command, names one that runs less than CI runs, the suite is red on main in CI, no mutation runner exists, or the log shows three `Not caught by` lines in its last ten entries, halt and offer the `harness` skill before the first story. When the interface the outcome names has no runner in the repo (a screen and no browser test), the first story adds the runner with one hardcoded front-door test, hardcoding the rest; for a command, the entry point called in-process is the runner.
 * **Read `docs/adr/`** before proposing a change to an existing boundary or constraint.
-* **Read the PRD** if supplied, as raw material for the stories, never as a list of IDs to trace. Note its success metrics and non-goals. It says what and why, never how. When the PRD is the user's own and states an outcome, non-goals and decisions, copy them into the feature header and cite them wherever a pause would re-ask them; propose the stories from it. When the root instructions file names a per-change spec directory, the feature header and the entries go at the bottom of that change's spec; create no feature.md.
+* **Read the PRD** if supplied, as raw material for the stories, never as a list of IDs to trace. Note its success metrics and non-goals. When the PRD is the user's own and states an outcome, non-goals and decisions, copy them into the feature header and cite them wherever a pause would re-ask them. When the root instructions file names a per-change spec directory, the feature header and the entries go at the bottom of that change's spec; create no feature.md.
 * **State the last story.** When the log has an entry, read it and tell the user in one line what the last merged story changed and why, from its `Done` line and the commit it points to. Ask nothing.
 * **Read the log.** `docs/features/{slug}/feature.md`, or the tracker epic `AGENTS.md` names (load [references/tracker.md](references/tracker.md) then), opens with the feature header (the outcome, the decisions, the map and the ordered stories with their criteria) and records what shipped and what was tried. Slug matches the issue key or the `feature/{slug}` branch.
 * **Carry the `Learned` lines forward.** Before starting the next story, read every `Learned` and `Not caught by` line in the log, whole, and every ADR the feature header's `Decided:` line lists. Each is a fact about this system that a fresh session does not have. Where one bears on the story, cite it in the pull request's `Assumes:` line or in the build prompt's NON-NEGOTIABLE block. Where one changes what gets built, pause.
 
-## 0. Frame
+## 0. Define
 
-Agree one sentence with the user before anything else.
-
-```text
-Outcome: What the user does differently once this ships, and where they see it.
-```
-
-Reject an outcome naming a component, table, endpoint or file, and one that contradicts a `Not doing` line in `AGENTS.md` without the user saying so. "Verdicts land in the table" is true when the work is half done. "I open one list each morning and read from it" is not.
+Run the `feature` skill with the user before anything else. It returns the outcome, the problem, the non-goals and the ordered stories, one acceptance criterion each, and it holds every rule for writing them. A criterion that cannot be written as a test goes back to it. A project that does not exist yet goes to `greenfield`.
 
 Choose the slug: the issue key when `AGENTS.md` names a tracker, else a kebab-case name for the outcome. Create the branch `feature/{slug}` from main. Every story gets its own branch `story/{slug}/{n}-{short-name}` from the feature branch, and merges back into it; the feature branch merges into main when the feature header's story list is empty. The prefixes differ because git stores refs as paths, so `feature/{slug}` and `feature/{slug}/1-x` cannot both exist.
 
@@ -105,32 +99,21 @@ Propose the shape of this feature's code in one table, and stop. The user edits 
 
 * **Only the modules the outcome touches.** Existing ones are stated from the code, with the directory. New ones are proposed. The rest of the system is not on the map.
 * **Dependencies point one way.** A cycle in the table is a finding, not a row.
+* **Contract first at a shared boundary.** Where a module on the map is called by another team, another service or another repository, write the executable contract (OpenAPI, Protobuf, strict interface types) and assert it in a test before any code sits behind it.
 * **Pattern is optional.** Fill it where the user has a preference or a decision in section 1 fixes it. Leave it blank otherwise; the builder picks the simplest thing that passes the tests.
 * **Write it into `AGENTS.md`** under the codebase map, in the log commit of the first story. Until then it lives only in the chat and the first build prompt. Where the `harness` skill has wired contracts, add each "depends on" line there, so a reversed dependency fails the build.
 * **Every build prompt cites it:** the module this story's code lives in, its pattern, and its allowed dependencies, under NON-NEGOTIABLE.
 
 This is not a design document. It has no sequence diagrams, no schemas, no endpoints; those come out of the tests, story by story.
 
-## 3. Stories
+## 3. Record
 
-Propose every story the outcome needs, each with its acceptance criterion, in one message, and stop. The user confirms, rewords, cuts, adds or reorders in one turn. A story not changed is accepted.
+Four things hold on top of what `feature` settles:
 
-```text
-1. <Title: what the user will be able to do, five to eight words>
-   Given <a concrete starting state>, when <a concrete action>, then <what the person sees, with real values>
-2. ...
-```
-
-* **A criterion is one Given/When/Then sentence** in the domain's nouns with real values. Never one containing improve, better, seamless, robust, correct, properly, handled, intuitive, flexible, scalable or modern; each hides the measurement. Exactly one per story; a second means two stories. Promote into it anything encoding an ADR, so how a recorded decision was interpreted is never discovered by reading generated code.
-* **Cut across the system's layers, never along them.** Every story ends with a person able to do one thing they could not do before, observed through the interface they actually use. Never name a story after a layer, component, table or team.
-* **Choose the first story for risk.** The thinnest path touching every layer and reaching a real deploy. Observable is mandatory; valuable is not. Skip it when that pathway exists and is proven.
-* **Hardcode everything the skeleton does not test.** Count the seams the criterion crosses: database, model, queue, third-party API, container, host. When more than one is unmeasured, the first story fakes all but one. A served feed holding one hardcoded article is a story. A feed fed by real verdicts from a real database in a real container is three.
-* **Cross whatever boundary the value chain crosses** in the first story: repo, service, team, or an orchestration layer that does not exist yet. A cron line, a hardcoded query and a bookmark is valid.
-* **Order by the largest unknown killed first.** Split by workflow step, happy path before error path, one rule before its variants, hardcoding before generalising. Split any story that crosses more than one seam or workflow step. No estimates.
-* **Give a constraint its own story** when no feature story can carry it: a throughput floor, a memory ceiling, a data-residency rule. Its criterion is the number. Spike first when the number is unknown.
-* **Give a story its signal.** When it changes behaviour no test can observe after deploy (a rate, a failure mode, a path taken), the same story emits the event that makes it observable, and a `Metric` row asserts the event fires.
-* **Defer infrastructure** not required to pass a story's test to a later story.
-* **Treat a bug as a story** with negative value. A bug in the story under way is fixed now, no story. A bug in shipped work is a pause: propose the story and its place. Its criterion is the reproduction; its table is two rows: the failing test at the level the report describes, written before reading the code, then a unit test isolating the fault. Then grep every caller of the function about to change and fix at the point they all route through.
+* **Promote into a criterion anything encoding an ADR,** so how a recorded decision was interpreted is never discovered by reading generated code.
+* **Defer infrastructure** not required to pass a story's test to a later story. Logging, retries and error handling enter when a story pulls them, after a run showed the need. When the user can name the moment they wanted a thing, it is story-pulled; when they can only say it is good practice, it is speculation.
+* **Skip the first-story skeleton** when that pathway through every layer already exists and is proven.
+* **A bug in the story under way is fixed now,** with no new story. A bug in shipped work is a pause: propose the story and its place. Its table is two rows, the failing test at the level the report describes, written before reading the code, then a unit test isolating the fault. Then grep every caller of the function about to change and fix at the point they all route through.
 
 Write the result as the feature header at the top of the log, creating the file if absent. Commit the log, and keep it after the last story ships. The file has exactly one `## feature header` heading, above the first dated entry; rewrite it in place and never append a second. Keep it to one screen.
 
@@ -213,18 +196,7 @@ The review returns its Done block: Correctness, Subtraction, Scars, Refactor, De
 
 ## 8. Pull Request and Merge
 
-Open the pull request from the story branch into `feature/{slug}`. Write the body for a reviewer who has never opened this repository and does not know the feature: from the body alone they can say what the product does, what this feature adds, what this story adds, and what to look at. Under one screen. In this order:
-
-1. **Why,** two or three sentences: what the product is and who uses it, in the feature header's words; the outcome this feature is for; where this story sits in it ("story 3 of 5; stories 1 and 2 shipped the upload and the thumbnail").
-2. **Criterion,** the story's Given/When/Then, verbatim.
-3. **What changed,** one paragraph in the domain's nouns, then one line per new function, module or branch saying what it is for and which file it is in. Resolve every pointer: no local abbreviation, config key or test ID without a phrase saying what it is.
-4. **What it touches,** one line, when the diff touches authentication, authorization, secrets, money, health or personal data, a migration, a public contract, or anything a `git revert` cannot undo: what it touches and the file. Omit otherwise.
-5. **Assumes,** from the story header. Omit when empty.
-6. **Read first:** the one file a reviewer opens to understand the change, and the test that proves the criterion.
-7. The table and `Not now:`, then the Done block, both inside a collapsed section where the host supports one.
-8. **Signal:** the screen, the endpoint or the event the user will read to know the story worked, once deployed.
-
-Apply the writing rules in `references/writing.md`: mechanism before label, every connective checked, no mechanism invented. Length is capped by the screen, not by leaving a section out; a body that needs more is a story that is too big.
+Open the pull request from the story branch into `feature/{slug}`, and write its body with the `merge-request` skill, which holds the format. Its `Why` comes from the feature header, its criterion is the story's verbatim, its `Assumes` comes from the story header, and the accepted table, `Not now:` and the review's Done block go in the collapsed section. Apply the writing rules in [references/writing.md](references/writing.md).
 
 Tag the pull request, its tests and its commits with the story's issue key when a tracker exists, e.g. `[PAY-1420]`. Where the repo has no remote, the same body is the merge commit message and the user merges locally.
 
@@ -259,24 +231,6 @@ Other people and other agents change main while a story is in flight.
 * **The red-commit guard is local git config**, per clone. It never travels with the branch.
 * **The harness is the repo's, not the developer's.** Hooks, rules, contracts and the check command are committed; nothing the loop depends on lives in one person's settings.
 
-## Standing Up a New Domain
-
-Only when a story opens a genuinely new domain inside an existing system:
-
-* **Establish the ubiquitous language.** Ask the user for the three to five core nouns. Use those exact terms for types, tables and variables. Never invent synonyms.
-* **Contract-first at shared boundaries.** Define the executable contract (OpenAPI, Protobuf, strict interface types) and assert it in a test before implementing behind it.
-* **Defer explicitly.** Ask which constraints are irreversible, ADR those now, and state that every other decision waits until a test needs it.
-
-To stand up a project that does not exist yet, stop and use `greenfield`.
-
-## Where Things Belong
-
-| Thing | When it enters |
-|---|---|
-| Library choice, environment facts, the module and its pattern | The build prompt, before generation |
-| Logging, retries, error handling | Pulled by a story, after a run showed the need |
-| Naming, deletion, de-duplication | Refactor, while green |
-
-If the user can name the moment they wanted it, it is story-pulled. If they can only say it is good practice, it is speculation.
+## When the Loop Is Not Working
 
 When a feature header is precise about internals and silent about the user's day, or the suite is green and the user is still unhappy, read [references/failure-modes.md](references/failure-modes.md).

@@ -4,7 +4,7 @@ description: "Use this skill whenever the tests for a change need to be enumerat
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "2.3.1"
+  version: "2.4.0"
 ---
 # Test Table
 
@@ -43,7 +43,7 @@ Apply in order. A generator that finds nothing to fire on produces no row.
 
 * **Requirement:** the one acceptance test, driven through the front door the user actually uses. Its level is fixed by the interface the outcome names: a screen is a browser test against the real UI, an API is a request against a running service, a CLI is the command. Never propose it at unit level. This row cannot be cut; cutting it means the criterion is wrong, so return to the criterion. One front-door row per criterion, edge cases in the rows below it. Under a screen, edge-case rows render the real component and drive it by role and label; a row that mocks the store or the renderer is cut. Under a command, only the front-door row runs the command; edge-case rows drive the stage the command calls. A browser row locates by role and label, never by CSS or XPath, and never waits on a clock.
 * **Seam:** one row per boundary crossed: database, queue, third-party API, process edge. Pin the contract against a recorded exchange when the real dependency is unreachable.
-* **Type:** for each field touched, what the type can legally hold: empty, null, zero, negative, the delimiter itself, every enum variant.
+* **Type:** for each field touched, what the type can legally hold: empty, null, zero, negative, the delimiter itself, every enum variant. For a value written by something outside this system, add the wrong type, such as a number arriving as a string; validation that guards null and missing usually forgets type.
 * **Cardinality:** zero, one and many, for every collection, page or retry.
 * **Both sides:** every authorisation check earns a negative test written from the attacker's seat.
 * **Invariant:** a round trip, ordering or conservation law becomes one property test. Fuzz only where untrusted input crosses a boundary.

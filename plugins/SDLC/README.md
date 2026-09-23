@@ -42,11 +42,11 @@ Session handoff, once part of this plugin, now lives in the separate [context](.
 ```mermaid
 flowchart TD
     REQ([a request to change something]) --> OR[orient: AGENTS.md, the floor, the log]
-    OR --> FR[frame: one outcome sentence]
+    OR --> FR[feature: outcome, problem, stories with their Given/When/Then]
     FR --> DEC[decide: architecture decisions, one at a time, each an ADR]
     DEC --> MAP[map: the modules this feature touches]
-    MAP --> CARDS[stories: every story with its Given/When/Then]
-    CARDS --> SL
+    MAP --> REC[record: the feature header and the feature acceptance test]
+    REC --> SL
 
     subgraph SL [per story, unattended]
       BR[branch] --> TT[test table] --> RED[red commit] --> BLD[build subagent] --> REV[review subagent] --> VER[verify the whole feature] --> PR[pull request] --> MRG[wait for merge] --> LOG[log]
@@ -66,13 +66,13 @@ Two phases. The first runs with you, once per feature. The second runs without y
 
 **Orient.** The agent reads `AGENTS.md`, checks the repo gives it feedback of its own (a check command, a suite green on main, a mutation runner), and offers `harness` when it does not. When a log exists it tells you in one line what the last story changed, and reads every `Learned` line before proposing anything.
 
-**Frame.** One sentence: what you do differently once this ships, and where you see it. A sentence naming a table or an endpoint is rejected, since it is true when the work is half done. The feature branch is `feature/{slug}`. A spike runs only when a fact about the world blocks the criterion, and its code is deleted.
+**Define.** `feature` runs with you. One sentence for the outcome: what you do differently once this ships, and where you see it. A sentence naming a table or an endpoint is rejected, since it is true when the work is half done. Then the problem, the non-goals, and every story with one Given/When/Then acceptance criterion in values a stranger could check. It walks the failure paths and the abuse paths so the decisions they hide, what a repeated submit returns, how many requests a minute one source gets, how long a half-finished state lives, are yours rather than the builder's, and it keeps the standards nobody would choose against out of the criteria. The feature branch is `feature/{slug}`. A spike runs only when a fact about the world blocks the criterion, and its code is deleted.
 
 **Decide.** Some choices touch the data's shape, the trust or consistency boundaries, or the platform, and are expensive to reverse. The agent walks a list of those for this kind of system, states which the code already settles, and puts the rest to you one per message. Each answer becomes an ADR before the next question, and `adr` asks you why, what the tradeoffs are, and why not the obvious route, then gives its own feedback, before it writes anything. A choice that can wait goes on the feature header as deferred, with the story that will force it.
 
 **Map.** One table of the modules this feature touches: what each owns, what it depends on, and a pattern where you have one. It is not a design document. It goes into `AGENTS.md` with the first story, and every build prompt cites the module the story lives in and what it may import.
 
-**Stories.** Every story the outcome needs, each with one Given/When/Then acceptance criterion, in one message. You confirm, reword, cut, add or reorder in one turn. No estimates. The result is the feature header at the top of `docs/features/{slug}/feature.md`. When `AGENTS.md` names a Jira project or another tracker, the board is the backlog instead: the epic is the feature, its children are the stories in rank order, stories already on the board are read as the proposed list, and every log entry is a resolution comment. No `feature.md` is kept then.
+**Record.** You confirm, reword, cut, add or reorder the stories in one turn. No estimates. The result is the feature header at the top of `docs/features/{slug}/feature.md`. When `AGENTS.md` names a Jira project or another tracker, the board is the backlog instead: the epic is the feature, its children are the stories in rank order, stories already on the board are read as the proposed list, and every log entry is a resolution comment. No `feature.md` is kept then.
 
 **feature acceptance test.** Every story has its acceptance test, written by the agent. You write one more for the outcome sentence itself, through the front door, marked expected-to-fail so the suite stays green until the feature is whole. The agent names the file and what it must assert, gives feedback on what you wrote, and never touches it again: the harness denies that directory to the agent for good. When it passes, the feature is done; when it passes early, the remaining stories are questioned.
 
@@ -84,7 +84,7 @@ Two phases. The first runs with you, once per feature. The second runs without y
 4. **Build.** A subagent with one prompt: the contract, a prohibition list of things models add unasked, an instruction to grep for what exists before writing a helper, and the environment facts it would otherwise improve into something wrong. The agent runs the tests itself afterwards; the builder's report is a claim. A red row or a touched file outside the story resets the tree to the red commit and reissues once, then the story is split.
 5. **Review.** A subagent that saw none of the chat runs three passes: correctness (every mutation applied, every row goes red), subtraction (delete what no row asked for), scars (pinned values unchanged). Then a refactor while green, and a Done block listing every choice made without you.
 6. **Verify.** The story branch rebased on the feature branch, the full suite, and the acceptance test through the front door against the running system. Every earlier story's front-door test runs too.
-7. **Pull request** into the feature branch, written for a reviewer who has never opened the repo: why, the criterion, what changed, what it touches (auth, money, health data, a migration, anything a revert cannot undo), what to read first, the table and the Done block collapsed, and the signal you will read to know it worked. Under one screen.
+7. **Pull request** into the feature branch, its body written by `merge-request` for a reviewer who has never opened the repo: why, the criterion, what changed, what it touches (auth, money, health data, a migration, anything a revert cannot undo), what to read first, the table and the Done block collapsed, and the signal you will read to know it worked. Under one screen.
 8. **Merge.** You merge. The agent polls where it can, otherwise ends the turn with the link.
 9. **Log.** The feature header drops the shipped story, the entry records what shipped, what was learned and, for a bug, why nothing caught it. Then the next story, without asking.
 
@@ -143,7 +143,11 @@ Brownfield gets one thing greenfield does not, and it is a decision rather than 
 
 **`give-feedback` reviews what you made.** Hand-written code, a design, a bug-fix idea, a plan typed in chat. It reads the code the subject touches before judging, sorts every point into wrong, unverified, shape or preference, names the principle behind each, and leaves the rewrite to you. It is the manual-flying practice the loop no longer forces.
 
-**`orient`, `test-table`, `review`, `spike` and `greenfield`** each do one step the loop calls by name, and each runs on its own when asked: write `AGENTS.md`; propose the tests; three-pass a diff; answer one question with throwaway code; stand a new project up from a template.
+**`merge-request` writes and reviews the request itself.** The loop calls its writing half at step 7. Its reviewing half runs elsewhere, as the agent that receives a pull request holding only the diff, the body and whatever the build reported. That agent reads what the tools already reported rather than redoing it, then reads for the five things no tool reports: a criterion with no test, code no test asked for, a decision the author made that someone else owned, behaviour that differs against production data and production traffic, and names that do not match the words in the criterion.
+
+**`semgrep-rules` writes one static check.** `harness` calls it when it fills the rules slot, and a bug review calls it when the question is which check would have caught the bug. It starts by climbing off the rule: a published rule set for the stack, then anything the type checker or framework already prevents, then one real violation in this codebase before a rule is written at all. It states what a pattern engine can see, one file at a time, what is present rather than what is missing, and says which standards stay manual because of it. Every rule ships with an annotated fixture that proves it fires, and lands on a repository that already violates it through a baseline commit rather than a red build.
+
+**`orient`, `feature`, `test-table`, `review`, `spike` and `greenfield`** each do one step the loop calls by name, and each runs on its own when asked: write `AGENTS.md`; turn an ask into stories with testable acceptance criteria; propose the tests; three-pass a diff; answer one question with throwaway code; stand a new project up from a template.
 
 **Session handoff lives in the [context](../context/) plugin** as the `handing-off` skill. Plugins are independent, so nothing in SDLC calls it; install `context` to have it.
 

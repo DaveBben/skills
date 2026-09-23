@@ -4,7 +4,7 @@ description: "Use this skill whenever generated or freshly written code is to be
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.6.4"
+  version: "1.7.0"
 ---
 # Review
 
@@ -43,6 +43,7 @@ Check the silent failures.
 * Concurrency and rate limits unchanged.
 * Byte-frozen files unchanged; pin with a hash test where load-bearing.
 * Query shapes known to be slow absent.
+* No name the change claims already claimed at the merge target: a storage key, a route, a column, an environment variable, a flag, an event name. The diff cannot show this; grep the target for each new name.
 * Nothing touched outside the permitted directory.
 
 ## Refactor While Green
