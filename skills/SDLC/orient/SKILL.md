@@ -4,7 +4,7 @@ description: "Use this skill whenever an agent needs to orient itself in a repos
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "3.1.2"
+  version: "3.2.0"
 ---
 # Orient
 
@@ -20,7 +20,7 @@ Ask only what the conversation and the repository do not already answer. Batch t
 * **Users.** Who uses it, and what do they do with the output? When the answer is "me", say what the user does with it.
 * **Not doing.** What would a reader expect this product to do that it never will? Each as a checkable statement.
 * **Nouns.** The three to five domain terms the code, tables and tests must use. Never invent synonyms.
-* **Boundaries.** The systems this product reads from, writes to, or runs inside, each by name and address. Include the backlog when one exists outside the repository ("Backlog: Jira project TAG"); the change loop reads it from here.
+* **Boundaries.** The systems this product reads from, writes to, or runs inside, each by name and address, and for each store it reads, who writes the data: this product, a person through its own screens, or something outside. A reviewer cannot get that from the source, and it decides how far a value is trusted. Include the backlog when one exists outside the repository ("Backlog: Jira project TAG"); the change loop reads it from here.
 * **Constraints.** What must stay true for every story: where data may live, what it may cost, what it runs on, who must be able to use it. Each as a checkable statement, and each naming where it is enforced: a Budget row (a test asserting the constraint's number, proposed for every change that touches it), a check in the repository's commit gate, or an ADR. Leave out a constraint with no enforcer, and say so.
 
 ## Rules
@@ -48,7 +48,7 @@ Nouns:      <term: one-line meaning, three to five lines>
 
 ## Tech Stack and Codebase Map
 <language and version, framework, package manager, top-level directories with one-line purposes>
-Boundaries: <system: address or path, and whether read, write or host; the backlog when external>
+Boundaries: <system: address or path, and whether read, write or host; who writes the data in each store; the backlog when external>
 
 ## Operational Commands
 <exact commands: install, test, lint, format, run, deploy; the check command the harness names>
