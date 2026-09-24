@@ -1,16 +1,5 @@
 # AGENTS.md format
 
-Load when writing or rewriting `AGENTS.md`. `CLAUDE.md` is a symlink to it, so one file serves every agent.
-
-## Contents
-
-1. [Template](#template) — the five-section skeleton
-2. [Project Identity](#1-project-identity) — what, why, who
-3. [Tech Stack and Codebase Map](#2-tech-stack-and-codebase-map) — language, framework, layout
-4. [Operational Commands](#3-operational-commands) — exact shell commands
-5. [Critical Constraints](#4-critical-constraints) — hard MUST / MUST NOT rules
-6. [Pointers to Deeper Docs](#5-pointers-to-deeper-docs) — file path references
-
 ## Template
 
 Write these five sections in this order. Omit a section that would be empty and needs no placeholder:
@@ -59,9 +48,6 @@ Technology belongs in Tech Stack, not here.
 
 ### 2. Tech Stack and Codebase Map
 
-List the primary language and framework with versions, the package manager, and a brief directory
-layout.
-
 **Include:**
 - Language and version (e.g., "Python 3.11")
 - Framework and version if applicable (e.g., "AWS CDK 2.198.0")
@@ -90,11 +76,6 @@ layout.
 - `app.py` — CDK app entry point
 ```
 
-**Bad:**
-```markdown
-We use Python and AWS. The code is in src/.
-```
-
 Keep the directory layout to top-level directories only.
 
 End the section with Boundaries: every external system the product reads from, writes to, or runs inside, by name and address, and the backlog when it lives outside the repository ("Backlog: Jira project TAG").
@@ -102,9 +83,6 @@ End the section with Boundaries: every external system the product reads from, w
 ---
 
 ### 3. Operational Commands
-
-Exact, copy-pasteable shell commands for the most common operations. One command per line with a brief
-description.
 
 **Include:** build, test, lint, format, run/deploy — whatever applies to the project.
 
@@ -126,15 +104,15 @@ description.
 - Install dependencies first
 ```
 
-The bad example names no command. Write the command, never the instruction to find it.
+Write the command, never the instruction to find it.
 
 ---
 
 ### 4. Critical Constraints
 
-Hard rules that MUST or MUST NOT be followed in this project. Two kinds belong here: a checkable
-statement that ends with its enforcer (a Budget row in the test table, a check in the commit gate, an
-ADR), and a rule no tool can see. Leave out a constraint with neither.
+Two kinds belong here: a checkable statement that ends with its enforcer (a Budget row in the test
+table, a check in the commit gate, an ADR), and a rule no tool can see. Leave out a constraint with
+neither.
 
 **Good:**
 - Never commit `.env` files or credentials
@@ -147,8 +125,7 @@ ADR), and a rule no tool can see. Leave out a constraint with neither.
 - Follow best practices
 - Be careful with the database
 
-With no hard constraints, leave the HTML comment placeholder. Never fill the section with vague
-guidance.
+With no hard constraints, leave the HTML comment placeholder.
 
 ---
 
@@ -165,9 +142,4 @@ AGENTS.md.
 - `CONTRIBUTING.md` — pull request process and code review standards
 ```
 
-**Bad:**
-```markdown
-- See the docs folder for more information
-```
-
-Only list docs that exist, each by its exact path. Never list an aspirational document.
+Only list docs that exist, each by its exact path.

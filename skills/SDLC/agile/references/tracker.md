@@ -1,6 +1,6 @@
 # Working from a tracker
 
-Load this when `AGENTS.md` Boundaries names a backlog outside the repository ("Backlog: Jira project TAG"). The board is then the backlog, and no `docs/features/{slug}/feature.md` exists. Nothing is kept in two places.
+Load this when `AGENTS.md` Boundaries names a backlog outside the repository ("Backlog: Jira project TAG"). The board is then the backlog, and no `docs/features/{slug}/feature.md` exists.
 
 The tracker's own words are used throughout: epic, story, bug, spike, rank, status. Use whatever tracker tool the session has: an MCP server, a CLI, or an HTTP API with the user's credentials.
 
@@ -24,8 +24,8 @@ The tracker's own words are used throughout: epic, story, bug, spike, rank, stat
 
 ## When the board is already filled
 
-* **The children are the proposed stories.** Read them in rank order and show them as the story list, each with a Given/When/Then the agent writes from the story's text, since a story written as "As a, I want, so that" carries no criterion. The user confirms, rewords, cuts or reorders in one turn, as in section 3. Write each confirmed criterion back to its issue before the first story starts.
-* **Flag a story named after a layer or a component.** "Build the endpoint" does not end with something a person can do. Propose the rewording and let the user decide; it is their board and their team reads it.
+* **The children are the proposed stories.** Read them in rank order and show them as the story list, each with a Given/When/Then the agent writes from the story's text. The user confirms, rewords, cuts or reorders in one turn, as in section 3. Write each confirmed criterion back to its issue before the first story starts.
+* **Flag a story named after a layer or a component.** "Build the endpoint" does not end with something a person can do. Propose the rewording and let the user decide.
 * **Split on the board.** A story that crosses more than one seam or workflow step is split into child stories the user confirms, and the original is closed as split or kept as the parent, whichever the board's convention is.
 * **An epic with no description** gets the seven-line header written into it after section 0 through 3 run, the same as a new epic.
 * **Sprints are not pauses.** The loop runs the epic's children by rank and crosses a sprint boundary without stopping. A team that wants the loop to stop at the sprint edge adds that rule to `AGENTS.md`.
