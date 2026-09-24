@@ -1,6 +1,6 @@
 ---
 name: merge-request
-description: "Use this skill whenever a pull request or merge request needs its description written, or needs reviewing. Use it on: 'open a pull request', 'write the PR description', 'write the MR body', 'review this PR', 'review this merge request', 'review PR 412', 'is this ready to merge', 'approve or request changes', 'what should I look at in this diff'. The writing half produces a description a reviewer who has never opened the repository can read in one screen: why, the criterion, what changed, what it touches, what to read first. The reviewing half reads the code the change lands on, the reports from whatever ran in the build, and then the five things automation cannot report, and refutes every finding before reporting it. Do not use it to review a diff with the repository open and the test table in hand, which is `review`, and do not use it to define the work, which is `feature`."
+description: "Use this skill whenever a pull request or merge request needs its description written, or needs reviewing. Use it on: 'open a pull request', 'write the PR description', 'write the MR body', 'review this PR', 'review this merge request', 'review PR 412', 'is this ready to merge', 'approve or request changes', 'what should I look at in this diff'. The writing half produces a description a reviewer who has never opened the repository can read in one screen: why, the criteria, what changed, what it touches, what to read first. The reviewing half reads the code the change lands on, the reports from whatever ran in the build, and then the five things automation cannot report, and refutes every finding before reporting it. Do not use it to review a diff with the repository open and the test table in hand, which is `review`, and do not use it to define the work, which is `feature`."
 license: MIT
 compatibility: any-agent
 metadata:
@@ -13,11 +13,11 @@ metadata:
 Write for a reviewer who has never opened this repository and does not know the feature. Under one screen, in this order.
 
 1. **Why,** two or three sentences: what the product is and who uses it; the outcome this change serves; where this change sits in it ("story 3 of 5; stories 1 and 2 shipped the upload and the thumbnail").
-2. **Criterion,** the acceptance criterion this change makes true, verbatim: one Given/When/Then in real values.
+2. **Criteria,** the acceptance criteria this change makes true, verbatim: each one Given/When/Then in real values.
 3. **What changed,** one paragraph in the domain's nouns, then one line per new function, module or branch saying what it is for and which file it is in.
 4. **What it touches,** one line when the diff touches authentication, authorization, secrets, money, health or personal data, a migration, a public contract, or anything a revert cannot undo: what it touches and the file. Omit otherwise.
 5. **Assumes,** one line per fact the change rests on that was read from a document rather than from the code, and how it was checked. Omit when empty.
-6. **Read first:** the one file a reviewer opens to understand the change, and the test that proves the criterion.
+6. **Read first:** the one file a reviewer opens to understand the change, and the test that proves each criterion.
 7. **The tests,** listed, and what is deliberately deferred and to which change. Collapse this where the host supports it.
 8. **Signal:** the screen, the endpoint or the event someone reads to know it worked once deployed.
 
@@ -87,4 +87,4 @@ Merge. | Changes requested: <n> blocking.
 
 A finding with no failure behind it is a preference; leave it out. List what was raised and refuted, with the reason.
 
-Never rewrite the code. Every confirmed finding a pattern could match goes to the `semgrep-rules` skill, so nothing is found by hand twice.
+Never rewrite the code. Every confirmed finding a pattern could match goes to the `make-rule` skill, so nothing is found by hand twice.

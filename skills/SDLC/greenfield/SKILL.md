@@ -1,6 +1,6 @@
 ---
 name: greenfield
-description: "Use this skill whenever a project does not exist yet and the user wants one stood up, or asks for a template, scaffolding, a blueprint, a bootstrap or a walking skeleton. Use it on: 'let's setup a new project', 'I want to start a new python/javascript project', 'let's create scaffolding for an iOS app', 'let's put together the walking skeleton', 'python project template', 'template project', 'bootstrap a codebase'. Use it even on a bare two-word ask like 'template project': a new codebase is never the one-step answer it sounds like. Use it too when the ask names a feature, endpoint, test or CI setup but the repo has no application yet. A health check, test or CI run needs code first, so spot an empty or app-less repo before reading the ask as `agile`, and stand up the project first. Clone a language template, rename it, prove the default state passes tests, then remove what this project does not need, committing every step. Do not use it to change a codebase that already exists; that is `agile`."
+description: "Use this skill whenever a project does not exist yet and the user wants one stood up, or asks for a template, scaffolding, a blueprint, a bootstrap or a walking skeleton. Use it on: 'let's setup a new project', 'I want to start a new python/javascript project', 'let's create scaffolding for an iOS app', 'let's put together the walking skeleton', 'python project template', 'template project', 'bootstrap a codebase'. Use it even on a bare two-word ask like 'template project': a new codebase is never the one-step answer it sounds like. Use it too when the ask names a feature, endpoint, test or CI setup but the repo has no application yet. A health check, test or CI run needs code first, so spot an empty or app-less repo before reading the ask as `execute`, and stand up the project first. Clone a language template, rename it, prove the default state passes tests, then remove what this project does not need, committing every step. Do not use it to change a codebase that already exists; that is `execute`."
 license: MIT
 compatibility: any-agent
 metadata:
@@ -79,5 +79,5 @@ Commit at the end of each numbered step with the stated message. Never batch mul
 ## Guardrails
 
 * **Green at every commit:** The test suite passes before step 4 and after step 5. Never commit a state where the suite is red.
-* **Do not add features:** Do not write business logic, add new dependencies, or design architecture here. Hand off to `agile` once the skeleton is clean.
+* **Do not add features:** Do not write business logic, add new dependencies, or design architecture here. Hand off to `execute` once the skeleton is clean.
 * **Preserve the toolchain:** Do not remove the test runner, linter, formatter, or CI configuration.

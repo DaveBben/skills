@@ -1,22 +1,24 @@
 ---
-name: agile
-description: "Use this skill on every request to write, add, remove, change, implement or fix code in a system that already exists, be it a feature, a bug, a chore, a refactor, or a plain complaint about existing behavior, before touching any file. Use it on: 'I want to add X', 'add code to X', 'implement X', 'fix the bug where X', 'clean up X', 'wire X to Y', 'build the next story', 'pick up where we left off', 'implement this prd', 'here is the prd, start building'. Use it even when the change looks small enough to just do. Agree the outcome, the architecture decisions, a module map and every story's acceptance criterion with the user up front, then run each story unattended: failing tests, a build subagent, a review subagent, the full suite, a pull request, the merge. Pause only for a new story, a forced decision, a product decision, or the merge. Do not use it to stand up a project that does not exist yet (`greenfield`), for throwaway exploration (`spike`), or for repo tooling (`harness`)."
+name: execute
+description: "Use this skill on every request to write, add, remove, change, implement or fix code in a system that already exists, be it a feature, a bug, a chore, a refactor or a complaint about existing behavior, before touching any file. Use it on: 'I want to add X', 'implement X', 'fix the bug where X', 'wire X to Y', 'build story X', 'work through this epic', 'pick up where we left off', 'implement this prd', 'here is the prd, start building'. Use it even when the change looks small enough to just do. Runs one named story, or a whole epic with `next-story` choosing each story. Agree the outcome, the architecture decisions, a module map and every story's acceptance criteria with the user up front, then run each story unattended from failing tests to a merged pull request. Pause only for a new story, a forced decision, a product decision, or the merge. Do not use it to stand up a project that does not exist yet (`greenfield`), for throwaway exploration (`spike`), or for repo tooling (`harness`)."
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "9.1.0"
+  version: "10.0.0"
 ---
-# Agile Loop
+# Execute
 
-Two phases. **With the user, once per feature:** Orient -> Define -> Decide -> Map -> Record. **Unattended, per story:** Branch -> Table -> Red -> Build -> Review -> Verify -> Pull request -> Merge -> Log, then the next story.
+Two modes. **One story:** the user names it, and the loop runs that story and stops after its log commit. **An epic:** the loop runs every story in the feature, choosing each next one with `next-story`.
+
+Two phases. **With the user, once per feature:** Orient -> Define -> Decide -> Map -> Record. **Unattended, per story:** Branch -> Table -> Red -> Build -> Review -> Verify -> Pull request -> Merge -> Log, then `next-story` picks the next one.
 
 ## Principles
 
 * **Working software over documentation.** No documents beyond the feature log, ADRs, `AGENTS.md`, and any file `AGENTS.md` says to keep current; those are rewritten in the log commit.
-* **Executable specifications.** Never write implementation code first. Two levels of acceptance test: every story has one, the agent writes it, and the story is complete when it passes; every feature has one, the user writes it, and the feature is complete when it passes.
+* **Executable specifications.** Never write implementation code first. Two levels of acceptance test. Every criterion of a story has one, the agent writes it, and the story is complete when all of them pass. every feature has one, the user writes it, and the feature is complete when it passes.
 * **Smallest valuable increment.** One vertical story proving the riskiest assumption.
-* **Fixed authorship.** The agent proposes; the user confirms once, up front: the outcome, each architecture decision, the module map, and every story with its criterion. After that the agent runs each story alone. The pull request is where the user sees the story.
-* **Order is not a promise.** A bug, a finding or a forced decision can add or reorder a story. That is a pause, never a silent change.
+* **Fixed authorship.** The agent proposes; the user confirms once, up front: the outcome, each architecture decision, the module map, and every story with its criteria. After that the agent runs each story alone. The pull request is where the user sees the story.
+* **No fixed order.** `next-story` chooses the next story from what is ready when the last one merges. A bug, a finding or a forced decision can add a story. Adding one is a pause, never a silent change.
 
 ## Communication
 
@@ -30,7 +32,7 @@ Load [references/writing.md](references/writing.md) now.
 
 A pause stops the loop, states the question in one message, and waits. The loop resumes where it stopped. Pause on these and nothing else:
 
-* **A new story is needed:** a bug in shipped work, a split after the builder fails twice, or a `Learned` fact that changes what gets built. Propose the story and its place in the order.
+* **A new story is needed:** a bug in shipped work, a split after the builder fails twice, or a `Learned` fact that changes what gets built. Propose the story and what blocks it.
 * **A decision is forced:** a `Deferred:` item this story needs, or an architecture decision not in the feature header. Section 1 runs for it.
 * **A product decision a test row exposes** that no PRD or ADR records: a timezone, whether refunds count, what a limit is.
 * **A criterion cannot be written as a test,** or contradicts `AGENTS.md`.
@@ -41,7 +43,7 @@ A pause stops the loop, states the question in one message, and waits. The loop 
 ## Orient
 
 * **Load the charter.** Silently read `AGENTS.md`, the file the `orient` skill writes: purpose, users, non-goals, nouns, boundaries, commands, constraints. Fall back to `ARCHITECTURE.md`, then `README.md`. When none states a purpose, offer the `orient` skill once, then proceed.
-* **Check the floor.** When `AGENTS.md` names no check command, names one that runs less than CI runs, the suite is red on main in CI, no mutation runner exists, or the log shows three `Not caught by` lines in its last ten entries, halt and offer the `harness` skill before the first story. When the interface the outcome names has no runner in the repo (a screen and no browser test), the first story adds the runner with one hardcoded front-door test, hardcoding the rest; for a command, the entry point called in-process is the runner.
+* **Check the floor.** When `AGENTS.md` names no check command, names one that runs less than CI runs, the suite is red on main in CI, no mutation runner exists, or the log shows three `Not caught by` lines in its last ten entries, halt and offer the `harness` skill before the first story. When the interface the outcome names has no runner in the repo (a screen and no browser test), the first story adds the runner with one hardcoded acceptance test, hardcoding the rest; for a command, the entry point called in-process is the runner.
 * **Read `docs/adr/`** before proposing a change to an existing boundary or constraint.
 * **Read the PRD** if supplied, as raw material for the stories, never as a list of IDs to trace. Note its success metrics and non-goals. When the PRD is the user's own and states an outcome, non-goals and decisions, copy them into the feature header and cite them wherever a pause would re-ask them. When `AGENTS.md` names a per-change spec directory, the feature header and the entries go at the bottom of that change's spec; create no feature.md.
 * **State the last story.** When the log has an entry, read it and tell the user in one line what the last merged story changed and why, from its `Done` line and the commit it points to. Ask nothing.
@@ -50,7 +52,7 @@ A pause stops the loop, states the question in one message, and waits. The loop 
 
 ## 0. Define
 
-Run the `feature` skill with the user before anything else. It returns the outcome, the problem, the non-goals and the ordered stories, one acceptance criterion each, and it holds every rule for writing them. A criterion that cannot be written as a test goes back to it. A project that does not exist yet goes to `greenfield`.
+Run the `feature` skill with the user before anything else. It returns the outcome, the problem, the non-goals, and the stories and spikes with what blocks each. It writes each story with the `story` skill, which holds every rule for acceptance criteria. A criterion that cannot be written as a test goes back to `story`. In one-story mode, run only `story` on the named story when the feature header already exists. A project that does not exist yet goes to `greenfield`.
 
 Choose the slug: the issue key when `AGENTS.md` names a tracker, else a kebab-case name for the outcome. Create the branch `feature/{slug}` from main. Every story gets its own branch `story/{slug}/{n}-{short-name}` from the feature branch, and merges back into it; the feature branch merges into main when the feature header's story list is empty. The prefixes differ because git stores refs as paths, so `feature/{slug}` and `feature/{slug}/1-x` cannot both exist.
 
@@ -120,11 +122,11 @@ Problem:   <who hits it, how often, what they do today instead>
 Not doing: <one checkable non-goal per line>
 Decided:   <one ADR path per line>
 Deferred:  <decision, and the story that forces it; omit when none>
-feature acceptance test: <path, or "after story 1" when the front door has no runner yet>
-Stories:    <remaining stories with their criteria, numbered, in order; "none" when done>
+feature acceptance test: <path, or "after story 1" when the interface the outcome names has no test runner yet>
+Stories:    <remaining stories and spikes, numbered, each with its criteria and its blockers; "none" when done>
 ```
 
-Nothing else goes in the feature header. What the code already settles is stated in chat when the decisions are walked and lives in the code; the map lives in `AGENTS.md`; the reason for a reorder is the order; pins go beside the `Learned` line they pin.
+Nothing else goes in the feature header. What the code already settles is stated in chat when the decisions are walked and lives in the code; the map lives in `AGENTS.md`; pins go beside the `Learned` line they pin.
 
 The log defaults to `docs/features/{slug}/feature.md`. When `AGENTS.md` Boundaries names a tracker ("Backlog: Jira project TAG"), load [references/tracker.md](references/tracker.md). Stories already on the board are read as the proposed stories.
 
@@ -135,12 +137,12 @@ The outcome sentence gets one acceptance test of its own, and the user writes it
 * **The agent names, the user writes.** State the file, the runner, and the Given/When/Then the test must assert: the outcome sentence in concrete values, through the interface the user actually uses. The user writes the body. When the user asks the agent to write it, write it; the lock below still applies once it is committed.
 * **It lives in a `feature-acceptance` directory inside the repo's test tree,** the directory the harness denies to the agent. When the harness has no such deny, offer the `harness` skill to add it before the commit.
 * **It is marked expected-to-fail, strictly,** in the framework's own way (pytest `xfail(strict=True)`, jest `test.failing`, or the nearest equivalent), so the suite stays green while it fails and goes red the moment it passes. That flip is the close-out signal. The user removes the marker at close-out; the agent never touches the file.
-* **Commit it on its own on `feature/{slug}`** before the first story. When the front door has no runner yet, the first story adds the runner, and the user writes the feature acceptance test after that story merges; the feature header says "after story 1" until then.
+* **Commit it on its own on `feature/{slug}`** before the first story. When the interface the outcome names has no test runner yet, the first story adds the runner, and the user writes the feature acceptance test after that story merges; the feature header says "after story 1" until then.
 * **Locked from the agent forever.** The red-commit guard clears at each merge; this file is denied for good. The agent never edits, moves, deletes, skips or re-marks it, in any phase, and no subagent does either. A wrong feature acceptance test is the user's to change. Before it is committed, run the `give-feedback` skill on it once.
 
 ## 4. Start the Story
 
-Take the first story in the feature header. Rebase `feature/{slug}` on main, cut `story/{slug}/{n}-{short-name}` from it, and run the check command on the tree. Run the section 1 check for a forced decision, and the Orient rule for `Learned` lines.
+Take the story the user named, or in epic mode the one `next-story` returns, and say which it is and why in one line. Rebase `feature/{slug}` on main, cut `story/{slug}/{n}-{short-name}` from it, and run the check command on the tree. Run the section 1 check for a forced decision, and the Orient rule for `Learned` lines.
 
 * **Pin untested legacy before changing it.** When the code the story touches has no test of its current behaviour, write characterization tests asserting what it does today, bugs included, and commit them before the red commit. They are scaffolding: the review deletes any the accepted rows make redundant.
 * **Introduce the seam first.** When legacy code offers no point to test through, this story adds the seam (an injected dependency, an extracted function, a wrapper) and changes no behaviour, and the story's behaviour becomes the next story. Where the old path resists a seam, build beside it and route to the new path, rather than editing in place.
@@ -148,11 +150,11 @@ Take the first story in the feature header. Rebase `feature/{slug}` on main, cut
 
 ```text
 Story:      <the story's title>
-Criterion:  <the story's Given/When/Then, verbatim>
+Criteria:   <the story's Given/When/Then criteria, verbatim>
 Assumes:    <one line per fact the story rests on that was read from a document or not checked, with how it was checked before the build; omit when every fact was read from the code>
 ```
 
-* **Generate the table.** Run the `test-table` skill against the criterion and the code. Apply its cut rules in this session; the accepted table is the one the review holds the build to. A row that exposes a product decision no PRD or ADR records is a pause. Skip the table, the build subagent and the review subagent only when nobody is harmed and nothing a person reads is wrong before a `git revert` lands: copy, layout, a log line nobody operates from, a dev-only tool. Such a story is one acceptance test committed red, the check command, and the commit; say so in the pull request description.
+* **Generate the table.** Run the `test-table` skill against the story's criteria and the code. Apply its cut rules in this session; the accepted table is the one the review holds the build to. A row that exposes a product decision no PRD or ADR records is a pause. Skip the table, the build subagent and the review subagent only when nobody is harmed and nothing a person reads is wrong before a `git revert` lands: copy, layout, a log line nobody operates from, a dev-only tool. Such a story is one acceptance test committed red, the check command, and the commit; say so in the pull request description.
 
 ```text
 Tests:      The table.
@@ -164,7 +166,7 @@ Not now:    What a reader would expect here that is deferred, and to which story
 * **Write every accepted row as a failing test,** acceptance test first, new rows in a new test file.
 * **Run the tests.** A row that passes before the build, or fails for a reason other than the missing behaviour, means the code does not do what the story assumes; read it before going on.
 * **Delete or rewrite every existing test that asserts behaviour this story removes,** in the same commit and listed in its message.
-* **Commit the red tests as their own commit,** with the criterion and the accepted table verbatim in the message. Where the harness installed the test guard, record the hash with `git config agile.redCommit <hash>`; the guard refuses edits to those files until the merge clears it. Change no accepted row after this commit.
+* **Commit the red tests as their own commit,** with the criteria and the accepted table verbatim in the message. Where the harness installed the test guard, record the hash with `git config agile.redCommit <hash>`; the guard refuses edits to those files until the merge clears it. Change no accepted row after this commit.
 
 When a turn-end hook blocks the red run because the tests name symbols that do not exist yet, add the symbols as stubs whose only body raises. The types pass and the tests still fail on behaviour.
 
@@ -182,13 +184,13 @@ When the builder reports red on any row, or touched anything outside its paths, 
 
 Run the `review` skill in a subagent in the worktree, given the diff, the red commit, the check command and the build prompt's NON-NEGOTIABLE block, and nothing from this session's chat. Correctness, subtraction, scars, then refactor while green. Commit before the refactor and again after it.
 
-Then verify the whole feature, not the story. Rebase the story branch on `feature/{slug}`, run the full suite and the check command, and run the acceptance test through the front door it names (the interface the user actually uses: the screen, the API, the command), against the running system where its Level says so. Every earlier story's front-door test runs here too, and the feature acceptance test runs under its expected-to-fail marker. A red anywhere is a red story: reset to the red commit and reissue the build, as in section 6.
+Then verify the whole feature, not the story. Rebase the story branch on `feature/{slug}`, run the full suite and the check command, and run the story's acceptance tests through the interface each names (the one the user actually uses: the screen, the API, the command), against the running system where its Level says so. Every earlier acceptance test runs here too, and the feature acceptance test runs under its expected-to-fail marker. A red anywhere is a red story: reset to the red commit and reissue the build, as in section 6.
 
 The review returns its Done block: Correctness, Subtraction, Scars, Refactor, Decided alone, Gate. Never open a pull request without the block.
 
 ## 8. Pull Request and Merge
 
-Open the pull request from the story branch into `feature/{slug}`, and write its description with the `merge-request` skill, which holds the format. Its `Why` comes from the feature header, its criterion is the story's verbatim, its `Assumes` comes from the story header, and the accepted table, `Not now:` and the review's Done block go in the collapsed section. Apply the writing rules in [references/writing.md](references/writing.md).
+Open the pull request from the story branch into `feature/{slug}`, and write its description with the `merge-request` skill, which holds the format. Its `Why` comes from the feature header, its criteria are the story's verbatim, its `Assumes` comes from the story header, and the accepted table, `Not now:` and the review's Done block go in the collapsed section. Apply the writing rules in [references/writing.md](references/writing.md).
 
 Tag the pull request, its tests and its commits with the story's issue key when a tracker exists, e.g. `[PAY-1420]`. Where the repo has no remote, the same description is the merge commit message and the user merges locally.
 
@@ -200,7 +202,7 @@ Then wait for the merge. The agent never merges. When the harness can poll the p
 * **Flag** only when the feature, once merged to main, exposes user-visible behaviour a later feature completes, or when backing it out needs more than a `git revert`. Name the story that removes the flag in the feature header's `Stories:` list.
 * **Deploy from main, by a command in the repo.** A `deploy` script or task target, committed with the story that first needs it. Never from the working tree, never from a branch, never by commands that live only in chat.
 * **Exercise the rollback once** before anything a `git revert` cannot undo: a backfill, a migration, a bulk send.
-* **Then start the next story** at section 4, without asking.
+* **Then run `next-story`** and start the story it returns at section 4, without asking. In one-story mode, stop here. When nothing is ready, pause and show its report.
 * **Close out** when the feature header's story list is empty: ask the user to remove the feature acceptance test's expected-to-fail marker, run the suite, and go no further while it is red; then promote every `Learned` line to a test, an ADR or an `AGENTS.md` line, write the pin beside each, rebase `feature/{slug}` on main and run the check command, then open the pull request into main with the feature header and every entry's `Done` and `Observed` lines as its body. The user merges it. Prompt the user to observe each signal once deployed. Delete the feature branch, close the epic, keep the log file.
 
 ```text

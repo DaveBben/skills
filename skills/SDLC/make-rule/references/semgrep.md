@@ -1,14 +1,6 @@
----
-name: semgrep-rules
-description: "Use this skill whenever a convention, an anti-pattern or a security standard is to be enforced by a pattern-matching rule over source code, in any language. Use it on: 'write a semgrep rule', 'add static analysis', 'ban this pattern in the codebase', 'enforce this convention in CI', 'stop people calling X directly', 'custom lint rule', 'the agent keeps making this mistake', 'catch SQL injection automatically'. Use it when `harness` fills its rules slot, and when a bug review asks which check would have caught the bug. It checks the engine is installed and asks the user to install it when it is not, converts prose rules in CLAUDE.md, AGENTS.md or a review checklist into rules that fire, and wires the scan into the command and the CI job this repository already runs. Do not use it to choose the wider toolchain or wire checks to editor and commit events, which is `harness`, and do not use it to review a diff by hand, which is `review` or `merge-request`."
-license: MIT
-compatibility: any-agent
-metadata:
-  version: "1.1.0"
----
-# Semgrep Rules
+# Writing a Semgrep rule
 
-Write a rule only for what this repository has to enforce itself, and prove it fires before it lands.
+Load this when the rule is a pattern over source code that no linter the project runs already ships. Prove every rule fires before it lands.
 
 Everything below applies to any other pattern engine, such as `ast-grep` or a custom ESLint, Ruff or Checkstyle rule; only the file format changes.
 
@@ -24,11 +16,8 @@ Then confirm this repository's languages are supported and say which parser tier
 
 ## Before writing anything
 
-Climb this list and stop at the first rung that holds.
-
-1. **A registry pack already covers it.** The registry carries packs per language, framework and topic: `p/javascript`, `p/react`, `p/python`, `p/golang`, `p/sql-injection`, `p/secrets`, `p/owasp-top-ten`. Run the ones that match the stack, read the findings, and adopt them before writing a line of YAML.
-2. **Something else already prevents it.** A type checker, a compiler flag, a framework default, or a rule the project's existing linter ships.
-3. **The mistake has not happened here.** Show one real violation in this codebase first. A rule with no current violation is a preference, and the user decides whether to take it.
+* **A registry pack already covers it.** The registry carries packs per language, framework and topic: `p/javascript`, `p/react`, `p/python`, `p/golang`, `p/sql-injection`, `p/secrets`, `p/owasp-top-ten`. Run the ones that match the stack, read the findings, and adopt them before writing a line of YAML.
+* **The mistake has not happened here.** Show one real violation in this codebase first. A rule with no current violation is a preference, and the user decides whether to take it.
 
 ## What a rule can see
 
@@ -36,7 +25,7 @@ Climb this list and stop at the first rung that holds.
 * **What is present, not what is missing,** except inside a scope the pattern can name. "This call, without this option" works, because both sit in one expression. "This service, with no rate limit anywhere" does not.
 * **Text, where the language is unsupported.** `languages: [generic]` with `pattern-regex` matches configuration files, templates and any language with no parser.
 
-Say plainly which standards stay manual: anything met by something absent, anything that spans files, anything true only at runtime. Those belong in a test, a configuration check, or the merge request review.
+Say plainly which standards stay manual: anything met by something absent, anything that spans files, anything true only at runtime. Those go down the ladder in `SKILL.md`.
 
 ## Where this repository's rules come from
 
@@ -46,14 +35,6 @@ In order of what they repay:
 * **Untrusted input reaching something that interprets it.** One sink per rule.
 * **The wrapper everyone must use.** Where the repository has its own client with a timeout, its own logger that strips personal data, or its own query builder, the rule bans the raw call and names the wrapper.
 * **Every review comment made more than twice,** and every confirmed review finding a pattern could match.
-
-## Replace prose that a pattern can enforce
-
-Read every file that tells a person or an agent what to do: `CLAUDE.md`, `AGENTS.md`, `CONTRIBUTING.md`, a review checklist, `.cursor/rules/`, `.github/copilot-instructions.md`.
-
-* **Convert the line that names code:** "never call the HTTP client directly, use `httpGet`", "no `any` in exported types", "every query goes through the repository layer". Write the rule, prove it fires, then delete the line and leave one pointer to the rules directory in its place.
-* **Leave the line that needs judgment:** "keep functions small", "prefer composition", "ask before adding a dependency".
-* **Show the user each conversion before making it,** with the line, the rule and one real violation.
 
 ## Write the rule
 

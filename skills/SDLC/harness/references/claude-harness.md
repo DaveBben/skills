@@ -286,7 +286,7 @@ Match the install command at a shell boundary, so a wrapper whose name ends in t
 
 ## Accepted-test guard
 
-`.claude/hooks/tests-guard.sh`, wired to `PreToolUse` on `Edit|Write|MultiEdit`. Exit 2 cancels the edit. It fires only while `agile` has recorded a red commit, and only for the files that commit touched. Hooks fire for subagents too, so the builder is bound by it.
+`.claude/hooks/tests-guard.sh`, wired to `PreToolUse` on `Edit|Write|MultiEdit`. Exit 2 cancels the edit. It fires only while `execute` has recorded a red commit, and only for the files that commit touched. Hooks fire for subagents too, so the builder is bound by it.
 
 ```bash
 #!/usr/bin/env bash
@@ -312,7 +312,7 @@ fi
 exit 0
 ```
 
-`agile` sets the config at the red commit and unsets it at the merge. A deletion through the shell is not caught; `bash-guard.sh` may add `rm` on those paths as its third hard block. A rename in the refactor that a test names is the case that trips this guard legitimately: the user clears it, the refactor commits, and the review diff still reports the change.
+`execute` sets the config at the red commit and unsets it at the merge. A deletion through the shell is not caught; `bash-guard.sh` may add `rm` on those paths as its third hard block. A rename in the refactor that a test names is the case that trips this guard legitimately: the user clears it, the refactor commits, and the review diff still reports the change.
 
 ## Path-scoped rules
 

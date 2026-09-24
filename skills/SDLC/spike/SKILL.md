@@ -1,6 +1,6 @@
 ---
 name: spike
-description: "Use this skill whenever the user wants to find something out by building, rather than to ship what they build: proving an approach, prototyping an idea, mocking something up (not a test double), standing up a demo, or exploring what an integration or change would involve. Use it on: 'let's prove this works first', 'let's try an approach before building', 'let's prototype this idea', 'let's mock this up', 'create a throwaway project', 'build a quick throwaway', 'build a demo', 'let's do a spike on it', 'let's see if X is feasible', 'let's see how this integration would work', 'let's see the changes which would be needed', 'explore how this would fit into the system'. Use it on the words prototype, mock, demo, throwaway, spike, feasible and explore even when the ask sounds small: deciding what is disposable is the whole point. Build the smallest thing that answers the open question, record findings as they surface, and treat all code as disposable. Do not use it for code meant to ship; that is `agile`."
+description: "Use this skill whenever the user wants to find something out by building, rather than to ship what they build: proving an approach, prototyping an idea, mocking something up (not a test double), standing up a demo, or exploring what an integration or change would involve. Use it on: 'let's prove this works first', 'let's try an approach before building', 'let's prototype this idea', 'let's mock this up', 'create a throwaway project', 'build a quick throwaway', 'build a demo', 'let's do a spike on it', 'let's see if X is feasible', 'let's see how this integration would work', 'let's see the changes which would be needed', 'explore how this would fit into the system'. Use it on the words prototype, mock, demo, throwaway, spike, feasible and explore even when the ask sounds small: deciding what is disposable is the whole point. Build the smallest thing that answers the open question, record findings as they surface, and treat all code as disposable. Do not use it for code meant to ship; that is `execute`."
 license: MIT
 compatibility: any-agent
 metadata:
@@ -33,7 +33,7 @@ The single exception: when the measured outcome is only observable through a tes
 
 Maintain a running findings log from the first moment, not at the end. Never leave a finding in the chat only.
 
-Write the log as one entry in `docs/features/{slug}/feature.md`, titled `spike: <the question>`. The slug is the story's slug when `agile` called the spike, else a kebab-case name for the question. Create the file if absent.
+Write the log as one entry in `docs/features/{slug}/feature.md`, titled `spike: <the question>`. The slug is the story's slug when `execute` called the spike, else a kebab-case name for the question. Create the file if absent.
 
 Record each finding as it surfaces, as a `Learned` line whose bold headline is one of these:
 
@@ -96,4 +96,4 @@ Stop building the moment the finish-line signal appears. Then:
 * **One question per spike:** When a second unknown appears, record it as an open question and scope a separate spike. Never let a spike sprawl into an implementation.
 * **Findings before code quality:** Never spend spike time making throwaway code clean. Spend it producing and recording findings.
 * **Never ship a spike:** Spike code does not become the official build by momentum. State this whenever the user proposes keeping it.
-* **Time and scope are bounded:** When the spike outgrows "smallest thing that answers the question," halt and report that the question is larger than a spike. Hand off to `agile`.
+* **Time and scope are bounded:** When the spike outgrows "smallest thing that answers the question," halt and report that the question is larger than a spike. Hand off to `execute`.

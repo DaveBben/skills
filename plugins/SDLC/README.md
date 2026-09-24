@@ -9,11 +9,14 @@ The workflow is derived from two podcast episodes, and most of what is specific 
 - **[Florian Buetow on Beyond Coding](https://www.youtube.com/watch?v=W1uG25of2t0)** with Patrick Akil, 10 June 2026. Code review as the bottleneck once agents write the code, and shaping the environment so corrections become rules instead of repeat conversations.
 - **[Dex Horthy on The Pragmatic Engineer](https://www.youtube.com/watch?v=Usufn8IQJgw)** with Gergely Orosz, 15 July 2026. Context engineering, why prose specs drift out from under you, and slicing sized to what a human will actually read.
 
-The plugin is nine skills. Plain Markdown, no build step, nothing to compile.
+The plugin is fourteen skills. Plain Markdown, no build step, nothing to compile.
 
 | Skill | Fires on |
 |---|---|
-| `agile` | any request to change a system, at any stage: "add X", "what's the best way to Y", "build the next story", "did that fix it" |
+| `execute` | any request to change a system, at any stage: "add X", "what's the best way to Y", "build story X", "work through this epic", "did that fix it" |
+| `feature` | "turn this prd into stories", "break this epic down", "review this epic" |
+| `story` | "write the acceptance criteria", "is this story ready", "review this story" |
+| `next-story` | "what should I pick up next", "what can run in parallel" |
 | `orient` | "orient yourself", "setup claude in this repo", "get this repo ready for agents", "write the charter", "write AGENTS.md" |
 | `test-table` | "what tests should this have", "propose the tests", "is this covered" |
 | `review` | "review this", "review the diff", "what can be deleted" |
@@ -21,11 +24,12 @@ The plugin is nine skills. Plain Markdown, no build step, nothing to compile.
 | `greenfield` | "start a new project", "walking skeleton", "scaffolding" |
 | `give-feedback` | "give me feedback", "what do you think of this", "poke holes in this", "here is how I would fix it, thoughts?" |
 | `harness` | "set up guardrails", "add hooks for the agent", "set up the commit gate" |
+| `make-rule` | "add a rule", "the agent keeps doing X", "write a semgrep rule", "which of these instructions could be lint rules" |
 | `adr` | "write an adr", "let's document that decision", "we'll accept that risk" |
 
 Session handoff, once part of this plugin, now lives in the separate [context](../context/) plugin. Plugins are independent, so nothing in SDLC calls it; install `context` to have it.
 
-`agile` carries the whole change loop. It used to be six skills, one per stage, and collapsing them was a bet: that a capable model needs orientation rather than a numbered walk, and that most of the length was telling it things it already knew. The bet paid off. What is left is the part it would get wrong by default.
+`execute` carries the whole change loop. It used to be six skills, one per stage, and collapsing them was a bet: that a capable model needs orientation rather than a numbered walk, and that most of the length was telling it things it already knew. The bet paid off. What is left is the part it would get wrong by default.
 
 ## Three convictions
 
@@ -42,7 +46,7 @@ Session handoff, once part of this plugin, now lives in the separate [context](.
 ```mermaid
 flowchart TD
     REQ([a request to change something]) --> OR[orient: AGENTS.md, the floor, the log]
-    OR --> FR[feature: outcome, problem, stories with their Given/When/Then]
+    OR --> FR[feature and story: outcome, problem, stories with their Given/When/Then criteria]
     FR --> DEC[decide: architecture decisions, one at a time, each an ADR]
     DEC --> MAP[map: the modules this feature touches]
     MAP --> REC[record: the feature header and the feature acceptance test]
@@ -52,7 +56,8 @@ flowchart TD
       BR[branch] --> TT[test table] --> RED[red commit] --> BLD[build subagent] --> REV[review subagent] --> VER[verify the whole feature] --> PR[pull request] --> MRG[wait for merge] --> LOG[log]
     end
 
-    LOG --> SL
+    LOG --> NX[next-story: pick the next ready story]
+    NX --> SL
     LOG --> OUT[close out: feature pull request into main]
 
     SL -. pause .-> USER([the user])
@@ -66,31 +71,31 @@ Two phases. The first runs with you, once per feature. The second runs without y
 
 **Orient.** The agent reads `AGENTS.md`, checks the repo gives it feedback of its own (a check command, a suite green on main, a mutation runner), and offers `harness` when it does not. When a log exists it tells you in one line what the last story changed, and reads every `Learned` line before proposing anything.
 
-**Define.** `feature` runs with you. One sentence for the outcome: what you do differently once this ships, and where you see it. A sentence naming a table or an endpoint is rejected, since it is true when the work is half done. Then the problem, the non-goals, and every story with one Given/When/Then acceptance criterion in values a stranger could check. It walks the failure paths and the abuse paths so the decisions they hide, what a repeated submit returns, how many requests a minute one source gets, how long a half-finished state lives, are yours rather than the builder's, and it keeps the standards nobody would choose against out of the criteria. The feature branch is `feature/{slug}`. A spike runs only when a fact about the world blocks the criterion, and its code is deleted.
+**Define.** `feature` runs with you. One sentence for the outcome: what you do differently once this ships, and where you see it. A sentence naming a table or an endpoint is rejected, since it is true when the work is half done. Then the problem, the non-goals, and the stories and spikes with what blocks each. Only stories and spikes get cards: a non-functional requirement, an enabler or a decision becomes criteria or a comment on the story it belongs to. `story` writes each story: its outcome criterion plus its boundary, failure and abuse criteria, each a Given/When/Then in values a stranger could check. It walks the failure paths and the abuse paths so the decisions they hide, what a repeated submit returns, how many requests a minute one source gets, how long a half-finished state lives, are yours rather than the builder's, and it keeps the standards nobody would choose against out of the criteria. The feature branch is `feature/{slug}`. A spike runs only when a fact about the world blocks the criterion, and its code is deleted.
 
 **Decide.** Some choices touch the data's shape, the trust or consistency boundaries, or the platform, and are expensive to reverse. The agent walks a list of those for this kind of system, states which the code already settles, and puts the rest to you one per message. Each answer becomes an ADR before the next question, and `adr` asks you why, what the tradeoffs are, and why not the obvious route, then gives its own feedback, before it writes anything. A choice that can wait goes on the feature header as deferred, with the story that will force it.
 
 **Map.** One table of the modules this feature touches: what each owns, what it depends on, and a pattern where you have one. It is not a design document. It goes into `AGENTS.md` with the first story, and every build prompt cites the module the story lives in and what it may import.
 
-**Record.** You confirm, reword, cut, add or reorder the stories in one turn. No estimates. The result is the feature header at the top of `docs/features/{slug}/feature.md`. When `AGENTS.md` names a Jira project or another tracker, the board is the backlog instead: the epic is the feature, its children are the stories in rank order, stories already on the board are read as the proposed list, and every log entry is a resolution comment. No `feature.md` is kept then.
+**Record.** You confirm, reword, cut or add stories in one turn. No estimates. The result is the feature header at the top of `docs/features/{slug}/feature.md`. When `AGENTS.md` names a Jira project or another tracker, the board is the backlog instead: the epic is the feature, its children are the stories in rank order, stories already on the board are read as the proposed list, and every log entry is a resolution comment. No `feature.md` is kept then.
 
-**feature acceptance test.** Every story has its acceptance test, written by the agent. You write one more for the outcome sentence itself, through the front door, marked expected-to-fail so the suite stays green until the feature is whole. The agent names the file and what it must assert, gives feedback on what you wrote, and never touches it again: the harness denies that directory to the agent for good. When it passes, the feature is done; when it passes early, the remaining stories are questioned.
+**feature acceptance test.** Every criterion of every story has its acceptance test, written by the agent. You write one more for the outcome sentence itself, through the interface you actually use, marked expected-to-fail so the suite stays green until the feature is whole. The agent names the file and what it must assert, gives feedback on what you wrote, and never touches it again: the harness denies that directory to the agent for good. When it passes, the feature is done; when it passes early, the remaining stories are questioned.
 
 ## Unattended, per story
 
 1. **Branch.** `story/{slug}/{n}-name`, cut from the feature branch after rebasing it on main.
 2. **Table.** `test-table` proposes one entry per test: an index table with the level, the generator that produced it and the one-line mutation that must turn it red, then a bold Given/When/Then block per test. The acceptance row runs through the interface you actually use, a browser, an API or a command, and cannot be cut. The agent applies the cut rules itself.
-3. **Red.** Every row as a failing test, committed on its own with the criterion and the table in the message. A harness guard refuses edits to those files until the merge.
+3. **Red.** Every row as a failing test, committed on its own with the criteria and the table in the message. A harness guard refuses edits to those files until the merge.
 4. **Build.** A subagent with one prompt: the contract, a prohibition list of things models add unasked, an instruction to grep for what exists before writing a helper, and the environment facts it would otherwise improve into something wrong. The agent runs the tests itself afterwards; the builder's report is a claim. A red row or a touched file outside the story resets the tree to the red commit and reissues once, then the story is split.
 5. **Review.** A subagent that saw none of the chat runs three passes: correctness (every mutation applied, every row goes red), subtraction (delete what no row asked for), scars (pinned values unchanged). Then a refactor while green, and a Done block listing every choice made without you.
-6. **Verify.** The story branch rebased on the feature branch, the full suite, and the acceptance test through the front door against the running system. Every earlier story's front-door test runs too.
-7. **Pull request** into the feature branch, its body written by `merge-request` for a reviewer who has never opened the repo: why, the criterion, what changed, what it touches (auth, money, health data, a migration, anything a revert cannot undo), what to read first, the table and the Done block collapsed, and the signal you will read to know it worked. Under one screen.
+6. **Verify.** The story branch rebased on the feature branch, the full suite, and the story's acceptance tests through the interface you actually use, against the running system. Every earlier acceptance test runs too.
+7. **Pull request** into the feature branch, its body written by `merge-request` for a reviewer who has never opened the repo: why, the criteria, what changed, what it touches (auth, money, health data, a migration, anything a revert cannot undo), what to read first, the table and the Done block collapsed, and the signal you will read to know it worked. Under one screen.
 8. **Merge.** You merge. The agent polls where it can, otherwise ends the turn with the link.
 9. **Log.** The feature header drops the shipped story, the entry records what shipped, what was learned and, for a bug, why nothing caught it. Then the next story, without asking.
 
 When the story list is empty, the feature branch gets its own pull request into main, and you observe each story's signal once deployed.
 
-**The loop pauses for exactly five things:** a new story is needed (a bug in shipped work, a split, a finding that changes what gets built); a deferred or new architecture decision is forced; a test row exposes a product decision no PRD or ADR records; a criterion cannot be tested or contradicts `AGENTS.md`; the merge. Story order is not a promise, and a change to it is always a pause, never silent.
+**The loop pauses for exactly five things:** a new story is needed (a bug in shipped work, a split, a finding that changes what gets built); a deferred or new architecture decision is forced; a test row exposes a product decision no PRD or ADR records; a criterion cannot be tested or contradicts `AGENTS.md`; the merge. There is no fixed story order. When a story merges, `next-story` picks the next one from the stories whose blockers are done, starting from your rank and saying why whenever it departs from it. In one-story mode the loop stops after the log.
 
 ---
 
@@ -103,7 +108,7 @@ When the story list is empty, the feature branch gets its own pull request into 
 | ADR | `docs/adr/architecture/` or `docs/adr/{slug}/` | durable, committed before the code that depends on it |
 | Module map | `AGENTS.md`, under the codebase map | durable, rewritten when a story changes the shape |
 | feature acceptance test | the test tree's `feature-acceptance` directory | durable; written by the user, denied to the agent for the life of the repo |
-| Failing tests, then passing | the repo's test tree | durable; the red commit message holds the criterion and the table |
+| Failing tests, then passing | the repo's test tree | durable; the red commit message holds the criteria and the table |
 | Rules and contracts | the repo, via `harness` | durable, added to when a bug's `Not caught by` names a gap |
 | Pull request body | the remote | durable; the one place a stranger can read what a story did and why |
 
@@ -119,7 +124,7 @@ The ADR is the exception, and it is one for a specific reason: it makes no claim
 
 The feature log is the other exception, and it is kept small on purpose: a feature header under one screen and one entry per story. At close-out every `Learned` line is promoted to a test, an ADR or an `AGENTS.md` line, so nothing the log knows lives only in the log.
 
-This is also why the red commit message carries the criterion and the table verbatim. The reason a number is 100 rather than 150 has to survive the conversation that settled it.
+This is also why the red commit message carries the criteria and the table verbatim. The reason a number is 100 rather than 150 has to survive the conversation that settled it.
 
 ---
 
@@ -139,15 +144,15 @@ An instruction that governs the conversation is never path-scoped, since path fr
 
 Brownfield gets one thing greenfield does not, and it is a decision rather than a step. Every rule just added is violated by code that predates it, so enforcement is either scoped to files authored from here on, or the backlog is cleaned up as a change of its own. Both are real answers. Adding rules and leaving them red is not.
 
-**`adr` records one decision.** It is a skill rather than a section because the trigger is a moment, not a stage: an expensive or irreversible choice, an accepted hazard, or an explicitly rejected alternative. `agile` invokes it the moment the decision is made rather than batching records at the end, by which time the alternatives that lost are gone. Its template always carries `Alternatives rejected` and `Detector`, because an ADR with no rejected alternative recorded a preference rather than a decision. Recording decisions is not one of `harness`'s outputs.
+**`adr` records one decision.** It is a skill rather than a section because the trigger is a moment, not a stage: an expensive or irreversible choice, an accepted hazard, or an explicitly rejected alternative. `execute` invokes it the moment the decision is made rather than batching records at the end, by which time the alternatives that lost are gone. Its template always carries `Alternatives rejected` and `Detector`, because an ADR with no rejected alternative recorded a preference rather than a decision. Recording decisions is not one of `harness`'s outputs.
 
 **`give-feedback` reviews what you made.** Hand-written code, a design, a bug-fix idea, a plan typed in chat. It reads the code the subject touches before judging, sorts every point into wrong, unverified, shape or preference, names the principle behind each, and leaves the rewrite to you. It is the manual-flying practice the loop no longer forces.
 
 **`merge-request` writes and reviews the request itself.** The loop calls its writing half at step 7. Its reviewing half runs elsewhere, as the agent that receives a pull request holding only the diff, the body and whatever the build reported. That agent reads what the tools already reported rather than redoing it, then reads for the five things no tool reports: a criterion with no test, code no test asked for, a decision the author made that someone else owned, behaviour that differs against production data and production traffic, and names that do not match the words in the criterion.
 
-**`semgrep-rules` writes one static check.** `harness` calls it when it fills the rules slot, and a bug review calls it when the question is which check would have caught the bug. It starts by climbing off the rule: a published rule set for the stack, then anything the type checker or framework already prevents, then one real violation in this codebase before a rule is written at all. It states what a pattern engine can see, one file at a time, what is present rather than what is missing, and says which standards stay manual because of it. Every rule ships with an annotated fixture that proves it fires, and lands on a repository that already violates it through a baseline commit rather than a red build.
+**`make-rule` puts a rule where it will be followed.** A check a program runs is followed every time, and an instruction an agent reads is followed when the agent remembers it. So each rule goes to the first place that holds: a linter setting, a type check, a dependency contract or a Semgrep rule; then a rule file the agent loads only for matching paths; then one line in `AGENTS.md`. It also audits `AGENTS.md`, `CLAUDE.md` and the other instruction files, proposes moving each line that names code into a check, and deletes the line once the check lands. `harness` calls it when it fills the rules slot, and a bug review calls it when the question is which check would have caught the bug. Every Semgrep rule ships with an annotated fixture that proves it fires, and lands on a repository that already violates it through a baseline commit rather than a red build.
 
-**`orient`, `feature`, `test-table`, `review`, `spike` and `greenfield`** each do one step the loop calls by name, and each runs on its own when asked: write `AGENTS.md`; turn an ask into stories with testable acceptance criteria; propose the tests; three-pass a diff; answer one question with throwaway code; stand a new project up from a template.
+**`orient`, `feature`, `story`, `next-story`, `test-table`, `review`, `spike` and `greenfield`** each do one step the loop calls by name, and each runs on its own when asked: write `AGENTS.md`; turn an ask into stories and spikes; write one story's testable acceptance criteria; pick the next ready story; propose the tests; three-pass a diff; answer one question with throwaway code; stand a new project up from a template.
 
 **Session handoff lives in the [context](../context/) plugin** as the `handing-off` skill. Plugins are independent, so nothing in SDLC calls it; install `context` to have it.
 
@@ -253,12 +258,12 @@ Judgment calls go to you. The skills surface the decision, the failure mode or t
 /plugin install SDLC@davebben-skills
 ```
 
-The nine skills surface under their own names.
+The fourteen skills surface under their own names.
 
 **Any other agent** (Codex, Cursor, Windsurf, and more), via the [`skills` CLI](https://github.com/vercel-labs/skills):
 
 ```bash
-npx skills add DaveBben/davebben-skills --skill agile
+npx skills add DaveBben/davebben-skills --skill execute
 ```
 
 Swap in `harness` or `adr`, or `--all` for every skill in the repo. The canonical `SKILL.md` files live at `skills/SDLC/` in the repo root.
