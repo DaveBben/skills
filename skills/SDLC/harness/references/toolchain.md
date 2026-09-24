@@ -1,7 +1,5 @@
 # Toolchain
 
-Load when filling the slots. Pick a tool per slot for the language in front of you.
-
 ## The slots
 
 | Slot | Fires | The filled slot must |
@@ -10,7 +8,7 @@ Load when filling the slots. Pick a tool per slot for the language in front of y
 | `fast_check` | every edit | judge one file with no project context, and return a different exit code for "found problems" than for "could not run" |
 | `types` | turn end | check the whole project |
 | `contracts` | turn end | assert allowed dependency directions, and name the broken rule in the failure |
-| `rules` | turn end | match project-specific patterns and print a message you wrote |
+| `rules` | turn end | match project-specific patterns and print a message written for this project |
 | `complexity` | turn end | fail any function over the project's cyclomatic limit and name the function |
 | `deps_check` | manifest edit, and commit | fail when the manifest and the lockfile disagree, without hitting the network |
 | `env_check` | session start | report whether the environment is built and in sync, naming the command that fixes it |
@@ -45,13 +43,11 @@ Before writing the config into the repo:
 
 ## Settings that are decisions, not defaults
 
-Take the tool's defaults everywhere except these. Each has a silent failure mode.
-
-- **Warnings as errors** in the test runner. A deprecation warning is the signal that the agent reached for an API that skewed old in training.
+- **Warnings as errors** in the test runner.
 - **Strict expected-failure handling.** A test marked expected-fail that starts passing must fail the suite.
-- **A dead-code allowlist file, committed, and in the tool's paths from day one.** Without it, the only moves on a false positive are deleting live code or lowering the confidence threshold for everything.
+- **A dead-code allowlist file, committed, and in the tool's paths from day one.**
 - **Coverage thresholds left unset** until there is real code.
-- **Suppression comments must name a code.** A bare suppression silences everything on the line forever.
+- **Suppression comments must name a code.**
 - **A cyclomatic complexity limit per function, enforced.** Default 6. Set it once as a project decision and let the agent iterate against it.
 - **The lint tool's target language version equals the support floor**, where the tool has that setting. Set above the floor, an auto-fix running in the edit-time hook rewrites code into syntax the floor runtime cannot parse.
 - **Property-based test profiles**, where the ecosystem has such a runner: a small example count locally, a large one with no per-example deadline in CI.
@@ -74,7 +70,7 @@ tests (with coverage)
 e2e
 ```
 
-Commit one command that runs this list in this order and stops at the first failure: a task-runner target or a script named `check`, at the repository root. The commit hook, CI and the agent all call that one command. Name it in the root instructions file; the change loop and the review call it "the check command".
+Commit one command that runs this list in this order and stops at the first failure: a script named `check` at the repository root, or the equivalent target where the project already has a task runner. The commit hook, CI and the agent all call that one command. Name it in `AGENTS.md`; the change loop and the review call it "the check command".
 
 ## Commit time
 

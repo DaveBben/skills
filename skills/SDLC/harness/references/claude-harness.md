@@ -1,6 +1,6 @@
 # Claude Code harness
 
-Load when the harness is Claude Code. Everything here lives in `.claude/`. The commands are project-specific and live in one file the hooks share.
+Everything here lives in `.claude/`.
 
 ## Layout
 
@@ -22,11 +22,7 @@ Load when the harness is Claude Code. Everything here lives in `.claude/`. The c
 
 `.claude/hooks/_slots.sh` holds every command the hooks run. Nothing else in `.claude/hooks/` names a tool.
 
-Take what the project already uses. A team already on a formatter and a linter gets those wired.
-
-Two rules for the split. `fast_fix` and `fast_check` run on every edit, so anything needing more than the one file goes in `turn_end`. `turn_end` fires once a turn, so anything needing the network or minutes goes in the commit-time gate instead.
-
-If a project has no usable per-file checker, leave `fast_check` returning 0 and wire `turn_end` only.
+Take what the project already uses.
 
 **Python / uv:**
 
@@ -47,7 +43,7 @@ env_check()  {
 }
 ```
 
-The block above is the shape. Fill the same slots for the language in front of you. Three findings that are not obvious:
+Fill the same slots for the project's language. Three findings that are not obvious:
 
 - **A lockfile guard must not be a dry run.** Where the package manager offers one, it frequently suppresses the frozen-lockfile check, so the guard passes on drifted input. Use the flag that resolves the lockfile without installing, plus the flag that keeps it off the network.
 - **Verifying the dependency cache is not verifying the manifest.** Where the two commands look interchangeable, pick the one that compares the manifest against the source tree, not the one that checksums downloaded modules and hits the network on a miss.
@@ -151,13 +147,13 @@ fi
 exit 0
 ```
 
-Check what exit codes your checker actually uses before relying on the `-eq 1` test. Some return 1 for findings and something else for their own failure; others use 1 for both, in which case drop the fail-open branch and accept that a broken tool blocks.
+Check what exit codes the checker actually uses before relying on the `-eq 1` test. Some return 1 for findings and something else for their own failure; others use 1 for both, in which case drop the fail-open branch and accept that a broken tool blocks.
 
 Where the package manager wraps the tool, call the resolved binary from `fast_fix` instead and fall back to the wrapper before the environment is built. The wrapper revalidates the environment on every invocation, and this hook fires on every edit.
 
 ## Turn end
 
-`.claude/hooks/turn-end-check.sh`. Fires once, when the agent believes it is finished.
+`.claude/hooks/turn-end-check.sh`.
 
 ```bash
 #!/usr/bin/env bash
@@ -193,8 +189,6 @@ rm -f "$counter"
 exit 0
 ```
 
-`pathspec` is an array and stays quoted at the call site. Unquoted, `git status --porcelain -- $(...)` returns empty on a repo with any root-level source file, and the turn-end check silently stops running.
-
 Do not replace the retry counter with a check-once guard: that verifies before the fix is made and never re-checks after.
 
 ## Dependency guard
@@ -225,7 +219,7 @@ exit 0
 
 ## Session start
 
-`.claude/hooks/session-start.sh`. Reports rather than blocks: an unbuilt environment or a stale lockfile makes every later check fail for the wrong reason.
+`.claude/hooks/session-start.sh`. Reports rather than blocks.
 
 ```bash
 #!/usr/bin/env bash
@@ -243,8 +237,6 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
 fi
 exit 0
 ```
-
-Every message `env_check` prints must name the command that fixes it.
 
 ## Hard blocks
 
@@ -332,5 +324,3 @@ paths: ["*.py", "**/*.py"]
 ---
 <the instruction, and the files it governs>
 ```
-
-An instruction that has to hold for the whole conversation goes in the repository's agent instructions file instead, which loads every session.
