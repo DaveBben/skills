@@ -1,10 +1,10 @@
 ---
 name: feature
-description: "Use this skill whenever work has to be defined before any test or code exists: writing a user story, drafting or repairing acceptance criteria, or turning a PRD, a feature request or a bug report into stories. Use it on: 'write the user story', 'what are the acceptance criteria', 'define this work', 'is this story ready', 'what does done mean here', 'what could go wrong with this feature', 'turn this prd into stories', 'make this testable', 'refine this'. Use it to review a feature someone else defined: 'review these acceptance criteria', 'what is missing from this spec'. Use it on any statement of work with better, faster, robust, seamless, properly or handled. Produces one outcome sentence, one problem statement, and one Given/When/Then criterion per story, observable through the interface the person uses, with failure and abuse paths enumerated and standards kept out. Do not use it to enumerate the tests behind one criterion (`test-table`), to record a decision (`adr`), or to build the code (`agile`)."
+description: "Use this skill whenever a feature, an epic or a PRD has to be turned into stories before any test or code exists, or an existing epic's breakdown has to be checked. Use it on: 'define this work', 'turn this prd into stories', 'break this epic down', 'split this into stories', 'what stories does this need', 'refine this epic', 'review this epic', 'are these the right stories', 'there are too many tickets'. Produces one outcome sentence, one problem statement, the non-goals, and a list of stories and spikes only, each story written with `story` and each carrying what blocks it. Do not use it to write or review the criteria of one story (`story`), to choose which story to build next (`next-story`), to record a decision (`adr`), or to build the code (`execute`)."
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.1.0"
+  version: "2.0.0"
 ---
 # Feature
 
@@ -15,10 +15,12 @@ Outcome:   <what a person does differently once this ships, and where they see i
 Problem:   <who hits it, how often, what they do today instead>
 Not doing: <one checkable non-goal per line>
 
-1. <Title: what the person will be able to do, five to eight words>
-   Given <a concrete starting state>, when <a concrete action>, then <what the person sees, with real values>
-2. ...
+1. <story title>          Blocked by: <story or spike numbers; "nothing">
+2. spike: <the question>  Blocked by: ...
+3. ...
 ```
+
+Each story in the list is written in full with the `story` skill.
 
 ## 1. Outcome
 
@@ -26,104 +28,74 @@ Write one sentence saying what a person does differently once this ships, and wh
 
 ## 2. Why
 
-Write who hits the problem, how often, and what they do today instead. When the user cannot say what the person does today, the work is not understood yet. Ask before writing criteria.
+Write who hits the problem, how often, and what they do today instead. When the user cannot say what the person does today, the work is not understood yet. Ask before writing stories.
 
-## 3. Who observes
+## 3. Split into stories
 
-The criteria are written in whatever the person or service using this feature can see. Decide which of the two it is.
+Draft the story titles from the outcome, write each story with `story`, then check the split against the rules below. A story whose criteria break a rule is split again or folded.
 
-* **A person** sees a screen, a message, a document, a file. Write the criteria in what appears there.
-* **A service** sees status codes, an error code in the body, and the response shape. Write those exact values into the criteria. Add two criteria a person never needs: what a repeated identical request returns, and what the response is when the caller sends a field of the wrong type. Where another team owns the caller, have them state what they depend on and run their expectations against the interface in the build.
+Decide what each candidate is before it gets a card. Only stories and spikes get cards.
 
-## 4. Write the happy path first
+| Kind | Test | Where it goes |
+| --- | --- | --- |
+| Story | A person outside the system perceives something new | Its own card |
+| Spike | The answer needs something found out first | Its own card, run with `spike` |
+| Non-functional requirement | Constrains how well a story behaves: security, a rate limit, pagination, alerting | Criteria on the story it constrains |
+| Enabler | Real work nobody perceives alone: a new column, a consumer change, a service the story calls | Criteria on the story whose outcome needs it |
+| Property | Something that must stay true of a behaviour | Criteria on the story that introduces the behaviour |
+| Task | One step of building a story | A row in the story's test table, never a card or sub-task |
+| Decision | A value or choice nobody has made yet | A comment on the story it blocks (section 4) |
 
-* **Use concrete values.**
-* **Ban the words that hide the measurement:** improve, better, faster, seamless, robust, correct, properly, handled, intuitive, flexible, scalable, modern. Replace each with the number or the observable event.
-* **One Given/When/Then per criterion.** A criterion joining two outcomes with "and" is two criteria, and later two stories.
-* **Name the interface.** The criterion says where the person acts and where they see the result.
-* **Use the domain's nouns.** When the work opens a domain this system has no words for, ask the user for its three to five core nouns and use those exact terms in every criterion, and later in types, tables and variables. Never invent a synonym for a noun the user already uses.
-
-## 5. Generate the failure paths
-
-Walk this list against the outcome. Each item that can happen earns its own criterion saying what the person sees.
-
-* **Empty or malformed input** at each field the person fills.
-* **Input outside the limits:** too long, too many, too old, out of range. The limit is a number the user chooses here.
-* **The same action repeated:** the person submits twice, or clicks twice, or the caller retries. Say what the second one returns.
-* **Two of the same action at the same moment**, where the result depends on what already exists.
-* **The action half completes:** something is stored and the confirming step never happens. Say how long that state lives and what clears it.
-* **A thing the work depends on is unavailable:** the database, a third-party API, the network. Say what the person sees and whether anything was stored.
-* **A step that takes unbounded time.** Say the limit and what the person sees when it passes.
-* **The person abandons the flow** partway.
-
-## 6. Generate the abuse paths
-
-Ask one question of every input: who else can send this, and what do they gain by sending something the owner did not intend.
-
-* **Someone acts as another person**, using their address, their order, their identifier.
-* **A program repeats the action in bulk**, thousands of times.
-* **The response reveals something about a third party.** Answering "already registered" tells anyone whether a given person is on the list. Returning the same response for both cases is a product decision with a cost in clarity.
-* **The feature sends something to an address the requester chose**, letting it flood a stranger's inbox or phone.
-* **Personal data enters the system.** Consent, how long it is kept, and how the person removes it are each a criterion or an explicit non-goal.
-
-Turn each one that matters into a criterion with a number in it: how many requests from one source in a minute, how many messages to one address in a day, how long a link stays valid. Write the numbers the user chooses, not a default from elsewhere.
-
-When nobody defining this work can say what goes wrong for this kind of work, say so and get the knowledge before writing criteria: sign up for three systems that already do it and watch what they do. Where that is not possible, ask the person who has built one before, read the law or policy that governs it, or reduce the work to calling a service that already solves it.
-
-## 7. Keep the standards out of the criteria
-
-Apply one test to each candidate: could a reasonable person choose the opposite outcome, and would the user notice the difference? Both yes makes it a criterion. Otherwise it is an engineering standard, it applies to every story, and it belongs in the repository's instructions file and in whatever runs on every change.
-
-Standards are the developer's to find and hold, not the user's to approve. For each technology the work touches, read the vendor's security page, the published checklist for that platform, and the product's past vulnerabilities. Then trace each piece of user input to whatever interprets it as instructions. Each of those crossings has a standard defence. Enforce each by a rule in the linter, falling back to a framework default or a check in the build where the linter cannot see the crossing.
-
-## 8. Split into stories
-
-Take the criteria from sections 4 to 6 and order them into stories, one criterion each.
-
+* **Keep a property or constraint on its own card only when acting on it changes a design decision on another story, or it is a release gate.** Its criterion is the number.
+* **Fold hardening into the story that creates the exposure.** A security story ordered after the story that builds the route ships the exposure first. Ordering the hardening card before the story it hardens is the sign it should have been criteria. Keep it separate only when a different team or release owns it.
 * **Cut across the system's layers, never along them.** Every story ends with a person able to do one thing they could not do before, through the interface they actually use. Never name a story after a layer, component, table or team.
-* **Choose the first story for risk:** the thinnest path touching every layer and reaching a real deploy. Observable is mandatory; valuable is not.
-* **Hardcode everything the first story does not test.** Count the places the criterion crosses from one running piece into another: a database, a trained model, a queue, a third-party API, a container, a host. When more than one of those crossings is untried, the first story fakes all but one.
-* **Order by the largest unknown answered first.** Split by workflow step, happy path before error path, one rule before its variants, hardcoding before generalising. Split any story crossing more than one of those boundaries, or more than one workflow step. No estimates.
-* **Give a constraint its own story** when no other story can carry it: a throughput floor, a memory ceiling, a rule about where data may live. Its criterion is the number.
+* **Make the first story the thinnest path touching every layer and reaching a real deploy.** Observable is mandatory; valuable is not.
+* **Hardcode everything the first story does not test.** Count the places its outcome crosses from one running piece into another: a database, a trained model, a queue, a third-party API, a container, a host. When more than one of those crossings is untried, the first story fakes all but one.
+* **Split by workflow step, happy path before error path, one rule before its variants, hardcoding before generalising.** Split any story crossing more than one of those boundaries, or more than one workflow step. No estimates.
+* **Say which kind of boundary a scope cut draws.** A cut to what the product wants first and a cut to what existing code already covers are both legitimate. Name which one it is. An engineering boundary presented as product phasing is overruled the first time someone asks why.
 * **Make a story observable once deployed.** When it changes behaviour no test can see afterwards, such as a rate, a failure mode or which path the code took, the same story emits the event that shows it, and a criterion says that event fires.
 * **Treat a bug as a story.** Its criterion is the reproduction: the starting state, the action, and what the person should see instead of what they saw.
 
-## 9. Ready check
+## 4. Record what blocks each story
+
+* **Write each blocker on the story it blocks.** A blocker is another story whose outcome this one builds on, a spike whose answer it needs, or an open decision.
+* **Put a decision on the story it blocks.** A decision blocking one story is a comment on that story. A decision blocking the whole feature is a comment on the epic. Never give a decision its own ticket.
+* **Re-attach dependencies when a decision ticket closes.** A ticket that blocked a story may itself be blocked, such as by a spike. Closing it drops that chain, and the story shows as ready when it is not. Link each dependency that ran through the ticket directly to the story, then check again which stories are ready.
+* **Check the direction of every blocking link** by reading one back from the tracker before creating the rest. Some trackers store the blocker on the side a reader expects the blocked story.
+* **Record no order.** Which ready story goes next is decided at each story start with `next-story`.
+
+## 5. Ready check
 
 Check the result against these before handing it on. A no returns the work to the section that produces it.
 
-* Every criterion names what a person sees, in values a stranger could check.
-* No criterion contains a banned word from section 4.
-* Each story has exactly one criterion.
-* Every failure path from section 5 that can happen has a criterion or a written non-goal.
-* Every abuse path from section 6 that matters has a criterion with a number in it.
-* Nothing in the criteria is a standard nobody would choose against.
+* The outcome names what a person does and where, and no component.
+* Every card is a story or a spike.
+* Every story passes the `story` ready check.
 * Each story leaves a person able to do something they could not do before.
+* Every story lists its blockers, or "nothing".
+* No two stories share a blocker, a repository, an owner and one merge request.
 
-## 10. Review a proposed feature
+## 6. Review an epic
 
-Run the section 9 check against an outcome, a story list or criteria someone else wrote, whether a colleague, a PRD, a ticket or another agent. Change nothing without the owner agreeing; each gap is their decision. Report in this order, quoting the text each finding is about.
+Run the section 5 check against an epic, a PRD's breakdown or a story list someone else wrote. Change nothing without the owner agreeing; each gap is their decision. Read every comment on every card first, and list each answer not yet folded into the card it answers. Check each subagent finding against the source before reporting it. Run `story` on each story for findings inside it. Report these first, quoting the text each is about.
 
-* **Cannot be tested:** no observable result, a banned word, or an assertion on a database row or an internal call. Say what it would have to say instead.
-* **Missing:** each failure or abuse path that can happen here and has no criterion. Ask for a criterion or a non-goal line, and say what a builder would otherwise decide alone.
-* **Two things in one:** say which two stories it becomes.
-* **A standard rather than a criterion:** say where it belongs instead.
-* **A story that ships nothing** a person can do, or that crosses more than one boundary from section 8.
-* **Unclear rather than wrong:** "quickly", "the usual limit". Ask for the number.
+* **Not a story:** a card that is a non-functional requirement, an enabler, a property, a task or a decision. Say which story it folds into.
+* **Too many cards:** sibling cards sharing a blocker, a repository, an owner and one merge request are one story with several criteria. Search the siblings for one distinctive sentence. The number of cards containing it is the number to merge. Other signs are two decision tickets asking the same question, a spike mostly belonging to another epic, and a plan that needs its own guide to reading the cards.
+* **Ships nothing:** a story that leaves no person able to do something new, or that crosses more than one boundary from section 3.
+* **Wrong blocker:** a link in the wrong direction, a story shown ready whose blocker was dropped with a closed ticket, or a hardening story blocked by the story it hardens.
 
 ```text
-Cannot be tested:  "<quoted text>" -> <what it would have to say instead>
-Missing:           <failure or abuse path> -> <what a builder would otherwise decide alone>
-Two things in one: "<quoted text>" -> <story A> / <story B>
-A standard:        "<quoted text>" -> <where it belongs instead>
-Ships nothing:     "<quoted title>" -> <what a person still cannot do, or the boundaries crossed>
-Unclear:           "<quoted word>" -> <ask for the number>
+Unanswered:      <card> "<quoted comment>" -> <what in the card it changes>
+Not a story:     "<quoted title>" -> <kind> -> criteria on <story>
+Too many cards:  <cards> -> <shared sentence, hit count> -> one story
+Ships nothing:   "<quoted title>" -> <what a person still cannot do, or the boundaries crossed>
+Wrong blocker:   <story> -> <what blocks it in fact>
 
 Ready to build.        (or: 3 blocking items.)
 ```
 
+When the owner agrees to delete cards, archive every one in full first, because deletion cannot be undone. Extract each comment a named person wrote on those cards and search the surviving cards for a distinctive phrase from each. A note saying content moved is not evidence that it did. Then search the surviving cards for every deleted key. The tracker removes links to a deleted card and leaves its key in prose. Rewrite each mention to describe the thing it named.
+
 ## What this skill does not do
 
-Answering an unknown by writing throwaway code is `spike`; do that when a criterion cannot be written because a fact about the world is missing, such as a throughput number or what an API actually returns.
-
-The review here judges what was asked for. Judging how a diff was built, before it merges, is `review`. Judging code, a design or a plan the user wrote themselves is `give-feedback`.
+Writing or reviewing one story's criteria is `story`. Choosing which ready story to build next is `next-story`. Answering an unknown by writing throwaway code is `spike`. Judging code, a design or a plan the user wrote themselves is `give-feedback`.

@@ -10,12 +10,12 @@ metadata:
 
 Run three passes, separately and in order. Never merge them.
 
-Inputs: the change, its acceptance test and the accepted test table (an index table with a `Killed by` column naming the one-line mutation that must turn the row red). When `agile` ran, both are in the red commit message; read them from git. When no table exists, use the tests the change added. The check command is the one `AGENTS.md` names; when none is named, run the linter, the type checker and the tests. The permitted directory is the one the build instruction named; when none was named, it is the repository root. When no change is named, review the working tree against the last commit; when that diff is empty, ask which commit range to review rather than reviewing the whole repository.
+Inputs: the change, its acceptance test and the accepted test table (an index table with a `Killed by` column naming the one-line mutation that must turn the row red). When `execute` ran, both are in the red commit message; read them from git. When no table exists, use the tests the change added. The check command is the one `AGENTS.md` names; when none is named, run the linter, the type checker and the tests. The permitted directory is the one the build instruction named; when none was named, it is the repository root. When no change is named, review the working tree against the last commit; when that diff is empty, ask which commit range to review rather than reviewing the whole repository.
 
 ## 1. Correctness
 
 * **Run the mutation step over the changed files** where the harness has one; a surviving mutant on an accepted row is the finding. Where no runner exists, apply every `Killed by` mutation from the accepted test table by hand, and every builder-added test by its listed `Killed by`, one at a time, and confirm the named row goes red. A row that stays green asserts nothing: fix the test, not the mutation. When no table exists either, mutate one line per test.
-* **Diff every accepted test file against the red commit**, the commit `agile` makes before the build. Any change to an accepted test is a finding. When no red commit exists, say so in the Done block.
+* **Diff every accepted test file against the red commit**, the commit `execute` makes before the build. Any change to an accepted test is a finding. When no red commit exists, say so in the Done block.
 * **Check every accepted test is present** and asserts observable behaviour.
 * **Delete tests asserting incidental detail** of how the code was built: a private function, internal call order, a log line. The user's feature acceptance test, in the test tree's `feature-acceptance` directory, is outside every pass: never edit, delete or re-mark it.
 

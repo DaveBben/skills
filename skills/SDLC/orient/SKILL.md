@@ -1,6 +1,6 @@
 ---
 name: orient
-description: "Use this skill whenever an agent needs to orient itself in a repository, or a project has no AGENTS.md, the one file every session reads first. Use it on: 'orient yourself', 'familiarize yourself with this codebase', 'setup claude in this repo', 'get this repo ready for ai agents', 'setup initial context', 'create repo context', 'write the charter', 'what is this project for', 'what's in and out of scope', 'write AGENTS.md', 'set up CLAUDE.md', 'streamline my CLAUDE.md', and on the bare words 'charter' or 'orient'. Produces AGENTS.md at the repository root, with CLAUDE.md symlinked to it, holding the product charter (purpose, users, not doing, nouns) and the agent instructions (stack, commands, hard constraints, pointers). When the file exists and is sound, read it and report; otherwise interview for the charter, fill the rest from the repository, and ask once before rewriting an existing file. Not for linting, hooks or guardrails; that is `harness`. Not for a feature or a change; that is `agile`."
+description: "Use this skill whenever an agent needs to orient itself in a repository, or a project has no AGENTS.md, the one file every session reads first. Use it on: 'orient yourself', 'familiarize yourself with this codebase', 'setup claude in this repo', 'get this repo ready for ai agents', 'setup initial context', 'create repo context', 'write the charter', 'what is this project for', 'what's in and out of scope', 'write AGENTS.md', 'set up CLAUDE.md', 'streamline my CLAUDE.md', and on the bare words 'charter' or 'orient'. Produces AGENTS.md at the repository root, with CLAUDE.md symlinked to it, holding the product charter (purpose, users, not doing, nouns) and the agent instructions (stack, commands, hard constraints, pointers). When the file exists and is sound, read it and report; otherwise interview for the charter, fill the rest from the repository, and ask once before rewriting an existing file. Not for linting, hooks or guardrails; that is `harness`. Not for a feature or a change; that is `execute`."
 license: MIT
 compatibility: any-agent
 metadata:
@@ -76,7 +76,7 @@ Boundaries: <system: address or path, and whether read, write or host; who write
 | Existing line            | Section               | Where it goes                  |
 | ------------------------ | --------------------- | ------------------------------ |
 | `uv run pytest`          | Operational Commands  | kept as written                |
-| "prefer small functions" | no section            | path-scoped rule in `harness`  |
+| "prefer small functions" | no section            | sent to `make-rule`           |
 | "write clean code"       | no section            | dropped, unfalsifiable         |
 ```
 

@@ -10,8 +10,8 @@ The tracker's own words are used throughout: epic, story, bug, spike, rank, stat
 |---|---|
 | The feature | The epic. Its key is the slug and the branch is `feature/{key}`. |
 | The feature header | The epic's description, in the same seven lines: Outcome, Problem, Not doing, Decided (ADR paths), Deferred, feature acceptance test path. `Stories:` is not written; the children are the list. |
-| A story and its criterion | A child story. The Given/When/Then goes in its acceptance-criteria field, or at the top of its description when the board has no such field. |
-| Story order | Rank. Read at every story start; the first unresolved child by rank is next. |
+| A story and its criteria | A child story. The Given/When/Thens go in its acceptance-criteria field, or at the top of its description when the board has no such field. |
+| Story order | Rank is the customer's order and blocking links are the dependencies. `next-story` reads both at every story start. |
 | A story's branch and pull request | `story/{key}-{short-name}`. The pull request title starts with the key, and the issue carries the pull request link. |
 | Status | To Do until the branch is cut, In Progress from branch cut, In Review from pull request, Done at merge. Use the board's own column names. |
 | The log entry for a story | The story's resolution comment: Done, Learned, Not caught by, Observed, in that form. Observed is a second comment when it arrives later. |
@@ -24,11 +24,11 @@ The tracker's own words are used throughout: epic, story, bug, spike, rank, stat
 
 ## When the board is already filled
 
-* **The children are the proposed stories.** Read them in rank order and show them as the story list, each with a Given/When/Then the agent writes from the story's text. The user confirms, rewords, cuts or reorders in one turn, as in section 3. Write each confirmed criterion back to its issue before the first story starts.
+* **The children are the proposed stories.** Read them in rank order and show them as the story list, each with the criteria the agent writes from the story's text using the `story` skill. The user confirms, rewords, cuts or re-ranks in one turn, as in section 3. Write the confirmed criteria back to its issue before the first story starts.
 * **Flag a story named after a layer or a component.** "Build the endpoint" does not end with something a person can do. Propose the rewording and let the user decide.
 * **Split on the board.** A story that crosses more than one seam or workflow step is split into child stories the user confirms, and the original is closed as split or kept as the parent, whichever the board's convention is.
 * **An epic with no description** gets the seven-line header written into it after section 0 through 3 run, the same as a new epic.
-* **Sprints are not pauses.** The loop runs the epic's children by rank and crosses a sprint boundary without stopping. A team that wants the loop to stop at the sprint edge adds that rule to `AGENTS.md`.
+* **Sprints are not pauses.** The loop runs the epic's children as `next-story` picks them and crosses a sprint boundary without stopping. A team that wants the loop to stop at the sprint edge adds that rule to `AGENTS.md`.
 * **Several epics are several features.** One branch, one slug, one loop each, never interleaved in one session.
 
 ## Pauses on the board

@@ -1,6 +1,6 @@
 ---
 name: harness
-description: "Use this skill whenever the user wants a repository or environment prepared for an AI agent or for Claude, or when a repo gives an agent no feedback of its own: no formatter, linter, type check, custom rules, architectural contracts or commit gate, or nothing routes their output back to the agent. Use it on: 'setup harness in this repo', 'set up guardrails', 'add hooks for the agent', 'wire the linter to claude', 'set up the commit gate', 'configure checks for my ai agent', 'the agent keeps ignoring the linter'. Use it on the complaint underneath: 'we have no linting or rules', 'every PR is a style argument', or the agent repeats a mistake a human keeps correcting by hand. Use it when `orient` hands off. Produces one tool per slot, the hooks that run them, a deny list, and a commit gate and CI that call one check command. Do not use it to write AGENTS.md, or on 'setup claude in this repo' or 'get this repo ready for agents'; those are `orient`. Do not use it to make a code change; that is `agile`."
+description: "Use this skill whenever the user wants a repository or environment prepared for an AI agent or for Claude, or when a repo gives an agent no feedback of its own: no formatter, linter, type check, custom rules, architectural contracts or commit gate, or nothing routes their output back to the agent. Use it on: 'setup harness in this repo', 'set up guardrails', 'add hooks for the agent', 'wire the linter to claude', 'set up the commit gate', 'configure checks for my ai agent', 'the agent keeps ignoring the linter'. Use it on the complaint underneath: 'we have no linting or rules', 'every PR is a style argument', or the agent repeats a mistake a human keeps correcting by hand. Use it when `orient` hands off. Produces one tool per slot, the hooks that run them, a deny list, and a commit gate and CI that call one check command. Do not use it to write AGENTS.md, or on 'setup claude in this repo' or 'get this repo ready for agents'; those are `orient`. Do not use it to make a code change; that is `execute`."
 license: MIT
 compatibility: any-agent
 metadata:
@@ -10,7 +10,7 @@ metadata:
 
 Identify the language, pick the tool, and name the pick.
 
-Decide nothing about what the system should be. Framing, slicing and building belong to `agile`.
+Decide nothing about what the system should be. Framing and slicing belong to `feature`, and building belongs to `execute`.
 
 ```text
 SURVEY        language, package manager, agent harness, slots already filled
@@ -69,7 +69,7 @@ Load `references/toolchain.md` now, before writing any config.
 
 ## Contracts
 
-* **Greenfield:** Ask the user for the modules, what each owns, and which way dependencies run. It is theirs to draw. Where nothing is settled, say so, fill the language-level slots now, and encode contracts after the first change through `agile` has drawn the shape.
+* **Greenfield:** Ask the user for the modules, what each owns, and which way dependencies run. It is theirs to draw. Where nothing is settled, say so, fill the language-level slots now, and encode contracts after the first change through `execute` has drawn the shape.
 * **Brownfield:** Derive the current dependency graph, render it as a diagram, and ask which edges they did not expect. Those are the ones nobody chose, and they become the first contracts. Never encode the whole current graph.
 * **One contract per allowed-dependency line.** Everything not listed is forbidden, and the config says so explicitly.
 * **Write each contract's name as the rule in plain English**, so a broken build prints the sentence that stopped being true.
@@ -78,7 +78,7 @@ Load `references/toolchain.md` now, before writing any config.
 
 ## Rules
 
-Write each rule with the `semgrep-rules` skill.
+Write each rule with the `make-rule` skill.
 
 * **Brownfield only.**
 * **Offer the anti-pattern sweep and the rules as one decision.**
@@ -100,8 +100,8 @@ Where the agent harness is Claude Code, load `references/claude-harness.md` now 
 ## Guards
 
 * **Hard blocks: two entries, and justify a third.** A rule earns a slot only when violating it is never correct and the harness cannot catch it afterwards. Blocking the flag that skips the commit gate qualifies. Blocking a package manager the project does not use is blocklist creep.
-* **Block edits to accepted tests.** While `agile` has a red commit recorded, refuse any edit to a file that commit touched, at edit time. An instruction to leave tests alone is not a substitute for the guard.
-* **Deny agent edits to the feature acceptance tests for good.** The `agile` loop keeps the user's acceptance test for a whole feature in a `feature-acceptance` directory inside the test tree. Deny edits, writes and deletes there permanently, for the agent and every subagent.
+* **Block edits to accepted tests.** While `execute` has a red commit recorded, refuse any edit to a file that commit touched, at edit time. An instruction to leave tests alone is not a substitute for the guard.
+* **Deny agent edits to the feature acceptance tests for good.** The `execute` loop keeps the user's acceptance test for a whole feature in a `feature-acceptance` directory inside the test tree. Deny edits, writes and deletes there permanently, for the agent and every subagent.
 * **Deny reads and writes outright** for secrets files, the lockfile, and the version control directory. These are not style rules and do not belong in a linter.
 * **Say plainly that the deny list stops accidents and is not a security boundary.** Anything pre-approved that executes code can read any file the user can.
 * **Pre-approve every verification command** the agent needs to check its own work.
@@ -121,7 +121,7 @@ Three scopes. Put each rule in the narrowest one that still loads when it is nee
 * **Create `AGENTS.md` if the repo has none** by running the `orient` skill, which writes it in five sections and symlinks `CLAUDE.md` to it. The check command goes under its Operational Commands; the rules below go under its Critical Constraints.
 * **Cap `AGENTS.md` at 100 lines.** Anything longer belongs in a nested or path-scoped file.
 * **Alias the other conventional filenames to it** with a symlink, so every tool reads one file. `orient` makes `CLAUDE.md`; add any other name the repository carries.
-* **Record where a future correction goes.** State the routing in `AGENTS.md`: a static check into the rules directory, a dependency direction into the contracts, a file-specific instruction into a path-scoped rule, anything conversational into `AGENTS.md` itself.
+* **Record where a future correction goes.** State the routing in `AGENTS.md`: a static check into the rules directory, a dependency direction into the contracts, a file-specific instruction into a path-scoped rule, anything conversational into `AGENTS.md` itself. The `make-rule` skill applies this routing to each new rule.
 * **Offer a decision rule for `AGENTS.md`,** verbatim. Ask before adding it.
 
   ```text
@@ -142,7 +142,7 @@ Three scopes. Put each rule in the narrowest one that still loads when it is nee
 * **Commit one check command** that runs the canonical gate in order and stops at the first failure: a script named `check` at the repository root, or the equivalent target where the project already has a task runner. Commit hook, CI and the agent all call that one command. Name it in `AGENTS.md`.
 * **Pin every hook version.**
 * **Wire automated dependency updates** so the lockfile and CI pins do not rot.
-* **Gate on mutation over the diff in CI.** The `agile` loop's floor check halts when this slot is missing; a missing `e2e` slot becomes that loop's first story.
+* **Gate on mutation over the diff in CI.** The `execute` loop's floor check halts when this slot is missing; a missing `e2e` slot becomes that loop's first story.
 
 ## Landing rules on existing code
 
