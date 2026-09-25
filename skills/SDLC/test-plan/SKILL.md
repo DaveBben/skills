@@ -4,11 +4,11 @@ description: "Use this skill when the tests for a change must be listed before a
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "2.6.0"
+  version: "2.6.1"
 ---
 # Test Plan
 
-Propose the tests for one change as a table. Run alone, the user cuts the rows they do not want and adds any they do; a row not cut is accepted, and no test is written until the table has been in front of the user. Run from `deliver` on an unattended story, the agent applies the cut rules itself, writes the tests, and the table goes into the pull request description; a row that exposes a product decision is the one thing that still stops for the user.
+Propose the tests for one change as a table. Run alone, the user cuts the rows they do not want and adds any they do; a row not cut is accepted, and no test is written until the table has been in front of the user. Run from `deliver`'s setup subagent, the agent applies the cut rules itself, writes the tests, and the table goes into the pull request description; a row that exposes a product decision is the one thing that still stops for the user.
 
 Inputs: the change's acceptance criteria and the code the change touches. Read seams and fields off the existing code, not off a design document. When no criterion exists, or one offered names no observable outcome, write the criterion the change implies, put it to the user in one line, and propose no rows until it is confirmed. When the code the change touches cannot be found, name the files searched and ask which ones to read.
 

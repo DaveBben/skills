@@ -1,10 +1,10 @@
 ---
 name: deliver
-description: "Use this skill before touching any file on every request to add, change, remove or fix behaviour in a system that already has an application: a feature, a bug, a chore, a refactor, or a complaint about how it behaves. Use it on: 'I want to add a feature', 'add X', 'implement X', 'fix the bug where X', 'X is broken', 'wire X to Y', 'refactor X', 'build story X', 'work through this epic', 'implement this prd', 'pick up where we left off'. Use it even when the change looks small enough to just do. Sizes each request as no behaviour change, trivial, one story or several, then runs it: agrees the outcome, first decisions, module map and stories, then runs each story unattended through setup, build and review subagents to a pull request into main, and for an epic keeps going until every story is merged or cut. Not for a project with no application (`greenfield`), throwaway code (`spike`), checks, hooks or rules (`guardrails`, `make-rule`), or AGENTS.md (`orient`)."
+description: "Use this skill before touching any file on every request to add, change, remove or fix behaviour in a system that already has an application: a feature, a bug, a chore, a refactor, or a complaint about how it behaves. Use it on: 'I want to add a feature', 'add X', 'implement X', 'fix the bug where X', 'X is broken', 'wire X to Y', 'refactor X', 'build story X', 'work through this epic', 'implement this prd', 'pick up where we left off'. Use it even when the change looks small enough to just do. Sizes each request as no behaviour change, trivial, one story or several, then runs it: agrees the outcome, stories, module map and first decisions, then runs each story through criteria, setup, build and review subagents to a pull request into main, pausing for the user to confirm each story's criteria and asking each question as it arises, and for an epic keeps going until every story is merged or cut. Not for a project with no application (`greenfield`), throwaway code (`spike`), checks, hooks or rules (`guardrails`, `make-rule`), or AGENTS.md (`orient`)."
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "11.0.0"
+  version: "12.0.0"
 ---
 # Deliver
 
@@ -15,7 +15,7 @@ When the request names a story in an open feature, run that story (section 4) an
 | Size | Test | Path |
 |---|---|---|
 | No behaviour change | A refactor, a dependency bump, a rename: nothing a person sees or a caller receives changes | Section "Change without new behaviour". No criteria and no red commit. |
-| Trivial | Nobody is harmed and nothing a person reads is wrong before a `git revert` lands: copy, layout, colour, a log line nobody operates from, a dev-only tool | One criterion from `story`, then one acceptance test committed red, the check command and the commit, on a story branch with a pull request. No test plan, build subagent or review subagent. |
+| Trivial | Nobody is harmed and nothing a person reads is wrong before a `git revert` lands: copy, layout, colour, a log line nobody operates from, a dev-only tool | One criterion from `story`, confirmed by the user, then one acceptance test committed red, the check command and the commit, on a story branch with a pull request. No test plan, build subagent or review subagent. |
 | One story | One change a person can see, in one workflow step and one variation, with nothing unknown that changes what gets built | Section 4. Skip the feature header, the decision walk, the map and the feature acceptance test. The log entry goes in `docs/delivery/{slug}.md` under a slug for the change, with no header. |
 | Several stories | More than one step or variation, an unknown whose answer changes what gets built, or a PRD or epic | Section 0 onward. The loop runs every story, choosing each next one with `next-story`. |
 
@@ -27,14 +27,14 @@ Say the size and the reason in the first message. The user can move the request 
 
 For a refactor or any change that alters no behaviour. Cut `story/{slug}/0-{short-name}` from main and run the full suite, which must be green. When the code to change has no test of its current behaviour, commit characterization tests first. Make the change as a mechanical tool run where one exists: the language's refactoring tool, a codemod or a script. Run the full suite again, green, with no existing test changed except for a rename the tool made. Run the `review-build` skill in a subagent, whose correctness pass checks that no test changed its assertion. Write a log entry with a `Done` line, then open a pull request whose criteria section says "No behaviour change" and lists the tests that prove it. The user merges.
 
-Two phases. **With the user, once per feature:** Orient -> Define -> Decide -> Map -> Record. **Per story, unattended:** Setup -> Red -> Build -> Review -> Verify -> Log -> Pull request, then the user merges. Setup, build and review each run in a subagent. For an epic the loop runs until every story is merged or cut, starting each ready story as soon as its blockers merge. Every story merges into main.
+Two phases. **With the user, once per feature:** Orient -> Define -> Map -> Decide -> Record. **Per story:** Criteria -> the user confirms -> Setup -> Red -> Build -> Review -> Verify -> Log -> Pull request, then the user merges. Criteria, setup, build and review each run in a subagent, and the user answers questions as they arise. For an epic the loop runs until every story is merged or cut, starting each ready story as soon as its blockers merge. Every story merges into main.
 
 ## Principles
 
 * **Working software over documentation.** No documents beyond the feature log, ADRs, `AGENTS.md`, and any file `AGENTS.md` says to keep current; those are rewritten in the log commit.
 * **Executable specifications.** Never write implementation code first. Two levels of acceptance test. Every criterion of a story has one, the agent writes it, and the story is complete when all of them pass. Every feature has one, the user writes it, and the feature is complete when it passes.
-* **Detail just in time.** The agent proposes and the user confirms, up front, the outcome, the decisions the first story needs, the module map and the story list. Each story's criteria are written when that story starts, using what the earlier stories taught, and the user sees them in its pull request.
-* **Park, never stop.** A question about one story parks that story, and the loop moves to another ready story. The loop waits for the user only when nothing else can move, and then asks every parked question in one message.
+* **Detail just in time.** The agent proposes and the user confirms, up front, the outcome, the story list, the module map and the decisions the first story needs. Each story's criteria are written when that story starts, using what the earlier stories taught, and the user confirms them before any test is written.
+* **Park, never stop.** A question about one story parks that story, and the loop moves to another ready story. Ask the question the moment it arises, and keep working on other ready stories while it waits for an answer.
 * **Keep the main session small.** The main session holds the feature header, the log, and what each subagent returns. It never reads a full diff. Where the agent cannot start subagents, run each step inline and say so once.
 * **The user accepts running software.** Every pull request says how to try the story on its branch.
 * **Small releases.** Each story merges into main and can deploy. A story that exposes half a feature ships behind a flag.
@@ -50,9 +50,11 @@ Load [references/writing.md](references/writing.md) now.
 
 A parked story waits for one answer while the loop works on other ready stories. Park a story on these and nothing else:
 
+* **Its criteria wait for confirmation.** Every story parks once, after `story` writes its criteria (section 4).
+* **The builder asks a question** about a choice a person would see (section 6).
 * **An accepted row is wrong:** the builder reports a row it cannot satisfy, and the reason holds against the code. Queue the row, the reason and the corrected row. Once the user re-accepts it, clear the story's red-commit guard, land the corrected row as a new red commit, and re-add every red commit of this story to the guard.
 * **This story removes behaviour a feature acceptance test asserts.** The user edits or retires that test, since the agent cannot touch it.
-* **A decision is forced:** a `Deferred:` item this story needs, or an architecture decision not in the feature header. Section 1 runs for it.
+* **A decision is forced:** a `Deferred:` item this story needs, or an architecture decision not in the feature header. Section 2 runs for it.
 * **A product decision a test row exposes** that no PRD or ADR records: a timezone, whether refunds count, what a limit is.
 * **A criterion cannot be written as a test,** or contradicts `AGENTS.md`.
 * **The live PRD contradicts a line of the feature header.** Re-read the PRD at every story's setup.
@@ -64,7 +66,7 @@ Decide these without asking, and list each in the next message to the user:
 * **A split.** When a story's criteria cross more than one workflow step or variation, or the builder fails twice on sound rows, split it with the `story-map` skill's splitting patterns, add the new stories to `Stories:`, and carry on.
 * **A new story.** A bug in shipped work, or a `Learned` or `Observed` fact that changes what gets built, becomes a new story with its blockers on `Stories:`. The user can cut it.
 
-Every message to the user, whether a pull request is ready or the loop is waiting, carries in one place: the parked questions; whether the last merged story deployed and what its signal showed, whose answer becomes its `Observed` line; every fifth merged story, which pause or check has cost time without catching anything, handed to the `make-rule` skill; and the splits, new stories and rules the loop decided alone.
+Every message to the user, whether a pull request is ready or the loop is waiting, carries in one place: every question still waiting for an answer; whether the last merged story deployed and what its signal showed, whose answer becomes its `Observed` line; every fifth merged story, which pause or check has cost time without catching anything, handed to the `make-rule` skill; and the splits, new stories and rules the loop decided alone.
 
 The loop waits for the user only when no story is ready, no build is running, and a merge or a parked answer is what everything left needs.
 
@@ -93,35 +95,42 @@ Do not spike when a story answers it as fast, when the question is a product dec
 
 Run the `spike` skill. Its findings go into this slug's log as the spike entry of section 8, committed on `story/{slug}/{n}-spike-{short-name}` from main and opened as a pull request the user merges. A spike is done when that pull request merges. The spike code never enters that branch: it is deleted, and the log records the deletion. When an edit-time hook blocks a spike edit, work in a directory outside the hook's paths, such as the session scratchpad.
 
-## 1. Decide
+## 1. Map
+
+Propose the shape of this feature as the modules it touches and the flows between them, and stop. The user edits both tables in one turn; a row not changed is accepted.
+
+```text
+| Module | Runs in | Owns |
+|---|---|---|
+| <name, in the domain's nouns> | <the process or machine it runs in, or "external" for a service someone else runs> | <the one thing it is responsible for> |
+
+| From -> To | What crosses | How | When To fails |
+|---|---|---|---|
+| <caller> -> <callee> | <the data sent, and the data returned> | <in-process call, HTTP, queue, file or event, and whether From waits for the answer> | <what the person sees when To is down or slow, or "-" for an in-process call> |
+```
+
+* **A module owns one thing.** When its Owns cell needs "and", a list or an arrow, it is two modules or a flow. State existing modules from the code, with their directory. Propose new ones.
+* **Map only what the outcome touches.** Leave out files, libraries, story numbers, behaviour details and deletions. The build decides files and libraries, and `Stories:` carries the rest. A schema change is a decision for section 2.
+* **Flows point one way.** From depends on To. A cycle is a finding, not a row. When To must call back into From, From defines a port, and the port is its own module that To depends on.
+* **A flow that crosses a process, a machine or a repository is a decision.** Its How and When To fails cells go to section 2 unless the code or an ADR already settles them.
+* **Name a pattern only for a flow that needs one.** Use a port when To must be faked in tests or swapped. Use a queue when From must not wait for To. Write the pattern in the flow's How cell with the one rule it enforces, e.g. "port: listener imports the display port, never display.py". Never walk the user through a pattern catalogue. The builder picks the simplest thing that passes the tests for every other flow.
+* **The walking skeleton crosses every flow.** A module the walking skeleton story does not reach stays off the map until the story that needs it.
+* **Contract first at a shared boundary.** Where To is called by another team, another service or another repository, write the executable contract (OpenAPI, Protobuf, strict interface types) and assert it in a test before any code sits behind it.
+* **Write it into `AGENTS.md`** under the codebase map, in the log commit of the first story. Until then it lives only in the chat and the first build prompt. Where the `guardrails` skill has wired contracts, add each in-process flow there as "From may import To", so a reversed dependency fails the build. Read an older map with a Depends on column as flows, and rewrite it in this format in the next log commit that touches it.
+
+This is not a design document. It has no sequence diagrams, no schemas, no endpoints; those come out of the tests, story by story.
+
+## 2. Decide
 
 Architecture decisions are put to the user one per message, with the alternatives and the tradeoff, and the agent waits. Each answer is written with the `adr` skill before the next decision is asked and before any code that depends on it: `docs/adr/architecture/` when it outlives the feature, `docs/adr/{slug}/` when it does not. The user may answer "defer"; a deferred decision goes on the feature header under `Deferred:` with the story that will force it.
 
-* **Before the first story.** List the decisions this system cannot cheaply reverse: any choice that touches the data's shape, the system's trust or consistency boundaries, or the hardware or platform target. For each one the outcome touches, state in chat what the code already settles, with the file that settles it. Put the rest to the user one at a time, and propose "defer" for each one the first story does not touch; the check at every story start raises it when a story needs it. `Decided:` in the feature header lists only ADR paths and PRD sections that record a decision. No stories until every item is decided, deferred, or stated as settled.
+* **Before the first story.** List the decisions this system cannot cheaply reverse: every flow the map marks as crossing a process, a machine or a repository, and any choice that touches the data's shape, the system's trust or consistency boundaries, or the hardware or platform target. For each one the outcome touches, state in chat what the code already settles, with the file that settles it. Put the rest to the user one at a time, and propose "defer" for each one the first story does not touch; the check at every story start raises it when a story needs it. `Decided:` in the feature header lists only ADR paths and PRD sections that record a decision. No stories until every item is decided, deferred, or stated as settled.
 * **At every story start.** Read `Deferred:`. A choice swappable behind an interface, or affecting one story, waits until a story needs it. When this story is the first to need one (the first cache, the first queue, the first second service, the first payment call), park the story, put that decision to the user, write the ADR once answered, then continue.
 * **Ask before any smaller choice a later story inherits,** at the same moment: a port, address or schedule, a file or wire format, a name that becomes a domain noun. One message, alternatives and tradeoff, then wait.
 * **Decide everything below that line alone,** and list each one for the review to carry into `Decided alone:`, with what was chosen, why, and the tradeoff.
 * **Suggest an architectural change only when the current design obstructs the implementation.**
 
 An assumption a recorded decision depends on goes in that ADR's `What it doesn't buy` section.
-
-## 2. Map
-
-Propose the shape of this feature's code in one table, and stop. The user edits it in one turn; a row not changed is accepted.
-
-```text
-| Module | Owns | Depends on | Pattern |
-|---|---|---|---|
-| <name, in the domain's nouns> | <the one thing it is responsible for> | <modules it may import, or "nothing"> | <only where one is chosen: composite, queue, hexagonal, ...> |
-```
-
-* **Only the modules the outcome touches.** Existing ones are stated from the code, with the directory. New ones are proposed.
-* **Dependencies point one way.** A cycle in the table is a finding, not a row.
-* **Contract first at a shared boundary.** Where a module on the map is called by another team, another service or another repository, write the executable contract (OpenAPI, Protobuf, strict interface types) and assert it in a test before any code sits behind it.
-* **Pattern is optional.** Fill it where the user has a preference or a decision in section 1 fixes it. Leave it blank otherwise; the builder picks the simplest thing that passes the tests.
-* **Write it into `AGENTS.md`** under the codebase map, in the log commit of the first story. Until then it lives only in the chat and the first build prompt. Where the `guardrails` skill has wired contracts, add each "depends on" line there, so a reversed dependency fails the build.
-
-This is not a design document. It has no sequence diagrams, no schemas, no endpoints; those come out of the tests, story by story.
 
 ## 3. Record
 
@@ -164,9 +173,11 @@ The outcome sentence gets one acceptance test of its own, and the user writes it
 
 ## 4. Set Up the Story
 
-Take the story the user named, the request sized above, or in epic mode each story `next-story` returns. Cut `story/{slug}/{n}-{short-name}` from main in its own worktree (`git worktree add` is one way), so stories can run side by side, and run the check command there. Run the section 1 check for a forced decision.
+Take the story the user named, the request sized above, or in epic mode each story `next-story` returns. Cut `story/{slug}/{n}-{short-name}` from main in its own worktree (`git worktree add` is one way), so stories can run side by side, and run the check command there. Run the section 2 check for a forced decision.
 
-Issue one instruction to a setup subagent, given the story, the feature header, every `Learned` and `Observed` line, `AGENTS.md` and the worktree path. It runs the `story` skill for the criteria and the steps below through the red commit (section 5), and returns the criteria, the accepted table, the red commit's hash and anything it could not decide. Anything it could not decide parks the story. A criterion that cannot be written as a test goes back to `story`.
+Issue one instruction to a criteria subagent, given the story, the feature header, every `Learned` and `Observed` line, `AGENTS.md` and the worktree path. It runs the `story` skill, with the flag decision below, and returns the criteria and anything it could not decide. Show the user the criteria in full and park the story until the user confirms or edits them. Where the stories live on a tracker, write the confirmed criteria to the story's issue.
+
+Then issue one instruction to a setup subagent, given the confirmed criteria and the same inputs. It runs the steps below through the red commit (section 5), and returns the accepted table, the red commit's hash and anything it could not decide. Anything it could not decide parks the story. A criterion that cannot be written as a test goes back to `story`, and the user confirms the rewritten criteria.
 
 * **Decide the flag.** When this story, merged to main, exposes behaviour a later story completes, or backing it out needs more than a `git revert`, `story` writes the flag as criteria: with the flag off, the person sees today's behaviour. The story that completes the behaviour carries a criterion that removes the flag. Acceptance tests turn the flag on explicitly, and the flag-off criterion's test turns it off.
 * **Do the proposed refactors this story touches.** Make each one its own commit on the story branch before the red commit, with the full suite green before and after. Write the commit beside that `Proposed refactor` line in the log.
@@ -191,6 +202,8 @@ Read [references/build-prompt.md](references/build-prompt.md) once the red commi
 
 Run the tests and the check command after the builder returns, and read only their summary. The check command is the one `AGENTS.md` names; the `guardrails` skill commits one, and when none exists, run the linter, the type checker and the tests. A red check is a red story.
 
+When the builder returns a question about a choice a person would see, ask the user at once and park the story. Once answered, reissue the prompt on the branch as it stands, with the answer under NON-NEGOTIABLE.
+
 When the builder reports a row it cannot satisfy, check its reason against the code. When the reason holds, park the story for a wrong row. When the builder reports red on any row, or touched anything outside its paths, do not debug the attempt. Reset the tree to the red commit and reissue the prompt with the one new fact under NON-NEGOTIABLE. Twice red on rows that are sound, and the story is too big: split it (section "When to Park and When to Ask").
 
 **When the user has said they will write the code themselves,** issue no build prompt. The accepted rows are already red; the user writes the code until they are green. Then run the `give-feedback` skill on their diff before section 7.
@@ -205,7 +218,7 @@ Never open a pull request without the review's Done block.
 
 ## 8. Log and Pull Request
 
-* **Make the last commit on the story branch the log:** append the entry below, and rewrite `AGENTS.md` if the story added a noun, crossed a new boundary, turned a non-goal into a goal, or is the first story (the map). One commit. Copy each `Proposed refactor:` line from the review's Done block into the entry unchanged, marked "open". A split or new story the story exposed goes on `Stories:` in this commit and in the pull request description.
+* **Make the last commit on the story branch the log:** append the entry below, and rewrite `AGENTS.md` if the story added a noun, crossed a new boundary, changed a module's Owns cell or a flow, turned a non-goal into a goal, or is the first story (the map). One commit. Copy each `Proposed refactor:` line from the review's Done block into the entry unchanged, marked "open". A split or new story the story exposed goes on `Stories:` in this commit and in the pull request description.
 * **Open the pull request from the story branch into main,** and write its description with the `merge-request` skill, which holds the format. Its `Why` comes from the feature header, or, when the request has none, from the story's `Outcome` and `Why` lines. Its criteria are the story's verbatim, each with its acceptance test's Given/When/Then shown beneath it. Its `Try it` is the command, URL or screen that shows the outcome criterion on the story branch. Its `Assumes` comes from the facts noted at story start. It lists any rule `make-rule` wrote on the branch. The edge-case rows, what is deferred and the review's Done block go in the collapsed section.
 * **Tag the pull request, its tests and its commits** with the story's issue key when the stories live on a tracker, e.g. `[PAY-1420]`. Where the repo has no remote, the same description is the merge commit message and the user merges locally.
 

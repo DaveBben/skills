@@ -4,7 +4,7 @@ description: "Use this skill when one rule, convention or recurring mistake is t
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "2.0.0"
+  version: "2.0.1"
 ---
 # Make Rule
 
@@ -30,7 +30,7 @@ Use the rule-file format of the agent this repository already configures. When t
    * **The rule is a fact about behaviour:** "every endpoint returns JSON errors". It is a test, not a lint rule. Say which test would hold it.
 3. **Fall to rung 2** when no program can decide it but the rule applies only to some paths, such as "components in `src/ui/` take props, never read the store". Write one rule file per topic, with the path glob in its frontmatter and the rule as one imperative sentence plus the reason. Check how the format matches globs. Claude Code uses gitignore rules, so `"*.py"` matches only files at the root, and the file needs `"**/*.py"` as well. Touch one matching file and one non-matching file to confirm the rule loads for the first only.
 4. **Fall to rung 3** only when the rule needs judgment and applies everywhere, such as "ask before adding a dependency". Add one line under the constraints section `AGENTS.md` already has. When `AGENTS.md` does not exist, offer `orient` first.
-5. **Show the user the rung, the file, the exact text or config, and one real violation it catches** before writing it. A rule with no current violation is a preference, and the user decides whether to take it. Called from `deliver`'s unattended loop, write the rule on the story's branch instead, and list it in the pull request for the user.
+5. **Show the user the rung, the file, the exact text or config, and one real violation it catches** before writing it. A rule with no current violation is a preference, and the user decides whether to take it. Called from `deliver`'s setup subagent, write the rule on the story's branch instead, and list it in the pull request for the user.
 
 Every rung-1 rule prints a message the agent reads when it fails. Write that message as the fix: what is forbidden, what to use instead, and the replacement's real name and path.
 

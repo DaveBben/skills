@@ -48,14 +48,15 @@ Session handoff, once part of this plugin, now lives in the separate [context](.
 flowchart TD
     REQ([a request to change something]) --> OR[orient: AGENTS.md, the floor, the log]
     OR --> FR[story-map: outcome, problem, stories with an outcome line and blockers]
-    FR --> DEC[decide: architecture decisions, one at a time, each an ADR]
-    DEC --> MAP[map: the modules this feature touches]
-    MAP --> REC[record: the feature header and the feature acceptance test]
+    FR --> MAP[map: the modules this feature touches and the flows between them]
+    MAP --> DEC[decide: architecture decisions, one at a time, each an ADR]
+    DEC --> REC[record: the feature header and the feature acceptance test]
     REC --> NX[next-story: pick the next ready story]
-    NX --> CR[setup subagent: story criteria, test plan, red commit]
-    CR --> SL
+    NX --> CR[criteria subagent: story criteria]
+    CR --> OK([you confirm the criteria])
+    OK --> SL
 
-    subgraph SL [per story, unattended]
+    subgraph SL [per story]
       BR[branch from main] --> TT[test table] --> RED[red commit] --> BLD[build subagent] --> REV[review subagent] --> VER[verify the whole feature] --> LOG[log] --> PR[pull request into main] --> MRG[wait for merge]
     end
 
@@ -67,7 +68,7 @@ flowchart TD
     OR -. no floor .-> HARN[guardrails]
 ```
 
-Two phases. The first runs with you, once per feature. The second runs once per story without you: criteria, tests, build, review and a pull request, and for an epic it keeps going until every story is merged or cut. Every request is sized first, from its outcome and the steps a person takes, never by whether it is called a bug or a feature. A refactor that changes no behaviour needs no criteria: the suite stays green before and after, a review runs, and a pull request opens. A trivial change (copy, layout, colour) is one criterion, a red commit and the fix, on a story branch with a pull request. A single story skips the first phase and runs the per-story loop on a branch from main. Only a request that is several stories, or hides an unknown that changes what gets built, runs the first phase.
+Two phases. The first runs with you, once per feature. The second runs once per story: you confirm its criteria, then tests, build, review and a pull request follow, and you answer questions as they come up, and for an epic it keeps going until every story is merged or cut. Every request is sized first, from its outcome and the steps a person takes, never by whether it is called a bug or a feature. A refactor that changes no behaviour needs no criteria: the suite stays green before and after, a review runs, and a pull request opens. A trivial change (copy, layout, colour) is one criterion, a red commit and the fix, on a story branch with a pull request. A single story skips the first phase and runs the per-story loop on a branch from main. Only a request that is several stories, or hides an unknown that changes what gets built, runs the first phase.
 
 ## With you, once per feature
 
@@ -75,20 +76,20 @@ Two phases. The first runs with you, once per feature. The second runs once per 
 
 **Define.** `story-map` runs with you. One sentence for the outcome: what you do differently once this ships, and where you see it. A sentence naming a table or an endpoint is rejected, since it is true when the work is half done. Then the problem, the non-goals, and the stories and spikes with what blocks each. Only stories and spikes get cards: a non-functional requirement, an enabler or a decision becomes criteria or a comment on the story it belongs to. Each story gets a title, an outcome line and its blockers here. Its criteria wait until it starts, when `story` writes its outcome criterion plus its boundary, failure and abuse criteria, each a Given/When/Then in values a stranger could check, using what the earlier stories taught. It walks the failure paths and the abuse paths so the decisions they hide, what a repeated submit returns, how many requests a minute one source gets, how long a half-finished state lives, are yours rather than the builder's, and it keeps the standards nobody would choose against out of the criteria. There is no feature branch: every story branches from main and merges back into it. A spike runs only when a fact about the world blocks the criterion, and its code is deleted.
 
-**Decide.** Some choices touch the data's shape, the trust or consistency boundaries, or the platform, and are expensive to reverse. The agent lists those for this system, states which the code already settles, and puts the rest to you one per message. Each answer becomes an ADR before the next question, and `adr` asks you why, what the tradeoffs are, and why not the obvious route, then gives its own feedback, before it writes anything. A choice that can wait goes on the feature header as deferred, with the story that will force it.
+**Map.** Two tables. The first lists the modules this feature touches, each with the process it runs in and the one thing it owns. The second lists the flows between them: what crosses, how, and what a person sees when the other side fails. A flow that crosses a process, a machine or a repository becomes a decision in the next step. It is not a design document. It goes into `AGENTS.md` with the first story, and every build prompt cites the module the story lives in and the flows it may call.
 
-**Map.** One table of the modules this feature touches: what each owns, what it depends on, and a pattern where you have one. It is not a design document. It goes into `AGENTS.md` with the first story, and every build prompt cites the module the story lives in and what it may import.
+**Decide.** Some choices touch the data's shape, the trust or consistency boundaries, or the platform, and are expensive to reverse. The agent lists those for this system, states which the code already settles, and puts the rest to you one per message. Each answer becomes an ADR before the next question, and `adr` asks you why, what the tradeoffs are, and why not the obvious route, then gives its own feedback, before it writes anything. A choice that can wait goes on the feature header as deferred, with the story that will force it.
 
 **Record.** You confirm, reword, cut or add stories in one turn, by title and outcome line. No estimates. The result is the feature header at the top of `docs/delivery/{slug}.md`. When `AGENTS.md` names a Jira project or another tracker, the board is the backlog instead: the epic is the feature, its children are the stories in rank order, stories already on the board are read as the proposed list, and every log entry is a resolution comment. No `docs/delivery/` file is kept then.
 
 **feature acceptance test.** Every criterion of every story has its acceptance test, written by the agent. You write one more for the outcome sentence itself, through the interface you actually use, marked expected-to-fail so the suite stays green until the feature is whole. The agent names the file and what it must assert, gives feedback on what you wrote, and never touches it again: the harness denies that directory to the agent for good. When it passes, the feature is done; when it passes early, the remaining stories are questioned.
 
-## Unattended, per story
+## Per story
 
-1. **Setup.** `next-story` picks every ready story. For each, a setup subagent cuts `story/{slug}/{n}-{short-name}` from main in its own worktree, writes the criteria with `story`, the test plan with `test-plan`, and the red commit.
+1. **Criteria and setup.** `next-story` picks every ready story. For each, the agent cuts `story/{slug}/{n}-{short-name}` from main in its own worktree, and a criteria subagent writes the criteria with `story`. The story waits until you confirm or edit them; on a tracker they then go to the story's issue. A setup subagent then writes the test plan with `test-plan` and the red commit.
 2. **Table.** `test-plan` proposes one entry per test: an index table with the level, the generator that produced it and the change that must turn it red, then a bold Given/When/Then block per test. The acceptance row runs through the interface you actually use, a browser, an API or a command, and cannot be cut. The agent applies the cut rules itself.
 3. **Red.** Every row as a failing test, committed on its own with the criteria and the table in the message. A guardrails hook refuses edits to those files until the merge.
-4. **Build.** A subagent with one prompt: the contract, a prohibition list of things models add unasked, an instruction to grep for what exists before writing a helper, and the environment facts it would otherwise improve into something wrong. The agent runs the tests itself afterwards; the builder's report is a claim. A red row or a touched file outside the story resets the tree to the red commit and reissues once, then the story is split. A row the builder shows cannot be satisfied comes back to you to correct instead.
+4. **Build.** A subagent with one prompt: the contract, a prohibition list of things models add unasked, an instruction to grep for what exists before writing a helper, and the environment facts it would otherwise improve into something wrong. The agent runs the tests itself afterwards; the builder's report is a claim. A red row or a touched file outside the story resets the tree to the red commit and reissues once, then the story is split. A row the builder shows cannot be satisfied comes back to you to correct instead. A choice the builder meets that changes what a person sees, such as wording, a default or an error message, comes back to you as a question.
 5. **Review.** A subagent that saw none of the chat runs three passes: correctness (every mutation applied, every row goes red), subtraction (delete what no row asked for), scars (pinned values unchanged). Then a refactor while green, and a Done block listing every choice made without you and every refactor it proposes but did not make.
 6. **Verify.** The story branch rebased on main, the full suite, and the story's acceptance tests through the interface you actually use, against the running system. Every earlier acceptance test runs too.
 7. **Log.** The feature header drops the story, and the entry records what shipped, what was learned, any proposed refactor and, for a bug, why nothing caught it. It is the last commit on the story branch.
@@ -97,7 +98,7 @@ Two phases. The first runs with you, once per feature. The second runs once per 
 
 When the story list is empty, the agent promotes what was learned, asks whether the PRD's success metric moved, and asks which pause or check cost time without catching anything. You observe each story's signal once deployed.
 
-**For an epic the loop runs until every story is merged or cut.** Setup, build and review each run in a subagent, so the main session stays small. While a pull request waits for your review, the loop starts other stories whose blockers have merged, each in its own worktree; a story whose blocker is still in review waits for that merge. The loop splits stories and adds new ones itself, and tells you. It parks one story, and keeps working on the rest, when: an accepted test row turns out wrong; a deferred or new architecture decision is forced; a test row exposes a product decision no PRD or ADR records; a criterion cannot be tested or contradicts `AGENTS.md`; the story removes behaviour your feature acceptance test asserts; the feature acceptance test passes; the live PRD contradicts the header; you said you will write the code. It waits for you only when nothing else can move, and then asks every parked question in one message. There is no fixed story order. `next-story` picks from the stories whose blockers have merged, starting from your rank, and names every departure from it. A trivial or single-story request stops after its merge.
+**For an epic the loop runs until every story is merged or cut.** Setup, build and review each run in a subagent, so the main session stays small. While a pull request waits for your review, the loop starts other stories whose blockers have merged, each in its own worktree; a story whose blocker is still in review waits for that merge. The loop splits stories and adds new ones itself, and tells you. It parks one story, and keeps working on the rest, when: its criteria wait for your confirmation; the builder asks about a choice a person would see; an accepted test row turns out wrong; a deferred or new architecture decision is forced; a test row exposes a product decision no PRD or ADR records; a criterion cannot be tested or contradicts `AGENTS.md`; the story removes behaviour your feature acceptance test asserts; the feature acceptance test passes; the live PRD contradicts the header; you said you will write the code. It asks each question the moment it arises and keeps working on other stories while it waits. There is no fixed story order. `next-story` picks from the stories whose blockers have merged, starting from your rank, and names every departure from it. A trivial or single-story request stops after its merge.
 
 ---
 
@@ -223,7 +224,7 @@ Neither source covers what happens when a feature is removed, what to do when a 
 
 ## Where the hands go
 
-The split between what the user does and what the agent does follows how an airline crew works with an autopilot. The pilot hand-flies the takeoff and the landing and sets the autopilot's targets for the cruise; the autopilot never chooses the altitude. In the loop, the user confirms the outcome, the first decisions, the module map and the story list up front, sees each story's criteria in its pull request, and merges each pull request. Every story in between runs unattended: failing tests, a build subagent, a review subagent, the full suite, the pull request. The loop stops for the user only when a parked question or a merge is all that is left, and the user merges every pull request.
+The split between what the user does and what the agent does follows how an airline crew works with an autopilot. The pilot hand-flies the takeoff and the landing and sets the autopilot's targets for the cruise; the autopilot never chooses the altitude. In the loop, the user confirms the outcome, the first decisions, the module map and the story list up front, confirms each story's criteria before its tests are written, answers the builder's questions about what a person will see, and merges each pull request. Between those points the agent runs the failing tests, the build subagent, the review subagent, the full suite and the pull request. The loop asks each question when it arises and keeps working on other stories while it waits.
 
 Three findings from that field shaped specific rules:
 

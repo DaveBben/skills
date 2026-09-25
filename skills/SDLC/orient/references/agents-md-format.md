@@ -76,7 +76,7 @@ Technology belongs in Tech Stack, not here.
 - `app.py` — CDK app entry point
 ```
 
-Keep the directory layout to top-level directories only. The module map `deliver` writes goes after the layout, as its own table.
+Keep the directory layout to top-level directories only. The module map `deliver` writes goes after the layout, as its modules table and its flows table.
 
 End the section with Boundaries: every external system the product reads from, writes to, or runs inside, by name and address. Then the Backlog block. Its first line lists the tracker, the project and the access methods in order. The lines under it hold what an agent cannot look up: the criteria field, the checked blocking-link direction, the status names. Record methods, never which one worked in one session.
 
