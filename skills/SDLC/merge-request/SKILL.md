@@ -12,17 +12,52 @@ metadata:
 
 Write for a reviewer who has never opened this repository and does not know the feature. Under one screen, in this order.
 
-1. **Why,** two or three sentences: what the product is and who uses it; the outcome this change serves; where this change sits in it ("two of five stories shipped: the upload and the thumbnail").
-2. **Criteria,** the acceptance criteria this change makes true, verbatim: each one Given/When/Then in real values, with its acceptance test's Given/When/Then beneath it. Never collapse these.
-3. **Try it:** the exact command, URL or screen that shows the outcome criterion working on this branch.
-4. **What changed,** one paragraph in the domain's nouns, then one line per new function, module or branch saying what it is for and which file it is in.
-5. **What it touches,** one line when the diff touches authentication, authorization, secrets, money, health or personal data, a migration, a public contract, or anything a revert cannot undo: what it touches and the file. Omit otherwise.
-6. **Assumes,** one line per fact the change rests on that was read from a document rather than from the code, and how it was checked. Omit when empty.
-7. **Read first:** the one file a reviewer opens to understand the change, and the test that proves each criterion.
-8. **The other tests,** listed, what is deliberately deferred and to which change, and the review's Done block when the change came from `deliver`. Collapse this where the host supports it.
-9. **Signal:** the screen, the endpoint or the event someone reads to know it worked once deployed.
+1. **Why,** two or three sentences: what the product is and who uses it; the
+   outcome this change serves; where this change sits in it ("two of five
+   stories shipped: the upload and the thumbnail").
 
-Resolve every pointer: no abbreviation, config key or test ID local to this project without a phrase saying what it is. Write what happens before any name for it. Never write a cause the change does not show. Length is capped by the screen rather than by leaving a section out.
+2. **Criteria,** one table, one row per acceptance criterion: a green check
+   mark, the criterion in a few words, and the exact name of the test that
+   proves it. This table is the reason the description exists — it is the one
+   place over the line-per-file budget, and it never gets summarised.
+   - Verify every row. Run the test and read its name out of the passing
+     output. Never mark green what you have not seen pass; write what is wrong
+     in the row instead of a check mark.
+   - A criterion that moved to another change is listed once as out of scope,
+     never green.
+   - A green mark you cannot reproduce right now says so in the row, with the
+     date it passed and what is missing.
+   - Criteria live in the ticket. Do not restate them verbatim here; the table
+     names them and the ticket is the text of record.
+
+3. **Try it:** the exact command, URL or screen that shows the outcome
+   criterion working on this branch, and directly beneath it the result it
+   produced — the values, as a table.
+   - List every prerequisite whose absence produces a *passing-looking*
+     failure: an unset variable, a fixture the command cannot create, a state
+     the system must be in. These are the ones that cost hours, because the
+     run completes and reports the wrong reason.
+
+4. **What changed,** one paragraph in the domain's nouns, then one line per new
+   function, module or branch saying what it is for and which file it is in.
+
+5. **Risk,** one line per fact that changes what a reviewer or merger does:
+   what merging itself deploys and where; a guard that is off in the
+   environment this ships to; anything a revert cannot undo; a diff touching
+   authentication, authorization, secrets, money, health or personal data.
+   Name the file. Omit the section only when every line would be empty.
+
+6. **Assumes,** one line per fact the change rests on that was read from a
+   document rather than from the code, and how it was checked. Omit when empty.
+
+7. **Read first:** the one file a reviewer opens to understand the change.
+
+8. **The rest,** collapsed where the host supports it: tests beyond the
+   criteria table, what is deliberately deferred and to which change, and the
+   review's Done block when the change came from `deliver`.
+
+9. **Signal:** the event someone reads to know it worked once deployed, and the
+   counter-signal that would show it silently not working.
 
 ## Review a Merge Request
 
