@@ -1,16 +1,16 @@
 ---
-name: harness
-description: "Use this skill whenever the user wants a repository or environment prepared for an AI agent or for Claude, or when a repo gives an agent no feedback of its own: no formatter, linter, type check, custom rules, architectural contracts or commit gate, or nothing routes their output back to the agent. Use it on: 'setup harness in this repo', 'set up guardrails', 'add hooks for the agent', 'wire the linter to claude', 'set up the commit gate', 'configure checks for my ai agent', 'the agent keeps ignoring the linter'. Use it on the complaint underneath: 'we have no linting or rules', 'every PR is a style argument', or the agent repeats a mistake a human keeps correcting by hand. Use it when `orient` hands off. Produces one tool per slot, the hooks that run them, a deny list, and a commit gate and CI that call one check command. Do not use it to write AGENTS.md, or on 'setup claude in this repo' or 'get this repo ready for agents'; those are `orient`. Do not use it to make a code change; that is `execute`."
+name: guardrails
+description: "Use this skill when a repository needs its automated checks set up or repaired so an agent gets feedback of its own: formatter, linter, type checker, architectural contracts, test and mutation runners, agent hooks, a deny list, and a commit gate and CI that call one check command. Use it on: 'set up guardrails', 'setup harness in this repo', 'add hooks for the agent', 'wire the linter to claude', 'set up the commit gate', 'configure checks for my ai agent', 'we have no linting', 'every PR is a style argument', 'the agent ignores the linter output', 'add a mutation runner', 'set up CI checks'. Produces one tool per slot, the hooks that run them, a deny list and one check command. Not for a single code rule or convention (`make-rule`); a single hook, deny-list entry or dependency contract handed over by `make-rule` is in scope, AGENTS.md (`orient`), a new project (`greenfield`), or product code (`deliver`)."
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.15.0"
+  version: "0.16.0"
 ---
-# Repository harness
+# Guardrails
 
 Identify the language, pick the tool, and name the pick.
 
-Decide nothing about what the system should be. Framing and slicing belong to `feature`, and building belongs to `execute`.
+Decide nothing about what the system should be. Framing and slicing belong to `story-map`, and building belongs to `deliver`.
 
 ```text
 SURVEY        language, package manager, agent harness, slots already filled
@@ -34,7 +34,7 @@ GATE          commit hook and CI running the same list
   * *Greenfield:* No code, or code to be discarded.
   * *Brownfield:* Code that predates the rules.
 * **The branch is not project age.** A two-week-old repo with a thousand lines and no linter is brownfield.
-* **Halt before writing anything** if a change is in flight: an open `feature/{slug}` branch, or a `docs/features/{slug}/feature.md` (or the per-change spec `AGENTS.md` names instead) whose feature header still lists unshipped stories. Cleanups rewrite the tree and will collide. Offer the config-only subset now with cleanups deferred, or finishing the story first.
+* **Halt before writing anything** if a change is in flight: an open `story/{slug}/` branch. Stories merge into main one at a time, so between stories nothing is in flight. Cleanups rewrite the tree and will collide. Offer the config-only subset now with cleanups deferred, or finishing the story first.
 * **Resume at the first missing output** when a repository is part-way through this skill.
 
 ## What never bends
@@ -57,7 +57,7 @@ GATE          commit hook and CI running the same list
   ```
 
 * **Name every conflict before changing it:** two tools covering one slot, two package managers, a manifest with no lockfile, or config in a file the new tool will not read. Where a newer tool subsumes an older one, say which rules the older carries that the newer does not.
-* **Propose the migration; never perform it.** Replacing a working toolchain is the user's decision. On greenfield, take all of it.
+* **Propose the migration; never perform it.** On greenfield, take all of it.
 
 ## Slots
 
@@ -69,7 +69,7 @@ Load `references/toolchain.md` now, before writing any config.
 
 ## Contracts
 
-* **Greenfield:** Ask the user for the modules, what each owns, and which way dependencies run. It is theirs to draw. Where nothing is settled, say so, fill the language-level slots now, and encode contracts after the first change through `execute` has drawn the shape.
+* **Greenfield:** Ask the user for the modules, what each owns, and which way dependencies run. It is theirs to draw. Where nothing is settled, say so, fill the language-level slots now, and encode contracts after the first change through `deliver` has drawn the shape.
 * **Brownfield:** Derive the current dependency graph, render it as a diagram, and ask which edges they did not expect. Those are the ones nobody chose, and they become the first contracts. Never encode the whole current graph.
 * **One contract per allowed-dependency line.** Everything not listed is forbidden, and the config says so explicitly.
 * **Write each contract's name as the rule in plain English**, so a broken build prints the sentence that stopped being true.
@@ -87,7 +87,7 @@ Write each rule with the `make-rule` skill.
 
 ## Loop
 
-Where the agent harness is Claude Code, load `references/claude-harness.md` now and write the files it carries. Another agent harness wires the same three layers to whatever events it exposes. Where it exposes none, say so plainly: the checks still run at commit time and in CI, and feedback arrives a turn later instead of immediately.
+Where the agent harness is Claude Code, load `references/claude-guardrails.md` now and write the files it carries. Another agent harness wires the same three layers to whatever events it exposes. Where it exposes none, say so plainly: the checks still run at commit time and in CI, and feedback arrives a turn later instead of immediately.
 
 * **Three layers, each a subset of one command list.**
 * **Auto-fix everything mechanically fixable and silence it.** Surface only what needs a decision.
@@ -100,9 +100,9 @@ Where the agent harness is Claude Code, load `references/claude-harness.md` now 
 ## Guards
 
 * **Hard blocks: two entries, and justify a third.** A rule earns a slot only when violating it is never correct and the harness cannot catch it afterwards. Blocking the flag that skips the commit gate qualifies. Blocking a package manager the project does not use is blocklist creep.
-* **Block edits to accepted tests.** While `execute` has a red commit recorded, refuse any edit to a file that commit touched, at edit time. An instruction to leave tests alone is not a substitute for the guard.
-* **Deny agent edits to the feature acceptance tests for good.** The `execute` loop keeps the user's acceptance test for a whole feature in a `feature-acceptance` directory inside the test tree. Deny edits, writes and deletes there permanently, for the agent and every subagent.
-* **Deny reads and writes outright** for secrets files, the lockfile, and the version control directory. These are not style rules and do not belong in a linter.
+* **Block edits to accepted tests.** While `deliver` has a red commit recorded, refuse any edit to a file that commit touched, at edit time. An instruction to leave tests alone is not a substitute for the guard.
+* **Deny agent edits to the feature acceptance tests for good.** The `deliver` loop keeps the user's acceptance test for a whole feature in a `feature-acceptance` directory inside the test tree. Deny edits, writes and deletes there permanently, for the agent and every subagent.
+* **Deny reads and writes outright** for secrets files, the lockfile, and the version control directory.
 * **Say plainly that the deny list stops accidents and is not a security boundary.** Anything pre-approved that executes code can read any file the user can.
 * **Pre-approve every verification command** the agent needs to check its own work.
 * **Report environment readiness at session start**, naming the command that fixes each problem.
@@ -134,15 +134,16 @@ Three scopes. Put each rule in the narrowest one that still loads when it is nee
   At the end of every piece of work, list every choice made without the user,
   one line each: what was chosen, why, and the tradeoff.
   ```
-* **Offer an answer-length rule for `AGENTS.md`:** give the finding, what it means, and the question, then stop; name a document or diff just written rather than reproducing it. Ask before adding it. That file is the user's.
+* **Offer an answer-length rule for `AGENTS.md`:** give the finding, what it means, and the question, then stop; name a document or diff just written rather than reproducing it. Ask before adding it.
 * **Never path-scope an instruction that governs the conversation.** Path frontmatter loads it only when a matching file is touched.
 
 ## Gate
 
-* **Commit one check command** that runs the canonical gate in order and stops at the first failure: a script named `check` at the repository root, or the equivalent target where the project already has a task runner. Commit hook, CI and the agent all call that one command. Name it in `AGENTS.md`.
+* **Commit the check command** that runs `references/toolchain.md`'s canonical gate in order and stops at the first failure. Name it in `AGENTS.md`.
+* **Ask the user for a time limit on the whole test run** and write it in `AGENTS.md`. The `tests` slot fails past it, so a suite that grows with every story is noticed before it drifts out of the commit gate.
 * **Pin every hook version.**
 * **Wire automated dependency updates** so the lockfile and CI pins do not rot.
-* **Gate on mutation over the diff in CI.** The `execute` loop's floor check halts when this slot is missing; a missing `e2e` slot becomes that loop's first story.
+* **Gate on mutation over the diff in CI.** The `deliver` loop offers this skill when this slot is missing and continues with mutations applied by hand when the user declines. When the `e2e` slot is missing, that loop's first story adds the runner.
 
 ## Landing rules on existing code
 

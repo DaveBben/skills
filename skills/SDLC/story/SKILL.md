@@ -1,6 +1,6 @@
 ---
 name: story
-description: "Use this skill whenever one user story has to be written, repaired or reviewed: its acceptance criteria, its failure and abuse paths, or the text of its card. Use it on: 'write the user story', 'what are the acceptance criteria', 'write the AC for this', 'is this story ready', 'what does done mean here', 'what could go wrong with this story', 'make this testable', 'review this story', 'review these acceptance criteria', 'rewrite this ticket'. Use it on any statement of work with better, faster, robust, seamless, properly or handled. Produces one story: an outcome, why it is needed, its scope, and Given/When/Then criteria for the outcome plus every boundary, failure path and abuse path that applies, observable through the interface the person uses, with open decisions marked open and standards kept out. Do not use it to split a feature or epic into stories (`feature`), to choose which story to build next (`next-story`), or to enumerate the tests behind a criterion (`test-table`)."
+description: "Use this skill when one story, ticket or bug report needs its acceptance criteria written, repaired or reviewed, without building it. Use it on: 'write the user story', 'write the acceptance criteria', 'write the AC for this', 'what does done mean here', 'is this story ready', 'make this ticket testable', 'what could go wrong with this story', 'review this story', 'review these acceptance criteria', 'rewrite this ticket'. Use it on a ticket full of better, faster, robust, seamless, properly or handled. Produces one story: outcome, why, scope, and Given/When/Then criteria for the outcome plus its boundary, failure and abuse paths, with open decisions marked open and the crossings where its input is interpreted as instructions. Not for splitting an epic (`story-map`), choosing what to build next (`next-story`), listing tests (`test-plan`), or building it (`deliver`)."
 license: MIT
 compatibility: any-agent
 metadata:
@@ -21,9 +21,10 @@ Criteria:
   a. Given <a concrete starting state>, when <a concrete action>, then <what the person sees, with real values>
   b. <a boundary, a failure path or an abuse path, same form>
 Open:     <each undecided value, who decides it, and which criterion waits on it; "none" when none>
+Crossings: <each input this story adds and what interprets it as instructions; omit when none>
 ```
 
-Criterion a is the outcome. The criteria after it are the boundaries, failure paths and abuse paths from sections 3 to 5 that apply to that outcome. Each criterion is proved by its own acceptance test: an automated test that drives the interface the person uses and checks what they see.
+Criterion a is the outcome. The criteria after it are the boundaries, failure paths and abuse paths from sections 3 to 5 that apply to that outcome. Each criterion is proved by its own acceptance test: an automated test that checks what the person sees. The outcome criterion's test drives the interface the person uses. When a screen only shows what a service returns, the tests for the other criteria may drive that service.
 
 ## 1. Who observes
 
@@ -37,6 +38,7 @@ The criteria are written in whatever the person or service using this story can 
 * **Use concrete values.**
 * **Ban the words that hide the measurement:** improve, better, faster, seamless, robust, correct, properly, handled, intuitive, flexible, scalable, modern. Replace each with the number or the observable event.
 * **Put a number in every limit.** When nobody can supply the number yet, write on the story that the criterion has no number and is not testable as written. Never leave a vague criterion that reads as complete.
+* **For a bug, criterion a is the reproduction:** the starting state, the action, and what the person should see instead of what they saw.
 * **One outcome per criterion.** A criterion joining two outcomes with "and" is two criteria.
 * **Write from the observer's side.** "The clerk sees the invoice marked overdue" is a criterion. "Each order has exactly one invoice row" is written from the system's side. A criterion written from the system's side is usually a property of another story's behaviour, and it belongs on that story.
 * **Name the interface.** The criterion says where the person acts and where they see the result.
@@ -67,20 +69,22 @@ Ask one question of every input: who else can send this, and what do they gain b
 
 Turn each one that matters into a criterion with a number in it: how many requests from one source in a minute, how many messages to one address in a day, how long a link stays valid. Write the numbers the user chooses, not a default from elsewhere.
 
-When nobody defining this work can say what goes wrong for this kind of work, say so and get the knowledge before writing criteria: sign up for three systems that already do it and watch what they do. Where that is not possible, ask the person who has built one before, read the law or policy that governs it, or reduce the work to calling a service that already solves it.
+When nobody defining this work can say what goes wrong for this kind of work, say so and get the knowledge before writing criteria. Ask the user to try three systems that already do it and report what they do, or to name someone who has built one. Read the public documentation of those systems and the law or policy that governs the work. Or reduce the work to calling a service that already solves it.
 
 ## 5. Fold in what constrains or enables the story
 
+* **Keep the feature's constraints.** Read the `Constraints` and `Context` lines of the feature header or the epic. Write each constraint as a criterion on this story when this story could break it. Use the `Context` facts as given, and never copy a credential's value into a criterion.
 * **Write a non-functional requirement as criteria here.** Security, a rate limit, pagination and alerting constrain how well this story behaves. A story does not close until they pass, so they cannot be dropped under schedule pressure.
 * **Write an enabler as criteria here.** A new column, a change to what a consumer reads, or a service this story calls is real work nobody perceives alone.
 * **Write a property as criteria on the story that introduces the behaviour.**
+* **Write a flag as criteria** when the story merges before the feature is complete and exposes half of it: with the flag off, the person sees today's behaviour. The story that completes the behaviour gets a criterion that removes the flag.
 * **Own the interface this story produces.** The story that defines an interface carries its contract as criteria. The story that consumes it refers to it.
 
 ## 6. Keep the standards out of the criteria
 
 Apply one test to each candidate: could a reasonable person choose the opposite outcome, and would the user notice the difference? Both yes makes it a criterion. Otherwise it is an engineering standard, it applies to every story, and it belongs in the repository's instructions file and in whatever runs on every change.
 
-Standards are the developer's to find and hold, not the user's to approve. For each technology the work touches, read the vendor's security page, the published checklist for that platform, and the product's past vulnerabilities. Then trace each piece of user input to whatever interprets it as instructions. Each of those crossings has a standard defence. Enforce each by a rule in the linter, falling back to a framework default or a check in the build where the linter cannot see the crossing.
+Standards are the developer's to find and hold, not the user's to approve. Trace each piece of input this story adds to whatever interprets it as instructions: a query, a shell, a template, a parser. List each of those crossings on the story's `Crossings` line. The `make-rule` skill finds the standard defence for each and enforces it, and this skill writes no criterion for it.
 
 ## 7. Open decisions
 
@@ -94,7 +98,8 @@ Standards are the developer's to find and hold, not the user's to approve. For e
 
 Write each card for a reader who has seen none of this work and reads only the top of each section.
 
-* **Open the description with the outcome and why the story is needed.** Follow the template order: Outcome, Why, Scope, Criteria, Open.
+* **Write the card where the stories live.** On the tracker the `Backlog:` line of `AGENTS.md` lists, criteria go in the field its `Criteria:` line names, else at the top of the description. With no tracker, or when it cannot be written, give the card as text.
+* **Open the description with the outcome and why the story is needed.** Follow the template order: Outcome, Why, Scope, Criteria, Open, Crossings.
 * **Title the observable outcome.** "Add the status column" is a work order. "An unconvertible reading shows apart from one never checked" is a story.
 * **Spell out every acronym on first use.** Put the point of each section in its first sentence.
 * **Keep the description to the work.** Put rationale, ordering, review objections and provenance in comments.
@@ -118,6 +123,7 @@ Check the story against these before handing it on. A no returns the work to the
 * Every abuse path from section 4 that matters has a criterion with a number in it.
 * Nothing in the criteria is a standard nobody would choose against.
 * The story leaves a person able to do something they could not do before.
+* The story covers one workflow step and one variation, and has no more criteria than the number per story `AGENTS.md` states; ask the user for the number once when it is missing. When it covers more, say it is several stories and hand it to `story-map`.
 * Every undecided value is marked undecided and names who decides it.
 
 ## 10. Review a story
@@ -145,4 +151,4 @@ Ready to build.        (or: 3 blocking items.)
 
 ## What this skill does not do
 
-Splitting a feature into stories, and judging whether a card should be a story at all, is `feature`. Choosing which ready story to build next is `next-story`. Answering an unknown by writing throwaway code is `spike`; do that when a criterion cannot be written because a fact about the world is missing, such as a throughput number or what an API actually returns.
+Splitting a feature into stories, and judging whether a card should be a story at all, is `story-map`. Choosing which ready story to build next is `next-story`. Answering an unknown by writing throwaway code is `spike`; do that when a criterion cannot be written because a fact about the world is missing, such as a throughput number or what an API actually returns.

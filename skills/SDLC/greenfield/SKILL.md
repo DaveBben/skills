@@ -1,6 +1,6 @@
 ---
 name: greenfield
-description: "Use this skill whenever a project does not exist yet and the user wants one stood up, or asks for a template, scaffolding, a blueprint, a bootstrap or a walking skeleton. Use it on: 'let's setup a new project', 'I want to start a new python/javascript project', 'let's create scaffolding for an iOS app', 'let's put together the walking skeleton', 'python project template', 'template project', 'bootstrap a codebase'. Use it even on a bare two-word ask like 'template project': a new codebase is never the one-step answer it sounds like. Use it too when the ask names a feature, endpoint, test or CI setup but the repo has no application yet. A health check, test or CI run needs code first, so spot an empty or app-less repo before reading the ask as `execute`, and stand up the project first. Clone a language template, rename it, prove the default state passes tests, then remove what this project does not need, committing every step. Do not use it to change a codebase that already exists; that is `execute`."
+description: "Use this skill when a project does not exist yet and the user wants one stood up, or asks for a template, scaffolding, a bootstrap or a walking skeleton. Use it on: 'let's set up a new project', 'I want to start a new python/javascript project', 'create scaffolding for an iOS app', 'put together the walking skeleton for a new repo', 'python project template', 'template project', 'bootstrap a codebase'. Use it too when the ask names a feature, endpoint, test or CI setup but the repository has no application yet, since those need code first. Clones a language template, renames it, proves its default state passes tests, then removes what this project does not need, committing every step. Not for a codebase that already has an application (`deliver`), or throwaway code (`spike`)."
 license: MIT
 compatibility: any-agent
 metadata:
@@ -30,7 +30,7 @@ Ask the user for two facts before touching the filesystem:
 
 ## The Setup Sequence
 
-Commit at the end of each numbered step with the stated message. Never batch multiple steps into one commit.
+Commit at the end of each numbered step with the stated message.
 
 ### 1. Clone and detach
 
@@ -78,6 +78,6 @@ Commit at the end of each numbered step with the stated message. Never batch mul
 
 ## Guardrails
 
-* **Green at every commit:** The test suite passes before step 4 and after step 5. Never commit a state where the suite is red.
-* **Do not add features:** Do not write business logic, add new dependencies, or design architecture here. Hand off to `execute` once the skeleton is clean.
+* **Green at every commit:** The test suite passes before step 4 and after step 5.
+* **Do not add features:** Do not write business logic, add new dependencies, or design architecture here. Hand off to `deliver` once the skeleton is clean.
 * **Preserve the toolchain:** Do not remove the test runner, linter, formatter, or CI configuration.

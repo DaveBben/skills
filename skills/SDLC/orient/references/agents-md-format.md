@@ -11,7 +11,7 @@ Write these five sections in this order. Omit a section that would be empty and 
 
 ## Tech Stack and Codebase Map
 
-<!-- Language, framework versions, package manager, directory layout, Boundaries (external systems and the backlog) -->
+<!-- Language, framework versions, package manager, directory layout, Boundaries (external systems), Backlog -->
 
 ## Operational Commands
 
@@ -76,9 +76,33 @@ Technology belongs in Tech Stack, not here.
 - `app.py` — CDK app entry point
 ```
 
-Keep the directory layout to top-level directories only.
+Keep the directory layout to top-level directories only. The module map `deliver` writes goes after the layout, as its own table.
 
-End the section with Boundaries: every external system the product reads from, writes to, or runs inside, by name and address, and the backlog when it lives outside the repository ("Backlog: Jira project TAG").
+End the section with Boundaries: every external system the product reads from, writes to, or runs inside, by name and address. Then the Backlog block. Its first line lists the tracker, the project and the access methods in order. The lines under it hold what an agent cannot look up: the criteria field, the checked blocking-link direction, the status names. Record methods, never which one worked in one session.
+
+```markdown
+Backlog:   Jira project PAY at https://acme.atlassian.net; Atlassian MCP server, else `acli jira`
+  Criteria: field "Acceptance criteria"
+  Blocks:   link type "Blocks"; `--out PAY-1 --in PAY-2` makes PAY-1 block PAY-2
+  Status:   To Do, In Progress, In Review, Done
+```
+
+For an in-house tracker, one line per operation, with the command or endpoint and `{epic}`, `{key}`, `{file}` placeholders. The commands below are illustrative, not a real tool:
+
+```markdown
+Backlog:   Acme Tickets at https://tickets.acme.internal; `tix` CLI
+  list:     tix list --parent {epic} --json   (order is rank; blockers in .blocked_by)
+  read:     tix show {key} --comments --json
+  create:   tix new --parent {epic} --type {story|bug|spike} --title "{title}" --body-file {file}
+  describe: tix edit {key} --body-file {file}
+  block:    tix link {blocker} blocks {blocked}
+  comment:  tix comment {key} --body-file {file}
+  status:   tix move {key} "{status}"
+  rank:     none; the user ranks by hand
+  pr:       tix link-url {key} {url}
+```
+
+With no tracker: `Backlog: none; stories live in docs/delivery/`.
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: make-rule
-description: "Use this skill whenever a rule for code or for the agent is to be added, or existing instructions are to be turned into checks. Use it on: 'add a rule', 'make this a rule', 'always do X', 'never do Y', 'add this to CLAUDE.md', 'add this to AGENTS.md', 'the agent keeps making this mistake', 'enforce this convention', 'ban this pattern', 'stop people calling X directly', 'write a semgrep rule', 'custom lint rule', 'add static analysis', 'catch SQL injection automatically', 'which of these instructions could be lint rules', 'audit CLAUDE.md'. Use it when `harness` fills its rules slot, and when a review asks which check would have caught a bug. Puts each rule in the first place that holds: a check that fails deterministically (a linter setting, a Semgrep rule, a type check), then a path-scoped agent rule file, then one line in AGENTS.md. Do not use it to choose the toolchain or wire checks to editor and commit events (`harness`), or to write AGENTS.md itself (`orient`)."
+description: "Use this skill when one rule, convention or recurring mistake is to be enforced, or when instruction files are to be audited for rules a check could enforce. Use it on: 'add a rule', 'make this a rule', 'always do X', 'never do Y', 'add this line to CLAUDE.md', 'add this to AGENTS.md', 'the agent keeps making this mistake', 'stop the agent doing X', 'enforce this convention', 'ban this pattern', 'stop people calling X directly', 'write a semgrep rule', 'custom lint rule', 'catch SQL injection automatically', 'which of these instructions could be lint rules', 'audit CLAUDE.md'. Places each rule in the first place that holds: a deterministic check (a linter setting, a Semgrep rule, a type check), then a path-scoped agent rule file, then one line in AGENTS.md. Not for setting up the toolchain or hooks (`guardrails`), or writing the whole AGENTS.md (`orient`)."
 license: MIT
 compatibility: any-agent
 metadata:
@@ -24,13 +24,13 @@ Use the rule-file format of the agent this repository already configures. When t
 2. **Try rung 1, cheapest first.** Stop at the first that holds.
    * **The language or framework already prevents it:** a compiler flag, a stricter type-checker setting, a framework default. Turn it on.
    * **The project's linter ships the rule:** ESLint, Ruff, golangci-lint, Clippy, RuboCop, Checkstyle, SwiftLint. Search that linter's rule list before writing anything. Enable the rule in the existing config at error severity, with the options the rule needs.
-   * **The rule is about which module may import which:** it is a dependency contract. Hand it to `harness`, which owns contracts.
-   * **The rule is about what the agent runs, not the code it writes:** "never force-push", "never edit the migrations directory". It is a hook or a deny-list entry in the agent's settings. Hand it to `harness`, which owns both.
+   * **The rule is about which module may import which:** it is a dependency contract. Hand it to `guardrails`, which owns contracts.
+   * **The rule is about what the agent runs, not the code it writes:** "never force-push", "never edit the migrations directory". It is a hook or a deny-list entry in the agent's settings. Hand it to `guardrails`, which owns both.
    * **The rule is a pattern over source that no shipped rule matches:** write a Semgrep rule. Load [references/semgrep.md](references/semgrep.md) now. It covers installing the engine, what a pattern can and cannot see, writing the rule, proving it fires, and landing it on code that already breaks it.
    * **The rule is a fact about behaviour:** "every endpoint returns JSON errors". It is a test, not a lint rule. Say which test would hold it.
 3. **Fall to rung 2** when no program can decide it but the rule applies only to some paths, such as "components in `src/ui/` take props, never read the store". Write one rule file per topic, with the path glob in its frontmatter and the rule as one imperative sentence plus the reason. Check how the format matches globs. Claude Code uses gitignore rules, so `"*.py"` matches only files at the root, and the file needs `"**/*.py"` as well. Touch one matching file and one non-matching file to confirm the rule loads for the first only.
 4. **Fall to rung 3** only when the rule needs judgment and applies everywhere, such as "ask before adding a dependency". Add one line under the constraints section `AGENTS.md` already has. When `AGENTS.md` does not exist, offer `orient` first.
-5. **Show the user the rung, the file, the exact text or config, and one real violation it catches** before writing it. A rule with no current violation is a preference, and the user decides whether to take it.
+5. **Show the user the rung, the file, the exact text or config, and one real violation it catches** before writing it. A rule with no current violation is a preference, and the user decides whether to take it. Called from `deliver`'s unattended loop, write the rule on the story's branch instead, and list it in the pull request for the user.
 
 Every rung-1 rule prints a message the agent reads when it fails. Write that message as the fix: what is forbidden, what to use instead, and the replacement's real name and path.
 
@@ -54,7 +54,11 @@ Search the codebase for a real violation of each rung-1 candidate. Report before
 | 4 | AGENTS.md:9 | "run prettier first" | delete | already failed by the format check | - |
 ```
 
-The user cuts rows by number, and a row not cut is accepted. Convert each accepted row with the steps in "Add one rule". When a rule lands at rung 1 or rung 2, delete the original instruction line. Leave one pointer in `AGENTS.md` to the rules directory, so a reader knows the rules exist.
+The user cuts rows by number, and a row not cut is accepted. Convert each accepted row with the steps in "Add one rule". When a rule lands at rung 1 or rung 2, delete the original instruction line. Leave one pointer in `AGENTS.md` to the rules directory.
+
+## Defend where input becomes instructions
+
+The `story` skill hands over each place a story's input reaches something that interprets it: a query, a shell, a template, a parser. For each technology involved, read the vendor's security page, the published checklist for that platform, and the product's past vulnerabilities. Each crossing has a standard defence. Put it at rung 1: a linter rule or a Semgrep rule, falling back to a framework default or a check in the build where no pattern can see the crossing. Skip a crossing a rule already covers.
 
 ## What a check cannot hold
 

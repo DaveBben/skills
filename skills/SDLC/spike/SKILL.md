@@ -1,10 +1,10 @@
 ---
 name: spike
-description: "Use this skill whenever the user wants to find something out by building, rather than to ship what they build: proving an approach, prototyping an idea, mocking something up (not a test double), standing up a demo, or exploring what an integration or change would involve. Use it on: 'let's prove this works first', 'let's try an approach before building', 'let's prototype this idea', 'let's mock this up', 'create a throwaway project', 'build a quick throwaway', 'build a demo', 'let's do a spike on it', 'let's see if X is feasible', 'let's see how this integration would work', 'let's see the changes which would be needed', 'explore how this would fit into the system'. Use it on the words prototype, mock, demo, throwaway, spike, feasible and explore even when the ask sounds small: deciding what is disposable is the whole point. Build the smallest thing that answers the open question, record findings as they surface, and treat all code as disposable. Do not use it for code meant to ship; that is `execute`."
+description: "Use this skill when the user wants to find something out by building throwaway code rather than ship it: proving an approach, prototyping, mocking something up (not a test double), a demo, or exploring what an integration or change would involve. Use it on: 'let's prove this works first', 'let's prototype this idea', 'let's mock this up', 'build a quick throwaway', 'build a demo', 'let's do a spike on it', 'let's see if X is feasible', 'let's see how this integration would work', 'let's see what changes would be needed', 'explore how this would fit'. Use it on the words prototype, mock, demo, throwaway, spike, feasible and explore even when the ask sounds small. Builds the smallest thing that answers one question inside a timebox, records findings as they surface, and deletes the code. Not for code meant to ship (`deliver`) or a new project meant to last (`greenfield`)."
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.6.0"
+  version: "0.7.0"
 ---
 # Spike
 
@@ -12,10 +12,11 @@ Prove or disprove a specific assumption with the smallest amount of throwaway co
 
 ## Frame the Spike Before Writing Code
 
-Establish two facts with the user before touching the filesystem:
+Establish three facts with the user before touching the filesystem:
 
 * **The question:** The single assumption or feasibility unknown the spike must resolve. State it as a falsifiable outcome: "the library can stream partial results under 200ms", not "look into the library." When the user has no crisp question, ask one question to extract it. Refuse to start a spike that has no failing condition.
 * **The finish line:** The observable signal that answers the question.
+* **The timebox:** A wall-clock limit or a number of attempts. When it runs out, record the Outcome as inconclusive, say what the next attempt would try, and stop.
 
 ## Declare the Code Disposable
 
@@ -33,7 +34,7 @@ The single exception: when the measured outcome is only observable through a tes
 
 Maintain a running findings log from the first moment, not at the end. Never leave a finding in the chat only.
 
-Write the log as one entry in `docs/features/{slug}/feature.md`, titled `spike: <the question>`. The slug is the story's slug when `execute` called the spike, else a kebab-case name for the question. Create the file if absent.
+Write the log as one entry in `docs/delivery/{slug}.md`, titled `spike: <the question>`. The slug is the story's slug when `deliver` called the spike, else a kebab-case name for the question. Create the file if absent. When `AGENTS.md` names a per-change spec directory, the log is the bottom of that change's spec instead. Commit the entry alone on a branch from main (`story/{slug}/{n}-spike-{short-name}` when `deliver` called the spike) and open a pull request the user merges. When the `Backlog:` line of `AGENTS.md` lists a tracker, write the same entry as the resolution comment on the spike's issue instead, and create no file. When that tracker cannot be written, write the file as above and add a line to an `## Outbox` section at its end, the list of tracker writes still owed: `- comment <spike key>: entry "spike: <the question>"`.
 
 Record each finding as it surfaces, as a `Learned` line whose bold headline is one of these:
 
@@ -42,7 +43,7 @@ Record each finding as it surfaces, as a `Learned` line whose bold headline is o
 * **Quirks and surprises:** Undocumented behavior, version constraints, ordering requirements, silent failures, rate limits, and anything else that cost time to discover.
 * **Dead ends:** Approaches tried that did not work, and why.
 * **Open questions:** What the spike did not answer and what the official build must still resolve.
-* **Decided:** Every choice made without the user while building: a library, a data shape, a key, a limit, a default, a version dropped, an alternative tried and abandoned. One line each: what was chosen, the alternative not taken, and why. Write it the moment the choice is made.
+* **Decided alone:** Every choice made without the user while building: a library, a data shape, a key, a limit, a default, a version dropped, an alternative tried and abandoned. One line each: what was chosen, the alternative not taken, and why. Write it the moment the choice is made.
 
 The entry takes this shape:
 
@@ -53,7 +54,7 @@ The entry takes this shape:
 - Learned: **Quirks and surprises:** <what the code or service did that its documentation does not say>
 - Learned: **Dead ends:** <approach tried> — <what it did instead of working>
 - Learned: **Open questions:** <what the official build must still resolve>
-- Learned: **Decided:** <what was chosen> over <the alternative not taken> — <why>
+- Learned: **Decided alone:** <what was chosen> over <the alternative not taken> — <why>
 ```
 
 Repeat any line as often as there are findings of that kind. Write every line by [references/writing.md](references/writing.md), loaded before the first reply.
@@ -80,7 +81,7 @@ Stop building the moment the finish-line signal appears. Then:
 
 * **State the verdict:** Report to the user whether the question is proven, disproven, or inconclusive, and point to the finding that settles it.
 * **Confirm the findings log is complete:** Every quirk, approach, dead end, and open question is written down before the code is discarded.
-* **Surface the decisions for review.** Read the `Decided` lines. Keep every one that meets the `adr` threshold: expensive or irreversible to change, a hazard accepted without a test, an alternative explicitly rejected, or knowledge that cost time to acquire. Put them to the user in one table:
+* **Surface the decisions for review.** Read the `Decided alone` lines. Keep every one that meets the `adr` threshold: expensive or irreversible to change, a hazard accepted without a test, an alternative explicitly rejected, or knowledge that cost time to acquire. Put them to the user in one table:
 
 ```text
 | Chosen | Rejected | Why | Cost to change later | record / drop / defer |
@@ -88,12 +89,12 @@ Stop building the moment the finish-line signal appears. Then:
 | <what was chosen> | <the alternative not taken> | <the evidence behind the choice> | <what reversing it costs> | <the user marks this cell> |
 ```
 
-  The user marks each row `record`, `drop`, or `defer`. Run the `adr` skill for each `record`. A `drop` stays a `Decided` line in the log and nothing more. A `defer` becomes an open question. Do not write an ADR the user has not marked, and do not skip a row because it looked small; the user decides what is small.
-* **Hand off, do not merge:** Do not open a PR of spike code, do not merge it, do not evolve it in place into the official build. The official build starts fresh from the findings. Offer to delete or branch-isolate the spike code so it cannot reach main.
+  The user marks each row `record`, `drop`, or `defer`. Run the `adr` skill for each `record`. A `drop` stays a `Decided alone` line in the log and nothing more. A `defer` becomes an open question. Do not write an ADR the user has not marked, and do not skip a row because it looked small; the user decides what is small.
+* **Hand off, do not merge:** Do not open a PR of spike code, do not merge it, do not evolve it in place into the official build. The official build starts fresh from the findings. Delete the spike code once the findings are committed, and record the deletion in the log.
 
 ## Guardrails
 
 * **One question per spike:** When a second unknown appears, record it as an open question and scope a separate spike. Never let a spike sprawl into an implementation.
 * **Findings before code quality:** Never spend spike time making throwaway code clean. Spend it producing and recording findings.
 * **Never ship a spike:** Spike code does not become the official build by momentum. State this whenever the user proposes keeping it.
-* **Time and scope are bounded:** When the spike outgrows "smallest thing that answers the question," halt and report that the question is larger than a spike. Hand off to `execute`.
+* **Time and scope are bounded:** When the timebox runs out, or the spike outgrows "smallest thing that answers the question," halt and report that the question is larger than a spike. Hand off to `deliver`.
