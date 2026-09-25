@@ -4,7 +4,7 @@ description: "Use this skill when the repository's AGENTS.md or CLAUDE.md as a w
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "3.3.0"
+  version: "3.3.1"
 ---
 # Orient
 
