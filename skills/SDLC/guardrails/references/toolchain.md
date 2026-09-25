@@ -12,13 +12,13 @@
 | `complexity` | turn end | fail any function over the project's cyclomatic limit and name the function |
 | `deps_check` | manifest edit, and commit | fail when the manifest and the lockfile disagree, without hitting the network |
 | `env_check` | session start | report whether the environment is built and in sync, naming the command that fixes it |
-| `tests` | turn end when the suite fits the turn-end budget, else commit | run the suite |
+| `tests` | turn end when the suite fits the turn-end budget, else commit | run the suite, and fail when the whole run exceeds the time limit `AGENTS.md` states |
 | `e2e` | CI, and commit when it runs under a minute | drive the interface the product's users use: a real browser, a running service, the command; one test per acceptance criterion |
 | `deadcode` | commit | find unreferenced symbols |
 | `audit` | commit | check dependencies against a CVE feed |
 | `secrets` | commit | scan for credentials |
 
-`types`, `contracts`, `rules` and `complexity` compose the single `turn_end` slot, plus `tests` when the suite fits the budget. `references/claude-harness.md` writes the hooks and uses these names.
+`types`, `contracts`, `rules` and `complexity` compose the single `turn_end` slot, plus `tests` when the suite fits the budget. `references/claude-guardrails.md` writes the hooks and uses these names.
 
 ## Placement
 

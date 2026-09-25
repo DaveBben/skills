@@ -1,6 +1,6 @@
 ---
 name: give-feedback
-description: "Use this skill whenever the user wants feedback on something they made or proposed: code they wrote by hand, a test, a diff, a design or architecture document, a data model, a brainstormed approach, their idea for a bug fix, their idea for an implementation, or a plan they just typed into chat. Use it on: 'give me feedback', 'what do you think of this', 'review what I wrote', 'how could I have done this better', 'critique this', 'poke holes in this', 'is this a good approach', 'here is how I would fix it, thoughts?', 'here is my design', 'rate my code', 'what am I missing'. Use it at any stage, from a half-formed idea in chat to a committed diff. Ground every point in the code or the source it concerns, sort it into what is wrong, what is unverified, what could be shaped better, and what is only taste, name the principle behind each, and leave the rewrite to the user. Do not use it to review agent-generated code before a merge; that is `review`. Do not use it to build the thing; that is `execute`."
+description: "Use this skill when the user wants an opinion on something they made or proposed themselves: code they wrote by hand, a test, a design, a data model, a plan, an approach, or their idea for a fix, at any stage from a chat message to a committed diff. Use it on: 'give me feedback', 'what do you think of this', 'critique this', 'poke holes in this', 'is this a good approach', 'here is how I would fix it, thoughts?', 'here is my design', 'rate my code', 'review what I wrote', 'how could I have done this better', 'what am I missing'. Grounds each point in the code or the source, sorts it into wrong, unverified, shape and taste, names the principle behind it, and leaves the rewrite to the user. Not for code the agent built (`review-build`), a pull request (`merge-request`), or a story's criteria (`story`)."
 license: MIT
 compatibility: any-agent
 metadata:
@@ -17,7 +17,7 @@ metadata:
 
 ## Sort Every Point Into One Tier
 
-* **Wrong.** It does not do its job, or will stop doing it under an input or a load the job includes. Give the concrete failing case: the input, the sequence, the caller. For an idea, the case it does not cover or the cause it does not remove. Never assert wrongness without a case.
+* **Wrong.** It does not do its job, or will stop doing it under an input or a load the job includes. Give the concrete failing case: the input, the sequence, the caller. For an idea, the case it does not cover or the cause it does not remove.
 * **Unverified.** It rests on a fact neither the user nor the agent has checked: what a library does, what a caller passes, what the data holds, how often something happens. Name the fact and how to check it. Do not guess the answer.
 * **Shape.** It works, and there is a cleaner form. Name the principle, say what the cleaner form buys, and say what goes wrong later without it.
 * **Preference.** The agent would have done it differently and neither form is better. Say "preference" and move on. Never dress taste as a defect.

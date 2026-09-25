@@ -1,21 +1,21 @@
 ---
-name: review
-description: "Use this skill whenever generated or freshly written code is to be reviewed before it is committed or merged: a story, a diff, a pull request, a batch of agent output. Use it on: 'review this', 'review the diff', 'review what you built', 'review the story', 'review the PR', 'check this before I commit', 'what can be deleted', 'is any of this unnecessary', 'did it touch anything it should not have', 'three-pass review'. Run three separate passes in order: correctness (the test would fail if the behaviour were wrong), subtraction (delete everything no requirement asked for), scars (environment facts the model was told not to change). Then refactor while green. Do not use it to find product gaps: whether the right thing was built is `feature`, not whether it was built right."
+name: review-build
+description: "Use this skill when code the agent built in this session, or a build subagent returned, must be reviewed before it is committed or merged, with the repository and the accepted test plan at hand. Use it on: 'review what you built', 'review your changes', 'review the diff before I commit', 'check this before I commit', 'three-pass review', 'what can be deleted', 'is any of this unnecessary', 'did it touch anything it should not have'. Runs correctness (every test fails when its behaviour breaks), subtraction (delete what no requirement asked for) and scars (pinned environment facts unchanged), then refactors while green. Not for a pull request someone else opened (`merge-request`), code or a design the user wrote (`give-feedback`), or whether the criteria were right (`story`)."
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.8.0"
+  version: "1.9.0"
 ---
-# Review
+# Review Build
 
 Run three passes, separately and in order. Never merge them.
 
-Inputs: the change, its acceptance test and the accepted test table (an index table with a `Killed by` column naming the one-line mutation that must turn the row red). When `execute` ran, both are in the red commit message; read them from git. When no table exists, use the tests the change added. The check command is the one `AGENTS.md` names; when none is named, run the linter, the type checker and the tests. The permitted directory is the one the build instruction named; when none was named, it is the repository root. When no change is named, review the working tree against the last commit; when that diff is empty, ask which commit range to review rather than reviewing the whole repository.
+Inputs: the change, its acceptance tests and the accepted test table (an index table with a `Killed by` column naming the one-line mutation that must turn the row red). When `deliver` ran, both are in the red commit message; read them from git. When no table exists, use the tests the change added. The check command is the one `AGENTS.md` names; when none is named, run the linter, the type checker and the tests. The permitted directory is the one the build instruction named; when none was named, it is the repository root. When no change is named, review the working tree against the last commit; when that diff is empty, ask which commit range to review rather than reviewing the whole repository.
 
 ## 1. Correctness
 
-* **Run the mutation step over the changed files** where the harness has one; a surviving mutant on an accepted row is the finding. Where no runner exists, apply every `Killed by` mutation from the accepted test table by hand, and every builder-added test by its listed `Killed by`, one at a time, and confirm the named row goes red. A row that stays green asserts nothing: fix the test, not the mutation. When no table exists either, mutate one line per test.
-* **Diff every accepted test file against the red commit**, the commit `execute` makes before the build. Any change to an accepted test is a finding. When no red commit exists, say so in the Done block.
+* **Run the mutation step over the changed files** where the harness has one; a surviving mutant on an accepted row is the finding. Where no runner exists, apply every `Killed by` mutation from the accepted test table by hand, and every builder-added test by its listed `Killed by`, one at a time, and confirm the named row goes red. A row that stays green asserts nothing: fix the test, not the mutation. When no table exists either, mutate one line per test. Where a `Killed by` names an observable change instead of a line, find the line in the built code that produces the behaviour and mutate that.
+* **Diff every accepted test file against the red commit**, the commit `deliver` makes before the build. Any change to an accepted test is a finding. When no red commit exists, say so in the Done block.
 * **Check every accepted test is present** and asserts observable behaviour.
 * **Delete tests asserting incidental detail** of how the code was built: a private function, internal call order, a log line. The user's feature acceptance test, in the test tree's `feature-acceptance` directory, is outside every pass: never edit, delete or re-mark it.
 
@@ -52,7 +52,7 @@ Order: passes the tests, reveals intent, no duplication, fewest elements.
 * **Duplication.** Hunt duplicated *knowledge*: the same rule in the job, the metric and the query will drift.
 * **Mechanical change goes through the tool, not the model.** A rename, a signature change or a move across a package uses the language's refactoring tool or a codemod. The same edit in more than three places is a script, committed.
 
-Refactor only toward duplication or confusion pointable-at now. A refactor that touches a file outside the story's diff is proposed in the Done block, not made.
+Refactor only toward duplication or confusion pointable-at now. Refactor a file outside the story's diff only to remove duplication this story's code created, and only while the full suite stays green. Any other refactor outside the diff goes on the `Proposed refactor:` line of the Done block, not into the code.
 
 Commit before the refactor and again after it. After the refactor commit, re-run the accepted-test diff against the red commit; a rename the guard let through is still a finding.
 
@@ -66,7 +66,8 @@ Correctness: <runner or by hand>; one line per accepted and builder-added row: i
 Subtraction: <what was deleted, one line each, or "nothing">
 Scars:       <each pinned value checked, or "none pinned">
 Refactor:    <renames and merges, or "none">
-Decided alone: <one line per choice made without the user: what was chosen, why, the tradeoff>
+Proposed refactor: <one line per refactor outside the diff that was not made: the files and the duplication or confusion it removes; or "none">
+Decided alone: <the choices the build listed, then the review's own; one line each: what was chosen, why, the tradeoff>
 Gate:        <the check command and its result>
 ```
 

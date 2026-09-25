@@ -1,7 +1,7 @@
 {
   "name": "SDLC",
-  "version": "4.0.0",
-  "description": "Engineering practice run with the human rather than recited at them. The execute loop agrees the outcome, the architecture decisions, a module map and every story's acceptance criteria with the user once, then runs one story or a whole epic unattended through failing tests, a build subagent, a three-pass review, the full suite and a pull request, choosing each next story from what is ready and pausing only for a new story, a forced decision, a product decision or the merge. Around it: orient, feature, story, next-story, spike, greenfield, give-feedback, harness and adr. The user, not the model, makes every judgment call.",
+  "version": "5.0.0",
+  "description": "Engineering practice run with the human rather than recited at them. The deliver loop agrees the outcome, the first decisions, a module map and the story list with the user, confirms each story's criteria as it starts, then runs it unattended through failing tests, a build subagent, a three-pass review, the full suite and a pull request into main, choosing each next story from what is ready. Around it: orient, story-map, story, next-story, test-plan, review-build, merge-request, spike, greenfield, give-feedback, guardrails, make-rule and adr. The user, not the model, makes every judgment call.",
   "license": "MIT",
   "author": {
     "name": "DaveBben"

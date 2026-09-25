@@ -1,6 +1,6 @@
 ---
 name: orient
-description: "Use this skill whenever an agent needs to orient itself in a repository, or a project has no AGENTS.md, the one file every session reads first. Use it on: 'orient yourself', 'familiarize yourself with this codebase', 'setup claude in this repo', 'get this repo ready for ai agents', 'setup initial context', 'create repo context', 'write the charter', 'what is this project for', 'what's in and out of scope', 'write AGENTS.md', 'set up CLAUDE.md', 'streamline my CLAUDE.md', and on the bare words 'charter' or 'orient'. Produces AGENTS.md at the repository root, with CLAUDE.md symlinked to it, holding the product charter (purpose, users, not doing, nouns) and the agent instructions (stack, commands, hard constraints, pointers). When the file exists and is sound, read it and report; otherwise interview for the charter, fill the rest from the repository, and ask once before rewriting an existing file. Not for linting, hooks or guardrails; that is `harness`. Not for a feature or a change; that is `execute`."
+description: "Use this skill when the repository's AGENTS.md or CLAUDE.md as a whole must be written, rewritten or checked, or when an agent must orient itself in an unfamiliar repository. Use it on: 'orient yourself', 'familiarize yourself with this codebase', 'setup claude in this repo', 'get this repo ready for ai agents', 'write AGENTS.md', 'set up CLAUDE.md', 'streamline my CLAUDE.md', 'rewrite our CLAUDE.md', 'write the charter', 'what is this project for', 'what is in and out of scope', and the bare words 'charter' or 'orient'. Produces AGENTS.md at the repository root with CLAUDE.md symlinked to it: purpose, users, not doing, nouns, stack, commands, constraints. When the file exists and is sound, reads it and reports. Not for adding one rule or line to those files (`make-rule`), linters, hooks or a commit gate (`guardrails`), or a code change (`deliver`)."
 license: MIT
 compatibility: any-agent
 metadata:
@@ -20,7 +20,8 @@ Ask only what the conversation and the repository do not already answer. Batch t
 * **Users.** Who uses it, and what do they do with the output? When the answer is "me", say what the user does with it.
 * **Not doing.** What would a reader expect this product to do that it never will? Each as a checkable statement.
 * **Nouns.** The three to five domain terms the code, tables and tests must use. Never invent synonyms.
-* **Boundaries.** The systems this product reads from, writes to, or runs inside, each by name and address, and for each store it reads, who writes the data: this product, a person through its own screens, or something outside. Include the backlog when one exists outside the repository ("Backlog: Jira project TAG"); the change loop reads it from here.
+* **Boundaries.** The systems this product reads from, writes to, or runs inside, each by name and address, and for each store it reads, who writes the data: this product, a person through its own screens, or something outside.
+* **Backlog.** Where stories and bugs are tracked: the tracker, the project or repository, and how an agent reaches it, in order of preference (an MCP server, a CLI, an HTTP API; name the ones this team has). Write "none" when they live in `docs/delivery/`. For an in-house tracker, ask for the command or endpoint behind each operation the format reference lists.
 * **Constraints.** What must stay true for every story: where data may live, what it may cost, what it runs on, who must be able to use it. Each as a checkable statement, and each naming where it is enforced: a Budget row (a test asserting the constraint's number, proposed for every change that touches it), a check in the repository's commit gate, or an ADR. Leave out a constraint with no enforcer, and say so.
 
 ## Rules
@@ -48,21 +49,22 @@ Nouns:      <term: one-line meaning, three to five lines>
 
 ## Tech Stack and Codebase Map
 <language and version, framework, package manager, top-level directories with one-line purposes>
-Boundaries: <system: address or path, and whether read, write or host; who writes the data in each store; the backlog when external>
+Boundaries: <system: address or path, and whether read, write or host; who writes the data in each store>
+Backlog:    <tracker, project, access methods in order, with the lines under it from the format reference; or "none; stories live in docs/delivery/">
 
 ## Operational Commands
-<exact commands: install, test, lint, format, run, deploy; the check command the harness names>
+<exact commands: install, test, lint, format, run, deploy; the check command `guardrails` commits>
 
 ## Critical Constraints
 <one checkable statement per line, each ending with its enforcer, or a rule no tool can see>
 
 ## Pointers to Deeper Docs
-<path — purpose, one per line, only files that exist: docs/adr/, docs/features/, specs>
+<path — purpose, one per line, only files that exist: docs/adr/, docs/delivery/, specs>
 ```
 
 * **Charter from the interview, the rest from the repository.** Language and versions from the manifest, the package manager from the lockfile, the layout from the top-level directories, the commands from the task runner, the scripts directory or the package manifest. Run each safe command once (test, lint, format) before listing it; a command that does not run is not listed. When the repository carries no manifest, lockfile or task runner, leave the line out and name what was not found, rather than inferring a command from the file extensions.
 * **Critical Constraints end with their enforcer.** A Budget row, a commit-gate check, or an ADR. A rule no tool can see is the other kind that belongs here: never commit credentials, every migration reversible, nothing edited under `vendor/`. Vague guidance belongs nowhere.
-* **Cap it at 100 lines,** the charter sections under thirty of them. A module's conventions belong in a nested instructions file in that module; a rule for one file type belongs in a path-scoped rule. The `harness` skill wires those.
+* **Cap it at 100 lines,** the charter sections under thirty of them. A module's conventions belong in a nested instructions file in that module; a rule for one file type belongs in a path-scoped rule. The `guardrails` skill wires those.
 * **Symlink `CLAUDE.md` to it,** and symlink any other conventional name the repository already carries the same way.
 * **Commit the file and the symlink together.** Rewrite in place whenever a story changes the shape: a new noun, a new boundary, a Not doing line that became a goal. Commit that rewrite with the story that caused it.
 
@@ -86,11 +88,11 @@ Boundaries: <system: address or path, and whether read, write or host; who write
 
 ## Orienting in a repository that has the file
 
-Read `AGENTS.md` whole, run the Review below, and report in one message: the purpose in one line, the commands, the constraints, and every finding. Rewrite nothing unless a finding is accepted. When Operational Commands names no check command, offer the `harness` skill once.
+Read `AGENTS.md` whole, run the Review below, and report in one message: the purpose in one line, the commands, the constraints, and every finding. Rewrite nothing unless a finding is accepted. When Operational Commands names no check command, offer the `guardrails` skill once.
 
 ## Review
 
-When an `AGENTS.md` already exists, read it whole and report, quoting the line for each finding:
+Quote the line for each finding:
 
 * **Requirements leaking in.** A numbered feature list, a priority, a metric, a schema or an endpoint. Say which file it belongs in.
 * **Statements that cannot fail.** Every banned word, every purpose with no actor.
