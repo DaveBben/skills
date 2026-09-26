@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Score `engineering`'s description against one named list of user phrases.
+"""Score the SDLC descriptions against one named list of user phrases, each
+with the one skill that should own it.
 
 Reuses gauge.py wholesale: same fixtures, same runner, same three methodology
 traps documented at the top of that file. Read those notes before believing a
@@ -25,6 +26,16 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import gauge
 
 REPO = gauge.REPO
+
+# The skill each group should route to; OWNER overrides it for single phrases.
+GROUP_OWNER = {"Vague ideas": "define-work", "Discovery": "spike",
+               "Spec & design": "architecture", "Build": "deliver",
+               "Bug fixes": "deliver", "Resumption": "deliver"}
+OWNER = {
+    "How does this system currently handle order totals?": None,
+    "Let's map the current landscape.": "architecture",
+    "Let's write a spec for the CSV import.": "define-work",
+}
 
 # (group, phrase, fixture key). fixture key: "fresh" | "mid" | "bare".
 TARGET = [
@@ -90,7 +101,7 @@ def main():
     selected = [(g, q, paths[f]) for g, q, f in TARGET
                 if (not args.group or args.group.lower() in g.lower())
                 and (not args.grep or args.grep.lower() in q.lower())]
-    cases = [(q, "engineering", cwd) for _, q, cwd in selected]
+    cases = [(q, OWNER.get(q, GROUP_OWNER[g]), cwd) for g, q, cwd in selected]
     groups = [g for g, _, _ in selected]
     if not args.no_negatives and not args.group and not args.grep:
         cases += [(q, None, paths[f]) for q, f in NEGATIVE]

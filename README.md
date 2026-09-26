@@ -8,7 +8,7 @@ The skills are plain Markdown (`SKILL.md`) and work with any skills-compatible a
 
 | Plugin | What it does | Status |
 |---|---|---|
-| [SDLC](plugins/SDLC/) | Take an engineering change from a vague ask to a verified production change: define the outcome, slice it into stories, write each story's criteria as it starts, write failing tests first, build, review in three passes, ship and log. Fourteen skills. | live |
+| [SDLC](plugins/SDLC/) | Take an engineering change from a vague ask to a verified production change: define the outcome, slice it into stories, write each story's criteria as it starts, write failing tests first, build, review in three passes, ship and log. Nine skills. | live |
 | [context](plugins/context/) | Manage an agent session's context across boundaries. Hands a session over when context fills or work stops partway, recording the dead ends. One skill. | live |
 | [meals](plugins/meals/) | Eat to numbers without cooking from a spreadsheet. Turns a recipe you already make into a reusable meal template that hits a calorie ceiling and protein and fiber floors, verified against USDA values, then plans days of meals from those templates into the meal planner with a shopping list. Two skills. | live |
 
@@ -35,7 +35,7 @@ Use the [`skills` CLI](https://github.com/vercel-labs/skills), which installs pl
 # see everything on offer, grouped by area
 npx skills add DaveBben/davebben-skills --list
 
-# install one skill (deliver invokes story-map, story, next-story, test-plan, review-build, merge-request, spike, adr, orient, give-feedback, make-rule and guardrails by name; install those with it)
+# install one skill (the nine SDLC skills call each other by name: install all nine together)
 npx skills add DaveBben/davebben-skills --skill deliver
 
 # install everything

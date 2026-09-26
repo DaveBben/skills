@@ -1,12 +1,6 @@
----
-name: review-build
-description: "Use this skill when code the agent built in this session, or a build subagent returned, must be reviewed before it is committed or merged, with the repository and the accepted test plan at hand. Use it on: 'review what you built', 'review your changes', 'review the diff before I commit', 'check this before I commit', 'three-pass review', 'what can be deleted', 'is any of this unnecessary', 'did it touch anything it should not have'. Runs correctness (every test fails when its behaviour breaks), subtraction (delete what no requirement asked for) and scars (pinned environment facts unchanged), then refactors while green. Not for a pull request someone else opened (`merge-request`), code or a design the user wrote (`give-feedback`), or whether the criteria were right (`story`)."
-license: MIT
-compatibility: any-agent
-metadata:
-  version: "1.9.0"
----
-# Review Build
+# Review code the agent built
+
+Loaded by the `reviewing` skill when the subject is code this session or a build subagent made. `deliver` runs it in a review subagent.
 
 Run three passes, separately and in order. Never merge them.
 
@@ -69,6 +63,9 @@ Refactor:    <renames and merges, or "none">
 Proposed refactor: <one line per refactor outside the diff that was not made: the files and the duplication or confusion it removes; or "none">
 Decided alone: <the choices the build listed, then the review's own; one line each: what was chosen, why, the tradeoff>
 Gate:        <the check command and its result>
+Criteria:    <one row per acceptance criterion: the criterion in a few words, the exact test name, and passed as seen in this run>
+Changed:     <one line per new function, module or branch: what it is for and its file>
+Rules:       <each confirmed finding a pattern could match, for the `guardrails` skill; or "none">
 ```
 
 A survived mutation that is not fixed, or a scar that is not checked, means the block cannot be printed and the change is not done. The same holds when the check command errors instead of reporting pass or fail: report the command, its exit status and its output, and stop. `Decided alone:` lists every choice between alternatives the user did not see and did not have to: an internal name, a helper split, a fixture shape, a default a test pins. A choice a later change inherits (a dependency, a port, an address, a schedule, a format, a schema, a domain noun) is asked before it is made, never listed here after. An empty line means no such choice was made, not that none was noticed.

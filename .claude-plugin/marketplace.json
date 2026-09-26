@@ -9,24 +9,19 @@
     {
       "name": "SDLC",
       "source": "./plugins/SDLC",
-      "description": "Engineering practice run with the human rather than recited at them. The deliver loop agrees the outcome, the first decisions, a module map and the story list with the user, confirms each story's criteria as it starts, then runs it through failing tests, a build subagent, a three-pass review, the full suite and a pull request into main, asking each question as it arises and choosing each next story from what is ready. Around it: orient, story-map, story, next-story, test-plan, review-build, merge-request, spike, greenfield, give-feedback, guardrails, make-rule and adr. The user, not the model, makes every judgment call.",
-      "version": "6.0.0",
+      "description": "Engineering practice run with the human rather than recited at them. define-work writes the outcome and drafts the stories. architecture spikes the unknowns, asks the numbers, maps processes, modules and flows, and records each expensive decision with the user. The deliver loop confirms each story's criteria as it starts, then runs it through failing tests, a build subagent, a review subagent, the full suite and a pull request into main, asking each question as it arises and picking each next ready story. Around it: orient, greenfield, guardrails, story, spike and reviewing. The user, not the model, makes every judgment call.",
+      "version": "7.0.0",
       "license": "MIT",
       "skills": [
         "./skills/orient",
-        "./skills/story-map",
-        "./skills/story",
-        "./skills/next-story",
-        "./skills/deliver",
-        "./skills/test-plan",
-        "./skills/review-build",
-        "./skills/merge-request",
-        "./skills/guardrails",
-        "./skills/make-rule",
-        "./skills/adr",
         "./skills/greenfield",
+        "./skills/guardrails",
+        "./skills/define-work",
+        "./skills/story",
         "./skills/spike",
-        "./skills/give-feedback"
+        "./skills/architecture",
+        "./skills/deliver",
+        "./skills/reviewing"
       ],
       "author": {
         "name": "DaveBben"

@@ -55,8 +55,8 @@ PLUGIN_DIRS = [os.path.join(REPO, "plugins", "SDLC"),
 # 7, and the third run was still exploring when the budget ran out.
 TURNS = 12
 MODEL = None  # set from --model; None leaves the harness default
-OURS = {"agile", "harness", "adr", "greenfield", "spike", "handing-off",
-        "test-table", "review", "charter", "give-feedback"}
+OURS = {"orient", "greenfield", "guardrails", "define-work", "story", "spike",
+        "architecture", "deliver", "reviewing", "handing-off"}
 TARGET = 0.80  # suite passes at 80% or better
 
 FILES = {
@@ -181,34 +181,34 @@ def tuning_cases(fresh, mid, bare):
     queries went into the descriptions, so it measures fit, not generalisation.
     Read validation_cases() for the honest number."""
     return [
-        # greenfield: no system yet, and the ask is to stand one up
-        ("Let's setup a new project.", "greenfield", bare),
-        ("I want to start a new python project.", "greenfield", bare),
-        ("I want to start a new javascript project.", "greenfield", bare),
-        ("Let's create scaffolding for an iOS app.", "greenfield", bare),
-        ("Let's put together the blueprint for this project.", "greenfield", bare),
-        ("I need scaffolding for this.", "greenfield", bare),
-        ("Let's put together the walking skeleton.", "greenfield", bare),
-        ("I need a walking skeleton.", "greenfield", bare),
+        # no application yet: architecture owns the path; greenfield only for a bare template
+        ("Let's setup a new project.", "architecture", bare),
+        ("I want to start a new python project.", "architecture", bare),
+        ("I want to start a new javascript project.", "architecture", bare),
+        ("Let's create scaffolding for an iOS app.", "architecture", bare),
+        ("Let's put together the blueprint for this project.", "architecture", bare),
+        ("I need scaffolding for this.", "architecture", bare),
+        ("Let's put together the walking skeleton.", "architecture", bare),
+        ("I need a walking skeleton.", "architecture", bare),
         ("Python project template.", "greenfield", bare),
         ("Template project.", "greenfield", bare),
         # adr: a decision exists and the why is the artefact
-        ("Record this architecture decision.", "adr", fresh),
-        ("Make an adr.", "adr", fresh),
-        ("Write an adr.", "adr", fresh),
-        ("This is an architectural decision.", "adr", fresh),
-        ("We need to record the why.", "adr", fresh),
-        ("Adr", "adr", fresh),
-        ("Create an adr.", "adr", fresh),
-        ("Note this architecture decision.", "adr", fresh),
+        ("Record this architecture decision.", "architecture", fresh),
+        ("Make an adr.", "architecture", fresh),
+        ("Write an adr.", "architecture", fresh),
+        ("This is an architectural decision.", "architecture", fresh),
+        ("We need to record the why.", "architecture", fresh),
+        ("Adr", "architecture", fresh),
+        ("Create an adr.", "architecture", fresh),
+        ("Note this architecture decision.", "architecture", fresh),
         # harness: the repo gives the agent no feedback of its own
-        ("Setup my repo for my agent.", "harness", fresh),
-        ("Setup my repo for Claude.", "harness", fresh),
-        ("Configure my environment for Claude.", "harness", fresh),
-        ("Setup my environment for my AI agent.", "harness", fresh),
-        ("Make this repo ready for an AI agent.", "harness", fresh),
-        ("Setup harness in this repo.", "harness", fresh),
-        ("Make repo AI ready.", "harness", fresh),
+        ("Setup my repo for my agent.", "orient", fresh),
+        ("Setup my repo for Claude.", "orient", fresh),
+        ("Configure my environment for Claude.", "orient", fresh),
+        ("Setup my environment for my AI agent.", "orient", fresh),
+        ("Make this repo ready for an AI agent.", "orient", fresh),
+        ("Setup harness in this repo.", "guardrails", fresh),
+        ("Make repo AI ready.", "orient", fresh),
         # spike: prove or explore before committing, code is disposable
         ("Let's prove this works first.", "spike", fresh),
         ("Let's try an approach before building.", "spike", fresh),
@@ -223,13 +223,13 @@ def tuning_cases(fresh, mid, bare):
         ("Build a demo.", "spike", fresh),
         ("Let's do a spike on it.", "spike", fresh),
         # agile: any request to write, change or remove code in a system
-        ("I want to add rate limiting to the export endpoint.", "agile", fresh),
-        ("I want to remove the order export module.", "agile", fresh),
-        ("Add code to validate the order payload.", "agile", fresh),
-        ("Modify the code so the export paginates with cursors.", "agile", fresh),
-        ("Implement the CSV import feature.", "agile", fresh),
-        ("Build the next slice.", "agile", mid),
-        ("Fix the bug where placeOrder ignores quantity.", "agile", fresh),
+        ("I want to add rate limiting to the export endpoint.", "deliver", fresh),
+        ("I want to remove the order export module.", "deliver", fresh),
+        ("Add code to validate the order payload.", "deliver", fresh),
+        ("Modify the code so the export paginates with cursors.", "deliver", fresh),
+        ("Implement the CSV import feature.", "deliver", fresh),
+        ("Build the next slice.", "deliver", mid),
+        ("Fix the bug where placeOrder ignores quantity.", "deliver", fresh),
         # handing-off: the session itself is the subject
         ("Create a handoff.", "handing-off", mid),
         ("Make a handoff.", "handing-off", mid),
@@ -255,25 +255,25 @@ def validation_cases(fresh, mid, bare):
     return [
         # greenfield
         ("brand new repo for a go service that serves feature flags, nothing in "
-         "it yet. get me to a green test run", "greenfield", bare),
+         "it yet. get me to a green test run", "architecture", bare),
         ("my team lead wants the ops-console repo spun up before standup "
-         "tomorrow, its an empty dir right now", "greenfield", bare),
+         "tomorrow, its an empty dir right now", "architecture", bare),
         ("kicking off a rust cli this weekend, cargo workspace, one bin one lib. "
-         "where do we start", "greenfield", bare),
+         "where do we start", "architecture", bare),
         # adr
         ("we just settled on sqs over kafka cos nobody here can run kafka. "
-         "capture that somewhere permanent", "adr", fresh),
+         "capture that somewhere permanent", "architecture", fresh),
         ("future me is gonna wonder why we didnt just use the vendor sdk. put it "
-         "on record", "adr", fresh),
+         "on record", "architecture", fresh),
         ("we're accepting that the nightly recon job can double count across DST. "
-         "no test for it, but it needs writing down", "adr", fresh),
+         "no test for it, but it needs writing down", "architecture", fresh),
         # harness
         ("every PR here turns into a style argument, theres no formatter or type "
-         "check. wire it up so the tooling tells the agent off, not me", "harness", fresh),
+         "check. wire it up so the tooling tells the agent off, not me", "guardrails", fresh),
         ("claude keeps putting business logic in the route handlers, ive told it "
-         "three times. make it a rule it cant ignore", "harness", fresh),
+         "three times. make it a rule it cant ignore", "guardrails", fresh),
         ("i want a pre-commit gate that runs fmt, types and tests so nothing "
-         "lands broken", "harness", fresh),
+         "lands broken", "guardrails", fresh),
         # spike
         ("before we commit to duckdb i want to know if it chews through our 40gb "
          "of parquet. throwaway is fine", "spike", fresh),
@@ -283,9 +283,9 @@ def validation_cases(fresh, mid, bare):
          "it properly", "spike", fresh),
         # agile
         ("the retry loop in src/db.js gives up after 3 tries, make it exponential "
-         "backoff with jitter capped at 30s", "agile", fresh),
-        ("deleting a user leaves orphaned sessions lying around. sort it out", "agile", fresh),
-        ("we need csv upload in the admin panel, my PM has been asking for weeks", "agile", fresh),
+         "backoff with jitter capped at 30s", "deliver", fresh),
+        ("deleting a user leaves orphaned sessions lying around. sort it out", "deliver", fresh),
+        ("we need csv upload in the admin panel, my PM has been asking for weeks", "deliver", fresh),
         # handing-off
         ("im knackered, stopping for the day. capture where we got to including "
          "the two approaches that didnt work", "handing-off", mid),

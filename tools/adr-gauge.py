@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Measure whether `adr` auto-triggers on implicit phrasing, not only explicit.
+"""Measure whether `architecture` auto-triggers on implicit decision-recording
+phrasing, not only an explicit request for an ADR.
 
 Reuses gauge.py's fixture builder and its three methodology traps (fixtures
 under the repo, a realistic cwd, "fired at all in the run" not position). Its
 own run_one only ever records the FIRST Skill call in a run, which is right
 for gauge.py's suite but wrong here: an agent-decided case is expected to
-route through `agile` first, then `adr` mid-task as a second Skill call. This
+route through `deliver` first, then `architecture` mid-task as a second Skill call. This
 file has its own run_one, identical subprocess call, that checks every Skill
-call in the run for `adr`.
+call in the run for `architecture`.
 
 Four groups:
   explicit         "adr", "write an adr" - already covered, must keep passing.
@@ -18,11 +19,11 @@ Four groups:
   agent-decided     the task forces the agent to choose between alternatives
                     itself (a `claude -p` run cannot ask); the skill must fire
                     at some point in the run.
-  true-negative     ordinary code changes with no decision in them. adr must
+  true-negative     ordinary code changes with no decision in them. `architecture` must
                     NOT fire. A false positive here fails the case.
 
-Scoring: expected == "adr" passes when adr fired; expected is None (a true
-negative) passes when adr did NOT fire, regardless of what else fired.
+Scoring: expected == "architecture" passes when `architecture` fired; expected is None (a true
+negative) passes when `architecture` did NOT fire, regardless of what else fired.
 
 Usage:
     python3 tools/adr-gauge.py                  # whole suite, harness default model
@@ -47,13 +48,13 @@ REPO = gauge.REPO
 # has no CONTEXT.md, so agile's own Frame step ("Agree one sentence with the
 # user before anything else") always stops the run to ask, and a `claude -p`
 # run never gets a reply — the session ends on that question, before agile
-# ever reaches its Decide step, so adr can never fire for an agent-decided
-# case no matter how adr's own description is worded. A CONTEXT.md stating
+# ever reaches its Decide step, so `architecture` can never fire for an agent-decided
+# case no matter how its description is worded. A CONTEXT.md stating
 # this repo is driven by unattended agent sessions (a real, plausible repo
 # fact, not a workaround of agile's rule) lets Frame resolve itself and the
-# run reach Decide, where adr's own trigger applies. Verified directly: the
+# run reach Decide, where `architecture`'s trigger applies. Verified directly: the
 # same query on plain "fresh" stalls at the Frame question every time; on
-# this fixture the agent proceeds and calls Skill:adr.
+# this fixture the agent proceeds and calls Skill:architecture.
 CONTEXT_MD = """# orders-api
 
 Purpose: place, capture and export orders for the checkout team.
@@ -124,7 +125,7 @@ CASES = [
     ("agent-decided", "Add a retry policy for failed order exports.", "fresh"),
     ("agent-decided", "Store order totals precomputed instead of calculated on read.", "fresh"),
 
-    # 4. true negatives: ordinary changes, no decision. adr must stay silent.
+    # 4. true negatives: ordinary changes, no decision. `architecture` must stay silent.
     ("true-negative", "Rename `total` to `orderTotal` in placeOrder.", "fresh"),
     ("true-negative", "Fix the typo in the README.", "fresh"),
     ("true-negative", "Add a test that placeOrder rejects an empty item list.", "fresh"),
@@ -138,11 +139,11 @@ CASES = [
 
 
 def run_one(case):
-    """Like gauge.run_one, but scores whether `adr` fired ANYWHERE in the run,
+    """Like gauge.run_one, but scores whether `architecture` fired ANYWHERE in the run,
     not just as the first Skill call. gauge.run_one's `fired` only ever holds
     the first Skill invocation, which is right for gauge.py's suite (the
     expected skill is always the one that should fire first) but wrong here:
-    an agent-decided case routes through `agile` first by design, and `adr`
+    an agent-decided case routes through `deliver` first by design, and `architecture`
     is expected to fire later, mid-task, as a second Skill call."""
     query, expected, cwd = case
     try:
@@ -175,9 +176,9 @@ def run_one(case):
             if b["name"] == "Skill":
                 skill = b.get("input", {}).get("skill", "").split(":")[-1]
                 skills.append(skill)
-                if skill == "adr" and adr_pos is None:
+                if skill == "architecture" and adr_pos is None:
                     adr_pos = len(tools)
-    return query, expected, tools, "adr" in skills, adr_pos
+    return query, expected, tools, "architecture" in skills, adr_pos
 
 
 def main():
@@ -203,8 +204,8 @@ def main():
     selected = [(g, q, paths[f]) for g, q, f in CASES
                 if (not args.group or args.group.lower() in g.lower())
                 and (not args.grep or args.grep.lower() in q.lower())]
-    # expected is "adr" for every group except true-negative
-    cases = [(q, None if g == "true-negative" else "adr", cwd) for g, q, cwd in selected]
+    # expected is "architecture" for every group except true-negative
+    cases = [(q, None if g == "true-negative" else "architecture", cwd) for g, q, cwd in selected]
     groups = [g for g, _, _ in selected]
 
     cases, groups = cases * args.repeat, groups * args.repeat
@@ -213,11 +214,11 @@ def main():
 
     buckets, per_query = {}, {}
     for group, (query, expected, tools, adr_fired, pos) in zip(groups, results):
-        # true negative passes when adr did NOT fire, regardless of what else fired.
-        hit = adr_fired if expected == "adr" else (not adr_fired)
+        # true negative passes when `architecture` did NOT fire, regardless of what else fired.
+        hit = adr_fired if expected == "architecture" else (not adr_fired)
         buckets.setdefault(group, []).append(hit)
         per_query.setdefault((group, query), []).append(hit)
-        got = f"adr@{pos}" if adr_fired else "(none)"
+        got = f"architecture@{pos}" if adr_fired else "(none)"
         print(f"{'PASS' if hit else 'FAIL'}  {group:16s} got={got:22s} {query[:64]}")
         if not hit:
             print(f"        tools: {tools}")

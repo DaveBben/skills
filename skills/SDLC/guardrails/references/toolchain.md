@@ -70,7 +70,7 @@ tests (with coverage)
 e2e
 ```
 
-Commit one command that runs this list in this order and stops at the first failure: a script named `check` at the repository root, or the equivalent target where the project already has a task runner. The commit hook, CI and the agent all call that one command. Name it in `AGENTS.md`; the change loop and the review call it "the check command".
+Commit one command that runs this list in this order and stops at the first failure: a script named `check` at the repository root, or the equivalent target where the project already has a task runner. CI and the agent call that one command. The commit gate wires each slot of the list as its own hook whose id is the slot's name (`tests`, `e2e`, ...), in the same order, so skipping one hook by id skips exactly that slot. Name the check command in `AGENTS.md`; the change loop and the review call it "the check command".
 
 ## Commit time
 
@@ -83,7 +83,85 @@ Beyond the canonical gate, the commit gate carries checks that need the diff rat
 - lockfile in sync with the manifest
 - container file lint, where one exists, using a build of the linter that does not need a running container daemon
 
-Scope `audit` to lockfile changes only; it needs the network. Give the user the one command that skips a single hook, and state that skipping the whole gate is never the answer.
+Scope `audit` to lockfile changes only; it needs the network. Give the user the one command that skips a single hook by id, and state that skipping the whole gate is never the answer.
+
+The red commit is the one commit that skips the `tests` and `e2e` hooks: `deliver` commits failing acceptance tests on their own before any code exists, and those hooks would refuse it. Write the command under Operational Commands in `AGENTS.md` as the red-commit command (with pre-commit it is `SKIP=tests,e2e git commit`). No other commit uses it.
+
+### Red-commit scope
+
+One more hook keeps that skip honest. `red-commit-scope` runs on every commit and never goes in a skip list. When `SKIP` names `tests` or `e2e`, it fails unless every staged file is a test file, matching the test paths the test runner's config uses, or a file whose staged diff removes no lines: a stub adds lines only. Commit the script as `scripts/red_commit_scope.py`, pass it the test runner's test paths, and run `python3 scripts/red_commit_scope.py --self-test` once, which fails when the rule stops holding.
+
+```python
+#!/usr/bin/env python3
+"""Allow SKIP=tests,e2e only for a red commit: test files, plus stubs that add lines only.
+
+Usage: red_commit_scope.py <test glob>...   (the test paths the test runner config uses)
+       red_commit_scope.py --self-test
+"""
+import fnmatch, os, subprocess, sys
+
+
+def git(*args, cwd=None):
+    return subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, check=True).stdout
+
+
+def violations(globs, cwd=None):
+    bad = []
+    for line in git("diff", "--cached", "--numstat", "--no-renames", cwd=cwd).splitlines():
+        added, removed, path = line.split("\t", 2)
+        if any(fnmatch.fnmatch(path, g) for g in globs):
+            continue
+        if removed != "0":  # "-" is a binary file
+            bad.append(path)
+    return bad
+
+
+def main(globs):
+    skipped = {h.strip() for h in os.environ.get("SKIP", "").split(",")}
+    if not skipped & {"tests", "e2e"}:
+        return 0
+    bad = violations(globs)
+    for path in bad:
+        print(f"SKIP=tests,e2e is only for the red commit, which holds failing tests and "
+              f"stubs that add lines. This commit removes lines from {path}, which is not "
+              f"a test file. Commit it without the skip.", file=sys.stderr)
+    return 1 if bad else 0
+
+
+def self_test():
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        git("init", "-q", cwd=d)
+        for name, body in [("src.py", "a\nb\n"), ("tests/test_x.py", "x\n")]:
+            os.makedirs(os.path.dirname(os.path.join(d, name)) or d, exist_ok=True)
+            open(os.path.join(d, name), "w").write(body)
+        git("add", "-A", cwd=d)
+        git("-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "base", cwd=d)
+        open(os.path.join(d, "tests/test_x.py"), "w").write("y\n")
+        open(os.path.join(d, "src.py"), "a").write("def stub(): raise NotImplementedError\n")
+        git("add", "-A", cwd=d)
+        assert violations(["tests/*"], d) == [], "a test edit plus an added stub must pass"
+        open(os.path.join(d, "src.py"), "w").write("a\n")
+        git("add", "-A", cwd=d)
+        assert violations(["tests/*"], d) == ["src.py"], "removed source lines must fail"
+    print("red_commit_scope self-test passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(self_test() if sys.argv[1:] == ["--self-test"] else main(sys.argv[1:]))
+```
+
+```yaml
+- repo: local
+  hooks:
+    - id: red-commit-scope
+      name: SKIP=tests,e2e only for the red commit
+      entry: python3 scripts/red_commit_scope.py "tests/*" "**/test_*.py"
+      language: system
+      pass_filenames: false
+      always_run: true
+```
 
 ## CI
 

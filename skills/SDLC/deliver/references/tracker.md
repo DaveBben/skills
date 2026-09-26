@@ -11,7 +11,7 @@ Take the first case that holds.
 3. **The session can reach a tracker:** an MCP server whose tools read issues, or a tracker CLI that reports a logged-in user (`gh auth status` and `glab auth status` are examples). A reachable tracker does not prove it holds this backlog. Name what was found and ask the user once which project holds this work.
 4. **Nothing is reachable.** Ask the user once where the backlog lives. "Nowhere" is an answer, and means `docs/delivery/{slug}.md`.
 
-After cases 2 to 4, write the `Backlog:` block into `AGENTS.md` under Boundaries in the first log commit. Record the methods in order of preference, never which one worked in one session, since each teammate's session has different tools connected.
+After cases 2 to 4, write the `Backlog:` block into `AGENTS.md` after the Boundaries line, committed with the plan or in the first story's log commit. Record the methods in order of preference, never which one worked in one session, since each teammate's session has different tools connected.
 
 ```text
 Backlog:   Jira project PAY at https://acme.atlassian.net; Atlassian MCP server, else `acli jira`, else REST
@@ -34,7 +34,7 @@ Use, in order, an MCP server the session already has, the tracker's own CLI, the
 
 | Operation | Jira | GitHub Issues | Linear | Log file |
 |---|---|---|---|---|
-| List the epic's children with status, rank, blockers | JQL `parent = {epic} ORDER BY Rank ASC`; blockers are `Blocks` links | the parent's sub-issues in listed order; `blocked_by` dependencies | the parent's children in manual order; `blocks` relations | `Stories:` lines with `Blocked by`; done when a log entry exists |
+| List the epic's children with status, rank, blockers | JQL `parent = {epic} ORDER BY Rank ASC`; blockers are `Blocks` links | the parent's sub-issues in listed order; `blocked_by` dependencies | the parent's children in manual order; `blocks` relations | `Stories:` lines with `Blocked by`; done when its pull requests have merged |
 | Read one story with its comments | issue and comments | issue and comments | issue and comments | its `Stories:` line and entries |
 | Create a story, bug or spike | create with `parent` = epic | create, then add as sub-issue | create with the parent | append a numbered `Stories:` line |
 | Write description or criteria | edit; criteria in the site's criteria field | edit the body | edit the description | none: criteria live in the red commit and the pull request |
@@ -54,25 +54,25 @@ Use, in order, an MCP server the session already has, the tracker's own CLI, the
 | In the loop | On the board |
 |---|---|
 | The feature | The epic. Its key is the slug. |
-| The feature header | The epic's description, in the same lines: Outcome, Problem, Not doing, Success, Constraints, Context, Steps, Decided (ADR or PRD paths), Deferred, feature acceptance test path. `Stories:` is not written; the children are the list. |
+| The feature header | The epic's description, in the same lines: Outcome, Problem, Not doing, Success, Constraints, Context, Repositories, Steps, Decided (ADR or PRD paths), Deferred, feature acceptance test path. `Stories:` is not written; the children are the list. |
 | A story and its criteria | A child story. Its outcome line goes in the description when the story is proposed. The Given/When/Thens, written when the story starts, go in its acceptance-criteria field, or at the top of its description when the board has no such field. |
-| Story order | Rank is the customer's order and blocking links are the dependencies. `next-story` reads both at every story start. |
+| Story order | Rank is the customer's order and blocking links are the dependencies. `references/next.md` reads both at every story pick. |
 | A story's branch and pull request | `story/{epic-key}/{story-key}-{short-name}`. The pull request title starts with the key, and the issue carries the pull request link. |
 | Status | To Do until the branch is cut, In Progress from branch cut, In Review from pull request, Done at merge. Use the board's own column names. |
-| The log entry for a story | The story's resolution comment: Done, Learned, Not caught by, Proposed refactor, Observed, in that form. Observed is a second comment when it arrives later. |
+| The log entry for a story | A comment on the story, written when its pull request opens, in the form `log.md` gives: Done, Learned, Not caught by, Proposed refactor, Feature test, Observed. At merge it becomes the resolution, with the Done status. Observed is a second comment when it arrives later. |
 | A finding about the system, not one story | A comment on the epic, so close-out finds every one in one place. |
 | A bug in shipped work | A bug issue linked to the epic, ranked by the user. `Not caught by` is its resolution comment. |
 | A spike | A spike issue linked to the epic. The findings log is its resolution comment, every line a `Learned` line. |
 | An ADR | Stays in `docs/adr/`. The epic description links it under Decided. |
-| The map | Stays in `AGENTS.md`. |
+| The architecture tables | Stay in `AGENTS.md`, under the Architecture block. |
 | The feature acceptance test | Stays in the repo. The epic description names its path. |
 
 ## When the board is already filled
 
 * **The children are the proposed stories.** Read them in rank order and show them as the story list, each with an outcome line the agent writes from the story's text. The user confirms, rewords, cuts or re-ranks in one turn. Criteria are written with the `story` skill when each story starts. Write each story's confirmed criteria back to its issue before its red commit.
-* **Run the `story-map` skill's review on the children** before the first story, and apply what the user accepts on the board.
-* **An epic with no description** gets the header written into it after section 0 through 3 run, the same as a new epic.
-* **Sprints are not pauses.** The loop runs the epic's children as `next-story` picks them and crosses a sprint boundary without stopping. A team that wants the loop to stop at the sprint edge adds that rule to `AGENTS.md`.
+* **Run the `reviewing` skill's epic review on the children** in a subagent before the first story, and take back only its report. Apply what the user accepts on the board.
+* **An epic with no description** gets the header written into it after `deliver` sections 0 through 2 run, the same as a new epic.
+* **Sprints are not pauses.** The loop runs the epic's children as `references/next.md` picks them and crosses a sprint boundary without stopping. A team that wants the loop to stop at the sprint edge adds that rule to `AGENTS.md`.
 * **Several epics are several features.** One slug, one log, one loop each, never interleaved in one session.
 
 ## Pauses on the board

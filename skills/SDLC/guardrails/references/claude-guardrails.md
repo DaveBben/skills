@@ -191,6 +191,8 @@ exit 0
 
 Do not replace the retry counter with a check-once guard: that verifies before the fix is made and never re-checks after.
 
+The hook exits early on a clean tree, so `deliver`'s red commit, made before its turn ends, passes it with failing tests committed.
+
 ## Dependency guard
 
 `.claude/hooks/deps-guard.sh`. Edit time, manifest only.
@@ -264,8 +266,10 @@ case "$scan" in
     echo "environment from the lockfile." >&2
     exit 2 ;;
   *--no-verify*)
-    echo "The pre-commit gate is the quality gate. To skip one hook that needs" >&2
-    echo "the network, use SKIP=<hook> git commit. Never --no-verify." >&2
+    echo "The pre-commit gate is the quality gate. To skip one hook, use" >&2
+    echo "SKIP=<hook id> git commit; the red commit uses SKIP=tests,e2e," >&2
+    echo "which red-commit-scope allows only for tests and stubs." >&2
+    echo "Never --no-verify." >&2
     exit 2 ;;
 esac
 # `-n` is --no-verify's short form. Match it as a whole word anywhere in a git
@@ -275,7 +279,7 @@ case "$scan" in
   *git*commit*)
     case " $scan " in
       *" -n "*)
-        echo "-n is --no-verify. Use SKIP=<hook> git commit to skip one hook." >&2
+        echo "-n is --no-verify. Use SKIP=<hook id> git commit; the red commit uses SKIP=tests,e2e." >&2
         exit 2 ;;
     esac ;;
 esac
@@ -313,14 +317,14 @@ for red in $reds; do
     echo "$rel is an accepted test from red commit $red. It is the contract;" >&2
     echo "the build makes it pass, never changes it. Add a new test file for a" >&2
     echo "case the table missed. If the contract itself is wrong, stop and say so:" >&2
-    echo "the user re-accepts the row, then runs 'git config --unset-all branch.$branch.redCommit'." >&2
+    echo "once the user re-accepts the row, deliver clears this guard and lands the corrected row." >&2
     exit 2
   fi
 done
 exit 0
 ```
 
-`deliver` adds the branch's key at each red commit and unsets it at the merge. A deletion through the shell is not caught; `bash-guard.sh` may add `rm` on those paths as its third hard block. A rename in the refactor that a test names is the case that trips this guard legitimately: the user clears it, the refactor commits, and the review diff still reports the change.
+`deliver` adds the branch's key at each red commit and unsets it at the merge. A deletion through the shell is not caught; `bash-guard.sh` may add `rm` on those paths as its third hard block. A rename in the refactor that a test names is the case that trips this guard legitimately: `deliver` clears it once the user agrees, the refactor commits, and the review diff still reports the change.
 
 ## Path-scoped rules
 

@@ -1,16 +1,16 @@
 ---
 name: orient
-description: "Use this skill when the repository's AGENTS.md or CLAUDE.md as a whole must be written, rewritten or checked, or when an agent must orient itself in an unfamiliar repository. Use it on: 'orient yourself', 'familiarize yourself with this codebase', 'setup claude in this repo', 'get this repo ready for ai agents', 'write AGENTS.md', 'set up CLAUDE.md', 'streamline my CLAUDE.md', 'rewrite our CLAUDE.md', 'write the charter', 'what is this project for', 'what is in and out of scope', and the bare words 'charter' or 'orient'. Produces AGENTS.md at the repository root with CLAUDE.md symlinked to it: purpose, users, not doing, nouns, stack, commands, constraints. When the file exists and is sound, reads it and reports. Not for adding one rule or line to those files (`make-rule`), linters, hooks or a commit gate (`guardrails`), or a code change (`deliver`)."
+description: "Use this skill when the repository's AGENTS.md or CLAUDE.md as a whole must be written, rewritten or checked, or when an agent must orient itself in an unfamiliar repository. Use it on: 'orient yourself', 'familiarize yourself with this codebase', 'explain this codebase', 'review my AGENTS.md', 'setup claude in this repo', 'get this repo ready for ai agents', 'write AGENTS.md', 'set up CLAUDE.md', 'streamline my CLAUDE.md', 'rewrite our CLAUDE.md', 'write the charter', 'what is this project for', 'what is in and out of scope', and the bare words 'charter' or 'orient'. Produces AGENTS.md at the repository root with CLAUDE.md symlinked to it: purpose, users, not doing, nouns, stack, commands, constraints. When the file exists and is sound, reads it and reports. Not for adding one rule or line, moving instructions into checks, linters, hooks or a commit gate (`guardrails`), mapping the system's architecture (`architecture`), or a code change (`deliver`)."
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "3.3.1"
+  version: "3.4.0"
 ---
 # Orient
 
 Write the one file every session reads before it does anything: `AGENTS.md` at the repository root, with `CLAUDE.md` a symlink to it. It is rewritten in place, never appended to. The first and fourth sections are the product's charter; the rest are the agent's instructions.
 
-The charter holds no feature list, no priorities, no metrics, no architecture. Those live in stories, tests and ADRs.
+The charter holds no feature list, no priorities, no metrics, no architecture. Those live in stories, tests and ADRs. The `architecture` skill writes its tables under Tech Stack and Codebase Map, outside the charter.
 
 ## Interview
 
@@ -51,6 +51,8 @@ Nouns:      <term: one-line meaning, three to five lines>
 <language and version, framework, package manager, top-level directories with one-line purposes>
 Boundaries: <system: address or path, and whether read, write or host; who writes the data in each store>
 Backlog:    <tracker, project, access methods in order, with the lines under it from the format reference; or "none; stories live in docs/delivery/">
+### Architecture
+<the processes, modules and flows tables the `architecture` skill writes; left out until it has run>
 
 ## Operational Commands
 <exact commands: install, test, lint, format, run, deploy; the check command `guardrails` commits>
@@ -62,8 +64,9 @@ Backlog:    <tracker, project, access methods in order, with the lines under it 
 <path — purpose, one per line, only files that exist: docs/adr/, docs/delivery/, specs>
 ```
 
+* **Carry the architecture over.** When a feature log (`docs/delivery/<name>.md`, one per piece of work, in the first repository its `Repositories:` line lists) holds tables or system-wide numbers the `architecture` skill wrote before `AGENTS.md` existed, copy the table rows whose Repository cell names this repository under `### Architecture`, and the numbers under Critical Constraints. Delete them from the log only once every repository marked there has its own `AGENTS.md`.
 * **Charter from the interview, the rest from the repository.** Language and versions from the manifest, the package manager from the lockfile, the layout from the top-level directories, the commands from the task runner, the scripts directory or the package manifest. Run each safe command once (test, lint, format) before listing it; a command that does not run is not listed. When the repository carries no manifest, lockfile or task runner, leave the line out and name what was not found, rather than inferring a command from the file extensions.
-* **Critical Constraints end with their enforcer.** A Budget row, a commit-gate check, or an ADR. A rule no tool can see is the other kind that belongs here: never commit credentials, every migration reversible, nothing edited under `vendor/`. Vague guidance belongs nowhere.
+* **Critical Constraints end with their enforcer.** A Budget row, a commit-gate check, or an ADR. A rule no tool can see is the other kind that belongs here: never commit credentials, every migration reversible, nothing edited under `vendor/`. Vague guidance belongs nowhere. Three kinds are exempt: a number the `architecture` skill recorded as unknown, the limits `deliver` records (criteria per story, stories at once), and a note that a directory the agent must not edit is unguarded.
 * **Cap it at 100 lines,** the charter sections under thirty of them. A module's conventions belong in a nested instructions file in that module; a rule for one file type belongs in a path-scoped rule. The `guardrails` skill wires those.
 * **Symlink `CLAUDE.md` to it,** and symlink any other conventional name the repository already carries the same way.
 * **Commit the file and the symlink together.** Rewrite in place whenever a story changes the shape: a new noun, a new boundary, a Not doing line that became a goal. Commit that rewrite with the story that caused it.
@@ -78,7 +81,7 @@ Backlog:    <tracker, project, access methods in order, with the lines under it 
 | Existing line            | Section               | Where it goes                  |
 | ------------------------ | --------------------- | ------------------------------ |
 | `uv run pytest`          | Operational Commands  | kept as written                |
-| "prefer small functions" | no section            | sent to `make-rule`           |
+| "prefer small functions" | no section            | sent to `guardrails`          |
 | "write clean code"       | no section            | dropped, unfalsifiable         |
 ```
 
@@ -86,15 +89,15 @@ Backlog:    <tracker, project, access methods in order, with the lines under it 
 * **On yes:** write `AGENTS.md` in the format, carrying every line the mapping kept; replace the real `CLAUDE.md` with the symlink; delete a `CONTEXT.md` whose lines moved. When only `CLAUDE.md` exists, its content becomes `AGENTS.md` and the symlink takes its place.
 * **On no:** touch nothing, and say the file was left as found.
 
-## Orienting in a repository that has the file
+## Orienting in a repository
 
-Read `AGENTS.md` whole, run the Review below, and report in one message: the purpose in one line, the commands, the constraints, and every finding. Rewrite nothing unless a finding is accepted. When Operational Commands names no check command, offer the `guardrails` skill once.
+With no `AGENTS.md`, report what the repository shows (its purpose from the README, the stack, the commands) and offer to write the file. With one, read `AGENTS.md` whole, run the Review below, and report in one message: the purpose in one line, the commands, the constraints, the Architecture block when there is one, and every finding. Rewrite nothing unless a finding is accepted. When Operational Commands names no check command, offer the `guardrails` skill once.
 
 ## Review
 
 Quote the line for each finding:
 
-* **Requirements leaking in.** A numbered feature list, a priority, a metric, a schema or an endpoint. Say which file it belongs in.
+* **Requirements leaking in.** A numbered feature list, a priority, a metric, a schema or an endpoint. A number under Critical Constraints with its enforcer is not one. Say which file it belongs in.
 * **Statements that cannot fail.** Every banned word, every purpose with no actor.
 * **Stale boundaries.** A system named that the code no longer touches, or one the code touches that is not named.
 * **Unenforced constraints.** A constraint with no Budget row, commit-gate check or ADR behind it, and no claim that a tool cannot see it.

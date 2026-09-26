@@ -27,7 +27,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PLUGIN_DIR = os.path.join(REPO, "plugins", "sdlc")
+PLUGIN_DIR = os.path.join(REPO, "plugins", "SDLC")
 TURNS = 14
 TIMEOUT = 480
 
