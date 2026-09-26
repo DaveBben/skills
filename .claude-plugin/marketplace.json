@@ -10,7 +10,7 @@
       "name": "SDLC",
       "source": "./plugins/SDLC",
       "description": "Engineering practice run with the human rather than recited at them. define-work writes the outcome and drafts the stories. architecture spikes the unknowns, asks the numbers, maps processes, modules and flows, and records each expensive decision with the user. The deliver loop confirms each story's criteria as it starts, then runs it through failing tests, a build subagent, a review subagent, the full suite and a pull request into main, asking each question as it arises and picking each next ready story. Around it: orient, greenfield, guardrails, story, spike and reviewing. The user, not the model, makes every judgment call.",
-      "version": "7.5.0",
+      "version": "7.7.0",
       "license": "MIT",
       "skills": [
         "./skills/orient",

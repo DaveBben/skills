@@ -56,7 +56,7 @@ Each comment sits on one line of code:
 
 ```
 <file>:<line>
-<label> (<blocking | non-blocking>): <subject: what breaks, in one line>
+<label> (<blocking | non-blocking>[, security]): <subject: what breaks, in one line>
 
 <the concrete case: the input, sequence or caller>. Shows as: <what would show it breaking>.
 Rests on: read this run | inferred from <what was read> | asserted by <tool, comment or description>.

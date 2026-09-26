@@ -1,10 +1,10 @@
 ---
 name: reviewing
-description: "Use this skill when something must be reviewed or critiqued: code the agent built before it is committed or merged, a pull request someone opened, an existing epic or PRD breakdown, or code, a design, a plan or a fix idea the user made. Use it on: 'review what you built', 'review the diff before I commit', 'what can be deleted', 'review PR 412', 'is this PR ready to merge', 'approve or request changes', 'review this epic', 'refine this epic', 'are these the right stories', 'there are too many tickets', 'give me feedback', 'critique this', 'poke holes in this', 'is my approach good'. Picks the review for the subject, reads what the subject lands on before judging, refutes each finding before reporting it, and never rewrites the user's work. Not for a story or ticket, or test coverage even of tests the user wrote (`story`), a choice not yet made (`architecture`), drafting stories (`define-work`), or writing a pull request description (`deliver`)."
+description: "Use this skill when something must be reviewed or critiqued: code the agent built before it is committed or merged, a pull request someone opened, an existing epic or PRD breakdown, or code, a design, a plan or a fix idea the user made. Use it on: 'review what you built', 'review the diff before I commit', 'what can be deleted', 'review PR 412', 'is this PR ready to merge', 'approve or request changes', 'review this epic', 'refine this epic', 'are these the right stories', 'there are too many tickets', 'give me feedback', 'critique this', 'poke holes in this', 'is my approach good', 'security review'. Picks the review for the subject, reads what the subject lands on before judging, refutes each finding before reporting it, and never rewrites the user's work. Not for a story or ticket, or test coverage even of tests the user wrote (`story`), a choice not yet made (`architecture`), drafting stories (`define-work`), or writing a pull request description (`deliver`)."
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.4.0"
+  version: "1.6.0"
 ---
 # Reviewing
 
@@ -20,6 +20,8 @@ The subject is the thing under review. Who made it decides the review, whatever 
 | A pull request or merge request someone opened | [references/pull-request.md](references/pull-request.md) | Conventional Comments (label, blocking or non-blocking, subject, discussion), blocking first, then Merge or Changes requested |
 | An existing epic, a PRD's breakdown or a story list someone else wrote | [references/epic.md](references/epic.md) | The epic report |
 | Code, a test's quality, a design, a plan, an ADR, a check configuration or a fix idea the user or a colleague made | [references/feedback.md](references/feedback.md) | Points sorted into Wrong, Unverified, Shape and Preference |
+
+**Every review of code also gets a security review.** For code an agent built, a pull request, or code the user made, load [references/security.md](references/security.md) once the review above has run. It runs two subagents in turn: one maps the attack surface, one reviews the code against that map. A request for a security review of the whole repository loads only that file.
 
 `deliver` runs this skill in a review subagent on the code its builder returned, which takes the built-code review. When the user wrote the story's code, `deliver` asks for the feedback review instead. A request that also asks for a pull request description gets the review first, then the `deliver` skill's path for describing a branch. An `AGENTS.md` or `CLAUDE.md` goes to the `orient` skill's Review; whether a change's tests cover it goes to the `story` skill.
 
