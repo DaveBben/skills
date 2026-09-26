@@ -4,7 +4,7 @@ description: "Use this skill before touching any file on every request to add, c
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "13.5.0"
+  version: "13.6.1"
 ---
 # Deliver
 

@@ -19,7 +19,8 @@ Do NOT add: config with one value, an interface with one implementation, a
 parameter only ever passed its default, retry, backoff, caching,
 error handling for cases no test names, logging no one asked to read,
 a class where a function does, docstrings describing future extensions,
-a feature flag no row names.
+a feature flag no row names, a comment that restates the code, a comment
+longer than one line unless the why needs it.
 If something above is genuinely required to pass the test, say so and stop.
 If a row cannot be satisfied as written, because it asserts through a seam that
 does not exist or holds an impossible value, stop and report the row and why.

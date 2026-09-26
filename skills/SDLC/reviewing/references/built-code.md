@@ -24,6 +24,9 @@ Delete anything no requirement asked for:
 * Error handling for cases no test names.
 * Logging no one asked to read.
 * A class where a function does.
+* A comment that restates what the code beside it does.
+* A comment longer than the reason it carries. Cut it to the one line that says why: the constraint, the scar, the unit, or the ADR or issue it points at. A comment a better name would make unnecessary becomes the rename.
+* Commented-out code, and docstrings describing future extensions.
 
 **Delete, do not research.** When it is unclear whether something is load-bearing, delete it and see what fails; a green suite then means a missing test.
 
@@ -66,6 +69,7 @@ Gate:        <the check command and its result>
 Criteria:    <one row per acceptance criterion: the criterion in a few words, the exact test name, and passed as seen in this run>
 Changed:     <one line per new function, module or branch: what it is for and its file>
 Rules:       <each confirmed finding a pattern could match, for the `guardrails` skill; or "none">
+Security:    <appended by the security review: one line per finding: <file>:<line>, the path, the input that breaks it, blocking or not; or "none">
 Exceptions:  <one line per code the user must read: <file>:<line>, the equivalent mutant or the finding no failing test confirmed and no reading refuted, and the one test that would settle it; or "none">
 ```
 
