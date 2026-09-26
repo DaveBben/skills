@@ -32,15 +32,6 @@
 - **No contract tool exists.** Write the contracts as tests in the project's own test framework, asserting on the import or package graph.
 - **`rules`.** Use Semgrep unless the project already has a pattern engine. Rules live in `.semgrep/`, one file per rule, and the `message` field is prose the agent reads, not a rule identifier.
 
-## Verify each choice
-
-Before writing the config into the repo:
-
-1. Run the tool once on the untouched codebase.
-2. Introduce one violation it should catch.
-3. Confirm it exits non-zero and the message says what to do.
-4. Remove the violation.
-
 ## Settings that are decisions, not defaults
 
 - **Warnings as errors** in the test runner.
@@ -87,70 +78,14 @@ Scope `audit` to lockfile changes only; it needs the network. Give the user the 
 
 The red commit is the one commit that skips the `tests` and `e2e` hooks: `deliver` commits failing acceptance tests on their own before any code exists, and those hooks would refuse it. Write the command under Operational Commands in `AGENTS.md` as the red-commit command (with pre-commit it is `SKIP=tests,e2e git commit`). No other commit uses it.
 
-### Red-commit scope
+### Red-commit scope and AGENTS.md size
 
-One more hook keeps that skip honest. `red-commit-scope` runs on every commit and never goes in a skip list. When `SKIP` names `tests` or `e2e`, it fails unless every staged file is a test file, matching the test paths the test runner's config uses, or a file whose staged diff removes no lines: a stub adds lines only. Commit the script as `scripts/red_commit_scope.py`, pass it the test runner's test paths, and run `python3 scripts/red_commit_scope.py --self-test` once, which fails when the rule stops holding.
+Two more hooks ship as files in this skill's `scripts/` directory. Copy each into the repository's `scripts/` directory unchanged, and run each once with `--self-test`, which fails when its rule stops holding.
 
-```python
-#!/usr/bin/env python3
-"""Allow SKIP=tests,e2e only for a red commit: test files, plus stubs that add lines only.
+* **`red-commit-scope`** (`scripts/red_commit_scope.py`) keeps the red commit's skip honest. It runs on every commit and never goes in a skip list. When `SKIP` names `tests` or `e2e`, it fails unless every staged file is a test file or a file whose staged diff removes no lines: a stub adds lines only. Edit only the test globs in its hook entry, to the test paths the test runner's config uses.
+* **`agents-md-size`** (`scripts/agents_md_size.py`) fails an `AGENTS.md` over 100 lines or 8 KB, since every line loads on every turn, and says where the overflow goes.
 
-Usage: red_commit_scope.py <test glob>...   (the test paths the test runner config uses)
-       red_commit_scope.py --self-test
-"""
-import fnmatch, os, subprocess, sys
-
-
-def git(*args, cwd=None):
-    return subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, check=True).stdout
-
-
-def violations(globs, cwd=None):
-    bad = []
-    for line in git("diff", "--cached", "--numstat", "--no-renames", cwd=cwd).splitlines():
-        added, removed, path = line.split("\t", 2)
-        if any(fnmatch.fnmatch(path, g) for g in globs):
-            continue
-        if removed != "0":  # "-" is a binary file
-            bad.append(path)
-    return bad
-
-
-def main(globs):
-    skipped = {h.strip() for h in os.environ.get("SKIP", "").split(",")}
-    if not skipped & {"tests", "e2e"}:
-        return 0
-    bad = violations(globs)
-    for path in bad:
-        print(f"SKIP=tests,e2e is only for the red commit, which holds failing tests and "
-              f"stubs that add lines. This commit removes lines from {path}, which is not "
-              f"a test file. Commit it without the skip.", file=sys.stderr)
-    return 1 if bad else 0
-
-
-def self_test():
-    import tempfile
-    with tempfile.TemporaryDirectory() as d:
-        git("init", "-q", cwd=d)
-        for name, body in [("src.py", "a\nb\n"), ("tests/test_x.py", "x\n")]:
-            os.makedirs(os.path.dirname(os.path.join(d, name)) or d, exist_ok=True)
-            open(os.path.join(d, name), "w").write(body)
-        git("add", "-A", cwd=d)
-        git("-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "base", cwd=d)
-        open(os.path.join(d, "tests/test_x.py"), "w").write("y\n")
-        open(os.path.join(d, "src.py"), "a").write("def stub(): raise NotImplementedError\n")
-        git("add", "-A", cwd=d)
-        assert violations(["tests/*"], d) == [], "a test edit plus an added stub must pass"
-        open(os.path.join(d, "src.py"), "w").write("a\n")
-        git("add", "-A", cwd=d)
-        assert violations(["tests/*"], d) == ["src.py"], "removed source lines must fail"
-    print("red_commit_scope self-test passed")
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(self_test() if sys.argv[1:] == ["--self-test"] else main(sys.argv[1:]))
-```
+Both hooks, as pre-commit entries:
 
 ```yaml
 - repo: local
@@ -161,6 +96,11 @@ if __name__ == "__main__":
       language: system
       pass_filenames: false
       always_run: true
+    - id: agents-md-size
+      name: AGENTS.md under 100 lines and 8 KB
+      entry: python3 scripts/agents_md_size.py
+      language: system
+      files: ^AGENTS\.md$
 ```
 
 ## CI
@@ -170,4 +110,5 @@ if __name__ == "__main__":
 - Where the ecosystem has more than one supported runtime version, run the whole span and do not stop the matrix at the first failure.
 - Set the thorough property-test profile here.
 - Run mutation testing over the changed source files as its own step. A surviving mutant fails it.
+- Run each twin's contract suite (`tests/twins/<service>/`, a fake of a third-party service that an ADR decided) against the real sandbox or its recorded responses on a schedule, as its own job. A failure is drift between the twin and the service, reported with both responses.
 - Run the e2e slot as its own step against a built artifact, with role-and-label locators and no clock waits; retry a failure once and label it flaky rather than green.

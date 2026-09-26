@@ -10,7 +10,7 @@ Put every rule as far up the ladder in SKILL.md, section "Where a rule lives", a
 2. **Try rung 1, cheapest first.** Stop at the first that holds.
    * **The language or framework already prevents it:** a compiler flag, a stricter type-checker setting, a framework default. Turn it on.
    * **The project's linter ships the rule:** ESLint, Ruff, golangci-lint, Clippy, RuboCop, Checkstyle, SwiftLint. Search that linter's rule list before writing anything. Enable the rule in the existing config at error severity, with the options the rule needs.
-   * **The rule is about which module may import which:** it is a dependency contract. Write it as a contract by the Contracts section of `references/setup.md`.
+   * **The rule is about which module may import which:** it is a dependency contract. Write it by the Contracts section below.
    * **The rule is about what the agent runs, not the code it writes:** "never force-push", "never edit the migrations directory". It is a hook or a deny-list entry in the agent's settings. Write it by the Loop and Guards sections of `references/setup.md`.
    * **The rule is a pattern over source that no shipped rule matches:** write a Semgrep rule. Load `references/semgrep.md` now; SKILL.md lists it. It covers installing the engine, what a pattern can and cannot see, writing the rule, proving it fires, and landing it on code that already breaks it.
    * **The rule is a fact about behaviour:** "every endpoint returns JSON errors". It is a test, not a lint rule. Say which test would hold it.
@@ -49,3 +49,12 @@ The `story` skill hands over each place a story's input reaches something that i
 ## What a check cannot hold
 
 Say plainly which rules stay with the agent: anything met by something absent ("every service has a rate limit"), anything true only at runtime, and anything that needs taste. Those are rung 2 or rung 3, or a criterion the `story` skill writes, or a point for the `reviewing` skill's pull request review.
+
+## Contracts
+
+* **Read the shape from `AGENTS.md`.** The `architecture` skill writes the modules, what each owns, and the flows between them into the Architecture block of `AGENTS.md`. Write one contract per flow that stays inside one process, and delete that flow's row from the Flows table in the same commit. When that block does not exist yet, say so, fill the language-level slots now, and encode contracts after `architecture` has drawn the shape. Never ask the user to draw the modules here.
+* **Brownfield with no Architecture block:** Derive the current dependency graph, render it as a diagram, and ask which edges they did not expect. Those are the ones nobody chose, and they become the first contracts. Never encode the whole current graph.
+* **One contract per allowed-dependency line.** Everything not listed is forbidden, and the config says so explicitly.
+* **Write each contract's name as the rule in plain English**, so a broken build prints the sentence that stopped being true.
+* **Name the shape when it has a name.** When the user's modules match a known pattern (hexagonal, layered, MVI), record the name and its one defining rule in `AGENTS.md`.
+* **The contracts are the record.** Never write a separate architecture document to describe them.

@@ -4,11 +4,11 @@ description: "Use this skill when something must be reviewed or critiqued: code 
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.0.0"
+  version: "1.4.0"
 ---
 # Reviewing
 
-Load [references/writing.md](references/writing.md) before the first reply. Every finding and every report follows it.
+Load [references/writing.md](references/writing.md) before the first reply, unless it is already loaded this session or `deliver` runs the built-code review, whose Done block has a fixed format. Every other finding and report follows it.
 
 ## 1. Pick the review
 
@@ -17,7 +17,7 @@ The subject is the thing under review. Who made it decides the review, whatever 
 | Subject | Load | Output |
 |---|---|---|
 | Code an agent built, before it is committed or merged | [references/built-code.md](references/built-code.md) | The Done block |
-| A pull request or merge request someone opened | [references/pull-request.md](references/pull-request.md) | One finding per line, then Merge or Changes requested |
+| A pull request or merge request someone opened | [references/pull-request.md](references/pull-request.md) | Conventional Comments (label, blocking or non-blocking, subject, discussion), blocking first, then Merge or Changes requested |
 | An existing epic, a PRD's breakdown or a story list someone else wrote | [references/epic.md](references/epic.md) | The epic report |
 | Code, a test's quality, a design, a plan, an ADR, a check configuration or a fix idea the user or a colleague made | [references/feedback.md](references/feedback.md) | Points sorted into Wrong, Unverified, Shape and Preference |
 
@@ -32,7 +32,3 @@ The subject is the thing under review. Who made it decides the review, whatever 
 * **A finding needs a failure behind it.** Give the concrete case: the input, the sequence, the caller. Without one it is a preference; say so or leave it out.
 * **Send every confirmed finding a pattern could match to the `guardrails` skill,** so nothing is found by hand twice. Inside a subagent, return them as a `Rules:` line with the report; the session that called it hands them over.
 * **Never rewrite the user's work.** Describe the change. Write code only when the user asks for it.
-
-## What this skill does not do
-
-Writing or reviewing one story's criteria, and checking a change's tests for gaps, is `story`. Weighing a technology or design choice not yet made is `architecture`. Drafting the stories for a piece of work is `define-work`. Writing a pull request description is `deliver`.

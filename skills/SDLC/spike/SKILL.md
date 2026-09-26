@@ -4,7 +4,7 @@ description: "Use this skill when the user wants to find something out by buildi
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.8.0"
+  version: "0.9.0"
 ---
 # Spike
 
@@ -47,28 +47,19 @@ Maintain a running findings log from the first moment, not at the end. Never lea
 
 When the target has no repository yet, run `git init -b main` there and commit only the findings. Write the log as one entry in `docs/delivery/{slug}.md`, titled `spike: <the question>`. The slug is the feature's slug the caller handed over, else a kebab-case name for the question. Create the file if absent. When `AGENTS.md` names a per-change spec directory, the log is the bottom of that change's spec instead. Commit the entry alone: where `architecture` commits its plan when it called the spike (the branch `story/{slug}/0-plan`, or main in a repository with no remote); otherwise on a branch from main (`story/{slug}/{n}-spike-{short-name}` when `deliver` called it, where `{n}` is the spike's number on `Stories:`) with a pull request the user merges. Where the repository has no remote, the user merges the branch locally. When the `Backlog:` line of `AGENTS.md` lists a tracker, write the same entry as the resolution comment on the spike's issue instead, and create no file. When that tracker cannot be written, write the file as above and add a line to an `## Outbox` section at its end, the list of tracker writes still owed: `- comment <spike key>: entry "spike: <the question>"`.
 
-Record each finding as it surfaces, as a `Learned` line whose bold headline is one of these:
-
-* **Outcome:** Whether the spike resolved the question: proven, disproven, or inconclusive. Update this as evidence accumulates.
-* **Approach used:** The specific libraries, APIs, patterns, or sequence that produced the result. Enough for the official build to reproduce it.
-* **Quirks and surprises:** Undocumented behavior, version constraints, ordering requirements, silent failures, rate limits, and anything else that cost time to discover.
-* **Dead ends:** Approaches tried that did not work, and why.
-* **Open questions:** What the spike did not answer and what the official build must still resolve.
-* **Decided alone:** Every choice made without the user while building: a library, a data shape, a key, a limit, a default, a version dropped, an alternative tried and abandoned. One line each: what was chosen, the alternative not taken, and why. Write it the moment the choice is made.
-
-The entry takes this shape:
+Record each finding as it surfaces, as a `Learned` line in this shape. Repeat any line as often as there are findings of that kind.
 
 ```text
 ## <date> — spike: <the question>
-- Learned: **Outcome:** proven | disproven | inconclusive — <the evidence that settles it>
-- Learned: **Approach used:** <libraries, APIs and calls, in the order that produced the result>
-- Learned: **Quirks and surprises:** <what the code or service did that its documentation does not say>
+- Learned: **Outcome:** proven | disproven | inconclusive — <the evidence that settles it; update it as evidence accumulates>
+- Learned: **Approach used:** <libraries, APIs and calls, in the order that produced the result, enough to reproduce it>
+- Learned: **Quirks and surprises:** <undocumented behaviour, version limits, ordering, silent failures, rate limits>
 - Learned: **Dead ends:** <approach tried> — <what it did instead of working>
 - Learned: **Open questions:** <what the official build must still resolve>
-- Learned: **Decided alone:** <what was chosen> over <the alternative not taken> — <why>
+- Learned: **Decided alone:** <what was chosen> over <the alternative not taken> — <why>; one line per choice made without the user (a library, a data shape, a key, a limit, a default), written the moment it is made
 ```
 
-Repeat any line as often as there are findings of that kind. Write every line by [references/writing.md](references/writing.md), loaded before the first reply.
+Write every line by [references/writing.md](references/writing.md), loaded before the first reply unless it is already loaded this session.
 
 ## Explore Divergent Approaches
 
@@ -106,6 +97,4 @@ Stop building the moment the finish-line signal appears. Then:
 ## Guardrails
 
 * **One question per spike:** When a second unknown appears, record it as an open question and scope a separate spike. Never let a spike sprawl into an implementation.
-* **Findings before code quality:** Never spend spike time making throwaway code clean. Spend it producing and recording findings.
-* **Never ship a spike:** Spike code does not become the official build by momentum. State this whenever the user proposes keeping it.
 * **Time and scope are bounded:** When the timebox runs out, or the spike outgrows "smallest thing that answers the question," halt and report that the question is larger than a spike. Hand off to `deliver`, or to `architecture` when no application exists yet.

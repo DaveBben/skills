@@ -4,7 +4,7 @@ description: "Use this skill when a new repository must be stood up from a langu
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.6.0"
+  version: "0.7.0"
 ---
 # Greenfield Codebase Setup
 
@@ -64,7 +64,7 @@ Commit at the end of each numbered step with the stated message.
 <one sentence naming what the project does>
 ```
 
-* Run the `orient` skill to write `AGENTS.md`, with `CLAUDE.md` symlinked to it.
+* Run the `orient` skill to write `AGENTS.md`, with `CLAUDE.md` symlinked to it. Run as a subagent, return orient's interview questions to the caller and write the file from its answers.
 * Remove template-authored docs that describe the template itself rather than the project (contributing guides, changelogs, example docs).
 * Preserve `LICENSE`, CI config, and any doc the project will keep filling in.
 * **Commit:** `docs: reset template docs for <name>`
@@ -85,6 +85,5 @@ Commit at the end of each numbered step with the stated message.
 
 ## Guardrails
 
-* **Green at every commit:** The test suite passes before step 4 and after step 5.
 * **Do not add features:** Do not write business logic, add new dependencies, or design architecture here. The `architecture` skill decides the shape.
 * **Preserve the toolchain:** Do not remove the test runner, linter, formatter, or CI configuration.

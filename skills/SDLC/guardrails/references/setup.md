@@ -56,12 +56,7 @@ Load `references/toolchain.md` now, before writing any config. SKILL.md lists it
 
 ## Contracts
 
-* **Read the shape from `AGENTS.md`.** The `architecture` skill writes the modules, what each owns, and the flows between them into the Architecture block of `AGENTS.md`. Write one contract per flow that stays inside one process, and delete that flow's row from the Flows table in the same commit. When that block does not exist yet, say so, fill the language-level slots now, and encode contracts after `architecture` has drawn the shape. Never ask the user to draw the modules here.
-* **Brownfield with no Architecture block:** Derive the current dependency graph, render it as a diagram, and ask which edges they did not expect. Those are the ones nobody chose, and they become the first contracts. Never encode the whole current graph.
-* **One contract per allowed-dependency line.** Everything not listed is forbidden, and the config says so explicitly.
-* **Write each contract's name as the rule in plain English**, so a broken build prints the sentence that stopped being true.
-* **Name the shape when it has a name.** When the user's modules match a known pattern (hexagonal, layered, MVI), record the name and its one defining rule in `AGENTS.md`.
-* **The contracts are the record.** Never write a separate architecture document to describe them.
+Write the dependency contracts by the Contracts section of `references/rules.md`.
 
 ## Rules
 
@@ -90,6 +85,8 @@ Where the agent harness is Claude Code, load `references/claude-guardrails.md` n
 * **Block edits to accepted tests.** While `deliver` has a red commit recorded, refuse any edit to a file that commit touched, at edit time. An instruction to leave tests alone is not a substitute for the guard.
 * **Deny agent edits to the feature acceptance tests for good.** The `deliver` loop keeps the user's acceptance test for a whole feature in a `feature-acceptance` directory inside the test tree. Deny edits, writes and deletes there permanently, for the agent and every subagent.
 * **Deny reads and writes outright** for secrets files, the lockfile, and the version control directory.
+* **Deny the holdout directory,** `~/.holdout/`, where the user keeps hidden end-to-end scenarios for `deliver`: reads, edits and writes, and every shell command naming it except its own `run` command. That shell block is the justified third hard block: reading the scenarios is never correct, and nothing undoes it once read.
+* **Write the `# owner reads:` sections of `CODEOWNERS`,** the paths the user reads on every change, where `deliver` shows them code by exception. Each section is a `# owner reads: <label>` heading, then one CODEOWNERS line per path with the user's handle, ending at a blank line. Write `checks` for every file this skill wrote or configured (hook and harness settings, CI files, the check command, linter, type, test-runner and mutation config, `.semgrep/`, `scripts/`, `CODEOWNERS` itself), `deps` for the manifest and the lockfile, and `data` for the directories `architecture` hands over. GitHub, and GitLab Premium, also request the user's review on those paths.
 * **Say plainly that the deny list stops accidents and is not a security boundary.** Anything pre-approved that executes code can read any file the user can.
 * **Pre-approve every verification command** the agent needs to check its own work.
 * **Report environment readiness at session start**, naming the command that fixes each problem.
@@ -106,20 +103,15 @@ Three scopes. Put each rule in the narrowest one that still loads when it is nee
 | Path-scoped rule file | a matching path is touched | instructions tied to a file type |
 
 * **Create `AGENTS.md` if the repo has none** by running the `orient` skill, which writes it in five sections and symlinks `CLAUDE.md` to it. The check command goes under its Operational Commands; the rules below go under its Critical Constraints.
-* **Cap `AGENTS.md` at 100 lines.** Anything longer belongs in a nested or path-scoped file.
+* **Cap `AGENTS.md` at 100 lines and 8 KB** with the `agents-md-size` hook from `references/toolchain.md`. Anything longer belongs in a nested or path-scoped file. This skill writes at most six lines into it: the silencing sentence, the routing line, the decision rule and the answer-length rule.
 * **Alias the other conventional filenames to it** with a symlink, so every tool reads one file. `orient` makes `CLAUDE.md`; add any other name the repository carries.
 * **Record where a future correction goes.** State the routing in `AGENTS.md`: a static check into the rules directory, a dependency direction into the contracts, a file-specific instruction into a path-scoped rule, anything conversational into `AGENTS.md` itself. `references/rules.md` applies this routing to each new rule.
 * **Offer a decision rule for `AGENTS.md`,** verbatim. Ask before adding it.
 
   ```text
-  # Decisions are the user's
-  Before choosing between alternatives the user has not seen, put the choice and
-  its tradeoff to them and wait. When the choice is expensive or irreversible,
-  accepts a hazard without a test, or rejects an alternative, record it as an ADR
-  before the code that depends on it: docs/adr/<slug>/<decision>.md for one
-  change, docs/adr/architecture/<decision>.md for the whole repository.
-  At the end of every piece of work, list every choice made without the user,
-  one line each: what was chosen, why, and the tradeoff.
+  Put each choice between alternatives the user has not seen to them, with its tradeoff, and wait.
+  Record an expensive or irreversible choice, an accepted hazard or a rejected alternative as an ADR under docs/adr/ before the code that depends on it.
+  End each piece of work with one line per choice made without the user: what, why, the tradeoff.
   ```
 * **Offer an answer-length rule for `AGENTS.md`:** give the finding, what it means, and the question, then stop; name a document or diff just written rather than reproducing it. Ask before adding it.
 * **Never path-scope an instruction that governs the conversation.** Path frontmatter loads it only when a matching file is touched.
@@ -128,9 +120,8 @@ Three scopes. Put each rule in the narrowest one that still loads when it is nee
 
 * **Commit the check command** that runs `references/toolchain.md`'s canonical gate in order and stops at the first failure. Name it in `AGENTS.md`.
 * **Ask the user for a time limit on the whole test run** and write it in `AGENTS.md`. The `tests` slot fails past it, so a suite that grows with every story is noticed before it drifts out of the commit gate.
-* **Pin every hook version.**
 * **Wire automated dependency updates** so the lockfile and CI pins do not rot.
-* **Gate on mutation over the diff in CI.** The `deliver` loop offers this skill when this slot is missing and continues with mutations applied by hand when the user declines. When the `e2e` slot is missing, that loop's first story adds the runner.
+* **A missing mutation or `e2e` slot does not block `deliver`.** Its loop offers this skill, applies mutations by hand when the user declines, and adds the `e2e` runner in its first story. Once `CODEOWNERS` has an `# owner reads:` section, a missing mutation slot halts that loop, so fill it first.
 
 ## Landing rules on existing code
 

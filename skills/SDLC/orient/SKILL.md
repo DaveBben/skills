@@ -4,7 +4,7 @@ description: "Use this skill when the repository's AGENTS.md or CLAUDE.md as a w
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "3.4.0"
+  version: "3.6.0"
 ---
 # Orient
 
@@ -64,10 +64,10 @@ Backlog:    <tracker, project, access methods in order, with the lines under it 
 <path — purpose, one per line, only files that exist: docs/adr/, docs/delivery/, specs>
 ```
 
-* **Carry the architecture over.** When a feature log (`docs/delivery/<name>.md`, one per piece of work, in the first repository its `Repositories:` line lists) holds tables or system-wide numbers the `architecture` skill wrote before `AGENTS.md` existed, copy the table rows whose Repository cell names this repository under `### Architecture`, and the numbers under Critical Constraints. Delete them from the log only once every repository marked there has its own `AGENTS.md`.
+* **Carry the architecture over.** When a feature log (`docs/delivery/<name>.md`, one per piece of work, in the first repository its `Repositories:` line lists) holds tables or system-wide numbers the `architecture` skill wrote before `AGENTS.md` existed, copy the rows that belong to this repository under `### Architecture` (processes by their Repository cell, modules by their process, flows by their From module), and under Critical Constraints the numbers whose Budget test lives here. Delete them from the log only once every repository marked there has its own `AGENTS.md`.
 * **Charter from the interview, the rest from the repository.** Language and versions from the manifest, the package manager from the lockfile, the layout from the top-level directories, the commands from the task runner, the scripts directory or the package manifest. Run each safe command once (test, lint, format) before listing it; a command that does not run is not listed. When the repository carries no manifest, lockfile or task runner, leave the line out and name what was not found, rather than inferring a command from the file extensions.
 * **Critical Constraints end with their enforcer.** A Budget row, a commit-gate check, or an ADR. A rule no tool can see is the other kind that belongs here: never commit credentials, every migration reversible, nothing edited under `vendor/`. Vague guidance belongs nowhere. Three kinds are exempt: a number the `architecture` skill recorded as unknown, the limits `deliver` records (criteria per story, stories at once), and a note that a directory the agent must not edit is unguarded.
-* **Cap it at 100 lines,** the charter sections under thirty of them. A module's conventions belong in a nested instructions file in that module; a rule for one file type belongs in a path-scoped rule. The `guardrails` skill wires those.
+* **Cap it at 100 lines and 8 KB,** the charter sections under thirty of them, and table cells under 40 characters; the `guardrails` skill's `agents-md-size` commit hook fails a larger file. A module's conventions belong in a nested instructions file in that module; a rule for one file type belongs in a path-scoped rule. The `guardrails` skill wires those.
 * **Symlink `CLAUDE.md` to it,** and symlink any other conventional name the repository already carries the same way.
 * **Commit the file and the symlink together.** Rewrite in place whenever a story changes the shape: a new noun, a new boundary, a Not doing line that became a goal. Commit that rewrite with the story that caused it.
 

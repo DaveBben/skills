@@ -45,6 +45,3 @@ Test behaviour, not implementation. No assertion on a private function, on
 internal call order, or on a log line.
 List every added test that is not in the table, why it was added, and its Killed by.
 ```
-
-* **Name specifics in the prohibition list,** never "keep it simple". Extend the list as the model's defaults become apparent.
-* **Pin load-bearing files with a hash test,** not with a request in the prompt.

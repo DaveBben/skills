@@ -4,7 +4,7 @@ description: "Use this skill when work bigger than one story needs its shared un
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "4.0.0"
+  version: "4.3.0"
 ---
 # Define Work
 
@@ -16,10 +16,10 @@ Everything here is agreed with the user. Propose, then wait.
 Outcome:     <what a person does differently once this ships, and where they see it>
 Problem:     <who hits it, how often, what they do today instead>
 Not doing:   <one checkable non-goal per line>
-Success:     <the signal that shows the outcome happened: the PRD's metric, or what a person is seen doing>
+Success:     <the signal that shows the outcome happened: the PRD's metric, or what a person is seen doing; which direction is good; the noise band>
 Constraints: <one line per rule every story must keep true, such as "ticket text never leaves our network">
-Context:     <one line per fact every story needs: the environment to deploy to, the environment variables the app reads, service URLs, test accounts, the deploy and rollback commands, and where each credential lives>
-Repositories: <one line per repository this work changes: its name, then its remote URL, its local path when it has no remote, or "new: <name> <directory>" when it does not exist yet, the directory left blank until `architecture` decides it>
+Context:     <one line per fact this feature adds that every story needs (section 2)>
+Repositories: <one line per repository this work changes (section 2)>
 
 Steps: <step 1> -> <step 2> -> <step 3>   (what the person does, in order)
 
@@ -44,9 +44,9 @@ Look for the shared understanding before writing any: the feature header at the 
 * **Outcome.** One sentence saying what a person does differently once this ships, and where they see it. Reject an outcome naming a component, table, endpoint or file, and reject one that contradicts a stated non-goal unless the user overrides it. "Verdicts land in the table" is true while the work is half done. "I open one list each morning and read from it" is not.
 * **Problem.** Who hits it, how often, and what they do today instead. When the user cannot say what the person does today, the work is not understood yet. Ask before drafting stories.
 * **Not doing.** Each non-goal is a statement someone could check.
-* **Success.** Take the PRD's success metric when it has one. Otherwise ask what the user will see people doing once the outcome happened. Close-out asks whether it moved.
-* **Context.** Facts every story needs and nobody should rediscover: which environment to deploy to, the environment variables the app reads, service URLs, test accounts, the deploy and rollback commands. Name where each credential lives (an environment variable's name, a secret manager path, a file outside the repository) and never its value, since this block is committed. A fact true of the whole repository, not just this work, belongs in `AGENTS.md`.
-* **Repositories.** Every repository this work changes, one line each: its name and the URL of the remote its pull requests go to, read with `git remote get-url origin` or the tracker's links. Write the absolute local path only when the repository has no remote, and `new: <name> <directory>` when it does not exist yet; the `architecture` skill decides how many repositories a new application has. Work that spans a service and its client, or code in another team's repository, lists each one here, so a story never starts in a repository nobody named.
+* **Success.** Take the PRD's success metric when it has one. Otherwise ask what the user will see people doing once the outcome happened. Ask once which direction is good and how large a move between two readings is only noise; a drop past that band after a story ships sends the user to read the code that emits the signal. Close-out asks whether it moved.
+* **Context.** Facts this feature adds that every story needs and nobody should rediscover, never facts `AGENTS.md` already holds: which environment to deploy to, the environment variables the app reads, service URLs, test accounts, the deploy and rollback commands. Name where each credential lives (an environment variable's name, a secret manager path, a file outside the repository) and never its value, since this block is committed. A fact true of the whole repository, not just this work, belongs in `AGENTS.md`.
+* **Repositories.** Every repository this work changes, one line each: its name and the URL of the remote its pull requests go to, read with `git remote get-url origin` or the tracker's links. Write the absolute local path only when the repository has no remote, and `new: <name> <directory>` when it does not exist yet, the directory left blank; the `architecture` skill decides how many repositories a new application has, and each directory. Work that spans a service and its client, or code in another team's repository, lists each one here, so a story never starts in a repository nobody named.
 * **Constraints.** A rule every story must keep true, such as where data may live or a response-time ceiling, goes here once. The `story` skill writes it as a criterion on each story that could break it. A constraint no story can break is an engineering standard and belongs in `AGENTS.md`.
 
 ## 3. Map the steps
@@ -121,7 +121,3 @@ Once the ready check passes and the user confirms the map, write the whole block
 ## 8. When `reviewing` asks for a check
 
 The `reviewing` skill runs this skill against an existing epic, a PRD's breakdown or a story list someone else wrote. Change nothing. Apply the section 4 kinds table and size rule, the section 5 blocker rules and the section 6 ready check to what exists, and return each gap with the card and the quoted text it is about. `reviewing` writes the report.
-
-## What this skill does not do
-
-Writing or reviewing one story's criteria is `story`. Deciding the system's shape and recording expensive decisions is `architecture`. Choosing which ready story to build next, and building it, is `deliver`. Answering an unknown by writing throwaway code is `spike`. Reviewing an existing epic is `reviewing`, which calls this skill for the check.
