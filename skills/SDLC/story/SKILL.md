@@ -4,7 +4,7 @@ description: "Use this skill when one story, ticket or bug report needs its acce
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "2.3.0"
+  version: "3.0.0"
 ---
 # Story
 

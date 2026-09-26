@@ -1,10 +1,10 @@
 ---
 name: architecture
-description: "Use this skill when the shape of a system must be decided, when any decision must survive the conversation, or when work is asked for in a repository with no application yet. Use it on: planning a new application, 'let's build this' in an empty repository, 'how should this be structured', 'should I use X for storage', 'map this codebase's architecture', and any choice costing more than a day to reverse: a library, a data shape, a trust or consistency boundary. Use it on: 'adr', 'write an adr', 'record the why', 'we will accept that risk', 'let's go with X instead of Y'. Spikes each untried crossing first, asks the load, response-time, downtime and data-volume numbers, maps processes, modules and flows, and puts each expensive decision to the user one at a time, recording each as an ADR with the user's reasons and the rejected alternatives. Not for reviewing an existing ADR (`reviewing`), drafting stories (`define-work`), throwaway code (`spike`), orienting in a repository (`orient`), or building (`deliver`)."
+description: "Use this skill when the shape of a system must be decided, when any decision must survive the conversation, or when work is asked for in a repository with no application yet. Use it on: planning a new application, 'let's build this' in an empty repo, 'how should this be structured', 'should I use X for storage', 'capture, snapshot or map the architecture', and any choice costing more than a day to reverse: a library, a data shape, a trust or consistency boundary. Use it on: 'adr', 'write an adr', 'record the why', 'we will accept that risk', 'let's go with X instead of Y'. Spikes each untried crossing first, asks the load, response-time, downtime and data-volume numbers, maps processes, modules and flows, and puts each expensive decision to the user in turn, recording each as an ADR with the user's reasons and the rejected alternatives. Not for reviewing an existing ADR (`reviewing`), drafting stories (`define-work`), throwaway code (`spike`), orienting in a repository (`orient`), or building (`deliver`)."
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.5.0"
+  version: "2.2.0"
 ---
 # Architecture
 
@@ -16,15 +16,20 @@ Nothing goes into a separate design document. The tables go into `AGENTS.md`, ea
 
 Everything here is agreed with the user. Propose, then wait. The user makes every decision section 5 lists.
 
-**Where things are written.** The slug is the short kebab-case name `define-work` gave the work, or the epic's key on a tracker. The feature log is `docs/delivery/{slug}.md`; its `## Feature` block at the top is the feature header, which `define-work` writes. This skill adds `Decided:` (one ADR path per line) and `Deferred:` (one item per line, with the number, story or spike that will force it), and appends its numbers to `define-work`'s `Constraints:` line. On a tracker the feature header is the epic's description. When the work spans repositories, the feature log and `docs/adr/` live in the first repository on the `Repositories:` line. Commit the feature log, the ADRs and the tables on a branch `story/{slug}/0-plan` and open its pull request, which the user merges before the first story; in a repository with no remote, commit them on main.
+**Where things are written.** Planning a system or a new application needs the tracker the `Backlog:` line of `AGENTS.md` names; with no such line, halt and run the `orient` skill, which helps the user connect one. Recording one decision and deciding one open item need no tracker: with none, or with no feature open, the ADR goes under `docs/adr/architecture/` and nothing else is written. The slug is the epic's key. The feature header is the epic's description, which `define-work` writes. This skill adds `Decided:` (one ADR path per line) and `Deferred:` (one item per line, with the number, story or spike that will force it), and appends its numbers to `define-work`'s `Constraints:` line. When the work spans repositories, `docs/adr/` lives in the first repository on the `Repositories:` line. Commit the ADRs, and any `AGENTS.md` change, on a branch `story/{slug}/0-plan` and open its pull request, which the user merges before the first story; in a repository with no remote, commit them on main. With nothing to commit before the first story, open no plan branch.
 
 ## 1. Pick the path
 
 * **Record one decision already made** (an accepted risk, "X instead of Y", "record the why", a spike's decision rows): load [references/adr.md](references/adr.md) and do nothing else.
 * **Decide one open item** ("Postgres or SQLite?", or one decision a story forced): run section 5 for that item alone, then record the answer by [references/adr.md](references/adr.md).
-* **Map an existing codebase** ("map this codebase's architecture"): load [references/plan.md](references/plan.md), run its section 4 from the code, write the tables by its section 6, and stop.
+* **Capture the current architecture** ("capture", "snapshot" or "map this codebase's architecture"): no tracker needed, and no questions until the tables are drawn. Load [references/plan.md](references/plan.md) and run its section 4 from the code, for the whole system rather than one outcome:
+  * **Processes:** every entry point that starts one: a server, a worker, a scheduled job, a command.
+  * **Modules:** the top-level packages or directories, each with the one thing it owns.
+  * **Flows:** calls across modules, and every call to a database, queue, file store or other service. Fill "Who else reaches To" from what the code shows (the address it listens on, the check on the caller, the credential it uses), and write "unknown" where the code does not show it.
+
+  When `AGENTS.md` already has the tables, report the drift: each row the code contradicts, each row the code has and the tables lack, each row the tables have and the code lacks. List in chat what the code settles (each repository's language and platform, each data store, each check on a caller), with the file that settles it, and each "unknown" as one question. Write the tables by plan.md section 6, committed on their own branch with a pull request, so git history holds each snapshot. Record any settled item as an ADR only when the user gives the reasons, by [references/adr.md](references/adr.md). Then stop.
 * **Plan a system** (a feature of several stories, "how should this be structured"): load [references/plan.md](references/plan.md) and run sections 2 to 6. Run alone, end by running `deliver`.
-* **A new application**, or work asked for in a repository with no application yet: this skill owns the path end to end. Once `define-work` has written the shared understanding, decide the repositories first: how many, the name of each, and the directory each lives in, written on `Repositories:` as `new: <name> <directory>`. Run `git init -b main` in the first one's directory, move the feature log there if `define-work` wrote it elsewhere, commit it, and record the repositories decision by [references/adr.md](references/adr.md). Then load [references/plan.md](references/plan.md) and run sections 2 to 7.
+* **A new application**, or work asked for in a repository with no application yet: this skill owns the path end to end. Once `define-work` has written the shared understanding, decide the repositories first: how many, the name of each, and the directory each lives in, written on `Repositories:` as `new: <name> <directory>`. Run `git init -b main` in the first one's directory and record the repositories decision there by [references/adr.md](references/adr.md). Then load [references/plan.md](references/plan.md) and run sections 2 to 7.
 
 Inputs: the shared understanding `define-work` wrote, with its outcome, the steps a person takes, the walking-skeleton story and the `Repositories:` line. When none exists, run `define-work` first. In an existing application with no walking skeleton, the crossings are the ones this work's stories make. Before proposing a change to an existing boundary, read `AGENTS.md` and list the titles in `docs/adr/`, skipping any ADR with a `Superseded by:` line; open one only when its Decision names a module, flow or store this work touches.
 
@@ -57,7 +62,7 @@ Every item ends in one of four states:
 |---|---|
 | Decided | An ADR, listed on the feature header's `Decided:` line |
 | Deferred | The feature header's `Deferred:` line, with the number or the story that will force it. Propose "defer" for each item the first story does not touch. |
-| Waiting on spike N | The feature header's `Deferred:` line as "waits on spike N", for a spike the `deliver` loop runs. Decide it once the spike is done: its findings merged, or on a tracker its resolution comment written. |
+| Waiting on spike N | The feature header's `Deferred:` line as "waits on spike N", for a spike the `deliver` loop runs. Decide it once the spike is done: its resolution comment, the findings, is written. |
 | Settled by the code | Stated in chat with the file that settles it |
 
 No story that needs an item starts until the item is in one of the four states.

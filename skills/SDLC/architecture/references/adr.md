@@ -31,7 +31,7 @@ Write every ADR by the "For a reader who was not here" writing rules, reconstruc
 * **Global:** `docs/adr/architecture/<decision-name>.md` for a decision applying to the whole repository, or when no feature is open.
 * **Format:** `<decision-name>` is short and kebab-case, e.g. `use-redis-for-rate-limiting.md`.
 * **Already recorded:** when the change's own PRD records the decision with its rejected alternative, write no ADR; put the PRD path on the feature header's `Decided:` line.
-* **Commit each ADR on its own when it is written:** on the plan branch before the first story, on the story's branch when a story forced it, and on main when no feature is open.
+* **Commit each ADR on its own when it is written:** on the plan branch `story/{slug}/0-plan` before the first story, on the story's branch when a story forced it, and on main when no feature is open.
 
 ## Error handling
 

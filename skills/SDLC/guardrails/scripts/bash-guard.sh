@@ -38,7 +38,7 @@ case "$cmd" in
       *)
         echo "The holdout directory holds the user's hidden scenarios. Do not read," >&2
         echo "list or copy it. The only command that may name it is its run command," >&2
-        echo "on its own: <holdout dir>/run --done <numbers> --diff <file>." >&2
+        echo "on its own: <holdout dir>/run --done <story keys> --diff <file>." >&2
         exit 2 ;;
     esac ;;
 esac

@@ -7,12 +7,9 @@ Load this for a request sized as several stories, once the `define-work` and `ar
 * **Promote into a criterion anything encoding an ADR,** so how a recorded decision was interpreted is never discovered by reading generated code.
 * **Defer infrastructure** not required to pass a story's test to a later story. Logging, retries and error handling enter when a story pulls them.
 
-Write the result into the feature header at the top of the log, the `## Feature` block `define-work` wrote, creating the file if absent. Commit it on the plan branch `story/{slug}/0-plan`, the branch the `architecture` skill commits its decisions to, opening it when absent; the first story is set up after its pull request merges. In a repository with no remote, commit on main. Keep the log after the last story ships. The file has at most one `## Feature` heading, above the first dated entry; rewrite it in place and never append a second. Keep it to 40 lines above `Stories:`, with one line per story under 120 characters.
+Write the result into the epic's description, the feature header `define-work` wrote; rewrite it in place. Keep it to 40 lines. The stories and spikes are the epic's child issues, never lines in the header. When the `architecture` skill opened the plan branch `story/{slug}/0-plan` for ADRs or `AGENTS.md` changes, the first story is set up after its pull request merges.
 
 ```text
-# {slug}
-
-## Feature
 Outcome:   <the outcome sentence `define-work` wrote>
 Problem:   <who hits it, how often, what they do today instead>
 Not doing: <one checkable non-goal per line>
@@ -25,10 +22,9 @@ Decided:   <one ADR path per line, or a PRD path and section when the PRD record
 Deferred:  <one item per line: the decision, and the number, story or "waits on spike N" that forces it, or "no reasons given"; omit when none>
 feature acceptance test: <path, or "after story 1" when the interface the outcome names has no test runner yet>
 Holdout:   <the holdout's run command, `~/.holdout/<repository>/<slug>/run`; omit when the user keeps none>
-Stories:    <every story and spike, each with its number, title, outcome line, "Blocked by:", and "[walking skeleton]" where marked. A cut story stays as "<n>. cut: <reason>". Numbers never change. This line is written once and edited only to add or cut a story: a story is done when all of its pull requests have merged, and a spike when its findings have merged>
 ```
 
-Nothing else goes in the feature header. On a tracker it is the epic's description, and stories already on the board are read as the proposed stories.
+Nothing else goes in the feature header. Stories already on the board are read as the proposed stories.
 
 ### The feature acceptance test
 
@@ -51,10 +47,10 @@ A holdout scenario is an end-to-end check the user writes in the terms of the sy
 
 ## Close-out
 
-When every story in `Stories:` is done or cut:
+When every child issue of the epic is done or cut:
 
 * **The feature acceptance test.** Confirm its marker is gone and the suite is green, and go no further while it is red. When it still fails with every story done, give the user its failure message and propose the story that would make it pass.
 * **The holdout.** Every scenario is due now. Go no further until the `run` line says every due scenario passes. The user may move spent scenarios into the `feature-acceptance` directory as regression tests.
-* **The log,** on one last branch from main. Promote or drop each unpinned `Learned` line, and each spike's `Outcome`, `Approach used` and `Quirks and surprises` lines: turn it into a test, an ADR or an `AGENTS.md` line and write the pin beside it, or delete it with the user's agreement. None survives the feature. A spike's `Open questions` are closed by a story or by the user's decision; its `Dead ends` and `Decided alone` lines stay as a record. Put each `Proposed refactor` line still marked "open" to the user: do it on this branch, or drop it and delete the line. Delete every `Parked:` line and every `Feature test:` line but the last, and delete `attack-surface.md` from the shared git directory (`git rev-parse --git-common-dir`). Then open the pull request.
-* **The outcome.** Ask the user whether the `Success` signal moved, and propose a follow-up story or a cut from the answer. Ask which pause or check in this feature cost time without catching anything, and hand the answer to the `guardrails` skill to loosen or delete it. Prompt the user to observe each signal once deployed. Close the epic and keep the log file.
+* **The log comments.** Promote or drop each unpinned `Learned` line, and each spike's `Outcome`, `Approach used` and `Quirks and surprises` lines: turn it into a test, an ADR or an `AGENTS.md` line, committed on one last branch from main, and write the pin beside it, or delete it with the user's agreement. None survives the feature. A spike's `Open questions` are closed by a story or by the user's decision; its `Dead ends` and `Decided alone` lines stay as a record. Put each `Proposed refactor` line still marked "open" to the user: do it on this branch, or drop it and delete the line. Delete every `Parked:` comment and every `Feature test:` line but the last, editing or deleting comments where the tracker allows and leaving them where it does not, and delete `attack-surface.md` from the shared git directory (`git rev-parse --git-common-dir`). Then open the pull request.
+* **The outcome.** Ask the user whether the `Success` signal moved, and propose a follow-up story or a cut from the answer. Ask which pause or check in this feature cost time without catching anything, and hand the answer to the `guardrails` skill to loosen or delete it. Prompt the user to observe each signal once deployed. Close the epic.
 * **When nothing about the user's day changed,** check whether the scope was chosen or inherited. A spike's boundary may have become the project's boundary, or the work that delivers the outcome may sit behind a repository edge with no story. The sign is a feature header precise about internals and silent about the user's day.

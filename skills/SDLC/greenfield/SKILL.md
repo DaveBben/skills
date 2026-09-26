@@ -4,7 +4,7 @@ description: "Use this skill when a new repository must be stood up from a langu
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.7.0"
+  version: "1.0.0"
 ---
 # Greenfield Codebase Setup
 
@@ -14,7 +14,7 @@ Never rebuild the toolchain, test runner, linting, or CI from scratch.
 
 ## Select the Template
 
-The language is a decision that is expensive to reverse. Take it from its ADR (architecture decision record), the file the `architecture` skill wrote under `docs/adr/` in the first repository on the `Repositories:` line. That line is in the feature header, the `## Feature` block at the top of `docs/delivery/{slug}.md`, where `{slug}` is the work's short name. When the user named the language in this request, continue, and record it as an ADR in the new repository, on main, right after step 1, with the `architecture` skill's path for recording one decision. Otherwise, with no such ADR, run the `architecture` skill first; it owns a new application's path and calls this skill back. This skill runs once per repository that line marks `new: <name> <directory>`.
+The language is a decision that is expensive to reverse. Take it from its ADR (architecture decision record), the file the `architecture` skill wrote under `docs/adr/` in the first repository on the `Repositories:` line. That line is in the feature header, the description of the feature's epic on the tracker. When the user named the language in this request, continue, and record it as an ADR in the new repository, on main, right after step 1, with the `architecture` skill's path for recording one decision. Otherwise, with no such ADR, run the `architecture` skill first; it owns a new application's path and calls this skill back. This skill runs once per repository that line marks `new: <name> <directory>`.
 
 Only clone a template that exists for the project's primary language.
 
@@ -37,7 +37,7 @@ Commit at the end of each numbered step with the stated message.
 ### 1. Clone and detach
 
 * Clone the template into a scratch directory and remove its `.git` directory to sever its history.
-* When the target directory already holds a repository, as it does after the `architecture` skill created one for the feature log and ADRs, copy the template's files into it beside `docs/`. Otherwise run `git init -b main` in the target directory and copy the template in.
+* When the target directory already holds a repository, as it does after the `architecture` skill created one for the ADRs, copy the template's files into it beside `docs/`. Otherwise run `git init -b main` in the target directory and copy the template in.
 * Stage the full template as the initial state.
 * **Commit:** `chore: import <language> template`
 

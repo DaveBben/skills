@@ -2,7 +2,7 @@
 """The holdout runner. Copy it into the holdout directory as `run`.
 
 Usage, from anywhere:
-  run [--done <story numbers>] [--diff <file>]   run the confirmed scenarios, print one line
+  run [--done <story issue keys>] [--diff <file>]   run the confirmed scenarios, print one line
   run --lock S<n>                                 record S<n>'s executable as confirmed
   run --self-test
 

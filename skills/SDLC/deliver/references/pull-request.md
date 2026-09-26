@@ -9,7 +9,7 @@ Write for a reviewer who has never opened this repository and does not know the 
    writes from the repository's `CODEOWNERS` `# owner reads:` sections and
    the diff, and the Done block's `Exceptions:` line. It says `none`,
    `<n> slices`, or `whole diff of <paths>` when the slices would pass three,
-   or 120 lines in all. Until the last ten log entries carry no
+   or 120 lines in all. Until the last ten log comments carry no
    `Not caught by: exception list` line, add "shadow period: read the whole
    diff", since the list is still being tested. Omit the line for a branch
    built outside the loop.
@@ -33,9 +33,8 @@ Write for a reviewer who has never opened this repository and does not know the 
      heading "No acceptance criteria found", then one row per test the
      branch adds.
    - Criteria live in the ticket. Do not restate them verbatim here; the table
-     names them and the ticket is the text of record. When the stories live in
-     `docs/delivery/` and there is no ticket, each row carries the criterion in
-     full.
+     names them and the ticket is the text of record. For a change with no
+     issue, each row carries the criterion in full.
 
 3. **Try it:** the exact command, URL or screen that shows the outcome
    criterion working on this branch, and directly beneath it the result it

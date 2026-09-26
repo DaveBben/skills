@@ -4,7 +4,7 @@ description: "Use this skill when the repository's AGENTS.md or CLAUDE.md as a w
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "3.6.0"
+  version: "4.0.0"
 ---
 # Orient
 
@@ -21,7 +21,7 @@ Ask only what the conversation and the repository do not already answer. Batch t
 * **Not doing.** What would a reader expect this product to do that it never will? Each as a checkable statement.
 * **Nouns.** The three to five domain terms the code, tables and tests must use. Never invent synonyms.
 * **Boundaries.** The systems this product reads from, writes to, or runs inside, each by name and address, and for each store it reads, who writes the data: this product, a person through its own screens, or something outside.
-* **Backlog.** Where stories and bugs are tracked: the tracker, the project or repository, and how an agent reaches it, in order of preference (an MCP server, a CLI, an HTTP API; name the ones this team has). Write "none" when they live in `docs/delivery/`. For an in-house tracker, ask for the command or endpoint behind each operation the format reference lists.
+* **Backlog.** The tracker the SDLC skills require, the project or repository, and how an agent reaches it, in order of preference (an MCP server, a CLI, an HTTP API; name the ones this team has). It must hold epics, stories and spikes as issues, link them, and hold a description and comments: GitHub Issues, Gitea, Jira, Linear, or another with a command or endpoint per operation the format reference lists. When the team has none, help the user pick one and connect it; "none" is not an answer.
 * **Constraints.** What must stay true for every story: where data may live, what it may cost, what it runs on, who must be able to use it. Each as a checkable statement, and each naming where it is enforced: a Budget row (a test asserting the constraint's number, proposed for every change that touches it), a check in the repository's commit gate, or an ADR. Leave out a constraint with no enforcer, and say so.
 
 ## Rules
@@ -50,7 +50,7 @@ Nouns:      <term: one-line meaning, three to five lines>
 ## Tech Stack and Codebase Map
 <language and version, framework, package manager, top-level directories with one-line purposes>
 Boundaries: <system: address or path, and whether read, write or host; who writes the data in each store>
-Backlog:    <tracker, project, access methods in order, with the lines under it from the format reference; or "none; stories live in docs/delivery/">
+Backlog:    <tracker, project, access methods in order, with the lines under it from the format reference>
 ### Architecture
 <the processes, modules and flows tables the `architecture` skill writes; left out until it has run>
 
@@ -61,10 +61,10 @@ Backlog:    <tracker, project, access methods in order, with the lines under it 
 <one checkable statement per line, each ending with its enforcer, or a rule no tool can see>
 
 ## Pointers to Deeper Docs
-<path — purpose, one per line, only files that exist: docs/adr/, docs/delivery/, specs>
+<path — purpose, one per line, only files that exist: docs/adr/, specs>
 ```
 
-* **Carry the architecture over.** When a feature log (`docs/delivery/<name>.md`, one per piece of work, in the first repository its `Repositories:` line lists) holds tables or system-wide numbers the `architecture` skill wrote before `AGENTS.md` existed, copy the rows that belong to this repository under `### Architecture` (processes by their Repository cell, modules by their process, flows by their From module), and under Critical Constraints the numbers whose Budget test lives here. Delete them from the log only once every repository marked there has its own `AGENTS.md`.
+* **Carry the architecture over.** When a feature's epic on the tracker holds a comment with tables or system-wide numbers the `architecture` skill wrote before `AGENTS.md` existed, copy the rows that belong to this repository under `### Architecture` (processes by their Repository cell, modules by their process, flows by their From module), and under Critical Constraints the numbers whose Budget test lives here. Delete that comment, where the tracker allows, only once every repository the epic's `Repositories:` line marks has its own `AGENTS.md`.
 * **Charter from the interview, the rest from the repository.** Language and versions from the manifest, the package manager from the lockfile, the layout from the top-level directories, the commands from the task runner, the scripts directory or the package manifest. Run each safe command once (test, lint, format) before listing it; a command that does not run is not listed. When the repository carries no manifest, lockfile or task runner, leave the line out and name what was not found, rather than inferring a command from the file extensions.
 * **Critical Constraints end with their enforcer.** A Budget row, a commit-gate check, or an ADR. A rule no tool can see is the other kind that belongs here: never commit credentials, every migration reversible, nothing edited under `vendor/`. Vague guidance belongs nowhere. Three kinds are exempt: a number the `architecture` skill recorded as unknown, the limits `deliver` records (criteria per story, stories at once), and a note that a directory the agent must not edit is unguarded.
 * **Cap it at 100 lines and 8 KB,** the charter sections under thirty of them, and table cells under 40 characters; the `guardrails` skill's `agents-md-size` commit hook fails a larger file. A module's conventions belong in a nested instructions file in that module; a rule for one file type belongs in a path-scoped rule. The `guardrails` skill wires those.

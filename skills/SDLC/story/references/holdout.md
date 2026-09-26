@@ -2,7 +2,7 @@
 
 Load this only when the user asks for holdout scenarios by name, in a session opened in the holdout directory. A holdout scenario is an end-to-end check the user writes in the terms of the system and its data. No agent that writes a feature's criteria, tests or code ever reads it, so the build cannot be fitted to it. The directory is `~/.holdout/<repository>/<slug>/`, outside every repository. The slug is the feature's name on its `story/{slug}/` branches.
 
-This session may read the feature header (the `## Feature` block at the top of `docs/delivery/<slug>.md`, or the epic on the tracker) and the interface a person uses: the routes and their schemas, the command's help, the screens of the running app. It never reads the product's source or tests, and it writes nothing into any repository.
+This session may read the feature header (the description of the feature's epic on the tracker) and the interface a person uses: the routes and their schemas, the command's help, the screens of the running app. It never reads the product's source or tests, and it writes nothing into any repository.
 
 ## 1. Write the scenarios with the user
 
@@ -19,7 +19,7 @@ And   the refunds table has one row for INV-77 with amount 20.00
 ```
 
 * **Systems and data only.** Given names the rows a store holds or the state a person is in. When names the request, command or screen action, with values. Then and And name what comes back and the rows after, with values. No class, function or file name.
-* **`Due after:`** lists the story numbers on the feature header's `Stories:` line this scenario waits on.
+* **`Due after:`** lists the issue keys of the epic's stories this scenario waits on.
 * **`Runs:`** is 1. The user sets more for a path that can vary between runs: a call to a model, two requests racing, a timing-dependent service. The scenario passes only when every run passes.
 * **IDs never change.** A cut scenario stays as `## S<n> cut`.
 

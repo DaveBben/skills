@@ -4,7 +4,7 @@ The setup subagent loads this once the user has confirmed the story's criteria. 
 
 ## Before the red commit
 
-* **Do the proposed refactors this story touches.** Make each one its own commit on the story branch before the red commit, with the full suite green before and after. Write the commit beside that `Proposed refactor` line in the log.
+* **Do the proposed refactors this story touches.** Make each one its own commit on the story branch before the red commit, with the full suite green before and after. Write the commit beside that `Proposed refactor` line in its log comment.
 * **Pin untested legacy before changing it.** When the code the story touches has no test of its current behaviour, write characterization tests asserting what it does today, bugs included, and commit them before the red commit. They are scaffolding: the review deletes any the accepted rows make redundant.
 * **Introduce the seam first.** When legacy code offers no point to test through, add the seam (an injected dependency, an extracted function, a wrapper) as its own commit on this story's branch before the red commit. It changes no behaviour, and the full suite stays green before and after. Where the old path resists a seam, build beside it and route to the new path, rather than editing in place.
 * **Hand the story's `Interpreted` line to the `guardrails` skill.** It writes each rule on this story's branch, and the pull request lists them for the user.

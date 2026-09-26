@@ -6,7 +6,7 @@ Load this when a request is sized as one story or several stories, or when resum
 
 Run the `define-work` skill with the user before anything else. Criteria are written with the `story` skill when each story starts (section 4). A repository with no application yet belongs to the `architecture` skill, which hands back to this skill at section 2.
 
-Choose the slug: the epic's key when the stories live on a tracker, else a kebab-case name for the outcome. Every story gets its own branch `story/{slug}/{n}-{short-name}` from main, and merges back into main. No feature branch exists.
+The slug is the epic's key, or the issue's key for a one-story request. Every story gets its own branch `story/{slug}/{n}-{short-name}` from main, and merges back into main. No feature branch exists.
 
 ### Spike only when blocked
 
@@ -15,7 +15,7 @@ Choose the slug: the epic's key when the stories live on a tracker, else a kebab
 
 Do not spike when a story answers it as fast, when the question is a product decision (park the story), or when there is no falsifiable answer. When the question is what the existing system actually does, read its data, not its code.
 
-Frame the spike's question, finish line and timebox with the user. Then run the `spike` skill in a subagent with that frame, the feature's slug and the spike's number on `Stories:`; it commits its findings where the `spike` skill says and returns what its subagent mode lists. Put its decision table to the user and run the `architecture` skill to record each row marked `record`. When the spike reports that its findings contradict a decided ADR, park the stories that depend on it and run the `architecture` skill's path for deciding one open item; the new ADR names the old one on its `Supersedes:` line and replaces its path on `Decided:`. When a spike is done is defined in [next.md](next.md).
+Frame the spike's question, finish line and timebox with the user. Then run the `spike` skill in a subagent with that frame, the feature's slug and the spike's issue key; it writes its findings as the spike issue's resolution comment and returns what its subagent mode lists. Put its decision table to the user and run the `architecture` skill to record each row marked `record`. When the spike reports that its findings contradict a decided ADR, park the stories that depend on it and run the `architecture` skill's path for deciding one open item; the new ADR names the old one on its `Supersedes:` line and replaces its path on `Decided:`. When a spike is done is defined in [next.md](next.md).
 
 ## 1. Architecture
 
@@ -26,7 +26,7 @@ For a request sized as several stories, or a project with no application yet, ru
 
 ## 2. Record
 
-Load [feature-header.md](feature-header.md). It holds the rules the record keeps, the feature header's format, the plan branch, the feature acceptance test the user writes, and close-out. Write the header where Orient found the stories live.
+Load [feature-header.md](feature-header.md). It holds the rules the record keeps, the feature header's format, the feature acceptance test the user writes, and close-out. Write the header into the epic's description.
 
 ## 3. Pick the next story
 
@@ -34,9 +34,9 @@ A subagent runs [next.md](next.md) at every pick and returns its report: which s
 
 ## 4. Set up the story
 
-Take the story the user named, the request sized above, or each story section 3 picks. Cut `story/{slug}/{n}-{short-name}` from main, where `{n}` is the story's number on `Stories:` or its issue key, in its own worktree (`git worktree add` is one way), so stories can run side by side, and run the check command there. Run the section 1 check for a forced decision. When the story changes more than one repository, load [cross-repo.md](cross-repo.md).
+Take the story the user named, the request sized above, or each story section 3 picks. Cut `story/{slug}/{n}-{short-name}` from main, where `{n}` is the story's issue key, in its own worktree (`git worktree add` is one way), so stories can run side by side, and run the check command there. Run the section 1 check for a forced decision. When the story changes more than one repository, load [cross-repo.md](cross-repo.md).
 
-**Criteria.** Issue one instruction to a criteria subagent, given its own `Stories:` line, the feature header's `Outcome:`, `Not doing:`, `Constraints:`, `Context:` and `Decided:` lines, `AGENTS.md` and the worktree path. It runs the `story` skill without writing to the tracker. It greps the log for unpinned `Learned`, `Not caught by` and `Observed` lines, skipping spike `Dead ends` and pinned `Decided alone` lines. It reads each ADR on `Decided:` by its title, Decision and Detector lines, and opens one in full only when its Decision names a module, flow or store the story touches. It reads the live PRD. It returns the criteria, the card text, the lines that bear on the story as `Assumes:` lines and NON-NEGOTIABLE facts, any contradiction with the PRD, and every question it could not decide. Where a returned line changes what gets built, add or change the story and say so. Show the user the criteria in full and park the story until the user confirms or edits them. On a tracker, put them in the story's criteria field under "PROPOSED, NOT AGREED" until then, with no comment. When the user rejects them outright, reissue the criteria subagent with the objection; after a second rejection, put the story's outcome line back to the user. Where the stories live on a tracker, write the returned card text to the story's issue once confirmed.
+**Criteria.** Issue one instruction to a criteria subagent, given its own issue, the feature header's `Outcome:`, `Not doing:`, `Constraints:`, `Context:` and `Decided:` lines, `AGENTS.md` and the worktree path. It runs the `story` skill without writing to the tracker. It searches the epic's story comments for unpinned `Learned`, `Not caught by` and `Observed` lines, skipping spike `Dead ends` and pinned `Decided alone` lines. It reads each ADR on `Decided:` by its title, Decision and Detector lines, and opens one in full only when its Decision names a module, flow or store the story touches. It reads the live PRD. It returns the criteria, the card text, the lines that bear on the story as `Assumes:` lines and NON-NEGOTIABLE facts, any contradiction with the PRD, and every question it could not decide. Where a returned line changes what gets built, add or change the story and say so. Show the user the criteria in full and park the story until the user confirms or edits them. On a tracker, put them in the story's criteria field under "PROPOSED, NOT AGREED" until then, with no comment. When the user rejects them outright, reissue the criteria subagent with the objection; after a second rejection, put the story's outcome line back to the user. Where the stories live on a tracker, write the returned card text to the story's issue once confirmed.
 
 **Setup and red commit.** Then issue one instruction to a setup subagent, given the confirmed criteria, the `Assumes:` and NON-NEGOTIABLE lines, the ADR titles and the PRD path the criteria subagent returned, the worktree path and [setup.md](setup.md). It runs every step there through the red commit and returns what that reference lists. A criterion that cannot be written as a test goes back to `story`, and the user confirms the rewritten criteria.
 

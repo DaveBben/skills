@@ -10,7 +10,7 @@ The product charter. Purpose in one sentence naming an actor and an observable r
 
 Language and version, framework and version, package manager, any code generation tool, and the top-level directories only, each with a one-line purpose.
 
-End the section with Boundaries: every external system the product reads from, writes to, or runs inside, by name and address. Then the Backlog block. Its first line lists the tracker, the project and the access methods in order. The lines under it hold what an agent cannot look up: the criteria field, the checked blocking-link direction, the status names. Record methods, never which one worked in one session. With no tracker: `Backlog: none; stories live in docs/delivery/`.
+End the section with Boundaries: every external system the product reads from, writes to, or runs inside, by name and address. Then the Backlog block. Its first line lists the tracker, the project and the access methods in order. The lines under it hold what an agent cannot look up: the criteria field, the checked blocking-link direction, the status names. Record methods, never which one worked in one session.
 
 For an in-house tracker, one line per operation, with the command or endpoint and `{epic}`, `{key}`, `{file}` placeholders. The commands below are illustrative, not a real tool:
 
@@ -39,4 +39,4 @@ Two kinds belong here: a checkable statement that ends with its enforcer (a Budg
 
 ### 5. Pointers to Deeper Docs
 
-One line per document that exists: its exact path, a dash, and its purpose, such as `docs/adr/` for decision records and `docs/delivery/` for the feature logs. Never copy a pointed-to document's content into `AGENTS.md`.
+One line per document that exists: its exact path, a dash, and its purpose, such as `docs/adr/` for decision records. Never copy a pointed-to document's content into `AGENTS.md`.

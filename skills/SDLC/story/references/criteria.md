@@ -49,7 +49,7 @@ When nobody defining this work can say what goes wrong for this kind of work, sa
 
 ## 5. Fold in what constrains or enables the story
 
-* **Keep the feature's constraints.** Read the `Constraints` and `Context` lines of the feature header or the epic. Write each constraint as a criterion on this story when this story could break it. Use the `Context` facts as given, and never copy a credential's value into a criterion.
+* **Keep the feature's constraints.** Read the `Constraints` and `Context` lines of the feature header, the epic's description. Write each constraint as a criterion on this story when this story could break it. Use the `Context` facts as given, and never copy a credential's value into a criterion.
 * **Write a non-functional requirement as criteria here.** Security, a rate limit, pagination and alerting constrain how well this story behaves. A story does not close until they pass, so they cannot be dropped under schedule pressure.
 * **Write an enabler as criteria here.** A new column, a change to what a consumer reads, or a service this story calls is real work nobody perceives alone.
 * **Write a property as criteria on the story that introduces the behaviour.**
@@ -72,7 +72,7 @@ Standards are the developer's to find and hold, not the user's to approve. Trace
 
 ## 8. Write the card
 
-* **Write the card where the stories live.** On the tracker the `Backlog:` line of `AGENTS.md` lists, criteria go in the field its `Criteria:` line names, else at the top of the description. With no tracker, or when it cannot be written, give the card as text.
+* **Write the card where the stories live.** On the tracker the `Backlog:` line of `AGENTS.md` lists, criteria go in the field its `Criteria:` line names, else at the top of the description. When it cannot be written, give the card as text until it can.
 * **Open the description with the outcome and why the story is needed.** Follow the template order: Outcome, Why, Scope, Criteria, Open, Interpreted.
 * **Title the observable outcome.** "Add the status column" is a work order. "An unconvertible reading shows apart from one never checked" is a story.
 * **Keep the description to the work.** Put rationale, ordering, review objections and provenance in comments.

@@ -54,7 +54,9 @@ REPO = gauge.REPO
 # fact, not a workaround of agile's rule) lets Frame resolve itself and the
 # run reach Decide, where `architecture`'s trigger applies. Verified directly: the
 # same query on plain "fresh" stalls at the Frame question every time; on
-# this fixture the agent proceeds and calls Skill:architecture.
+# this fixture the agent proceeds and calls Skill:architecture. The SDLC skills
+# require a tracker, so the file also carries a `Backlog:` line; a run that
+# cannot reach it stops at the tracker read, after the skill has fired.
 CONTEXT_MD = """# orders-api
 
 Purpose: place, capture and export orders for the checkout team.
@@ -66,15 +68,16 @@ no user is available mid-task to confirm scope or approve an implementation
 choice. Pick the most reasonable outcome and approach yourself, record the
 choice, and proceed rather than stopping to ask.
 Constraints: Node/Express + Postgres, no new paid infra without sign-off.
+Backlog: GitHub Issues at acme/orders-api; `gh`
 """
 
 
 def build_fresh_adr(root, fresh):
-    """A copy of the fresh fixture with one added file: CONTEXT.md. See the
+    """A copy of the fresh fixture with one added file: AGENTS.md. See the
     comment on CONTEXT_MD above for why."""
     dest = os.path.join(root, "fresh-adr")
     subprocess.run(["cp", "-r", fresh, dest], check=True)
-    with open(os.path.join(dest, "CONTEXT.md"), "w") as fh:
+    with open(os.path.join(dest, "AGENTS.md"), "w") as fh:
         fh.write(CONTEXT_MD)
     gauge._git(dest, "add", "-A")
     gauge._git(dest, "commit", "-qm", "add context")

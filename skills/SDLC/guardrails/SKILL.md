@@ -4,7 +4,7 @@ description: "Use this skill when a repository's automated checks must be set up
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.3.0"
+  version: "2.0.0"
 ---
 # Guardrails
 

@@ -36,7 +36,7 @@ NON-NEGOTIABLE
 pinned addresses, concurrency limits, byte-frozen files, query shapes measured
 as slow. Every value from the code, with its file and line, never from a spec
 or README; where the two disagree, say so>
-<from the Architecture block in `AGENTS.md`, or from the feature log below the feature header before `AGENTS.md` exists: the module this story's code lives in, the flows it may call, and the pattern
+<from the Architecture block in `AGENTS.md`, or from the architecture comment on the epic before `AGENTS.md` exists: the module this story's code lives in, the flows it may call, and the pattern
 rule on each flow where one is set; no description>
 Do not modify anything outside <paths>.
 

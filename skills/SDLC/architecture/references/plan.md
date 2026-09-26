@@ -8,7 +8,7 @@ A crossing is a place the walking skeleton's outcome passes from one running pie
 
 * **List every crossing** the walking skeleton makes.
 * **Ask which crossings someone has already made work** in this stack. The user decides which count as tried.
-* **Run a spike on each untried crossing before section 3.** Frame its falsifiable question, finish line and timebox with the user, such as "the app can read Health data while the phone is locked". Then run the `spike` skill in a subagent with that frame, the feature's slug and the spike's number on `Stories:`. It commits its findings where the plan is committed and returns its verdict and its decision table; put the table to the user and record each row marked `record`. Sections 3 to 5 use the findings.
+* **Run a spike on each untried crossing before section 3.** Frame its falsifiable question, finish line and timebox with the user, such as "the app can read Health data while the phone is locked". Then run the `spike` skill in a subagent with that frame, the feature's slug and the spike's issue key: a child issue of the epic with the spike type or a `spike` label, blocking the walking-skeleton story. It writes its findings as that issue's resolution comment and returns its verdict and its decision table; put the table to the user and record each row marked `record`. Sections 3 to 5 use the findings.
 
 ## 3. Numbers and sensitive data
 
@@ -53,7 +53,7 @@ Propose three tables, only for what the outcome touches, and stop. The user edit
 
 ## 6. Record and revise
 
-* **Write the tables into `AGENTS.md`** under a `### Architecture` heading inside Tech Stack and Codebase Map. Before `AGENTS.md` exists, write them into the feature log below the feature header; the `orient` skill moves them, and the numbers, into `AGENTS.md` when it writes that file. Commit them with the plan. Each repository's `AGENTS.md` holds the processes whose Repository cell names it, the modules whose process runs in it, and the flows whose From module is in it. Keep every table cell under 40 characters.
+* **Write the tables into `AGENTS.md`** under a `### Architecture` heading inside Tech Stack and Codebase Map. Before `AGENTS.md` exists, write them as a comment on the epic; the `orient` skill moves them, and the numbers, into `AGENTS.md` when it writes that file. Otherwise commit them with the plan. Each repository's `AGENTS.md` holds the processes whose Repository cell names it, the modules whose process runs in it, and the flows whose From module is in it. Keep every table cell under 40 characters.
 * **A flow inside one process leaves the Flows table** once the `guardrails` skill has written its dependency contract ("From may import To"), so a reversed dependency fails the build. Hand the in-process flows to `guardrails` in a subagent once the tables are recorded. `AGENTS.md` stays under its 100-line cap this way.
 * **Ask which modules the user reads on every change:** those deciding who may do what, or touching secrets, money, health or personal data, schema migrations or deploys. The user reads other code only when a pull request points to it. Hand those modules' directories to `guardrails` with the flows, as `# owner reads: data` lines of `CODEOWNERS`.
 * **Rewrite the tables in the last commit of any story's branch** that changes a process, a module's name or Owns cell, or a flow.

@@ -4,7 +4,7 @@ description: "Use this skill when the user wants to find something out by buildi
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.9.0"
+  version: "1.1.0"
 ---
 # Spike
 
@@ -12,9 +12,9 @@ Prove or disprove a specific assumption with the smallest amount of throwaway co
 
 ## Subagent mode
 
-When `deliver` or `architecture` runs this skill in a subagent, it hands over the question, the finish line, the timebox, the feature's slug and the spike's number on `Stories:`. Then this skill talks to nobody: skip framing and the disposable notice, and return, in place of every question to the user:
+When `deliver` or `architecture` runs this skill in a subagent, it hands over the question, the finish line, the timebox, the feature's slug and the spike's issue key. Then this skill talks to nobody: skip framing and the disposable notice, and return, in place of every question to the user:
 
-* the verdict, and the commit or tracker comment that holds the findings
+* the verdict, and the link to the resolution comment that holds the findings
 * the `Decided alone` table from "When the Spike Resolves", unmarked
 * any credential or config value it needs, by name
 * whether a finding contradicts a decided ADR, and which one
@@ -43,9 +43,9 @@ The single exception: when the measured outcome is only observable through a tes
 
 ## Record Findings Continuously
 
-Maintain a running findings log from the first moment, not at the end. Never leave a finding in the chat only.
+Maintain a running findings log from the first moment, not at the end: the spike issue's comment, edited as findings surface where the tracker allows edits, or the findings file when there is no tracker. Never leave a finding in the chat only.
 
-When the target has no repository yet, run `git init -b main` there and commit only the findings. Write the log as one entry in `docs/delivery/{slug}.md`, titled `spike: <the question>`. The slug is the feature's slug the caller handed over, else a kebab-case name for the question. Create the file if absent. When `AGENTS.md` names a per-change spec directory, the log is the bottom of that change's spec instead. Commit the entry alone: where `architecture` commits its plan when it called the spike (the branch `story/{slug}/0-plan`, or main in a repository with no remote); otherwise on a branch from main (`story/{slug}/{n}-spike-{short-name}` when `deliver` called it, where `{n}` is the spike's number on `Stories:`) with a pull request the user merges. Where the repository has no remote, the user merges the branch locally. When the `Backlog:` line of `AGENTS.md` lists a tracker, write the same entry as the resolution comment on the spike's issue instead, and create no file. When that tracker cannot be written, write the file as above and add a line to an `## Outbox` section at its end, the list of tracker writes still owed: `- comment <spike key>: entry "spike: <the question>"`.
+The findings go on the tracker the `Backlog:` line of `AGENTS.md` names, as the resolution comment of the spike's issue: a child issue of the feature's epic, with the spike type or a `spike` label, blocking each story that waits on its answer. Create it when the caller handed over none. With no `Backlog:` line, write the same findings to `docs/spikes/<question-slug>.md` in the repository instead, committed on its own branch as the findings pull request; each decision row marked `record` still becomes an ADR. When the tracker cannot be written, keep the findings in the session and write them once it can.
 
 Record each finding as it surfaces, as a `Learned` line in this shape. Repeat any line as often as there are findings of that kind.
 
@@ -91,8 +91,8 @@ Stop building the moment the finish-line signal appears. Then:
 | <what was chosen> | <the alternative not taken> | <the evidence behind the choice> | <what reversing it costs> | <the user marks this cell> |
 ```
 
-  The user marks each row `record`, `drop`, or `defer`. Run the `architecture` skill to record each `record` row. A `drop` stays a `Decided alone` line in the log and nothing more. A `defer` becomes an open question. Do not write an ADR the user has not marked, and do not skip a row because it looked small; the user decides what is small.
-* **Hand off, do not merge:** Do not open a PR of spike code, do not merge it, do not evolve it in place into the official build. The official build starts fresh from the findings. Delete the spike code once the findings are committed, and record the deletion in the log.
+  The user marks each row `record`, `drop`, or `defer`. Run the `architecture` skill to record each `record` row. A `drop` stays a `Decided alone` line in the findings and nothing more. A `defer` becomes an open question. Do not write an ADR the user has not marked, and do not skip a row because it looked small; the user decides what is small.
+* **Hand off, do not merge:** Do not open a PR of spike code, do not merge it, do not evolve it in place into the official build. The official build starts fresh from the findings. Delete the spike code once the findings comment is written, and say so in it.
 
 ## Guardrails
 
