@@ -53,19 +53,12 @@ Use, in order, an MCP server the session already has, the tracker's own CLI, the
 
 | In the loop | On the board |
 |---|---|
-| The feature | The epic. Its key is the slug. |
-| The feature header | The epic's description, in the same lines: Outcome, Problem, Not doing, Success, Constraints, Context, Repositories, Steps, Decided (ADR or PRD paths), Deferred, feature acceptance test path. `Stories:` is not written; the children are the list. |
-| A story and its criteria | A child story. Its outcome line goes in the description when the story is proposed. The Given/When/Thens, written when the story starts, go in its acceptance-criteria field, or at the top of its description when the board has no such field. |
-| Story order | Rank is the customer's order and blocking links are the dependencies. `references/next.md` reads both at every story pick. |
-| A story's branch and pull request | `story/{epic-key}/{story-key}-{short-name}`. The pull request title starts with the key, and the issue carries the pull request link. |
-| Status | To Do until the branch is cut, In Progress from branch cut, In Review from pull request, Done at merge. Use the board's own column names. |
+| Status | To Do until the branch is cut, In Progress from branch cut, In Review from pull request, Done at merge; a cut story is closed with the reason as its resolution comment. Use the board's own column names. |
 | The log entry for a story | A comment on the story, written when its pull request opens, in the form `log.md` gives: Done, Learned, Not caught by, Proposed refactor, Feature test, Observed. At merge it becomes the resolution, with the Done status. Observed is a second comment when it arrives later. |
 | A finding about the system, not one story | A comment on the epic, so close-out finds every one in one place. |
 | A bug in shipped work | A bug issue linked to the epic, ranked by the user. `Not caught by` is its resolution comment. |
-| A spike | A spike issue linked to the epic. The findings log is its resolution comment, every line a `Learned` line. |
-| An ADR | Stays in `docs/adr/`. The epic description links it under Decided. |
-| The architecture tables | Stay in `AGENTS.md`, under the Architecture block. |
-| The feature acceptance test | Stays in the repo. The epic description names its path. |
+
+The feature is the epic and its key is the slug; the feature header is its description; each story is a child issue whose criteria go in the criteria field.
 
 ## When the board is already filled
 
@@ -74,12 +67,6 @@ Use, in order, an MCP server the session already has, the tracker's own CLI, the
 * **An epic with no description** gets the header written into it after `deliver` sections 0 through 2 run, the same as a new epic.
 * **Sprints are not pauses.** The loop runs the epic's children as `references/next.md` picks them and crosses a sprint boundary without stopping. A team that wants the loop to stop at the sprint edge adds that rule to `AGENTS.md`.
 * **Several epics are several features.** One slug, one log, one loop each, never interleaved in one session.
-
-## Pauses on the board
-
-* A new story or bug the loop adds is created on the board and listed in the next message to the user, who can cut or re-rank it.
-* A forced decision is recorded as an ADR in the repo, and the epic description's Decided line gains the path.
-* A story the user cuts is closed on the board with the reason as its resolution comment.
 
 ## When the tracker cannot be reached
 

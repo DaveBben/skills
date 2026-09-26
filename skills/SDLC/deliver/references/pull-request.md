@@ -4,6 +4,16 @@ Load this when a story's pull request opens, or when the user asks for a descrip
 
 Write for a reviewer who has never opened this repository and does not know the feature. Under one screen, in this order.
 
+0. **Read code:** the first line, for the user who reads code only when a
+   signal fires. The signals are the lines of `exceptions.txt`, which verify
+   writes from the repository's `CODEOWNERS` `# owner reads:` sections and
+   the diff, and the Done block's `Exceptions:` line. It says `none`,
+   `<n> slices`, or `whole diff of <paths>` when the slices would pass three,
+   or 120 lines in all. Until the last ten log entries carry no
+   `Not caught by: exception list` line, add "shadow period: read the whole
+   diff", since the list is still being tested. Omit the line for a branch
+   built outside the loop.
+
 1. **Why,** two or three sentences: what the product is and who uses it; the
    outcome this change serves; where this change sits in it ("two of five
    stories shipped: the upload and the thumbnail").
@@ -43,17 +53,28 @@ Write for a reviewer who has never opened this repository and does not know the 
    environment this ships to; anything a revert cannot undo; a diff touching
    authentication, authorization, secrets, money, health or personal data.
    Name the file. Omit the section only when every line would be empty.
+   Each signal is one slice of at most 40 lines of the hunk it names, in
+   four lines:
+   `Read: <file>:<first>-<last> (<n> lines) — <the signal>`, linked to those
+   lines of the diff on the code host, or followed by the code without a remote;
+   `Decides:` what that code decides, in the system's terms;
+   `Covered by:` the test, and whether its mutation was killed;
+   `Question:` the one yes-or-no the user answers after reading.
 
 6. **Assumes,** one line per fact the change rests on that was read from a
    document rather than from the code, and how it was checked. Omit when empty.
 
-7. **Read first:** the one file a reviewer opens to understand the change.
+7. **Read first:** the first slice, or, when there is none, the one file a
+   reviewer opens to understand the change.
 
 8. **The rest,** collapsed where the host supports it: the edge-case rows
    and other tests beyond the criteria table, the rules the `guardrails` skill
    wrote on the branch, what is deliberately deferred and to which change, and
-   the review's Done block or the feedback points when the change came from
-   `deliver`.
+   from the review's Done block only its Correctness, Subtraction, Scars,
+   Decided alone and Gate lines, or the feedback points, and the verify's
+   `Scenarios:` and the attack's `Attack:` lines, when the change came
+   from `deliver`.
 
 9. **Signal:** the event someone reads to know it worked once deployed, and the
-   counter-signal that would show it silently not working.
+   counter-signal that would show it silently not working, with the `Success`
+   line's good direction and noise band.

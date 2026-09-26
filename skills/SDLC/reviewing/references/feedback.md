@@ -6,8 +6,7 @@ Loaded by the `reviewing` skill when the subject is code, a test, a design, a pl
 
 * **The subject** is the thing the user just wrote or said: the last chat message, a file they name, a diff, a document. When it is ambiguous which, ask once.
 * **Its job** is what it must do: the behaviour the code must produce, the decision the document must support, the bug the fix idea must remove. Take it from the acceptance criterion or the test that states it; when neither exists, take it from the conversation or the document's own opening. When nothing states it, ask one question and wait.
-* **Read the ground before judging.** When the subject touches a repository, read the code it names and the code it will call. A bug-fix idea is checked against every caller of the function it changes. An implementation idea is checked against what the codebase already has. An architecture document's claims about the system are checked against the system. A design for a system that does not exist yet is checked against the constraints the user has stated. Never assess from the subject's own description of the code.
-* **When the ground cannot be read,** say which file or symbol is missing and give only the points that stand without it. Do not assume what the unread code does.
+* **The ground,** beyond the code the subject lands on: an implementation idea is checked against what the codebase already has, a document's claims about the system against the system, and a design for a system that does not exist yet against the constraints the user has stated.
 
 ## Sort Every Point Into One Tier
 
@@ -55,8 +54,4 @@ Preference — <one line, only when asked>
 
 ## Communication
 
-* **A fact stands alone.** Do not explain why finding it matters.
-* **No contrast frames.** State what the code does; do not frame every point as "X, not Y".
-* **Use the user's words for the subject.** The names in this skill (subject, job, tier) stay out of chat.
-* **Full sentences.** No headline fragments in chat. The tier name is one word at the start of the point.
-* **Stop when the points stop.** No summary, no encouragement, no offer to rewrite.
+The writing rules `reviewing` loads apply. The words subject and job stay out of chat; a tier name is one word at the start of its point. Stop when the points stop: no summary, no encouragement, no offer to rewrite.

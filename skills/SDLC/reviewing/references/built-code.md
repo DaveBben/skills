@@ -8,7 +8,7 @@ Inputs: the change, its acceptance tests and the accepted test table (an index t
 
 ## 1. Correctness
 
-* **Run the mutation step over the changed files** where the harness has one; a surviving mutant on an accepted row is the finding. Where no runner exists, apply every `Killed by` mutation from the accepted test table by hand, and every builder-added test by its listed `Killed by`, one at a time, and confirm the named row goes red. A row that stays green asserts nothing: fix the test, not the mutation. When no table exists either, mutate one line per test. Where a `Killed by` names an observable change instead of a line, find the line in the built code that produces the behaviour and mutate that.
+* **Run the mutation step over the changed files** where the harness has one; a surviving mutant on an accepted row is the finding. Where no runner exists, apply every `Killed by` mutation from the accepted test table by hand, and every builder-added test by its listed `Killed by`, one at a time, and confirm the named row goes red. A row that stays green asserts nothing: fix the test, not the mutation. When no table exists either, mutate one line per test. Where a `Killed by` names an observable change instead of a line, find the line in the built code that produces the behaviour and mutate that. A surviving mutant you judge cannot change behaviour (`>=` for `>` on a value never equal) is listed with its reason; when it sits on a line an accepted row's `Killed by` names, or in a path under a `# owner reads:` heading of `CODEOWNERS`, it goes on the `Exceptions:` line too, since that judgement is the review grading the build's own test.
 * **Diff every accepted test file against the red commit**, the commit `deliver` makes before the build. Any change to an accepted test is a finding. When no red commit exists, say so in the Done block.
 * **Check every accepted test is present** and asserts observable behaviour.
 * **Delete tests asserting incidental detail** of how the code was built: a private function, internal call order, a log line. The user's feature acceptance test, in the test tree's `feature-acceptance` directory, is outside every pass: never edit, delete or re-mark it.
@@ -52,7 +52,7 @@ Commit before the refactor and again after it. After the refactor commit, re-run
 
 ## Done
 
-Print this block when all three passes have run. Every line is a fact from this session, never a summary.
+Write this block when all three passes have run. Every line is a fact from this session, never a summary. Run by `deliver`, write it to `done-block.md` in the worktree's git directory (`git rev-parse --git-dir`) and return only whether the review is done, the `Rules:` line and the `Proposed refactor:` lines. Run alone, print it.
 
 ```text
 DONE
@@ -66,6 +66,7 @@ Gate:        <the check command and its result>
 Criteria:    <one row per acceptance criterion: the criterion in a few words, the exact test name, and passed as seen in this run>
 Changed:     <one line per new function, module or branch: what it is for and its file>
 Rules:       <each confirmed finding a pattern could match, for the `guardrails` skill; or "none">
+Exceptions:  <one line per code the user must read: <file>:<line>, the equivalent mutant or the finding no failing test confirmed and no reading refuted, and the one test that would settle it; or "none">
 ```
 
-A survived mutation that is not fixed, or a scar that is not checked, means the block cannot be printed and the change is not done. The same holds when the check command errors instead of reporting pass or fail: report the command, its exit status and its output, and stop. `Decided alone:` lists every choice between alternatives the user did not see and did not have to: an internal name, a helper split, a fixture shape, a default a test pins. A choice a later change inherits (a dependency, a port, an address, a schedule, a format, a schema, a domain noun) is asked before it is made, never listed here after. An empty line means no such choice was made, not that none was noticed.
+A survived mutation that is neither fixed nor listed as unable to change behaviour, or a scar that is not checked, means the block cannot be printed and the change is not done. The same holds when the check command errors instead of reporting pass or fail: report the command, its exit status and its output, and stop. `Decided alone:` lists every choice between alternatives the user did not see and did not have to: an internal name, a helper split, a fixture shape, a default a test pins. A choice a later change inherits (a dependency, a port, an address, a schedule, a format, a schema, a domain noun) is asked before it is made, never listed here after. An empty line means no such choice was made, not that none was noticed.

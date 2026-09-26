@@ -1,0 +1,5 @@
+# Change without new behaviour
+
+The subagent for a request sized as no behaviour change loads this: a refactor, a dependency bump, a rename, or tests added for behaviour that already exists. It returns the log entry's `Done` line and the pull request description's lines.
+
+The slug is a short kebab-case name for the change. Cut `story/{slug}/0-{short-name}` from main and run the full suite, which must be green. To add tests for existing behaviour, run the `story` skill's route for existing behaviour; the new tests pass on the current code, and nothing else changes. When the code to change has no test of its current behaviour, commit characterization tests first. Make the change as a mechanical tool run where one exists: the language's refactoring tool, a codemod or a script. Run the full suite again, green, with no existing test changed except for a rename the tool made, and run the `reviewing` skill on the code built, whose correctness pass checks that no test changed its assertion. Write a log entry by [log.md](log.md) only when it has a line besides `Done`. The pull request's criteria section says "No behaviour change" and lists the tests that prove it.
