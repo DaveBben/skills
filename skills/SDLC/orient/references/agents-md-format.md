@@ -76,9 +76,11 @@ Technology belongs in Tech Stack, not here.
 - `app.py` — CDK app entry point
 ```
 
-Keep the directory layout to top-level directories only. The module map `deliver` writes goes after the layout, as its modules table and its flows table.
+Keep the directory layout to top-level directories only.
 
 End the section with Boundaries: every external system the product reads from, writes to, or runs inside, by name and address. Then the Backlog block. Its first line lists the tracker, the project and the access methods in order. The lines under it hold what an agent cannot look up: the criteria field, the checked blocking-link direction, the status names. Record methods, never which one worked in one session.
+
+The section ends with a `### Architecture` heading, after Boundaries and Backlog, holding the three tables the `architecture` skill writes: processes, modules and flows. A flow inside one process leaves the table once the `guardrails` skill has written its dependency contract.
 
 ```markdown
 Backlog:   Jira project PAY at https://acme.atlassian.net; Atlassian MCP server, else `acli jira`

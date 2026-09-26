@@ -1,12 +1,6 @@
----
-name: give-feedback
-description: "Use this skill when the user wants an opinion on something they made or proposed themselves: code they wrote by hand, a test, a design, a data model, a plan, an approach, or their idea for a fix, at any stage from a chat message to a committed diff. Use it on: 'give me feedback', 'what do you think of this', 'critique this', 'poke holes in this', 'is this a good approach', 'here is how I would fix it, thoughts?', 'here is my design', 'rate my code', 'review what I wrote', 'how could I have done this better', 'what am I missing'. Grounds each point in the code or the source, sorts it into wrong, unverified, shape and taste, names the principle behind it, and leaves the rewrite to the user. Not for code the agent built (`review-build`), a pull request (`merge-request`), or a story's criteria (`story`)."
-license: MIT
-compatibility: any-agent
-metadata:
-  version: "1.1.0"
----
-# Give Feedback
+# Review work the user made
+
+Loaded by the `reviewing` skill when the subject is code, a test, a design, a plan or a fix idea the user made and wants an opinion on.
 
 ## Find the Subject and Its Job
 

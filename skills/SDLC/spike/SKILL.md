@@ -1,14 +1,25 @@
 ---
 name: spike
-description: "Use this skill when the user wants to find something out by building throwaway code rather than ship it: proving an approach, prototyping, mocking something up (not a test double), a demo, or exploring what an integration or change would involve. Use it on: 'let's prove this works first', 'let's prototype this idea', 'let's mock this up', 'build a quick throwaway', 'build a demo', 'let's do a spike on it', 'let's see if X is feasible', 'let's see how this integration would work', 'let's see what changes would be needed', 'explore how this would fit'. Use it on the words prototype, mock, demo, throwaway, spike, feasible and explore even when the ask sounds small. Builds the smallest thing that answers one question inside a timebox, records findings as they surface, and deletes the code. Not for code meant to ship (`deliver`) or a new project meant to last (`greenfield`)."
+description: "Use this skill when the user wants to find something out by building throwaway code rather than ship it: proving an approach, prototyping, mocking something up (not a test double), a demo, or exploring what an integration or change would involve. Use it on: 'let's prove this works first', 'let's prototype this idea', 'let's mock this up', 'build a quick throwaway', 'build a demo', 'let's do a spike on it', 'let's see if X is feasible', 'let's see how this integration would work', 'let's see what changes would be needed', 'explore how this would fit'. Use it on the words prototype, mock, demo, throwaway, spike, feasible and explore even when the ask sounds small. Builds the smallest thing that answers one question inside a timebox, records findings as they surface, and deletes the code. Not for code meant to ship (`deliver`), a new project meant to last, or a choice made without building anything (`architecture`)."
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.7.0"
+  version: "0.8.0"
 ---
 # Spike
 
 Prove or disprove a specific assumption with the smallest amount of throwaway code.
+
+## Subagent mode
+
+When `deliver` or `architecture` runs this skill in a subagent, it hands over the question, the finish line, the timebox, the feature's slug and the spike's number on `Stories:`. Then this skill talks to nobody: skip framing and the disposable notice, and return, in place of every question to the user:
+
+* the verdict, and the commit or tracker comment that holds the findings
+* the `Decided alone` table from "When the Spike Resolves", unmarked
+* any credential or config value it needs, by name
+* whether a finding contradicts a decided ADR, and which one
+
+The calling session puts the table to the user and records each row marked `record`.
 
 ## Frame the Spike Before Writing Code
 
@@ -34,7 +45,7 @@ The single exception: when the measured outcome is only observable through a tes
 
 Maintain a running findings log from the first moment, not at the end. Never leave a finding in the chat only.
 
-Write the log as one entry in `docs/delivery/{slug}.md`, titled `spike: <the question>`. The slug is the story's slug when `deliver` called the spike, else a kebab-case name for the question. Create the file if absent. When `AGENTS.md` names a per-change spec directory, the log is the bottom of that change's spec instead. Commit the entry alone on a branch from main (`story/{slug}/{n}-spike-{short-name}` when `deliver` called the spike) and open a pull request the user merges. When the `Backlog:` line of `AGENTS.md` lists a tracker, write the same entry as the resolution comment on the spike's issue instead, and create no file. When that tracker cannot be written, write the file as above and add a line to an `## Outbox` section at its end, the list of tracker writes still owed: `- comment <spike key>: entry "spike: <the question>"`.
+When the target has no repository yet, run `git init -b main` there and commit only the findings. Write the log as one entry in `docs/delivery/{slug}.md`, titled `spike: <the question>`. The slug is the feature's slug the caller handed over, else a kebab-case name for the question. Create the file if absent. When `AGENTS.md` names a per-change spec directory, the log is the bottom of that change's spec instead. Commit the entry alone: where `architecture` commits its plan when it called the spike (the branch `story/{slug}/0-plan`, or main in a repository with no remote); otherwise on a branch from main (`story/{slug}/{n}-spike-{short-name}` when `deliver` called it, where `{n}` is the spike's number on `Stories:`) with a pull request the user merges. Where the repository has no remote, the user merges the branch locally. When the `Backlog:` line of `AGENTS.md` lists a tracker, write the same entry as the resolution comment on the spike's issue instead, and create no file. When that tracker cannot be written, write the file as above and add a line to an `## Outbox` section at its end, the list of tracker writes still owed: `- comment <spike key>: entry "spike: <the question>"`.
 
 Record each finding as it surfaces, as a `Learned` line whose bold headline is one of these:
 
@@ -81,7 +92,7 @@ Stop building the moment the finish-line signal appears. Then:
 
 * **State the verdict:** Report to the user whether the question is proven, disproven, or inconclusive, and point to the finding that settles it.
 * **Confirm the findings log is complete:** Every quirk, approach, dead end, and open question is written down before the code is discarded.
-* **Surface the decisions for review.** Read the `Decided alone` lines. Keep every one that meets the `adr` threshold: expensive or irreversible to change, a hazard accepted without a test, an alternative explicitly rejected, or knowledge that cost time to acquire. Put them to the user in one table:
+* **Surface the decisions for review.** Read the `Decided alone` lines. Keep every one that meets the threshold for a decision record: expensive or irreversible to change, a hazard accepted without a test, an alternative explicitly rejected, or knowledge that cost time to acquire. Put them to the user in one table:
 
 ```text
 | Chosen | Rejected | Why | Cost to change later | record / drop / defer |
@@ -89,7 +100,7 @@ Stop building the moment the finish-line signal appears. Then:
 | <what was chosen> | <the alternative not taken> | <the evidence behind the choice> | <what reversing it costs> | <the user marks this cell> |
 ```
 
-  The user marks each row `record`, `drop`, or `defer`. Run the `adr` skill for each `record`. A `drop` stays a `Decided alone` line in the log and nothing more. A `defer` becomes an open question. Do not write an ADR the user has not marked, and do not skip a row because it looked small; the user decides what is small.
+  The user marks each row `record`, `drop`, or `defer`. Run the `architecture` skill to record each `record` row. A `drop` stays a `Decided alone` line in the log and nothing more. A `defer` becomes an open question. Do not write an ADR the user has not marked, and do not skip a row because it looked small; the user decides what is small.
 * **Hand off, do not merge:** Do not open a PR of spike code, do not merge it, do not evolve it in place into the official build. The official build starts fresh from the findings. Delete the spike code once the findings are committed, and record the deletion in the log.
 
 ## Guardrails
@@ -97,4 +108,4 @@ Stop building the moment the finish-line signal appears. Then:
 * **One question per spike:** When a second unknown appears, record it as an open question and scope a separate spike. Never let a spike sprawl into an implementation.
 * **Findings before code quality:** Never spend spike time making throwaway code clean. Spend it producing and recording findings.
 * **Never ship a spike:** Spike code does not become the official build by momentum. State this whenever the user proposes keeping it.
-* **Time and scope are bounded:** When the timebox runs out, or the spike outgrows "smallest thing that answers the question," halt and report that the question is larger than a spike. Hand off to `deliver`.
+* **Time and scope are bounded:** When the timebox runs out, or the spike outgrows "smallest thing that answers the question," halt and report that the question is larger than a spike. Hand off to `deliver`, or to `architecture` when no application exists yet.

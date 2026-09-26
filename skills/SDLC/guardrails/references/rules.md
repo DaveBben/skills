@@ -1,22 +1,8 @@
----
-name: make-rule
-description: "Use this skill when one rule, convention or recurring mistake is to be enforced, or when instruction files are to be audited for rules a check could enforce. Use it on: 'add a rule', 'make this a rule', 'always do X', 'never do Y', 'add this line to CLAUDE.md', 'add this to AGENTS.md', 'the agent keeps making this mistake', 'stop the agent doing X', 'enforce this convention', 'ban this pattern', 'stop people calling X directly', 'write a semgrep rule', 'custom lint rule', 'catch SQL injection automatically', 'which of these instructions could be lint rules', 'audit CLAUDE.md'. Places each rule in the first place that holds: a deterministic check (a linter setting, a Semgrep rule, a type check), then a path-scoped agent rule file, then one line in AGENTS.md. Not for setting up the toolchain or hooks (`guardrails`), or writing the whole AGENTS.md (`orient`)."
-license: MIT
-compatibility: any-agent
-metadata:
-  version: "2.0.1"
----
-# Make Rule
+# Enforce one rule
 
-A rule a program checks is followed every time. A rule an agent reads is followed when the agent remembers it. Put every rule as far up this ladder as it will go.
+Loaded by the `guardrails` skill when one rule, convention or recurring mistake must be enforced, when the instruction files are audited for rules a check could enforce, or when the `story` skill hands over its `Interpreted` line.
 
-| Rung | Where the rule lives | Use when |
-| --- | --- | --- |
-| 1. Deterministic | A linter setting, a Semgrep rule, a type check, a dependency contract, a test | A program can decide pass or fail from the code, the config or the command alone |
-| 2. Scoped agent rule | A rule file the agent loads only for matching paths (`.claude/rules/*.md` with `paths:`, `.cursor/rules/*.mdc` with `globs:`, `.github/instructions/*.instructions.md` with `applyTo:`), or a nested `AGENTS.md` in one module's directory | It needs judgment, and it applies to some paths, one kind of file or one module |
-| 3. Agent instructions | One line in `AGENTS.md` | It needs judgment, and it applies everywhere |
-
-Use the rule-file format of the agent this repository already configures. When the repository configures none, and the agent in use has no path-scoped format, the rule goes to rung 3.
+Put every rule as far up the ladder in SKILL.md, section "Where a rule lives", as it will go.
 
 ## Add one rule
 
@@ -24,9 +10,9 @@ Use the rule-file format of the agent this repository already configures. When t
 2. **Try rung 1, cheapest first.** Stop at the first that holds.
    * **The language or framework already prevents it:** a compiler flag, a stricter type-checker setting, a framework default. Turn it on.
    * **The project's linter ships the rule:** ESLint, Ruff, golangci-lint, Clippy, RuboCop, Checkstyle, SwiftLint. Search that linter's rule list before writing anything. Enable the rule in the existing config at error severity, with the options the rule needs.
-   * **The rule is about which module may import which:** it is a dependency contract. Hand it to `guardrails`, which owns contracts.
-   * **The rule is about what the agent runs, not the code it writes:** "never force-push", "never edit the migrations directory". It is a hook or a deny-list entry in the agent's settings. Hand it to `guardrails`, which owns both.
-   * **The rule is a pattern over source that no shipped rule matches:** write a Semgrep rule. Load [references/semgrep.md](references/semgrep.md) now. It covers installing the engine, what a pattern can and cannot see, writing the rule, proving it fires, and landing it on code that already breaks it.
+   * **The rule is about which module may import which:** it is a dependency contract. Write it as a contract by the Contracts section of `references/setup.md`.
+   * **The rule is about what the agent runs, not the code it writes:** "never force-push", "never edit the migrations directory". It is a hook or a deny-list entry in the agent's settings. Write it by the Loop and Guards sections of `references/setup.md`.
+   * **The rule is a pattern over source that no shipped rule matches:** write a Semgrep rule. Load `references/semgrep.md` now; SKILL.md lists it. It covers installing the engine, what a pattern can and cannot see, writing the rule, proving it fires, and landing it on code that already breaks it.
    * **The rule is a fact about behaviour:** "every endpoint returns JSON errors". It is a test, not a lint rule. Say which test would hold it.
 3. **Fall to rung 2** when no program can decide it but the rule applies only to some paths, such as "components in `src/ui/` take props, never read the store". Write one rule file per topic, with the path glob in its frontmatter and the rule as one imperative sentence plus the reason. Check how the format matches globs. Claude Code uses gitignore rules, so `"*.py"` matches only files at the root, and the file needs `"**/*.py"` as well. Touch one matching file and one non-matching file to confirm the rule loads for the first only.
 4. **Fall to rung 3** only when the rule needs judgment and applies everywhere, such as "ask before adding a dependency". Add one line under the constraints section `AGENTS.md` already has. When `AGENTS.md` does not exist, offer `orient` first.
@@ -58,8 +44,8 @@ The user cuts rows by number, and a row not cut is accepted. Convert each accept
 
 ## Defend where input becomes instructions
 
-The `story` skill hands over each place a story's input reaches something that interprets it: a query, a shell, a template, a parser. For each technology involved, read the vendor's security page, the published checklist for that platform, and the product's past vulnerabilities. Each crossing has a standard defence. Put it at rung 1: a linter rule or a Semgrep rule, falling back to a framework default or a check in the build where no pattern can see the crossing. Skip a crossing a rule already covers.
+The `story` skill hands over each place a story's input reaches something that interprets it: a query, a shell, a template, a parser. For each technology involved, read the vendor's security page, the published checklist for that platform, and the product's past vulnerabilities. Each has a standard defence. Put it at rung 1: a linter rule or a Semgrep rule, falling back to a framework default or a check in the build where no pattern can see it. Skip one a rule already covers.
 
 ## What a check cannot hold
 
-Say plainly which rules stay with the agent: anything met by something absent ("every service has a rate limit"), anything true only at runtime, and anything that needs taste. Those are rung 2 or rung 3, or a criterion the `story` skill writes, or a point for the merge request review.
+Say plainly which rules stay with the agent: anything met by something absent ("every service has a rate limit"), anything true only at runtime, and anything that needs taste. Those are rung 2 or rung 3, or a criterion the `story` skill writes, or a point for the `reviewing` skill's pull request review.

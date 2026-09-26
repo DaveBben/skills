@@ -31,7 +31,7 @@ The reader did not see this conversation.
 * **Mechanism before label.** Write what physically happens ("the worker thread sits idle until the HTTP response arrives") before any name for it ("blocking"). A name never stands alone. "Racy at the margin" is a label; "two requests can both read 2, both write 3, and the cap admits one extra call" is the mechanism.
 * **Check every connective.** For each "because", "so", "therefore", "which means": confirm the left clause causes the right. When it does not, write two sentences and no connective.
 * **One rung at a time.** A claim about the system needs the component sentence, then the platform sentence, then the system sentence. Do not go from a function name to an outage in one sentence.
-* **Incident as narrative.** When something broke, write what was built, what it did, and what failed, in that order.
+* **Incident as narrative.** When something broke, write what was built, what it did, and what failed, in that order. Narrative is the shortest explanation of a mechanism.
 * **Before and after in the reader's units.** "Clinicians currently recording", not a formula, a variable, or "N".
 * **Floor, not ceiling.** No word cap. Every claim carries at least one sentence of mechanism.
 * **Never invent a mechanism.** When the cause is not known, write "cause not established" and what would establish it. A plausible mechanism the evidence does not show is the same defect as a label, with a confident tone added. Every fact comes from the session, the code, or a source you can name. Do not add a rejected alternative nobody considered, a hardware rationale nobody measured, or a language or library the notes never named.

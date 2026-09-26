@@ -4,7 +4,8 @@ Issue one instruction per story.
 
 ```text
 CONTRACT
-<every acceptance test of the story, verbatim. They do not change.>
+<the paths of the accepted test files and the red commit's hash, from the setup
+subagent. Read them; they do not change.>
 
 IMPLEMENT
 Only what makes the accepted rows pass.
@@ -34,12 +35,12 @@ NON-NEGOTIABLE
 pinned addresses, concurrency limits, byte-frozen files, query shapes measured
 as slow. Every value from the code, with its file and line, never from a spec
 or README; where the two disagree, say so>
-<from the module map in `AGENTS.md`, or in the chat before the first story writes it there: the module this story's code lives in, the flows it may call, and the pattern
+<from the Architecture block in `AGENTS.md`, or from the feature log below the feature header before `AGENTS.md` exists: the module this story's code lives in, the flows it may call, and the pattern
 rule on each flow where one is set; no description>
 Do not modify anything outside <paths>.
 
 EDGE CASES
-<every other accepted row, already failing>
+Every other accepted row, already failing, is in the files above.
 Test behaviour, not implementation. No assertion on a private function, on
 internal call order, or on a log line.
 List every added test that is not in the table, why it was added, and its Killed by.
