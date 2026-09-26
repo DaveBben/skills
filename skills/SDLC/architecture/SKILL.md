@@ -4,7 +4,7 @@ description: "Use this skill when the shape of a system must be decided, when an
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 # Architecture
 
@@ -36,14 +36,15 @@ A crossing is a place the walking skeleton's outcome passes from one running pie
 * **Ask which crossings someone has already made work** in this stack. The user decides which count as tried.
 * **Run a spike on each untried crossing before section 3.** Frame its falsifiable question, finish line and timebox with the user, such as "the app can read Health data while the phone is locked". Then run the `spike` skill in a subagent with that frame, the feature's slug and the spike's number on `Stories:`. It commits its findings where the plan is committed and returns its verdict and its decision table; put the table to the user and record each row marked `record`. Sections 3 to 5 use the findings.
 
-## 3. Numbers
+## 3. Numbers and sensitive data
 
-Skip any number `AGENTS.md` already records. Ask the rest in one message:
+Skip any answer `AGENTS.md` already records. Ask the rest in one message:
 
 * How many people or requests at once.
 * How long a response may take, and for what share of requests.
 * How much downtime is acceptable, per month.
 * How much data there is now, and how fast it grows.
+* Which data is sensitive (health, personal, financial, credentials), where it may be stored, and whether it must be encrypted on disk and on the wire. Sensitive data in a log line or an error message counts as stored.
 
 Write each answer as a constraint with its enforcer: under Critical Constraints in `AGENTS.md` when it holds for the whole system, or on the feature header's `Constraints:` line when it holds for one feature. Before `AGENTS.md` exists, write every number on the feature header. The enforcer is a Budget row: a test asserting the number, which the `story` skill proposes for every change that touches it. Accept "unknown" and write it as unknown. An unknown number defers every decision that depends on it and never blocks the walking skeleton.
 
@@ -60,10 +61,12 @@ Propose three tables, only for what the outcome touches, and stop. The user edit
 |---|---|---|
 | <name, in the domain's nouns> | <a process from the first table> | <the one thing it is responsible for> |
 
-| From -> To | What crosses | How | When To fails |
-|---|---|---|---|
-| <caller> -> <callee> | <the data sent, and the data returned> | <in-process call, HTTP, queue, file or event, and whether From waits for the answer> | <what the person sees when To is down or slow, or "-" for an in-process call> |
+| From -> To | What crosses | How | When To fails | Who else reaches To |
+|---|---|---|---|---|
+| <caller> -> <callee> | <the data sent, and the data returned> | <in-process call, HTTP, queue, file or event, and whether From waits for the answer> | <what the person sees when To is down or slow, or "-" for an in-process call> | <who else can send to To, and how To checks the caller is From; "-" for an in-process call> |
 ```
+
+* **Ask who else reaches To** for every flow that crosses a machine, a database included: the local network, the internet, another app on the device. Then ask how To checks the caller: a credential, a certificate, or where it sits on the network. For a database, also ask which account From uses and what that account may do. "Only the home network can reach it" is an answer the user may choose; record it as an accepted risk. Each answer is a section 5 decision, and its test sends the call without the check and expects a refusal.
 
 * **Copies times connections is a number to check.** The copies of each process times the connections each holds must stay under the limit of whatever it connects to. A scheduled process running beside request traffic can hold locks the requests wait on.
 * **A module owns one thing.** When its Owns cell needs "and", a list or an arrow, it is two modules or a flow. State existing modules from the code, with their directory. Propose new ones.
@@ -83,11 +86,19 @@ List the decisions this system cannot cheaply reverse:
 * how many repositories the system has, and the name of each new one, unless section 1 already recorded it
 * the platform and language of each repository, and the hardware it runs on
 * every flow the map marks as crossing a process, a machine or a repository
-* the shape of the data
-* the system's trust and consistency boundaries
-* each choice a number from section 3 forces, such as a connection pool, a read replica or failover
+* the shape of the data, as five questions:
+  * what makes a record unique (the key the source gives it, such as a sample's ID), and what writing the same record twice does
+  * each rule the data must always keep (a required field, an allowed range, a unit, a time zone), and whether the database or the code enforces it; prefer a database constraint, since it holds for every writer
+  * how long data is kept, and how it is deleted
+  * how it is backed up, and how a restore is proved
+  * how the schema changes, and whether each change can be undone
+* the system's trust boundaries (the Who else reaches To answers from section 4) and consistency boundaries
+* each choice a number or a sensitive-data answer from section 3 forces, such as a connection pool, a read replica, failover or encryption
 
 For each one the outcome touches, state in chat what the code already settles, with the file that settles it. Put the rest to the user one per message, with the alternatives and the tradeoff, and wait. Record each answer by [references/adr.md](references/adr.md) before the next decision is asked and before any code that depends on it.
+
+* **Turn each answer a story could break into a constraint** on the feature header's `Constraints:` line, so the `story` skill writes it as a criterion on every story that could break it. "Writing the same sample twice stores one row", "an upload without the credential is refused" and "a row with no unit is refused" are each a criterion with a test.
+* **Prove the restore.** When the system stores data it cannot regenerate, the story that first stores it carries a criterion: restore the latest backup into an empty store and find every row.
 
 Every item ends in one of four states:
 
