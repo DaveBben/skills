@@ -4,7 +4,7 @@ description: "Use this skill before touching any file on every request to add, c
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "13.2.0"
+  version: "13.2.1"
 ---
 # Deliver
 
@@ -101,7 +101,7 @@ Frame the spike's question, finish line and timebox with the user. Then run the 
 
 ## 1. Architecture
 
-For a request sized as several stories, or a project with no application yet, run the `architecture` skill with the user after Define. It lists the crossings the walking skeleton makes and spikes the untried ones, asks the load, response-time, downtime and data-volume numbers, maps processes, modules and flows, and walks each expensive decision to one of four states: decided, deferred, waiting on a spike, or settled by the code. No story starts until every item it needs is in one of those states.
+For a request sized as several stories, or a project with no application yet, run the `architecture` skill with the user after Define. It lists the crossings the walking skeleton makes and spikes the untried ones, asks the load, response-time, downtime and data-volume numbers and which data is sensitive, maps processes, modules and flows, and walks each expensive decision to one of four states: decided, deferred, waiting on a spike, or settled by the code. No story starts until every item it needs is in one of those states.
 
 * **At every story start,** read `Deferred:`. A choice swappable behind an interface, or affecting one story, waits until a story needs it. When this story is the first to need one (the first cache, the first queue, the first second service, the first payment call), or an item waits on a spike that is done, park the story and run the `architecture` skill's path for deciding one open item.
 * **A decision the build needs that nobody recorded** parks the story the same way.
