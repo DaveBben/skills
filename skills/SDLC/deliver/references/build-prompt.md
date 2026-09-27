@@ -38,11 +38,13 @@ as slow. Every value from the code, with its file and line, never from a spec
 or README; where the two disagree, say so>
 <from the Architecture block in `AGENTS.md`, or from the architecture comment on the epic before `AGENTS.md` exists: the module this story's code lives in, the flows it may call, and the pattern
 rule on each flow where one is set; no description>
+<one line per ADR on this module: Rejected: <alternative>, because <reason>.>
 Do not modify anything outside <paths>.
 
 EDGE CASES
 Every other accepted row, already failing, is in the files above.
 Test behaviour, not implementation. No assertion on a private function, on
-internal call order, or on a log line.
+internal call order, on a log line, on the order of an unordered result, or on
+a call count the contract does not state.
 List every added test that is not in the table, why it was added, and its Killed by.
 ```

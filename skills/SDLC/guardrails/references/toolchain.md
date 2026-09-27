@@ -15,6 +15,7 @@
 | `tests` | turn end when the suite fits the turn-end budget, else commit | run the suite, and fail when the whole run exceeds the time limit `AGENTS.md` states |
 | `e2e` | CI, and commit when it runs under a minute | drive the interface the product's users use: a real browser, a running service, the command; one test per acceptance criterion |
 | `deadcode` | commit | find unreferenced symbols |
+| `duplication` | commit | run a clone detector over the changed files (jscpd and PMD CPD are examples) and fail on a new clone |
 | `audit` | commit | check dependencies against a CVE feed |
 | `secrets` | commit | scan for credentials |
 
@@ -56,6 +57,7 @@ complexity
 types
 contracts
 deadcode
+duplication
 audit
 tests (with coverage)
 e2e
@@ -80,9 +82,10 @@ The red commit is the one commit that skips the `tests` and `e2e` hooks: `delive
 
 ### Red-commit scope and AGENTS.md size
 
-Two more hooks ship as files in this skill's `scripts/` directory. Copy each into the repository's `scripts/` directory unchanged, and run each once with `--self-test`, which fails when its rule stops holding.
+Three more checks ship as files in this skill's `scripts/` directory. Copy each into the repository's `scripts/` directory unchanged, and run each once with `--self-test`, which fails when its rule stops holding.
 
 * **`red-commit-scope`** (`scripts/red_commit_scope.py`) keeps the red commit's skip honest. It runs on every commit and never goes in a skip list. When `SKIP` names `tests` or `e2e`, it fails unless every staged file is a test file or a file whose staged diff removes no lines: a stub adds lines only. Edit only the test globs in its hook entry, to the test paths the test runner's config uses.
+* **`ratchet`** (`scripts/ratchet.py`) holds existing code to its current finding counts, for the brownfield option in `references/setup.md`.
 * **`agents-md-size`** (`scripts/agents_md_size.py`) fails an `AGENTS.md` over 100 lines or 8 KB, since every line loads on every turn, and says where the overflow goes.
 
 Both hooks, as pre-commit entries:
@@ -106,7 +109,7 @@ Both hooks, as pre-commit entries:
 ## CI
 
 - Install from the lockfile, not the manifest.
-- Run each check as its own step rather than chaining them.
+- Run each check as its own step rather than chaining them, from `origin/main`'s copy of the check scripts and config (checked out into a separate directory), so a pull request cannot edit what judges it.
 - Where the ecosystem has more than one supported runtime version, run the whole span and do not stop the matrix at the first failure.
 - Set the thorough property-test profile here.
 - Run mutation testing over the changed source files as its own step. A surviving mutant fails it.

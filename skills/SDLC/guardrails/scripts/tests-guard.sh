@@ -16,6 +16,26 @@ reds="$( { [ -n "$branch" ] && git -C "$wt" config --get-all "branch.$branch.red
 [ -n "$reds" ] || exit 0
 rel="${file#"$wt"/}"
 
+# The check paths are the lines under `# owner reads: checks` in CODEOWNERS, up
+# to the first blank line: a path, a directory ending in `/`, or a glob.
+for owners in "$wt/CODEOWNERS" "$wt/.github/CODEOWNERS" "$wt/docs/CODEOWNERS"; do
+  [ -f "$owners" ] || continue
+  while read -r pattern _; do
+    pattern="${pattern#/}"
+    case "$pattern" in
+      */) case "$rel" in "$pattern"*) hit=1 ;; *) hit= ;; esac ;;
+      *) case "$rel" in $pattern) hit=1 ;; *) hit= ;; esac ;;
+    esac
+    if [ -n "$hit" ]; then
+      echo "$rel is a check path, and a story is mid-build. The checks judge the" >&2
+      echo "build, so they do not change during it. Make the code pass. If a check" >&2
+      echo "itself is wrong, stop and say so; the guardrails skill changes checks." >&2
+      exit 2
+    fi
+  done < <(awk '/^# owner reads: checks/{f=1; next} f && /^[[:space:]]*$/{exit} f && !/^#/' "$owners")
+  break
+done
+
 for red in $reds; do
   git -C "$wt" cat-file -e "$red^{commit}" 2>/dev/null || continue
   if git -C "$wt" diff --name-only "$red^" "$red" | grep -qxF "$rel"; then

@@ -4,7 +4,7 @@ description: "Use this skill when work must be defined before it is built: an id
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 # Define
 

@@ -46,7 +46,7 @@ Apply in order. A generator that finds nothing to fire on produces no row.
 
 ## Cut Rules
 
-* **Assert observable behaviour.** Never assert a private function, internal call order, or a log line.
+* **Assert observable behaviour.** Never assert a private function, internal call order, a log line, the order of a result the contract leaves unordered, or a call count the contract does not state.
 * **Do not test** the language, framework or standard library.
 * **Delete row B** if it only fails when row A fails.
 * **Delete a row that is already green** on the current code, except when the tests pin behaviour that already exists.

@@ -52,7 +52,7 @@ Wired to `PreToolUse` on `Bash`; exit 2 cancels the command before it runs. Edit
 
 ## Accepted-test guard: tests-guard.sh
 
-Wired to `PreToolUse` on `Edit|Write|MultiEdit`. Exit 2 cancels the edit. It fires only while `deliver` has recorded a red commit for the branch the edited file's worktree is on, and only for the files those commits touched. The key `branch.<branch>.redCommit` is per branch, so stories running in separate worktrees each keep their own guard, and multi-valued, because a corrected row adds a second red commit. It also reads the older single key `agile.redCommit`. Hooks fire for subagents too, so the builder is bound by it.
+Wired to `PreToolUse` on `Edit|Write|MultiEdit`. Exit 2 cancels the edit. It fires only while `deliver` has recorded a red commit for the branch the edited file's worktree is on, and only for the files those commits touched and the check paths, the lines under `# owner reads: checks` in `CODEOWNERS`. The key `branch.<branch>.redCommit` is per branch, so stories running in separate worktrees each keep their own guard, and multi-valued, because a corrected row adds a second red commit. It also reads the older single key `agile.redCommit`. Hooks fire for subagents too, so the builder is bound by it.
 
 `deliver` adds the branch's key at each red commit and unsets it at the merge. A deletion through the shell is not caught; `bash-guard.sh` may add `rm` on those paths as its third hard block. A rename in the refactor that a test names is the case that trips this guard legitimately: `deliver` clears it once the user agrees, the refactor commits, and the review diff still reports the change.
 

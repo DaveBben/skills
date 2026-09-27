@@ -82,7 +82,7 @@ Where the agent harness is Claude Code, load `references/claude-guardrails.md` n
 ## Guards
 
 * **Hard blocks: two entries, and justify a third.** A rule earns a slot only when violating it is never correct and the harness cannot catch it afterwards. Blocking the flag that skips the commit gate qualifies. Blocking a package manager the project does not use is blocklist creep.
-* **Block edits to accepted tests.** While `deliver` has a red commit recorded, refuse any edit to a file that commit touched, at edit time. An instruction to leave tests alone is not a substitute for the guard.
+* **Block edits to accepted tests and to the checks.** While `deliver` has a red commit recorded, refuse any edit to a file that commit touched, or to a path under `# owner reads: checks` in `CODEOWNERS`, at edit time. An instruction to leave tests alone is not a substitute for the guard.
 * **Deny agent edits to the feature acceptance tests for good.** The `deliver` loop keeps the user's acceptance test for a whole feature in a `feature-acceptance` directory inside the test tree. Deny edits, writes and deletes there permanently, for the agent and every subagent.
 * **Deny reads and writes outright** for secrets files, the lockfile, and the version control directory.
 * **Deny the holdout directory,** `~/.holdout/`, where the user keeps hidden end-to-end scenarios for `deliver`: reads, edits and writes, and every shell command naming it except its own `run` command. That shell block is the justified third hard block: reading the scenarios is never correct, and nothing undoes it once read.
@@ -129,5 +129,6 @@ Brownfield, and only where rules were accepted. Put the choice to the user:
 
 * **Scope enforcement to files authored from here on.** The rules land today and the backlog stays where it is.
 * **Clean up in a subagent, as its own change**, running in proportion to the size of the codebase.
+* **Ratchet.** Commit a baseline of finding counts per rule per file, listed under `# owner reads: checks`, and gate the `rules` and `complexity` slots through `scripts/ratchet.py`, fed one `<rule><TAB><file>` line per finding. A count that rises fails, naming the rule and the file; a count that falls rewrites the baseline lower.
 
-Either is a real answer. Adding rules and leaving them red is not. The same choice applies to a failing test suite: quarantine the pre-existing failures or fix them before the suite enters the gate.
+Each is a real answer. Adding rules and leaving them red is not. The same choice applies to a failing test suite: quarantine the pre-existing failures or fix them before the suite enters the gate.
