@@ -15,6 +15,8 @@ Everything here lives in `.claude/`. The files ship with this skill in its `scri
     session-start.sh     environment sanity
     bash-guard.sh        pre-execution hard blocks
     tests-guard.sh       edit time, accepted tests only
+    main-guard.sh        edit time, no edits on main
+    pr-guard.sh          pre-execution, story pull requests
   rules/                 path-scoped instructions
 ```
 
@@ -28,7 +30,7 @@ Everything here lives in `.claude/`. The files ship with this skill in its `scri
 
 ## settings.json
 
-Merge into an existing file rather than replacing it. Replace `uv.lock` in the deny list with the project's own lockfile, and `tests/feature-acceptance/` with the same directory inside the project's test tree; that directory holds the user's feature acceptance tests and stays denied for the life of the repo. Add `rm` and `mv` on it to `bash-guard.sh`, since the deny list does not see the shell. The `~/.holdout/**` entries deny the user's hidden scenarios for `deliver`; keep them even when the user has none yet, and `bash-guard.sh` blocks shell commands naming that directory except its `run` command. Add an `allow` list for the project's routine tool invocations, so ordinary checks do not prompt.
+Merge into an existing file rather than replacing it. Replace `uv.lock` in the deny list with the project's own lockfile, and `tests/feature-acceptance/` with the same directory inside the project's test tree; that directory holds the user's feature acceptance tests and stays denied for the life of the repo. Set `acceptance_dir` in `_slots.sh` to that directory; `bash-guard.sh` blocks `rm` and `mv` on it, since the deny list does not see the shell. The `~/.holdout/**` entries deny the user's hidden scenarios for `deliver`; keep them even when the user has none yet, and `bash-guard.sh` blocks shell commands naming that directory except its `run` command. Add an `allow` list for the project's routine tool invocations, so ordinary checks do not prompt.
 
 **Exit codes differ by event.** On `PreToolUse` and `PostToolUse`, exit 2 blocks and feeds stderr to the agent. On `Stop`, exit 2 blocks the stop and feeds stderr back. On `SessionStart`, stderr goes to the user only and **stdout** is what reaches the agent, so that hook reports on stdout and never exits non-zero.
 
@@ -54,7 +56,17 @@ Wired to `PreToolUse` on `Bash`; exit 2 cancels the command before it runs. Edit
 
 Wired to `PreToolUse` on `Edit|Write|MultiEdit`. Exit 2 cancels the edit. It fires only while `deliver` has recorded a red commit for the branch the edited file's worktree is on, and only for the files those commits touched and the check paths, the lines under `# owner reads: checks` in `CODEOWNERS`. The key `branch.<branch>.redCommit` is per branch, so stories running in separate worktrees each keep their own guard, and multi-valued, because a corrected row adds a second red commit. It also reads the older single key `agile.redCommit`. Hooks fire for subagents too, so the builder is bound by it.
 
-`deliver` adds the branch's key at each red commit and unsets it at the merge. A deletion through the shell is not caught; `bash-guard.sh` may add `rm` on those paths as its third hard block. A rename in the refactor that a test names is the case that trips this guard legitimately: `deliver` clears it once the user agrees, the refactor commits, and the review diff still reports the change.
+`deliver` adds the branch's key at each red commit and unsets it at the merge. `bash-guard.sh` blocks `rm` and `mv` naming a file a recorded red commit touched, and the commit gate's `accepted-tests` hook refuses a commit that changes or deletes an accepted test by any route. A rename in the refactor that a test names is the case that trips this guard legitimately: `deliver` clears it once the user agrees, the refactor commits, and the review diff still reports the change.
+
+## Pull request guard: pr-guard.sh
+
+Wired to `PreToolUse` on `Bash`. Exit 2 cancels `gh pr create` or `glab mr create` for a `story/*` branch with a red commit recorded, until verify has written `exceptions.txt` after the branch's last commit, `done-block.md` has no `Security: pending` line, the title carries the branch's `[<issueKey>]`, and the body starts with `Read code:`. It finds the branch from `--head`, a leading `cd <dir> &&`, or the session's working directory. A story on the trivial or no-behaviour-change path records no red commit, so the guard lets its pull request through.
+
+## Main guard and prompt reminder: main-guard.sh
+
+Wired to `PreToolUse` on `Edit|Write|MultiEdit`, ahead of `tests-guard.sh`. Exit 2 cancels any edit on `main_branch` in any worktree of this clone, except the paths in `main_ok`, and tells the agent to run `deliver`, which edits only in a story worktree. Set both in `_slots.sh`. Add to `main_ok` only files other skills write on main.
+
+`settings.json` also wires `UserPromptSubmit` to an `echo`. Its stdout reaches the agent with every prompt, so the instruction to run `deliver` arrives even when the request's wording does not match the skill's description.
 
 ## Path-scoped rules
 

@@ -12,10 +12,19 @@
   "hooks": {
     "PreToolUse": [{
       "matcher": "Bash",
-      "hooks": [{"type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/bash-guard.sh"}]
+      "hooks": [
+        {"type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/bash-guard.sh"},
+        {"type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pr-guard.sh"}
+      ]
     }, {
       "matcher": "Edit|Write|MultiEdit",
-      "hooks": [{"type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/tests-guard.sh"}]
+      "hooks": [
+        {"type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/main-guard.sh"},
+        {"type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/tests-guard.sh"}
+      ]
+    }],
+    "UserPromptSubmit": [{
+      "hooks": [{"type": "command", "command": "echo 'A request that adds, changes, removes or fixes behaviour runs the deliver skill before any file is touched, even when the change looks small.'"}]
     }],
     "PostToolUse": [{
       "matcher": "Edit|Write|MultiEdit",

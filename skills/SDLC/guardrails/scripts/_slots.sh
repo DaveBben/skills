@@ -27,3 +27,6 @@ env_check()  {
   [ -d .venv ] || { echo "NOTE: .venv is missing, run 'uv sync'."; return; }
   uv sync --check >/dev/null 2>&1 || echo "NOTE: .venv is out of sync with uv.lock, run 'uv sync'."
 }
+main_branch='main'
+main_ok=('AGENTS.md' 'CLAUDE.md' 'docs/adr/*')
+acceptance_dir='tests/feature-acceptance/'

@@ -2,7 +2,7 @@
 
 Load this when the user asks to pick up where the work left off.
 
-Run Orient. When several features are open, ask which one. Read the epic's description and `Deferred:`, each `Parked:` comment, the story worktrees (`git worktree list`) and the open story pull requests. Skip Define and Architecture. Restart each story worktree at the step its state shows:
+Run Orient. When several features are open, ask which one. Read the epic's description and `Deferred:`, each `Parked:` comment, and the output of [story.sh](../scripts/story.sh) `status` run from the main checkout. It prints one line per story worktree with where it restarts, by the table below, and closes each story whose pull request merged. Where `gh` is not installed it cannot see pull requests, so check them by hand. It cannot see the tracker, so a `Parked:` comment overrides its line. Skip Define and Architecture. Restart each story worktree at the step its state shows:
 
 | State | Restart at |
 |---|---|

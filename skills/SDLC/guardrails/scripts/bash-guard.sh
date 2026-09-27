@@ -42,6 +42,27 @@ case "$cmd" in
         exit 2 ;;
     esac ;;
 esac
+# rm and mv through the shell get past the deny list and the accepted-test
+# guard, which see only the edit tool. Block them on the feature acceptance
+# directory and on every file a recorded red commit touched. The commit gate's
+# accepted-tests hook catches what this misses, such as a relative path after cd.
+if printf '%s' "$scan" | grep -Eq '(^|[;&|(]|[[:space:]])(git[[:space:]]+)?(rm|mv)[[:space:]]'; then
+  guarded="$(cd "$root" && {
+    echo "$acceptance_dir"
+    for red in $( { git config --get-regexp '^branch\..*\.redcommit$' | cut -d' ' -f2
+                    git config --get-all agile.redCommit; } 2>/dev/null); do
+      git diff-tree --root --no-commit-id --name-only -r "$red" 2>/dev/null
+    done; })"
+  while IFS= read -r path; do
+    case "$cmd" in
+      *"$path"*)
+        echo "$path is an accepted test, a stub from a red commit, or the user's feature" >&2
+        echo "acceptance tests. Do not remove or move it. If it is wrong, stop and say so;" >&2
+        echo "the user changes it, or deliver clears the guard once the user agrees." >&2
+        exit 2 ;;
+    esac
+  done <<< "$guarded"
+fi
 # `-n` is --no-verify's short form. Match it as a whole word anywhere in a git
 # commit command: padding with spaces catches it at either end, and requiring
 # `git` before `commit` leaves `grep -n commit` alone.

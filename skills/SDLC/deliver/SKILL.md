@@ -4,7 +4,7 @@ description: "Use this skill before touching any file on every request to add, c
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "14.1.0"
+  version: "14.3.0"
 ---
 # Deliver
 
@@ -74,13 +74,13 @@ Sections 0 to 6 (Define, Architecture, Record, Pick, Set up, Build, Review and V
 
 * **Write the story's log comment.** Load [references/log.md](references/log.md) for the entry's format and rules.
 * **Open the pull request from the story branch into main,** and have a subagent write its description by [references/pull-request.md](references/pull-request.md) from the Done block file and `exceptions.txt`. Its `Why` comes from the feature header, or, when the request has none, from the story's `Outcome` and `Why` lines. Its `Try it` is the command, URL or screen that shows the outcome criterion on the story branch. Its `Assumes` comes from the criteria and setup subagents. With a remote but no tool that opens pull requests, push the branch, print the description, and ask the user to open it and paste its link.
-* **Tag the pull request, its tests and its commits** with the story's issue key, e.g. `[PAY-1420]`. Where the repo has no remote, the merge commit message is the description's Why, criteria table and Try it, and the user merges locally.
+* **Tag the pull request, its tests and its commits** with the story's issue key, e.g. `[PAY-1420]`. Where `guardrails` installed its `issue-key` commit hook, the hook tags each commit on a branch `story.sh start` cut. Where the repo has no remote, the merge commit message is the description's Why, criteria table and Try it, and the user merges locally.
 
 ## 8. Merge and Next
 
 * **Move on while the pull request waits.** Run section 3 as soon as a pull request opens, and set up every ready story whose blockers have all merged, each in its own worktree, up to the number of stories at once `AGENTS.md` states. When it states none, ask the user once and record it there.
 * **A story whose blocker is still in review waits for that merge.** Watch the blocker's pull request, and set the story up from the updated main once it merges.
-* **Watch every open pull request.** The agent never merges. When the harness can poll a pull request's state, poll it. On merge, delete the story's branch and worktree, clear its red-commit guard (`git config --unset-all` on the branch's key and on `agile.redCommit`), and set the story Done with its log comment as the resolution; then run section 3. A pull request closed without merging: ask the user to reopen it or cut the story. On a cut, clean up the same way and close the issue as cut; when an expand change already merged elsewhere, add a story to remove the new form. When it cannot poll, end the turn with every open pull request's link and the parked questions, and resume when the user says which merged.
+* **Watch every open pull request.** The agent never merges. When the harness can poll a pull request's state, poll it. On merge, run [scripts/story.sh](scripts/story.sh) `close <branch>`, which deletes the story's branch and worktree and clears its red-commit guard, and set the story Done with its log comment as the resolution; then run section 3. A pull request closed without merging: ask the user to reopen it or cut the story. On a cut, clean up the same way and close the issue as cut; when an expand change already merged elsewhere, add a story to remove the new form. When it cannot poll, end the turn with every open pull request's link and the parked questions, and resume when the user says which merged.
 * **Deploy from main, by a command in the repo.** A `deploy` script or task target, committed with the story that first needs it. Never from the working tree, never from a branch, never by commands that live only in chat.
 * **Exercise the rollback once** before anything a `git revert` cannot undo: a backfill, a migration, a bulk send.
 * **Stop after the merge** when the request was trivial, one story, one named story, or a change without new behaviour. For an epic, keep going until every child issue is done or cut. When nothing is ready and nothing is building, show section 3's report with the parked questions and wait.
@@ -107,7 +107,7 @@ Park a story on these and nothing else:
 
 Decide these without asking, and list each in the next message to the user:
 
-* **A split.** When a story's criteria cross more than one workflow step or variation, `define` reports it is several stories, or the builder is red twice on sound rows (counting every red in build and verify), run the `define` skill's splitting patterns in a subagent. Create the new stories as children of the epic, close the original as `cut: split into <keys>`, delete its branch and worktree, and carry on.
+* **A split.** When a story's criteria cross more than one workflow step or variation, `define` reports it is several stories, or the builder is red twice on sound rows (counting every red in build and verify), run the `define` skill's splitting patterns in a subagent. Create the new stories as children of the epic, close the original as `cut: split into <keys>`, run `story.sh close` on its branch, and carry on.
 * **A new story.** A bug in shipped work, or a `Learned` or `Observed` fact that changes what gets built, becomes a new child issue with its blocking links. The user can cut it.
 
 ## Working in a Team

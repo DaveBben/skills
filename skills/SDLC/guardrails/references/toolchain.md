@@ -82,13 +82,15 @@ The red commit is the one commit that skips the `tests` and `e2e` hooks: `delive
 
 ### Red-commit scope and AGENTS.md size
 
-Three more checks ship as files in this skill's `scripts/` directory. Copy each into the repository's `scripts/` directory unchanged, and run each once with `--self-test`, which fails when its rule stops holding.
+Five more checks ship as files in this skill's `scripts/` directory. Copy each into the repository's `scripts/` directory unchanged, and run each once with `--self-test`, which fails when its rule stops holding.
 
 * **`red-commit-scope`** (`scripts/red_commit_scope.py`) keeps the red commit's skip honest. It runs on every commit and never goes in a skip list. When `SKIP` names `tests` or `e2e`, it fails unless every staged file is a test file or a file whose staged diff removes no lines: a stub adds lines only. Edit only the test globs in its hook entry, to the test paths the test runner's config uses.
 * **`ratchet`** (`scripts/ratchet.py`) holds existing code to its current finding counts, for the brownfield option in `references/setup.md`.
+* **`accepted-tests`** (`scripts/accepted_tests.py`) fails a commit that changes or deletes a test file a recorded red commit touched, compared with the newest red commit that touched it. The edit-time guard sees only the agent's edit tool; this catches `sed`, `mv` and `rm` in the shell. It runs on every commit and never goes in a skip list. Give it the same test globs as `red-commit-scope`.
+* **`issue-key`** (`scripts/issue_key.py`) is a `prepare-commit-msg` hook. On a branch whose git config holds `branch.<branch>.issueKey`, which `deliver` writes when it starts a story, it prepends `[<key>] ` to the commit message.
 * **`agents-md-size`** (`scripts/agents_md_size.py`) fails an `AGENTS.md` over 100 lines or 8 KB, since every line loads on every turn, and says where the overflow goes.
 
-Both hooks, as pre-commit entries:
+The hooks, as pre-commit entries. `issue-key` runs at a second hook stage, so the config also needs `default_install_hook_types: [pre-commit, prepare-commit-msg]`:
 
 ```yaml
 - repo: local
@@ -98,6 +100,18 @@ Both hooks, as pre-commit entries:
       entry: python3 scripts/red_commit_scope.py "tests/*" "**/test_*.py"
       language: system
       pass_filenames: false
+      always_run: true
+    - id: accepted-tests
+      name: accepted tests unchanged since their red commit
+      entry: python3 scripts/accepted_tests.py "tests/*" "**/test_*.py"
+      language: system
+      pass_filenames: false
+      always_run: true
+    - id: issue-key
+      name: tag the commit with the story's issue key
+      entry: python3 scripts/issue_key.py
+      language: system
+      stages: [prepare-commit-msg]
       always_run: true
     - id: agents-md-size
       name: AGENTS.md under 100 lines and 8 KB
