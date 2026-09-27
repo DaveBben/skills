@@ -18,7 +18,7 @@ Load only the files the path lists. A one-rule request reads only what its row l
 |---|---|
 | Set up or repair the repository's checks, hooks, deny list, commit gate or CI | [references/setup.md](references/setup.md), then [references/toolchain.md](references/toolchain.md) before writing any config, [references/rules.md](references/rules.md) for its contracts and rules, and [references/claude-guardrails.md](references/claude-guardrails.md) when the agent harness is Claude Code. The hook scripts and checks ship as files in `scripts/`. |
 | Enforce one rule, stop a recurring mistake, or audit the instruction files for rules a check could enforce | [references/rules.md](references/rules.md), then [references/semgrep.md](references/semgrep.md) only when the rule needs a Semgrep pattern |
-| The `story` skill hands over its `Interpreted` line: each place a story's input reaches a query, a shell, a template or a parser | [references/rules.md](references/rules.md), section "Defend where input becomes instructions" |
+| The `define` skill hands over its `Interpreted` line: each place a story's input reaches a query, a shell, a template or a parser | [references/rules.md](references/rules.md), section "Defend where input becomes instructions" |
 | A dependency direction, a hook, a deny-list entry or an `# owner reads:` path arrives as one rule | [references/rules.md](references/rules.md) to classify it, then its Contracts section, or the Loop or Guards section of [references/setup.md](references/setup.md) and [references/claude-guardrails.md](references/claude-guardrails.md) for a hook or deny-list entry on Claude Code, to write only that entry |
 
 ## 2. What never bends

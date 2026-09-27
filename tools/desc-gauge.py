@@ -28,13 +28,13 @@ import gauge
 REPO = gauge.REPO
 
 # The skill each group should route to; OWNER overrides it for single phrases.
-GROUP_OWNER = {"Vague ideas": "define-work", "Discovery": "spike",
+GROUP_OWNER = {"Vague ideas": "define", "Discovery": "spike",
                "Spec & design": "architecture", "Build": "deliver",
                "Bug fixes": "deliver", "Resumption": "deliver"}
 OWNER = {
     "How does this system currently handle order totals?": None,
     "Let's map the current landscape.": "architecture",
-    "Let's write a spec for the CSV import.": "define-work",
+    "Let's write a spec for the CSV import.": "define",
 }
 
 # (group, phrase, fixture key). fixture key: "fresh" | "mid" | "bare".

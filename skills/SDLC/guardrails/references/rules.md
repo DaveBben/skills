@@ -1,6 +1,6 @@
 # Enforce one rule
 
-Loaded by the `guardrails` skill when one rule, convention or recurring mistake must be enforced, when the instruction files are audited for rules a check could enforce, or when the `story` skill hands over its `Interpreted` line.
+Loaded by the `guardrails` skill when one rule, convention or recurring mistake must be enforced, when the instruction files are audited for rules a check could enforce, or when the `define` skill hands over its `Interpreted` line.
 
 Put every rule as far up the ladder in SKILL.md, section "Where a rule lives", as it will go.
 
@@ -44,11 +44,11 @@ The user cuts rows by number, and a row not cut is accepted. Convert each accept
 
 ## Defend where input becomes instructions
 
-The `story` skill hands over each place a story's input reaches something that interprets it: a query, a shell, a template, a parser. For each technology involved, read the vendor's security page, the published checklist for that platform, and the product's past vulnerabilities. Each has a standard defence. Put it at rung 1: a linter rule or a Semgrep rule, falling back to a framework default or a check in the build where no pattern can see it. Skip one a rule already covers.
+The `define` skill hands over each place a story's input reaches something that interprets it: a query, a shell, a template, a parser. For each technology involved, read the vendor's security page, the published checklist for that platform, and the product's past vulnerabilities. Each has a standard defence. Put it at rung 1: a linter rule or a Semgrep rule, falling back to a framework default or a check in the build where no pattern can see it. Skip one a rule already covers.
 
 ## What a check cannot hold
 
-Say plainly which rules stay with the agent: anything met by something absent ("every service has a rate limit"), anything true only at runtime, and anything that needs taste. Those are rung 2 or rung 3, or a criterion the `story` skill writes, or a point for the `reviewing` skill's pull request review.
+Say plainly which rules stay with the agent: anything met by something absent ("every service has a rate limit"), anything true only at runtime, and anything that needs taste. Those are rung 2 or rung 3, or a criterion the `define` skill writes, or a point for the `reviewing` skill's pull request review.
 
 ## Contracts
 

@@ -1,6 +1,22 @@
 # Criteria
 
-Load this when the `story` skill writes, repairs or reviews a story's criteria. The template and the routing are in `SKILL.md`.
+Load this when the `define` skill writes, repairs or reviews one story's criteria, or in trivial mode (see `SKILL.md`).
+
+A story is a change a person outside the system can observe. It gets its own card. Work nobody observes alone, such as a new column or a service the story calls, is written as criteria on the story that needs it and never gets a card of its own.
+
+```text
+<Title: what the person will be able to do, five to eight words>
+Outcome:  <what a person observes once this story is done>
+Why:      <what stays broken for them without it>
+Scope:    <what this story covers, and what it leaves to which other story>
+Criteria:
+  a. Given <a concrete starting state>, when <a concrete action>, then <what the person sees, with real values>
+  b. <a boundary, a failure path or an abuse path, same form>
+Open:     <each undecided value, who decides it, and which criterion waits on it; "none" when none>
+Interpreted: <each input this story adds and what interprets it as instructions; omit when none>
+```
+
+Criterion a is the outcome. The criteria after it are the boundaries, failure paths and abuse paths that apply to that outcome. Each criterion is proved by its own acceptance test: an automated test that checks what the person sees. The outcome criterion's test drives the interface the person uses. When a screen only shows what a service returns, the tests for the other criteria may drive that service.
 
 ## 1. Who observes
 
@@ -94,7 +110,7 @@ Check the story against these before handing it on. A no returns the work to the
 * Every abuse path from section 4 that matters has a criterion with a number in it.
 * Nothing in the criteria is a standard nobody would choose against.
 * The story leaves a person able to do something they could not do before.
-* The story covers one workflow step and one variation, and has no more criteria than the number per story `AGENTS.md` states; ask the user for the number once when it is missing. When it covers more, say it is several stories and hand it to `define-work`.
+* The story covers one workflow step and one variation, and has no more criteria than the number per story `AGENTS.md` states; ask the user for the number once when it is missing. When it covers more, say it is several stories and split it by `references/work.md`.
 * Every undecided value is marked undecided and names who decides it.
 
 ## 10. Review a story

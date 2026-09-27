@@ -69,7 +69,7 @@ A one-story request or a bug is one issue with no epic, and its comments are its
 
 ## When the board is already filled
 
-* **The children are the proposed stories.** Read them in rank order and show them as the story list, each with an outcome line the agent writes from the story's text. The user confirms, rewords, cuts or re-ranks in one turn. Criteria are written with the `story` skill when each story starts. Write each story's confirmed criteria back to its issue before its red commit.
+* **The children are the proposed stories.** Read them in rank order and show them as the story list, each with an outcome line the agent writes from the story's text. The user confirms, rewords, cuts or re-ranks in one turn. Criteria are written with the `define` skill when each story starts. Write each story's confirmed criteria back to its issue before its red commit.
 * **Run the `reviewing` skill's epic review on the children** in a subagent before the first story, and take back only its report. Apply what the user accepts on the board.
 * **An epic with no description** gets the header written into it after `deliver` sections 0 through 2 run, the same as a new epic.
 * **Sprints are not pauses.** The loop runs the epic's children as `references/next.md` picks them and crosses a sprint boundary without stopping. A team that wants the loop to stop at the sprint edge adds that rule to `AGENTS.md`.

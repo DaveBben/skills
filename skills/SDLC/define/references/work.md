@@ -1,12 +1,6 @@
----
-name: define-work
-description: "Use this skill when work bigger than one story needs its shared understanding written or retrieved and its possible stories drafted, before any code: a PRD, a large feature request or an epic. Use it on: 'turn this prd into stories', 'break this epic down', 'split this into stories', 'story map this', 'what stories does this need', 'plan this feature', 'define this work', 'I have an idea'. Produces the shared understanding (outcome, problem, non-goals, success signal, constraints, repositories), the steps a person takes, and candidate stories and spikes under each with their blockers, the walking skeleton marked. No acceptance criteria. Not for one story's criteria (`story`), a new application or the system's shape (`architecture`), refining or reviewing an existing epic's cards (`reviewing`, which calls this skill for its check), or choosing what to build next and building it (`deliver`). A request to add one feature is `deliver`, which calls this skill when it turns out to be several stories."
-license: MIT
-compatibility: any-agent
-metadata:
-  version: "5.0.0"
----
-# Define Work
+# Define the work: the epic and its story map
+
+Load this for an idea, a PRD, an epic or a feature bigger than one story, and for the check `reviewing` asks for (section 9).
 
 A story map holds two things. The shared understanding lasts for the whole piece of work, and every story is written against it. The candidate stories are a draft, and the stories built first will change the rest.
 
@@ -30,7 +24,7 @@ Steps: <step 1> -> <step 2> -> <step 3>   (what the person does, in order)
   3. <story title>                  Outcome: ...   Blocked by: ...     [candidate]
 ```
 
-Write no acceptance criteria here. The `story` skill writes each story's criteria when that story starts, using what the earlier stories taught.
+Write no acceptance criteria here. Each story's criteria are written by `references/criteria.md` when that story starts, using what the earlier stories taught.
 
 ## 1. Retrieve before writing
 
@@ -59,7 +53,7 @@ Otherwise, treat the request as a proposed solution, and find the problem under 
 * **Success.** Take the PRD's success metric when it has one. Otherwise ask what the user will see people doing once the outcome happened. Ask once which direction is good and how large a move between two readings is only noise; a drop past that band after a story ships sends the user to read the code that emits the signal. Close-out asks whether it moved.
 * **Context.** Facts this feature adds that every story needs and nobody should rediscover, never facts `AGENTS.md` already holds: which environment to deploy to, the environment variables the app reads, service URLs, test accounts, the deploy and rollback commands. Name where each credential lives (an environment variable's name, a secret manager path, a file outside the repository) and never its value, since this block is committed. A fact true of the whole repository, not just this work, belongs in `AGENTS.md`.
 * **Repositories.** Every repository this work changes, one line each: its name and the URL of the remote its pull requests go to, read with `git remote get-url origin` or the tracker's links. Write the absolute local path only when the repository has no remote, and `new: <name> <directory>` when it does not exist yet, the directory left blank; the `architecture` skill decides how many repositories a new application has, and each directory. Work that spans a service and its client, or code in another team's repository, lists each one here, so a story never starts in a repository nobody named.
-* **Constraints.** A rule every story must keep true, such as where data may live or a response-time ceiling, goes here once. The `story` skill writes it as a criterion on each story that could break it. A constraint no story can break is an engineering standard and belongs in `AGENTS.md`.
+* **Constraints.** A rule every story must keep true, such as where data may live or a response-time ceiling, goes here once. The criteria reference writes it as a criterion on each story that could break it. A constraint no story can break is an engineering standard and belongs in `AGENTS.md`.
 
 ## 4. Map the steps
 
@@ -131,4 +125,4 @@ Once the ready check passes and the user confirms the map, write the shared unde
 
 ## 9. When `reviewing` asks for a check
 
-The `reviewing` skill runs this skill against an existing epic, a PRD's breakdown or a story list someone else wrote. Change nothing. Apply the section 5 kinds table and size rule, the section 6 blocker rules and the section 7 ready check to what exists, and return each gap with the card and the quoted text it is about. `reviewing` writes the report.
+The `reviewing` skill runs the `define` skill against an existing epic, a PRD's breakdown or a story list someone else wrote. Change nothing. Apply the section 5 kinds table and size rule, the section 6 blocker rules and the section 7 ready check to what exists, and return each gap with the card and the quoted text it is about. `reviewing` writes the report.

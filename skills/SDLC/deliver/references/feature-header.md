@@ -1,16 +1,16 @@
 # Feature header and feature acceptance test
 
-Load this for a request sized as several stories, once the `define-work` and `architecture` skills have run, and again at close-out. It holds the rules the record keeps, the feature header's format, the feature acceptance test, the holdout scenarios, and close-out.
+Load this for a request sized as several stories, once the `define` and `architecture` skills have run, and again at close-out. It holds the rules the record keeps, the feature header's format, the feature acceptance test, the holdout scenarios, and close-out.
 
 ## Rules the record keeps
 
 * **Promote into a criterion anything encoding an ADR,** so how a recorded decision was interpreted is never discovered by reading generated code.
 * **Defer infrastructure** not required to pass a story's test to a later story. Logging, retries and error handling enter when a story pulls them.
 
-Write the result into the epic's description, the feature header `define-work` wrote; rewrite it in place. Keep it to 40 lines. The stories and spikes are the epic's child issues, never lines in the header. When the `architecture` skill opened the plan branch `story/{slug}/0-plan` for ADRs or `AGENTS.md` changes, the first story is set up after its pull request merges.
+Write the result into the epic's description, the feature header `define` wrote; rewrite it in place. Keep it to 40 lines. The stories and spikes are the epic's child issues, never lines in the header. When the `architecture` skill opened the plan branch `story/{slug}/0-plan` for ADRs or `AGENTS.md` changes, the first story is set up after its pull request merges.
 
 ```text
-Outcome:   <the outcome sentence `define-work` wrote>
+Outcome:   <the outcome sentence `define` wrote>
 Problem:   <who hits it, how often, what they do today instead>
 Not doing: <one checkable non-goal per line>
 Success:   <the signal that shows the outcome happened; which direction is good; the noise band>
@@ -40,7 +40,7 @@ The outcome sentence gets one acceptance test of its own, and the user writes it
 
 A holdout scenario is an end-to-end check the user writes in the terms of the system and its data: the rows a store holds, the request sent or the screen used, what comes back, and the rows after. No agent that writes criteria, tests or code ever reads one, so the build cannot be fitted to it. They live outside every repository, in `~/.holdout/<repository>/<slug>/`.
 
-* **Offer one per feature, at Record.** When the user takes it, they write 5 to 15 scenarios in a separate session opened in that directory, running the `story` skill's holdout path by name, which writes the `run` command. Add the `Holdout:` line. A scenario runs once its `Due after:` stories have merged and the user has confirmed its first run.
+* **Offer one per feature, at Record.** When the user takes it, they write 5 to 15 scenarios in a separate session opened in that directory, running the `define` skill's holdout path by name, which writes the `run` command. Add the `Holdout:` line. A scenario runs once its `Due after:` stories have merged and the user has confirmed its first run.
 * **Keep it out of reach.** Give no subagent but verify the `Holdout:` line, and never name the directory in `AGENTS.md`, a commit or a prompt. Where the harness can deny paths, offer `guardrails` once to deny it. Where it cannot, tell the user once that nothing but convention keeps agents out, and that the canary in the scenarios catches only copying.
 * **A failure goes to the user, never to a builder.** Feeding a hidden check's failures back to the builder turns it into one more test to fit. The user reads `report.md` in the holdout directory, then hands over a bug report in their own words, which spends that scenario, or changes or cuts the scenario. When fewer than five are unspent, ask the user for more.
 * **The private-repository alternative.** Where a hard boundary is needed, the holdout is a private repository whose CI runs the scenarios against the story branch's preview deployment and posts the `run` line as a status on the pull request. The token the agent holds has no access to it.

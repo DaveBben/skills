@@ -9,7 +9,7 @@ The setup subagent loads this once the user has confirmed the story's criteria. 
 * **Introduce the seam first.** When legacy code offers no point to test through, add the seam (an injected dependency, an extracted function, a wrapper) as its own commit on this story's branch before the red commit. It changes no behaviour, and the full suite stays green before and after. Where the old path resists a seam, build beside it and route to the new path, rather than editing in place.
 * **Hand the story's `Interpreted` line to the `guardrails` skill.** It writes each rule on this story's branch, and the pull request lists them for the user.
 * **Note each fact the story rests on** that was read from a document or not checked, and check it before the build. These become the pull request's `Assumes` lines.
-* **Generate the table.** Run the `story` skill for the test table of the confirmed criteria, against the code. Apply its cut rules here; the accepted table is the one the review holds the build to. A row that exposes a product decision no PRD or ADR records parks the story.
+* **Generate the table.** Run the `define` skill for the test table of the confirmed criteria, against the code. Apply its cut rules here; the accepted table is the one the review holds the build to. A row that exposes a product decision no PRD or ADR records parks the story.
 * **A bug's table is two rows,** the failing test at the level the report describes, written before reading the code, then a unit test isolating the fault. Then grep every caller of the function about to change and fix at the point they all route through.
 
 ## Red

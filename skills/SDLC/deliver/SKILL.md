@@ -1,6 +1,6 @@
 ---
 name: deliver
-description: "Use this skill before touching any file on every request to add, change, remove or fix behaviour in a system that already has an application, to pick the next story, or to describe a branch for review. Use it on: 'add X', 'implement X', 'fix the bug where X', 'X is broken', 'refactor X', 'add tests for X', 'build story X', 'work through this epic', 'implement this prd', 'pick up where we left off', 'what should I pick up next', 'what is ready', 'open a pull request', 'write the PR description', 'write the MR body'. Use it even when the change looks small. Sizes each request, then runs each story through criteria, setup, build and review subagents to a pull request into main, pausing for the user to confirm criteria and asking each question as it arises. For an epic it picks each ready story until all are merged or cut. Not for a repository with no application (`architecture`), planning without building (`define-work`), throwaway code (`spike`), checks or rules (`guardrails`), or AGENTS.md (`orient`)."
+description: "Use this skill before touching any file on every request to add, change, remove or fix behaviour in a system that already has an application, to pick the next story, or to describe a branch for review. Use it on: 'add X', 'implement X', 'fix the bug where X', 'X is broken', 'refactor X', 'add tests for X', 'build story X', 'work through this epic', 'implement this prd', 'pick up where we left off', 'what should I pick up next', 'what is ready', 'open a pull request', 'write the PR description', 'write the MR body'. Use it even when the change looks small. Sizes each request, then runs each story through criteria, setup, build and review subagents to a pull request into main, pausing for the user to confirm criteria and asking each question as it arises. For an epic it picks each ready story until all are merged or cut. Not for a repository with no application (`architecture`), planning without building (`define`), throwaway code (`spike`), checks or rules (`guardrails`), or AGENTS.md (`orient`)."
 license: MIT
 compatibility: any-agent
 metadata:
@@ -19,7 +19,7 @@ Two phases. **With the user, once per feature:** Orient -> Define -> Architectur
 
 ## Subagents
 
-* **Every step and every skill the loop runs goes to a subagent** that returns its result and its questions in at most ten lines. Give it the feature header lines it needs by name, and grep results in place of whole files. This session asks the user those questions and reissues the subagent with the answers. `define-work` and `architecture` run in this session, since they are conversations with the user.
+* **Every step and every skill the loop runs goes to a subagent** that returns its result and its questions in at most ten lines. Give it the feature header lines it needs by name, and grep results in place of whole files. This session asks the user those questions and reissues the subagent with the answers. `define` and `architecture` run in this session, since they are conversations with the user.
 * **Inside the per-story loop, this session holds the feature header, the last ten log comments and what each subagent returns.** It never reads a diff, a test file, source, an ADR or the PRD; the subagents read those and return the lines it needs.
 * **The holdout is the user's alone.** Only the verify subagent gets the feature header's `Holdout:` line. Nothing reads the holdout directory, and no holdout result reaches a builder.
 * **Where the agent cannot start subagents,** run each step inline, one story at a time, without asking; run the review in a fresh session where the harness allows one; say so once.
@@ -47,7 +47,7 @@ Every other request runs Orient first.
 
 * **Load the charter.** Silently read `AGENTS.md`, the file the `orient` skill writes: purpose, users, non-goals, nouns, boundaries, commands, constraints. Fall back to `ARCHITECTURE.md`, then `README.md`. When none states a purpose, offer the `orient` skill once, then proceed.
 * **Check the floor.** When `AGENTS.md` names no check command, names one that runs less than CI runs, the suite is red on main in CI, or the log comments of the feature's last ten closed stories show three `Not caught by` lines, halt and offer the `guardrails` skill before the first story. When it records no red-commit command, say that failing tests cannot be committed and start no story until `guardrails` adds it. When only the mutation runner is missing, offer `guardrails` once; when the user declines, continue, and the review applies each mutation by hand. When `CODEOWNERS` has an `# owner reads:` section, the user reads code only when a signal fires (section 7), and a missing mutation runner halts the loop instead. When the interface the outcome names has no runner in the repo (a screen and no browser test), the first story adds the runner with one hardcoded acceptance test, hardcoding the rest; for a command, the entry point called in-process is the runner.
-* **A PRD** goes to `define-work` as raw material; close-out checks its success metrics.
+* **A PRD** goes to `define` as raw material; close-out checks its success metrics.
 * **State the last story.** When the feature has a closed story, tell the user in one line what the last merged story changed and why, from its log comment's `Done` line. Ask nothing.
 * **Find the tracker.** Load [references/tracker.md](references/tracker.md) and run its first section; with no tracker set up, it halts and helps the user connect one. The slug is the epic's key, or the issue's key for a one-story request.
 
@@ -58,11 +58,11 @@ When the request names a story in an open feature, run that story (section 4) an
 | Size | Test | Path |
 |---|---|---|
 | No behaviour change | A refactor, a dependency bump, a rename, or tests added for behaviour that already exists: nothing a person sees or a caller receives changes | One subagent runs [references/no-behaviour-change.md](references/no-behaviour-change.md). No criteria and no red commit. Open its pull request by [references/pull-request.md](references/pull-request.md); it is the record, linked to an issue when one exists. |
-| Trivial | Nobody is harmed and nothing a person reads is wrong before a `git revert` lands: copy, layout, colour, a log line nobody operates from, a dev-only tool | One criterion from `story` in its trivial mode, confirmed by the user. Then one subagent commits one acceptance test red with the red-commit command `AGENTS.md` records, makes it pass, runs the check command and commits, on a story branch with a pull request. No test plan, build subagent, review subagent or Done block. The pull request is the record, linked to an issue when one exists. |
+| Trivial | Nobody is harmed and nothing a person reads is wrong before a `git revert` lands: copy, layout, colour, a log line nobody operates from, a dev-only tool | One criterion from `define` in its trivial mode, confirmed by the user. Then one subagent commits one acceptance test red with the red-commit command `AGENTS.md` records, makes it pass, runs the check command and commits, on a story branch with a pull request. No test plan, build subagent, review subagent or Done block. The pull request is the record, linked to an issue when one exists. |
 | One story | One change a person can see, in one workflow step and one variation, with nothing unknown that changes what gets built | Section 4 of [references/loop.md](references/loop.md). One issue with no epic, whose comments are its log. Skip the feature header, the `architecture` skill and the feature acceptance test. |
 | Several stories | More than one step or variation, an unknown whose answer changes what gets built, or a PRD or epic | Section 0 onward of [references/loop.md](references/loop.md). The loop runs every story, choosing each next one by its section 3. |
 
-A bug is sized like any request. Its outcome is the behaviour the person should have seen, and its first criterion is the reproduction, which `story` writes. A flaky test is a bug whose reproduction is the test failing on repeated runs of unchanged code. A red CI run is a bug report, and its failing step's output is the report.
+A bug is sized like any request. Its outcome is the behaviour the person should have seen, and its first criterion is the reproduction, which `define` writes. A flaky test is a bug whose reproduction is the test failing on repeated runs of unchanged code. A red CI run is a bug report, and its failing step's output is the report.
 
 Say the size and the reason in the first message. The user can move the request to another size. When a one-story request's criteria cross more than one step or variation, or exceed the number of criteria per story `AGENTS.md` states, it is several stories: split it by the split rule in section "When to Park and When to Ask". When `AGENTS.md` states no number, ask the user once and record it under its constraints as "A story has at most <n> acceptance criteria."
 
@@ -92,7 +92,7 @@ A parked story waits for one answer while the loop works on other ready stories.
 
 Park a story on these and nothing else:
 
-* **Its criteria wait for confirmation.** Every story parks once, after `story` writes its criteria (section 4).
+* **Its criteria wait for confirmation.** Every story parks once, after `define` writes its criteria (section 4).
 * **The builder asks a question** about a choice a person would see (section 5).
 * **An accepted row is wrong:** the builder reports a row it cannot satisfy and the reason holds against the code, or a refactor renames a file an accepted test names. Queue the row, the reason and the corrected row. Once the user re-accepts it, clear the story's red-commit guard, land the corrected row as a new red commit, and re-add every red commit of this story to the guard.
 * **This story removes behaviour a feature acceptance test asserts.** The user edits or retires that test, since the agent cannot touch it.
@@ -107,7 +107,7 @@ Park a story on these and nothing else:
 
 Decide these without asking, and list each in the next message to the user:
 
-* **A split.** When a story's criteria cross more than one workflow step or variation, `story` reports it is several stories, or the builder is red twice on sound rows (counting every red in build and verify), run the `define-work` skill's splitting patterns in a subagent. Create the new stories as children of the epic, close the original as `cut: split into <keys>`, delete its branch and worktree, and carry on.
+* **A split.** When a story's criteria cross more than one workflow step or variation, `define` reports it is several stories, or the builder is red twice on sound rows (counting every red in build and verify), run the `define` skill's splitting patterns in a subagent. Create the new stories as children of the epic, close the original as `cut: split into <keys>`, delete its branch and worktree, and carry on.
 * **A new story.** A bug in shipped work, or a `Learned` or `Observed` fact that changes what gets built, becomes a new child issue with its blocking links. The user can cut it.
 
 ## Working in a Team

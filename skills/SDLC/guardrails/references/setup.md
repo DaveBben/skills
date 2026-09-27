@@ -4,7 +4,7 @@ Loaded by the `guardrails` skill when a repository's automated checks must be se
 
 Identify the language, pick the tool, and name the pick.
 
-Decide nothing about what the system should be. Framing and slicing belong to `define-work`, the system's shape to `architecture`, and building to `deliver`.
+Decide nothing about what the system should be. Framing and slicing belong to `define`, the system's shape to `architecture`, and building to `deliver`.
 
 ```text
 SURVEY        language, package manager, agent harness, slots already filled

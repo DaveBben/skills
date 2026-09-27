@@ -20,7 +20,7 @@ Skip any answer `AGENTS.md` already records. Ask the rest in one message:
 * How much data there is now, and how fast it grows.
 * Which data is sensitive (health, personal, financial, credentials), where it may be stored, and whether it must be encrypted on disk and on the wire. Sensitive data in a log line or an error message counts as stored.
 
-Write each answer as a constraint with its enforcer: under Critical Constraints in `AGENTS.md` when it holds for the whole system, or on the feature header's `Constraints:` line when it holds for one feature. Before `AGENTS.md` exists, write every number on the feature header. A number goes only into the repository whose Budget test asserts it. The enforcer is a Budget row: a test asserting the number, which the `story` skill proposes for every change that touches it. Accept "unknown" and write it as unknown. An unknown number defers every decision that depends on it and never blocks the walking skeleton.
+Write each answer as a constraint with its enforcer: under Critical Constraints in `AGENTS.md` when it holds for the whole system, or on the feature header's `Constraints:` line when it holds for one feature. Before `AGENTS.md` exists, write every number on the feature header. A number goes only into the repository whose Budget test asserts it. The enforcer is a Budget row: a test asserting the number, which the `define` skill proposes for every change that touches it. Accept "unknown" and write it as unknown. An unknown number defers every decision that depends on it and never blocks the walking skeleton.
 
 ## 4. Map
 
