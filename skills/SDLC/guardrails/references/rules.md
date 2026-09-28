@@ -52,7 +52,7 @@ Say plainly which rules stay with the agent: anything met by something absent ("
 
 ## Contracts
 
-* **Read the shape from `AGENTS.md`.** The `architecture` skill writes the modules, what each owns, and the flows between them into the Architecture block of `AGENTS.md`. Write one contract per flow that stays inside one process, and delete that flow's row from the Flows table in the same commit. When that block does not exist yet, say so, fill the language-level slots now, and encode contracts after `architecture` has drawn the shape. Never ask the user to draw the modules here.
+* **Read the shape from the latest snapshot.** The `architecture` skill writes the modules, what each owns, and the flows between them into a snapshot under `docs/architecture/snapshots/`, and the `Architecture:` line of `AGENTS.md` points at the latest one. Write one contract per flow that stays inside one process. Never edit the snapshot. When no snapshot exists yet, say so, fill the language-level slots now, and encode contracts after `architecture` has drawn the shape. Never ask the user to draw the modules here.
 * **Brownfield with no Architecture block:** Derive the current dependency graph, render it as a diagram, and ask which edges they did not expect. Those are the ones nobody chose, and they become the first contracts. Never encode the whole current graph.
 * **One contract per allowed-dependency line.** Everything not listed is forbidden, and the config says so explicitly.
 * **Write each contract's name as the rule in plain English**, so a broken build prints the sentence that stopped being true.

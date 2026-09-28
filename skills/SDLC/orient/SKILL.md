@@ -4,7 +4,7 @@ description: "Use this skill when the repository's AGENTS.md or CLAUDE.md as a w
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "4.0.0"
+  version: "4.1.0"
 ---
 # Orient
 
@@ -51,8 +51,7 @@ Nouns:      <term: one-line meaning, three to five lines>
 <language and version, framework, package manager, top-level directories with one-line purposes>
 Boundaries: <system: address or path, and whether read, write or host; who writes the data in each store>
 Backlog:    <tracker, project, access methods in order, with the lines under it from the format reference>
-### Architecture
-<the processes, modules and flows tables the `architecture` skill writes; left out until it has run>
+Architecture: <path of the latest snapshot under docs/architecture/snapshots/, which the `architecture` skill writes; left out until it has run>
 
 ## Operational Commands
 <exact commands: install, test, lint, format, run, deploy; the check command `guardrails` commits>
@@ -64,7 +63,7 @@ Backlog:    <tracker, project, access methods in order, with the lines under it 
 <path — purpose, one per line, only files that exist: docs/adr/, specs>
 ```
 
-* **Carry the architecture over.** When a feature's epic on the tracker holds a comment with tables or system-wide numbers the `architecture` skill wrote before `AGENTS.md` existed, copy the rows that belong to this repository under `### Architecture` (processes by their Repository cell, modules by their process, flows by their From module), and under Critical Constraints the numbers whose Budget test lives here. Delete that comment, where the tracker allows, only once every repository the epic's `Repositories:` line marks has its own `AGENTS.md`.
+* **Carry the architecture over.** When the `architecture` skill committed a snapshot under `docs/architecture/snapshots/` before `AGENTS.md` existed, write the latest one's path on the `Architecture:` line. When a feature's epic on the tracker holds a comment with system-wide numbers that skill wrote, copy under Critical Constraints the numbers whose Budget test lives here. Never copy a snapshot's content into `AGENTS.md`.
 * **Charter from the interview, the rest from the repository.** Language and versions from the manifest, the package manager from the lockfile, the layout from the top-level directories, the commands from the task runner, the scripts directory or the package manifest. Run each safe command once (test, lint, format) before listing it; a command that does not run is not listed. When the repository carries no manifest, lockfile or task runner, leave the line out and name what was not found, rather than inferring a command from the file extensions.
 * **Critical Constraints end with their enforcer.** A Budget row, a commit-gate check, or an ADR. A rule no tool can see is the other kind that belongs here: never commit credentials, every migration reversible, nothing edited under `vendor/`. Vague guidance belongs nowhere. Three kinds are exempt: a number the `architecture` skill recorded as unknown, the limits `deliver` records (criteria per story, stories at once), and a note that a directory the agent must not edit is unguarded.
 * **Cap it at 100 lines and 8 KB,** the charter sections under thirty of them, and table cells under 40 characters; the `guardrails` skill's `agents-md-size` commit hook fails a larger file. A module's conventions belong in a nested instructions file in that module; a rule for one file type belongs in a path-scoped rule. The `guardrails` skill wires those.

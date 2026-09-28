@@ -27,7 +27,7 @@ Backlog:   Acme Tickets at https://tickets.acme.internal; `tix` CLI
   pr:       tix link-url {key} {url}
 ```
 
-The section ends with a `### Architecture` heading, after Boundaries and Backlog, holding the three tables the `architecture` skill writes: processes, modules and flows. A flow inside one process leaves the table once the `guardrails` skill has written its dependency contract.
+The section ends with an `Architecture:` line, after Boundaries and Backlog, holding the path of the latest snapshot the `architecture` skill wrote under `docs/architecture/snapshots/`. The snapshot holds the processes, stores, modules and flows; `AGENTS.md` holds only the pointer. A repository whose `AGENTS.md` still holds architecture tables gets them moved into a snapshot by that skill's capture path.
 
 ### 3. Operational Commands
 

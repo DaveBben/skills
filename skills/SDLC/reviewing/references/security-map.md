@@ -4,7 +4,7 @@ The first of the security review's two subagents. You get the worktree path, the
 
 The attack surface is every place data from outside the code's control enters, crosses a boundary, is interpreted, or is stored where it is sensitive.
 
-Read the diff's file list against the merge target, and the `### Architecture` block and Critical Constraints of `AGENTS.md`. The Flows table's "Who else reaches To" column and the sensitive-data constraints are the starting points; confirm each in the code.
+Read the diff's file list against the merge target, the Critical Constraints of `AGENTS.md`, and the latest architecture snapshot its `Architecture:` line points at. The snapshot's "Who else can reach each crossing" table and the sensitive-data constraints are the starting points; confirm each in the code.
 
 Write `attack-surface.md` in the repository's shared git directory (`git rev-parse --git-common-dir`). That directory is never committed and every worktree sees it. The first line is `Built from <commit>`.
 

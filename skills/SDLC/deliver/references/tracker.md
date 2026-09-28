@@ -61,7 +61,7 @@ Use, in order, an MCP server the session already has, the tracker's own CLI, the
 | A story's log entry | A comment written when its pull request opens, in the form `log.md` gives; at merge it becomes the resolution, with the Done status. `Observed` is a second comment when it arrives later |
 | A parked question | A comment on the story starting `Parked:`, edited or deleted once answered where the tracker allows |
 | A spike's findings | The spike issue's resolution comment, every line a `Learned` line |
-| Architecture tables before `AGENTS.md` exists | A comment on the epic, which the `orient` skill moves into `AGENTS.md` |
+| Architecture snapshot | `docs/architecture/snapshots/<date>.md`, committed; `AGENTS.md` points at the latest |
 | A finding about the system, not one story | A comment on the epic, so close-out finds every one in one place |
 | A bug in shipped work | A bug issue under the epic, ranked by the user. `Not caught by` is its resolution comment |
 

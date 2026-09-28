@@ -53,10 +53,10 @@ Propose three tables, only for what the outcome touches, and stop. The user edit
 
 ## 6. Record and revise
 
-* **Write the tables into `AGENTS.md`** under a `### Architecture` heading inside Tech Stack and Codebase Map. Before `AGENTS.md` exists, write them as a comment on the epic; the `orient` skill moves them, and the numbers, into `AGENTS.md` when it writes that file. Otherwise commit them with the plan. Each repository's `AGENTS.md` holds the processes whose Repository cell names it, the modules whose process runs in it, and the flows whose From module is in it. Keep every table cell under 40 characters.
-* **A flow inside one process leaves the Flows table** once the `guardrails` skill has written its dependency contract ("From may import To"), so a reversed dependency fails the build. Hand the in-process flows to `guardrails` in a subagent once the tables are recorded. `AGENTS.md` stays under its 100-line cap this way.
+* **Write the agreed shape as a snapshot** by [snapshot.md](snapshot.md), headed "planned, not yet built", and commit it with the plan, with the `AGENTS.md` line pointing at it. Before `AGENTS.md` exists, commit the snapshot alone; the `orient` skill adds the pointer, and moves the numbers into `AGENTS.md`, when it writes that file. Each repository's snapshot covers the processes whose Repository cell names it, the modules whose process runs in it, and the flows whose From module is in it.
+* **A flow inside one process leaves the Flows table** once the `guardrails` skill has written its dependency contract ("From may import To"), so a reversed dependency fails the build. Hand the in-process flows to `guardrails` in a subagent once the snapshot is recorded. The snapshot's code map states the import rule in one sentence and names the file that enforces it.
 * **Ask which modules the user reads on every change:** those deciding who may do what, or touching secrets, money, health or personal data, schema migrations or deploys. The user reads other code only when a pull request points to it. Hand those modules' directories to `guardrails` with the flows, as `# owner reads: data` lines of `CODEOWNERS`.
-* **Rewrite the tables in the last commit of any story's branch** that changes a process, a module's name or Owns cell, or a flow.
+* **Write a new snapshot in the last commit of any story's branch** that changes a process, a store, a module's name or Owns cell, or a flow, and point `AGENTS.md` at it.
 
 ## 7. A new application: stand up and hand on
 

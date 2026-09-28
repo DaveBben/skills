@@ -102,7 +102,7 @@ When the story list is empty, the agent promotes what was learned, asks whether 
 | Spike findings | the spike issue's resolution comment, as `Learned` lines | durable; the code is deleted |
 | Feature header and story log | the epic's description, and one comment per story | durable, kept after the last story |
 | ADR | `docs/adr/architecture/` or `docs/adr/{slug}/` | durable, committed before the code that depends on it |
-| Architecture tables: processes, modules, flows | `AGENTS.md`, under the Architecture block | durable, rewritten when a story changes the shape |
+| Architecture snapshot: one unit end to end, core logic, storage, failures, code map, decisions | `docs/architecture/snapshots/<date>.md`, pointed at by `AGENTS.md` | durable, never edited; a story that changes the shape writes a new one |
 | feature acceptance test | the test tree's `feature-acceptance` directory | durable; written by the user, denied to the agent for the life of the repo |
 | Holdout scenarios | `~/.holdout/<repository>/<slug>/`, outside the repo | the user's; spent ones may become regression tests at close-out |
 | `# owner reads:` sections | `CODEOWNERS` | durable; the paths you read on every change |
