@@ -13,7 +13,7 @@ Plugins are independent. A user installs only the area they want, and one plugin
 ## Key files
 
 - `skills/<area>/<skill>/SKILL.md` is the source of truth for a skill, with its reference files one level deep in `references/` beside it. This is the only place to edit a skill.
-- `plugins/<area>/` is a thin Claude Code wrapper: a `plugin.json`, a README, and a `skills` symlink to `../../skills/<area>`. The symlink means one copy, not two. Do not replace it with real files.
+- `plugins/<area>/` is a thin Claude Code wrapper: a `plugin.json`, a README, and a `skills` symlink to `../../skills/<area>`. The symlink means one copy, not two. Do not replace it with real files. A wrapper may also carry `hooks/hooks.json`: the SDLC wrapper's `SessionStart` and `SubagentStart` hooks print `hooks/writing.md`, the writing rules, into every Claude Code session and subagent, so no skill carries its own copy.
 - `.claude-plugin/marketplace.json` lets users add this repo as a Claude marketplace and lists every plugin.
 - `README.md` explains installation and indexes the plugins. Rationale for a design lives here, not in a skill.
 - `research/` holds source material and never loads into an agent.
@@ -24,7 +24,7 @@ Plugins are independent. A user installs only the area they want, and one plugin
 - **Renaming a plugin** must update five things together: the `skills/<area>/` directory, the `plugins/<area>/` directory, the `name` in `plugin.json`, the entry in `marketplace.json`, and the README. The plugin `name` is the slash-command prefix, so a skill invokes as `/<plugin>:<skill>`.
 - **Skill paths** in `marketplace.json` must be `./skills/<skill>`, relative to the plugin `source`, with no `..`. The schema forbids `..`; the symlink is what reaches the canonical files.
 - **Version:** keep the version in a plugin's `plugin.json` equal to its `marketplace.json` entry, and bump both together.
-- **Runtime reach:** nothing outside `skills/<area>/` reaches an agent, not this file, the READMEs, or `research/`. Every term a skill uses must be defined inside that skill.
+- **Runtime reach:** nothing outside `skills/<area>/` and a wrapper's `hooks/` reaches an agent, not this file, the READMEs, or `research/`. Every term a skill uses must be defined inside that skill.
 
 ## Writing a skill
 

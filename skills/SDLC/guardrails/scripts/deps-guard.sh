@@ -4,9 +4,10 @@ root="${CLAUDE_PROJECT_DIR:-.}"
 . "$root/.claude/hooks/_slots.sh"
 
 file="$(read_json_field file_path)"
-case "$file" in "$root/$deps_file"|"$deps_file") ;; *) exit 0 ;; esac
-[ -f "$file" ] || exit 0
-cd "$root"
+case "$file" in /*) ;; *) file="$root/$file" ;; esac
+wt="$(clone_worktree "$(dirname "$file")")" || exit 0
+[ "$file" = "$wt/$deps_file" ] && [ -f "$file" ] || exit 0
+cd "$wt"
 
 if ! output="$(deps_check 2>&1)"; then
   echo "$deps_file no longer matches the lockfile:" >&2

@@ -10,7 +10,7 @@ The user writes 5 to 15 scenarios, one per way a person reaches the feature's ou
 
 ```text
 ## S3 Refund shows on the statement
-Due after: 3, 5
+Due after: PAY-3, PAY-5
 Runs: 1
 Given customer C-1001 has invoice INV-77 for 120.00 EUR, paid
 When  POST /refunds {"invoice": "INV-77", "amount": "20.00"}
@@ -19,7 +19,7 @@ And   the refunds table has one row for INV-77 with amount 20.00
 ```
 
 * **Systems and data only.** Given names the rows a store holds or the state a person is in. When names the request, command or screen action, with values. Then and And name what comes back and the rows after, with values. No class, function or file name.
-* **`Due after:`** lists the issue keys of the epic's stories this scenario waits on.
+* **`Due after:`** lists the issue keys of the epic's stories this scenario waits on, exactly as the tracker writes them, since verify passes the same keys to `--done`.
 * **`Runs:`** is 1. The user sets more for a path that can vary between runs: a call to a model, two requests racing, a timing-dependent service. The scenario passes only when every run passes.
 * **IDs never change.** A cut scenario stays as `## S<n> cut`.
 

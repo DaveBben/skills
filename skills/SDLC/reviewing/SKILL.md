@@ -4,11 +4,11 @@ description: "Use this skill when something must be reviewed or critiqued: code 
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.7.0"
+  version: "1.8.0"
 ---
 # Reviewing
 
-Load [references/writing.md](references/writing.md) before the first reply, unless it is already loaded this session or `deliver` runs the built-code review, whose Done block has a fixed format. Every other finding and report follows it.
+When `deliver` runs the built-code review, its Done block keeps its fixed format over any writing rule.
 
 ## 1. Pick the review
 

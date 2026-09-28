@@ -4,11 +4,9 @@ description: "Use this skill before touching any file on every request to add, c
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "14.3.0"
+  version: "14.4.0"
 ---
 # Deliver
-
-Load [references/writing.md](references/writing.md) before the first reply.
 
 Two phases. **With the user, once per feature:** Orient -> Define -> Architecture -> Record. **Per story:** Criteria -> the user confirms -> Setup and red commit -> Build -> Review -> Verify -> Log -> Pull request, then the user merges. For an epic the loop runs until every story is merged or cut, starting each ready story as soon as its blockers merge. Every story merges into main.
 

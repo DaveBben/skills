@@ -256,11 +256,15 @@ Judgment calls go to you. The skills surface the decision, the failure mode or t
 
 The eight skills surface under their own names.
 
+The plugin also installs two hooks. They print `hooks/writing.md`, the writing rules every reply and document follows, into every session and every subagent, in every project where the plugin is enabled. That costs about 1,600 tokens per session and per subagent.
+
 **Any other agent** (Codex, Cursor, Windsurf, and more), via the [`skills` CLI](https://github.com/vercel-labs/skills):
 
 ```bash
 npx skills add DaveBben/davebben-skills --skill deliver
 ```
+
+Other agents do not run the hooks, so they get no writing rules. Paste `plugins/SDLC/hooks/writing.md` into the agent's own instructions file to have them.
 
 Swap in `guardrails` or `architecture`, or `--all` for every skill in the repo. The canonical `SKILL.md` files live at `skills/SDLC/` in the repo root.
 

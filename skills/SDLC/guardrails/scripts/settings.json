@@ -5,7 +5,12 @@
       "Read(./.env*)", "Edit(./.env*)", "Write(./.env*)",
       "Edit(./uv.lock)", "Write(./uv.lock)",
       "Edit(./tests/feature-acceptance/**)", "Write(./tests/feature-acceptance/**)",
-      "Edit(./.git/**)", "Write(./.git/**)",
+      "Edit(./.git/config)", "Write(./.git/config)",
+      "Edit(./.git/hooks/**)", "Write(./.git/hooks/**)",
+      "Edit(./.git/objects/**)", "Write(./.git/objects/**)",
+      "Edit(./.git/refs/**)", "Write(./.git/refs/**)",
+      "Edit(./.git/**/HEAD)", "Write(./.git/**/HEAD)",
+      "Edit(./.git/**/index)", "Write(./.git/**/index)",
       "Read(~/.holdout/**)", "Edit(~/.holdout/**)", "Write(~/.holdout/**)"
     ]
   },
@@ -34,6 +39,9 @@
       ]
     }],
     "Stop": [{
+      "hooks": [{"type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/turn-end-check.sh"}]
+    }],
+    "SubagentStop": [{
       "hooks": [{"type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/turn-end-check.sh"}]
     }],
     "SessionStart": [{

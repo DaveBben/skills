@@ -24,7 +24,7 @@ Before recording <decision>:
 
 ## File Naming and Location
 
-Write every ADR by the "For a reader who was not here" writing rules, reconstruction test included.
+Write every ADR by the writing rules for a reader who did not see the conversation, reconstruction test included.
 
 
 * **Feature-scoped:** `docs/adr/{slug}/<decision-name>.md` for a decision belonging to one change. The `{slug}` is the feature's slug, the one in its `story/{slug}/` branches and its log path.

@@ -54,4 +54,4 @@ Preference — <one line, only when asked>
 
 ## Communication
 
-The writing rules `reviewing` loads apply. The words subject and job stay out of chat; a tier name is one word at the start of its point. Stop when the points stop: no summary, no encouragement, no offer to rewrite.
+The writing rules apply. The words subject and job stay out of chat; a tier name is one word at the start of its point. Stop when the points stop: no summary, no encouragement, no offer to rewrite.

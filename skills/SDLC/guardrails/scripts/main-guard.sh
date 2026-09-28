@@ -6,14 +6,7 @@ root="${CLAUDE_PROJECT_DIR:-.}"
 file="$(read_json_field file_path)"
 case "$file" in /*) ;; *) file="$root/$file" ;; esac
 
-# The file may sit in any worktree of this clone; find the nearest existing directory.
-dir="$(dirname "$file")"
-while [ ! -d "$dir" ]; do dir="$(dirname "$dir")"; done
-wt="$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)" || exit 0
-
-# Another repository the session can reach is out of scope.
-[ "$(git -C "$wt" rev-parse --path-format=absolute --git-common-dir)" = \
-  "$(git -C "$root" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)" ] || exit 0
+wt="$(clone_worktree "$(dirname "$file")")" || exit 0
 
 branch="$(git -C "$wt" branch --show-current 2>/dev/null || true)"
 [ "$branch" = "$main_branch" ] || exit 0

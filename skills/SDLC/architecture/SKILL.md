@@ -4,11 +4,9 @@ description: "Use this skill when the shape of a system must be decided, when an
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "2.2.0"
+  version: "2.3.0"
 ---
 # Architecture
-
-Load [references/writing.md](references/writing.md) before the first reply, unless it is already loaded this session.
 
 Architecture here is the set of decisions that are expensive to reverse, and the shape they give the system: which processes run, which modules own what, and how they talk. Decide it in this order: find out what is unknown with spikes, take a broad starting shape, record each decision, prove the shape with a walking skeleton, and change it by refactoring as stories teach more. The walking skeleton is the thinnest end-to-end version of the outcome a real person can use, built as the first story.
 

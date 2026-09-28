@@ -11,9 +11,24 @@ read_json_field() {
   fi
 }
 
+# Prints the top of the worktree holding <path> when that worktree belongs to
+# this clone, and fails otherwise. A session can hold other repositories, and
+# deliver's story worktrees sit outside the project directory.
+clone_worktree() {
+  local dir="$1" wt
+  while [ ! -d "$dir" ]; do dir="$(dirname "$dir")"; done
+  wt="$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)" || return 1
+  [ "$(git -C "$wt" rev-parse --path-format=absolute --git-common-dir)" = \
+    "$(git -C "$root" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)" ] || return 1
+  echo "$wt"
+}
+
 # EDIT: every line below. This is the Python / uv example; fill the same slots
 # for the project's own language and tools.
 matches()    { case "$1" in *.py) return 0 ;; *) return 1 ;; esac; }
+# Test files, relative to the worktree; `*` matches across `/`. Keep them the
+# same as the test globs of the red-commit-scope and accepted-tests hooks.
+is_test()    { case "$1" in tests/*|*/tests/*|test_*.py|*/test_*.py) return 0 ;; *) return 1 ;; esac; }
 pathspec=('*.py')
 fast_fix()   { ruff check --fix "$1" >/dev/null 2>&1 || true
                ruff format "$1"     >/dev/null 2>&1 || true; }

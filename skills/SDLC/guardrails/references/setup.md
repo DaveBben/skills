@@ -77,17 +77,17 @@ Where the agent harness is Claude Code, load `references/claude-guardrails.md` n
 * **Re-verify after each fix**, rather than checking once and standing down.
 * **Skip when nothing relevant changed.**
 * **Fail open when the tool itself breaks.** Distinguish "the checker found problems" from "the checker could not run", or a missing dependency phantom-blocks every edit.
-* **Scope to this repository.** A session can hold other working directories and these rules do not apply there.
+* **Scope to this repository and its worktrees.** A session can hold other working directories and these rules do not apply there. `deliver`'s story worktrees sit outside the project directory and the rules apply there.
 
 ## Guards
 
 * **Hard blocks: two entries, and justify a third.** A rule earns a slot only when violating it is never correct and the harness cannot catch it afterwards. Blocking the flag that skips the commit gate qualifies. Blocking a package manager the project does not use is blocklist creep.
 * **Block edits on main.** Refuse any edit on the main branch at edit time, except `AGENTS.md`, `CLAUDE.md` and `docs/adr/`, with a message telling the agent to run `deliver`. `deliver` edits only in a story worktree, so the block fires only when the agent skipped it.
 * **Remind the agent of `deliver` on every prompt,** where the agent harness can add a line to each prompt.
-* **Block edits to accepted tests and to the checks.** While `deliver` has a red commit recorded, refuse any edit to a file that commit touched, or to a path under `# owner reads: checks` in `CODEOWNERS`, at edit time. An instruction to leave tests alone is not a substitute for the guard.
+* **Block edits to accepted tests and to the checks.** While `deliver` has a red commit recorded, refuse any edit to a test file that commit touched, or to a path under `# owner reads: checks` in `CODEOWNERS`, at edit time. An instruction to leave tests alone is not a substitute for the guard.
 * **Hold a story's pull request until it is ready.** Refuse the command that opens a pull request for a story branch with a red commit until verify has written `exceptions.txt`, the security review is not pending, the title carries the issue key, and the body starts with `Read code:`.
 * **Deny agent edits to the feature acceptance tests for good.** The `deliver` loop keeps the user's acceptance test for a whole feature in a `feature-acceptance` directory inside the test tree. Deny edits, writes and deletes there permanently, for the agent and every subagent.
-* **Deny reads and writes outright** for secrets files, the lockfile, and the version control directory.
+* **Deny reads and writes outright** for secrets files, the lockfile, and the version control directory's config, hooks, object store, refs, `HEAD` and index. Leave the rest of the git directory writable for the files `deliver` keeps there.
 * **Deny the holdout directory,** `~/.holdout/`, where the user keeps hidden end-to-end scenarios for `deliver`: reads, edits and writes, and every shell command naming it except its own `run` command. That shell block is the justified third hard block: reading the scenarios is never correct, and nothing undoes it once read.
 * **Write the `# owner reads:` sections of `CODEOWNERS`,** the paths the user reads on every change, where `deliver` shows them code by exception. Each section is a `# owner reads: <label>` heading, then one CODEOWNERS line per path with the user's handle, ending at a blank line. Write `checks` for every file this skill wrote or configured (hook and harness settings, CI files, the check command, linter, type, test-runner and mutation config, `.semgrep/`, `scripts/`, `CODEOWNERS` itself), `deps` for the manifest and the lockfile, and `data` for the directories `architecture` hands over. GitHub, and GitLab Premium, also request the user's review on those paths.
 * **Say plainly that the deny list stops accidents and is not a security boundary.** Anything pre-approved that executes code can read any file the user can.

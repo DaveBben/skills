@@ -9,7 +9,7 @@ Usage, from anywhere:
 The holdout directory holds:
   scenarios.md    line 1 `canary: <random id>`, then one block per scenario:
                     ## S3 Refund shows on the statement
-                    Due after: 3, 5
+                    Due after: PAY-3, PAY-5
                     Runs: 1
                     Spent: 2026-10-02        (only once handed over as a bug report)
                     Given ... / When ... / Then ... / And ...

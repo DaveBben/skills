@@ -3,7 +3,8 @@ set -euo pipefail
 root="${CLAUDE_PROJECT_DIR:-.}"
 . "$root/.claude/hooks/_slots.sh"
 
-cmd="$(read_json_field command)"
+input="$(cat)"
+cmd="$(printf '%s' "$input" | read_json_field command)"
 
 # Strip quoted segments, then cut each command at its heredoc marker and drop
 # the body that follows, so a commit message that merely mentions a blocked
@@ -44,21 +45,36 @@ case "$cmd" in
 esac
 # rm and mv through the shell get past the deny list and the accepted-test
 # guard, which see only the edit tool. Block them on the feature acceptance
-# directory and on every file a recorded red commit touched. The commit gate's
-# accepted-tests hook catches what this misses, such as a relative path after cd.
+# directory, and on each story's accepted tests: by absolute path in any story
+# worktree, and by relative path in the worktree the command runs in (the
+# session's cwd, or the target of a leading `cd <dir> &&`). The commit gate's
+# accepted-tests hook catches what this misses, such as a path after `cd tests`.
 if printf '%s' "$scan" | grep -Eq '(^|[;&|(]|[[:space:]])(git[[:space:]]+)?(rm|mv)[[:space:]]'; then
-  guarded="$(cd "$root" && {
+  here="$(printf '%s' "$input" | read_json_field cwd)"; here="${here:-$root}"
+  to="$(printf '%s' "$cmd" | sed -En 's/^[[:space:]]*cd[[:space:]]+([^;&|[:space:]]+)[[:space:]]*&&.*/\1/p' | head -1)"
+  if [ -n "$to" ]; then case "$to" in /*) here="$to" ;; *) here="$here/$to" ;; esac; fi
+  here="$(clone_worktree "$here" || true)"
+  guarded="$(
     echo "$acceptance_dir"
-    for red in $( { git config --get-regexp '^branch\..*\.redcommit$' | cut -d' ' -f2
-                    git config --get-all agile.redCommit; } 2>/dev/null); do
-      git diff-tree --root --no-commit-id --name-only -r "$red" 2>/dev/null
-    done; })"
+    git -C "$root" worktree list --porcelain | awk '/^worktree /{w=substr($0,10)} /^branch /{print substr($0,19) "\t" w}' \
+      | while IFS=$'\t' read -r b wt; do
+        reds="$( { git -C "$wt" config --get-all "branch.$b.redCommit"
+                   [ "$wt" = "$here" ] && git -C "$wt" config --get-all agile.redCommit; } 2>/dev/null || true)"
+        for red in $reds; do
+          git -C "$wt" diff-tree --root --no-commit-id --name-only -r "$red" 2>/dev/null
+        done | while IFS= read -r f; do
+          is_test "$f" || continue
+          echo "$wt/$f"
+          [ "$wt" = "$here" ] && echo "$f"
+        done
+      done)"
   while IFS= read -r path; do
+    [ -n "$path" ] || continue
     case "$cmd" in
       *"$path"*)
-        echo "$path is an accepted test, a stub from a red commit, or the user's feature" >&2
-        echo "acceptance tests. Do not remove or move it. If it is wrong, stop and say so;" >&2
-        echo "the user changes it, or deliver clears the guard once the user agrees." >&2
+        echo "$path is an accepted test or one of the user's feature acceptance tests." >&2
+        echo "Do not remove or move it. If it is wrong, stop and say so; the user changes" >&2
+        echo "it, or deliver clears the guard once the user agrees." >&2
         exit 2 ;;
     esac
   done <<< "$guarded"

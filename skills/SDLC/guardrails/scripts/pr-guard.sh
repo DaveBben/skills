@@ -28,8 +28,11 @@ problems=()
 ex="$gd/exceptions.txt"
 if [ ! -f "$ex" ]; then
   problems+=("exceptions.txt is missing from $gd: verify has not run on this branch.")
-elif [ "$(stat -c %Y "$ex" 2>/dev/null || stat -f %m "$ex")" -lt "$(git -C "$wt" log -1 --format=%ct)" ]; then
-  problems+=("exceptions.txt is older than the branch's last commit: run verify again.")
+# The AGENTS.md rewrite is the story's last commit and lands after verify, so it
+# does not count.
+elif [ "$(stat -c %Y "$ex" 2>/dev/null || stat -f %m "$ex")" -lt \
+       "$(git -C "$wt" log -1 --format=%ct -- . ':(exclude)AGENTS.md' ':(exclude)CLAUDE.md')" ]; then
+  problems+=("exceptions.txt is older than the branch's last code commit: run verify again.")
 fi
 if grep -Eq '^Security:[[:space:]]*pending' "$gd/done-block.md" 2>/dev/null; then
   problems+=("done-block.md says Security: pending: run the security review first.")

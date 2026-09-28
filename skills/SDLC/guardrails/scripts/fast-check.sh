@@ -5,13 +5,14 @@ root="${CLAUDE_PROJECT_DIR:-.}"
 
 file="$(read_json_field file_path)"
 
-# This repo only. A session can hold other working directories.
-case "$file" in "$root"/*) ;; *) exit 0 ;; esac
+case "$file" in /*) ;; *) file="$root/$file" ;; esac
+# This clone only, in whichever worktree holds the file.
+wt="$(clone_worktree "$(dirname "$file")")" || exit 0
 # A source file that still exists. An edit may have been a deletion.
 matches "$file" || exit 0
 [ -f "$file" ] || exit 0
 
-cd "$root"
+cd "$wt"
 fast_fix "$file"
 
 set +e

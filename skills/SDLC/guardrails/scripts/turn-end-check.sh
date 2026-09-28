@@ -3,19 +3,29 @@ set -euo pipefail
 root="${CLAUDE_PROJECT_DIR:-.}"
 . "$root/.claude/hooks/_slots.sh"
 
-sid="$(read_json_field session_id)"
+input="$(cat)"
+sid="$(printf '%s' "$input" | read_json_field session_id)"
+cwd="$(printf '%s' "$input" | read_json_field cwd)"
 counter="${TMPDIR:-/tmp}/claude-turn-end-${sid:-unknown}"
 count="$(cat "$counter" 2>/dev/null || true)"
 case "$count" in ''|*[!0-9]*) count=0 ;; esac
 
-cd "$root"
+# The main checkout, and the worktree the agent is working in when that is a
+# story worktree of this clone outside the project directory.
+dirs=("$(git -C "$root" rev-parse --show-toplevel)")
+if wt="$(clone_worktree "${cwd:-$root}")" && [ "$wt" != "${dirs[0]}" ]; then dirs+=("$wt"); fi
 
-# The array stays quoted. Unquoted, bash expands the pattern against the repo
-# root before git sees it, and the check silently stops firing.
-changed="$(git status --porcelain -- "${pathspec[@]}" 2>/dev/null || true)"
-[ -z "$changed" ] && exit 0
+failed=""
+for d in "${dirs[@]}"; do
+  cd "$d"
+  # The array stays quoted. Unquoted, bash expands the pattern against the repo
+  # root before git sees it, and the check silently stops firing.
+  changed="$(git status --porcelain -- "${pathspec[@]}" 2>/dev/null || true)"
+  [ -z "$changed" ] && continue
+  output="$(turn_end 2>&1)" || failed="$failed$d:"$'\n'"$output"$'\n'
+done
 
-if ! output="$(turn_end 2>&1)"; then
+if [ -n "$failed" ]; then
   if [ "$count" -ge 3 ]; then
     rm -f "$counter"
     echo "turn-end: still failing after 3 blocked stops, letting the stop through." >&2
@@ -23,7 +33,7 @@ if ! output="$(turn_end 2>&1)"; then
   fi
   echo $((count + 1)) > "$counter"
   echo "The turn-end check failed. Fix these before finishing:" >&2
-  echo "$output" >&2
+  printf '%s' "$failed" >&2
   exit 2
 fi
 

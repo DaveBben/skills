@@ -4,7 +4,7 @@ description: "Use this skill when the user wants to find something out by buildi
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 # Spike
 
@@ -58,8 +58,6 @@ Record each finding as it surfaces, as a `Learned` line in this shape. Repeat an
 - Learned: **Open questions:** <what the official build must still resolve>
 - Learned: **Decided alone:** <what was chosen> over <the alternative not taken> — <why>; one line per choice made without the user (a library, a data shape, a key, a limit, a default), written the moment it is made
 ```
-
-Write every line by [references/writing.md](references/writing.md), loaded before the first reply unless it is already loaded this session.
 
 ## Explore Divergent Approaches
 

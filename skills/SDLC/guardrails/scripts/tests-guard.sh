@@ -36,6 +36,8 @@ for owners in "$wt/CODEOWNERS" "$wt/.github/CODEOWNERS" "$wt/docs/CODEOWNERS"; d
   break
 done
 
+# Stubs in a red commit are for the build to fill in; only its tests are the contract.
+is_test "$rel" || exit 0
 for red in $reds; do
   git -C "$wt" cat-file -e "$red^{commit}" 2>/dev/null || continue
   if git -C "$wt" diff --name-only "$red^" "$red" | grep -qxF "$rel"; then
