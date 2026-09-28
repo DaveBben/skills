@@ -110,7 +110,7 @@ Check the story against these before handing it on. A no returns the work to the
 * Every abuse path from section 4 that matters has a criterion with a number in it.
 * Nothing in the criteria is a standard nobody would choose against.
 * The story leaves a person able to do something they could not do before.
-* The story covers one workflow step and one variation, and has no more criteria than the number per story `AGENTS.md` states; ask the user for the number once when it is missing. When it covers more, say it is several stories and split it by `references/work.md`.
+* The story covers one workflow step and one variation, and has no more criteria than the number per story `AGENTS.md` states, or 8 when it states none. When it covers more, say it is several stories and split it by `references/work.md`.
 * Every undecided value is marked undecided and names who decides it.
 
 ## 10. Review a story

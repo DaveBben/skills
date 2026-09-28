@@ -4,15 +4,17 @@ description: "Use this skill when the shape of a system must be decided, when an
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "2.4.0"
+  version: "2.6.0"
 ---
 # Architecture
 
 Architecture here is the set of decisions that are expensive to reverse, and the shape they give the system: which processes run, which modules own what, and how they talk. Decide it in this order: find out what is unknown with spikes, take a broad starting shape, record each decision, prove the shape with a walking skeleton, and change it by refactoring as stories teach more. The walking skeleton is the thinnest end-to-end version of the outcome a real person can use, built as the first story.
 
-The shape goes into a dated snapshot under `docs/architecture/snapshots/`, written by [references/snapshot.md](references/snapshot.md), and `AGENTS.md` holds one line pointing at the latest snapshot. Each decision goes into an ADR (architecture decision record) under `docs/adr/`, and each rule into a test or a dependency contract.
+The shape goes into a dated snapshot under `docs/architecture/snapshots/`, written by [references/snapshot.md](references/snapshot.md), and `AGENTS.md` holds one line pointing at the latest snapshot. The user owns a one-page summary, `docs/architecture/summary.md`, that ranks the qualities the system is held to; the same reference sets its form. Each decision goes into an ADR (architecture decision record) under `docs/adr/`, and each rule into a test or a dependency contract.
 
 Everything here is agreed with the user. Propose, then wait. The user makes every decision section 5 lists.
+
+**Before asking.** Look up any fact the code, the data or the tracker holds, and use it. Put a fact only a named person knows on the epic's issue for that person. Ask one question per message, opening with one line naming the repository and the feature, and use the harness's multiple-choice question tool where it has one (Claude Code's AskUserQuestion).
 
 **Where things are written.** Planning a system or a new application needs the tracker the `Backlog:` line of `AGENTS.md` names; with no such line, halt and run the `orient` skill, which helps the user connect one. Recording one decision and deciding one open item need no tracker: with none, or with no feature open, the ADR goes under `docs/adr/architecture/` and nothing else is written. The slug is the epic's key. The feature header is the epic's description, which `define` writes. This skill adds `Decided:` (one ADR path per line) and `Deferred:` (one item per line, with the number, story or spike that will force it), and appends its numbers to `define`'s `Constraints:` line. When the work spans repositories, `docs/adr/` lives in the first repository on the `Repositories:` line. Commit the ADRs, the snapshot, and any `AGENTS.md` change, on a branch `story/{slug}/0-plan` and open its pull request, which the user merges before the first story; in a repository with no remote, commit them on main. With nothing to commit before the first story, open no plan branch.
 
@@ -25,7 +27,7 @@ Everything here is agreed with the user. Propose, then wait. The user makes ever
   * **Modules:** the top-level packages or directories, each with the one thing it owns.
   * **Flows:** calls across modules, and every call to a database, queue, file store or other service. Fill "Who else reaches To" from what the code shows (the address it listens on, the check on the caller, the credential it uses), and write "unknown" where the code does not show it.
 
-  When an earlier snapshot exists, or `AGENTS.md` still holds architecture tables, report the drift: each fact the code contradicts, each process, store or flow the code has and the earlier record lacks, and each the record has and the code lacks. Move any tables out of `AGENTS.md` into the snapshot. List in chat what the code settles (each repository's language and platform, each data store, each check on a caller), with the file that settles it, and each "unknown" as one question. Commit the snapshot and the `AGENTS.md` pointer on their own branch with a pull request. Record any settled item as an ADR only when the user gives the reasons, by [references/adr.md](references/adr.md). Then stop.
+  When an earlier snapshot exists, or `AGENTS.md` still holds architecture tables, report the drift: each fact the code contradicts, each process, store or flow the code has and the earlier record lacks, and each the record has and the code lacks. Move any tables out of `AGENTS.md` into the snapshot. List in chat what the code settles (each repository's language and platform, each data store, each check on a caller), with the file that settles it, and each "unknown" as one question. When `docs/architecture/summary.md` does not exist, draft it by the snapshot reference and ask the user to rewrite it. Commit the snapshot, the draft and the `AGENTS.md` pointer on their own branch with a pull request. Record any settled item as an ADR only when the user gives the reasons, by [references/adr.md](references/adr.md). Then stop.
 * **Plan a system** (a feature of several stories, "how should this be structured"): load [references/plan.md](references/plan.md) and run sections 2 to 6. Run alone, end by running `deliver`.
 * **A new application**, or work asked for in a repository with no application yet: this skill owns the path end to end. Once `define` has written the shared understanding, decide the repositories first: how many, the name of each, and the directory each lives in, written on `Repositories:` as `new: <name> <directory>`. Run `git init -b main` in the first one's directory and record the repositories decision there by [references/adr.md](references/adr.md). Then load [references/plan.md](references/plan.md) and run sections 2 to 7.
 
@@ -47,7 +49,7 @@ List the decisions this system cannot cheaply reverse:
 * the system's trust boundaries (the Who else reaches To answers from section 4 of the plan reference) and consistency boundaries
 * each choice a number or a sensitive-data answer from section 3 of the plan reference forces, such as a connection pool, a read replica, failover or encryption
 
-For each one the outcome touches, state in chat what the code already settles, with the file that settles it. Put the rest to the user one per message, with the alternatives and the tradeoff, and wait. Record each answer by [references/adr.md](references/adr.md) before the next decision is asked and before any code that depends on it.
+For each one the outcome touches, state in chat what the code already settles, with the file that settles it. Put the rest to the user one per message: the problem, the constraints, and the alternatives with their tradeoff, marking none as recommended. Ask which the user would pick, and wait. Once they answer, say in one sentence whether the agent would have picked differently and why, and let them keep or change their pick. Record each answer by [references/adr.md](references/adr.md) before the next decision is asked and before any code that depends on it.
 
 * **A data rule that holds for every feature** (sensitive data, retention, backup) goes in one ADR under `docs/adr/architecture/` and one Critical Constraints line, never on a feature header. Record the five data-shape answers as one ADR per store.
 * **Turn each answer a story could break into a constraint** on the feature header's `Constraints:` line, so the `define` skill writes it as a criterion on every story that could break it. "Writing the same sample twice stores one row", "an upload without the credential is refused" and "a row with no unit is refused" are each a criterion with a test.
@@ -65,7 +67,7 @@ Every item ends in one of four states:
 
 No story that needs an item starts until the item is in one of the four states.
 
-* **Ask before any smaller choice a later story inherits:** a port, an address or a schedule, a file or wire format, a name that becomes a domain noun. One message, alternatives and tradeoff, then wait.
+* **Ask before any smaller choice a later story inherits:** a port, an address or a schedule, a file or wire format, a name that becomes a domain noun. One message, alternatives and tradeoff, then wait. When the ranked qualities in `docs/architecture/summary.md` pick one alternative, decide it instead, and list it in chat with the quality that settled it.
 * **Decide alone** any choice no later story inherits and no person using the system would see, and list each in chat with what was chosen, why, and the tradeoff.
 * **Suggest an architectural change only when the current design obstructs the implementation.**
 * **An assumption a recorded decision depends on** goes in that ADR's Decision paragraph.

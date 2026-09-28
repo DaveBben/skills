@@ -2,7 +2,7 @@
 
 Loaded by the `reviewing` skill when the subject is code this session or a build subagent made. The Done block keeps its fixed format over any writing rule.
 
-Run three passes, separately and in order. Never merge them.
+Run four passes, separately and in order. Never merge them.
 
 Inputs: the change, its acceptance tests and the accepted test table (an index table with a `Killed by` column naming the one-line mutation that must turn the row red). When `deliver` ran, both are in the red commit message; read them from git. When no table exists, use the tests the change added. The check command is the one `AGENTS.md` names; when none is named, run the linter, the type checker and the tests. The permitted directory is the one the build instruction named; when none was named, it is the repository root. When no change is named, review the working tree against the last commit; when that diff is empty, ask which commit range to review rather than reviewing the whole repository.
 
@@ -41,6 +41,18 @@ Delete anything no requirement asked for:
 * No new name already claimed at the merge target. Grep the target for each one.
 * Nothing touched outside the permitted directory.
 
+## 4. Design
+
+Read the latest snapshot `AGENTS.md` points at: its code map, its import rule and its current decisions. When `deliver` ran, also read the Decision line of each ADR on the feature header's `Decided:` line. Write one `Design:` row per place the change departs from them:
+
+* A module doing what the code map says another module owns.
+* An import the import rule forbids.
+* A process, store, flow or outside system the snapshot lacks.
+* A choice a current decision rejected.
+* A second copy of a component, helper or type that already exists.
+
+Each row says what the change does, the snapshot section or ADR it departs from, and whether this branch carries a new snapshot or ADR that records it. With no departure, write "follows <snapshot file>". With no snapshot, write "no snapshot".
+
 ## Refactor While Green
 
 Order: passes the tests, reveals intent, no duplication, fewest elements.
@@ -55,13 +67,14 @@ Commit before the refactor and again after it. After the refactor commit, re-run
 
 ## Done
 
-Write this block when all three passes have run. Every line is a fact from this session, never a summary, and every row of a field starts with its label, so a grep for the label returns every row. Each finding no failing test shows goes to `findings.md` as a candidate; the refuter adds `Findings:` and `Rules:`, and fills `Security:`, `Exceptions:` and `Refuted:`. Run by `deliver`, write the block to `done-block.md` in the worktree's git directory with `Security: pending` and `Refuted: pending`, and return only whether the review is done and the number of `Proposed refactor:` rows. Run alone, print it once the refuter has run.
+Write this block when all four passes have run. Every line is a fact from this session, never a summary, and every row of a field starts with its label, so a grep for the label returns every row. Each finding no failing test shows goes to `findings.md` as a candidate; the refuter adds `Findings:` and `Rules:`, and fills `Security:`, `Exceptions:` and `Refuted:`. Run by `deliver`, write the block to `done-block.md` in the worktree's git directory with `Security: pending` and `Refuted: pending`, and return only whether the review is done and the number of `Proposed refactor:` rows. Run alone, print it once the refuter has run.
 
 ```text
 DONE
 Correctness: <runner or by hand>; one line per accepted and builder-added row: its Test cell, the mutation applied, red or survived; accepted tests unchanged since <red commit>, or the diff
 Subtraction: <what was deleted, one line each, or "nothing">
 Scars:       <each pinned value checked, or "none pinned">
+Design:      <one row per departure from the snapshot or an ADR, with whether this branch records it; or "follows <snapshot file>", or "no snapshot">
 Refactor:    <renames and merges, or "none">
 Proposed refactor: <one line per refactor outside the diff that was not made: the files and the duplication or confusion it removes; or "none">
 Decided alone: <the choices the build listed, then the review's own; one line each: what was chosen, why, the tradeoff>

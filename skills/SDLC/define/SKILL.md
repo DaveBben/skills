@@ -4,11 +4,13 @@ description: "Use this skill when work must be defined before it is built: an id
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 # Define
 
 Everything here is agreed with the user. Propose, then wait.
+
+**Before asking.** Look up any fact the code, the data or the tracker holds, and use it. Put a fact only a named person knows on the story's issue for that person. Ask the user about product intent and choices expensive to reverse, one question per message, as a multiple-choice question with the recommended option first; use the harness's question tool where it has one (Claude Code's AskUserQuestion).
 
 This skill defines work at two levels. For a feature: discovery of the problem under the request, the epic's shared understanding, and the story map of stories and spikes with their blockers. For one story: its acceptance criteria, its list of tests, and, when the user keeps them, holdout scenarios, which are end-to-end checks no agent that builds the feature ever reads.
 
@@ -29,4 +31,4 @@ Load exactly one reference.
 * **Coverage of existing code:** go straight to the test plan's section "Check existing tests for gaps", taking the behaviours from the code. Write no story.
 * **Tests for behaviour that already exists:** take the behaviours from the code, write no criteria, and keep rows that are already green, since each pins today's behaviour.
 * **Trivial mode.** When `deliver` sizes a request as trivial, write criterion a only, the outcome, and skip sections 3 to 5 of `references/criteria.md` and the ready check's failure and abuse items.
-* **Called from a subagent** (`deliver`'s criteria subagent included), return every question instead of waiting. From the criteria subagent, also return the card text by section 8 of `references/criteria.md` instead of writing it; `deliver` writes the card once the user has confirmed the criteria.
+* **Called from a subagent** (`deliver`'s criteria subagent included), return every question the code, the data and the tracker cannot answer, instead of waiting. From the criteria subagent, also return the card text by section 8 of `references/criteria.md` instead of writing it; `deliver` writes the card once the user has confirmed the criteria.

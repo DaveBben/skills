@@ -46,6 +46,8 @@ Write for a reviewer who has never opened this repository and does not know the 
 
 4. **What changed,** one paragraph in the domain's nouns, then one line per new
    function, module or branch saying what it is for and which file it is in.
+   Then the Done block's `Design:` rows unchanged, headed **Design**. A
+   departure no new snapshot or ADR on this branch records is also a Risk line.
 
 5. **Risk,** one line per fact that changes what a reviewer or merger does:
    what merging itself deploys and where; a guard that is off in the
