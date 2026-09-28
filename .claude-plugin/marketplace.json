@@ -52,6 +52,19 @@
       "author": {
         "name": "DaveBben"
       }
+    },
+    {
+      "name": "personalize",
+      "source": "./plugins/personalize",
+      "description": "Skills that make an agent act as you. sound-like-me composes texts, work replies, docs and scripts in your own voice by following private voice profiles kept outside the repo, never inventing facts and never sending without your say-so.",
+      "version": "0.1.0",
+      "license": "MIT",
+      "skills": [
+        "./skills/sound-like-me"
+      ],
+      "author": {
+        "name": "DaveBben"
+      }
     }
   ]
 }

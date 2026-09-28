@@ -1,0 +1,9 @@
+{
+  "name": "personalize",
+  "version": "0.1.0",
+  "description": "Skills that make an agent act as you. sound-like-me composes texts, work replies, docs and scripts in your own voice by following private voice profiles kept outside the repo, never inventing facts and never sending without your say-so.",
+  "license": "MIT",
+  "author": {
+    "name": "DaveBben"
+  }
+}
