@@ -1,7 +1,7 @@
 ---
 name: sound-like-me
-version: "0.1.0"
-description: "Use this skill whenever the text you are composing will go out as the user's own words, in their voice: a text or DM to a friend, family member or partner; a reply, review comment or chat message to a coworker; documentation, a README, a design doc, a wiki page or a blog post written as the user; or a script, voiceover, talk or video narration the user will read aloud. Use it on: 'reply to this for me', 'draft a text to', 'write back to', 'answer this comment', 'leave a review comment', 'write this doc in my voice', 'write a blog post', 'write a script for my video', 'what should I say'. Load it before drafting, even for a one-line reply. Not for text in your own voice, such as explanations, summaries or code comments you author as the agent."
+version: "0.2.0"
+description: "Use this skill whenever the text you are composing will go out as the user's own words, in their voice: a text or DM to a friend, family member or partner; a reply, review comment or chat message to a coworker; a merge request or pull request comment, or a reply in its thread; a comment on a Confluence, wiki, Google Docs or other shared page; documentation, a README, a design doc, a wiki page or a blog post written as the user; or a script, voiceover, talk or video narration the user will read aloud. Use it on: 'reply to this for me', 'draft a text to', 'write back to', 'answer this comment', 'leave a review comment', 'comment on the MR', 'reply to the PR thread', 'comment on the Confluence page', 'write this doc in my voice', 'write a blog post', 'write a script for my video', 'what should I say'. Load it before drafting, even for a one-line reply. Not for text in your own voice, such as explanations, summaries or code comments you author as the agent."
 license: MIT
 compatibility: any-agent
 ---

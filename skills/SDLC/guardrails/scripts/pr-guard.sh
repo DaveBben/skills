@@ -37,6 +37,9 @@ fi
 if grep -Eq '^Security:[[:space:]]*pending' "$gd/done-block.md" 2>/dev/null; then
   problems+=("done-block.md says Security: pending: run the security review first.")
 fi
+if grep -Eq '^Refuted:[[:space:]]*pending' "$gd/done-block.md" 2>/dev/null; then
+  problems+=("done-block.md says Refuted: pending: run the refute step first.")
+fi
 key="$(git -C "$wt" config --get "branch.$branch.issueKey" || true)"
 if [ -n "$key" ]; then
   case "$cmd" in *"[$key]"*) ;; *) problems+=("The title does not carry [$key].") ;; esac

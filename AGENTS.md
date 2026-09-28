@@ -13,7 +13,7 @@ Plugins are independent. A user installs only the area they want, and one plugin
 ## Key files
 
 - `skills/<area>/<skill>/SKILL.md` is the source of truth for a skill, with its reference files one level deep in `references/` beside it. This is the only place to edit a skill.
-- `plugins/<area>/` is a thin Claude Code wrapper: a `plugin.json`, a README, and a `skills` symlink to `../../skills/<area>`. The symlink means one copy, not two. Do not replace it with real files. A wrapper may also carry `hooks/hooks.json`: the SDLC wrapper's `SessionStart` and `SubagentStart` hooks print `hooks/writing.md`, the writing rules, into every Claude Code session and subagent, so no skill carries its own copy.
+- `plugins/<area>/` is a thin Claude Code wrapper: a `plugin.json`, a README, and a `skills` symlink to `../../skills/<area>`. The symlink means one copy, not two. Do not replace it with real files. A wrapper may also carry `hooks/hooks.json`: the SDLC wrapper's `SessionStart` and `SubagentStart` hooks print `hooks/writing.md`, the writing rules, into every Claude Code session and subagent, so no skill carries its own copy. The personalize wrapper's hooks print one line telling every session and subagent to load `sound-like-me` before drafting a comment as the user, so no other plugin has to name it.
 - `.claude-plugin/marketplace.json` lets users add this repo as a Claude marketplace and lists every plugin.
 - `README.md` explains installation and indexes the plugins. Rationale for a design lives here, not in a skill.
 - `research/` holds source material and never loads into an agent.

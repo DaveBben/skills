@@ -8,7 +8,6 @@ The rules an epic is judged against live in the `define` skill: its ready check,
 
 * **Change nothing without the owner agreeing.** Each gap is their decision.
 * **Read every comment on every card first,** and list each answer not yet folded into the card it answers.
-* **Check each subagent finding against the source** before reporting it.
 * **Run the `define` skill's review on each story that already has criteria,** for findings inside it.
 
 ## What to report
@@ -28,8 +27,9 @@ Not a story:     "<quoted title>" -> <kind> -> criteria on <story>
 Too many cards:  <cards> -> <shared sentence, hit count> -> one story
 Ships nothing:   "<quoted title>" -> <what a person still cannot do, or the boundaries crossed>
 Wrong blocker:   <story> -> <what blocks it in fact>
+Refuted:         <card>:<field> -> <what was raised> -> <what in the card stops it>
 
-Ready to build.        (or: 3 blocking items.)
+Ready to build.        (or: 3 blocking items: every finding line but Refuted:)
 ```
 
 ## Deleting cards

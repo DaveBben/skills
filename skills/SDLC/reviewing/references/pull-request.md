@@ -38,13 +38,11 @@ Take the answer from `AGENTS.md` at the repository root, which lists each system
 * **Written by a person through this product's own screens.** Unsanitised text that no outsider can reach.
 * **Not established,** because no such file exists, it does not list this store, or the writer is outside this repository. Say so, and name what would settle it: the file to read, or the person to ask.
 
-## Refute before reporting
-
-Expect most severity claims to come down once the code on the path is read. Two documents by the same author are one source.
-
 ## Report
 
-Write each finding as a Conventional Comment: a label, a decoration in parentheses, a one-line subject, then the discussion. The format is published at conventionalcomments.org. Blocking comments come first.
+Write each finding that survived the refuter as a Conventional Comment: a label, a decoration in parentheses, a one-line subject, then the discussion. The format is published at conventionalcomments.org. Blocking comments come first. Say what each rests on: read this run, inferred from something read this run, or asserted by a tool, a comment or the description. A comment raises a concern and never lowers one.
+
+The comments, and every reply to the author in their threads, go out under the user's name as the user's own words, in their voice. Before drafting them, load any installed skill for writing text in the user's voice, and write the subject and discussion by it. The label, the decoration, the anchor line and the `Rests on:` line keep the format below.
 
 Each comment sits on one line of code:
 
@@ -52,7 +50,6 @@ Each comment sits on one line of code:
 * **A finding that spans lines or files** is anchored to the first line that must change. The discussion names the other lines by `<file>:<line>`.
 * **A finding about something missing,** such as a criterion with no test or a query with no limit, is anchored to the changed line whose behaviour is missing the thing.
 * **Take the line number from the file at the pull request's head commit,** on the new side of the diff, and check it by reading that line before posting. A code host accepts an inline comment only on a line inside the diff. When the line to fix is outside the diff, anchor to the changed line that causes it and name the other line in the discussion. On GitHub, one way is a review comment with `line` and `side: RIGHT` and no `start_line`.
-* **Only the verdict and the refuted list go in the review body.**
 
 ```
 <file>:<line>
@@ -73,11 +70,9 @@ Use these labels and no others:
 | `todo` | A small required change with no failure of its own, such as a missing link to the ticket. Always `blocking`. |
 | `praise` | At most one, naming a specific thing to keep, such as a test that pins a hard case. Never generic. |
 
-Leave out `nitpick`: a finding with no failure behind it is a preference, and style belongs to the formatter and the linter.
-
 End the report with the refuted findings and the verdict:
 
 ```
-Refuted: <file>:<line> — <what was raised> — <why it does not hold>
+Refuted: <file>:<line> — <what was raised> — <the line that stops it>
 Merge. | Changes requested: <n> blocking.
 ```

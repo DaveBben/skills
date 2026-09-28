@@ -4,7 +4,7 @@ Skills that make an agent act as you.
 
 | Skill | Fires on |
 |---|---|
-| `sound-like-me` | "reply to this for me", "draft a text to", "answer this comment", "write this doc in my voice", "write a script for my video" |
+| `sound-like-me` | "reply to this for me", "draft a text to", "answer this comment", "comment on the MR", "comment on the Confluence page", "write this doc in my voice", "write a script for my video" |
 
 ## `sound-like-me`
 
@@ -15,6 +15,10 @@ Composes text that goes out as your own words. It picks one voice profile by aud
 - speaking.
 
 It then writes by that profile. It never invents facts or commitments, never simulates typos, and shows you the draft instead of sending it.
+
+### A reminder in every session
+
+In Claude Code, the plugin's `SessionStart` and `SubagentStart` hooks print one line into every session and subagent. The line tells the agent to load `sound-like-me` before it drafts a merge request comment, a thread reply, or a comment on a Confluence, wiki or Google Docs page. Another plugin's skill that writes those comments, such as a code review, then picks up your voice without naming this plugin. Other agents rely on the skill's description alone.
 
 ### Your profiles stay private
 

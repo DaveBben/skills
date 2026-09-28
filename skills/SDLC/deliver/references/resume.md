@@ -8,6 +8,7 @@ Run Orient. When several features are open, ask which one. Read the epic's descr
 |---|---|
 | A pull request is open | Section 8 of `SKILL.md`, watching it |
 | A parked question | Ask it again |
+| A Done block file with `Security: pending` or `Refuted: pending` | The Security or Refute step of section 6 of [loop.md](loop.md) |
 | A Done block file and no pull request | Section 7 of `SKILL.md`, the log comment and the pull request |
 | A red commit and no Done block file | Section 5 of [loop.md](loop.md), with a NON-NEGOTIABLE block a setup subagent rebuilds from the red commit |
 | No red commit | Section 4 of [loop.md](loop.md), setup |

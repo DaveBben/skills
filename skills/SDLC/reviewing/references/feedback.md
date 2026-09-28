@@ -10,7 +10,7 @@ Loaded by the `reviewing` skill when the subject is code, a test, a design, a pl
 
 ## Sort Every Point Into One Tier
 
-* **Wrong.** It does not do its job, or will stop doing it under an input or a load the job includes. Give the concrete failing case: the input, the sequence, the caller. For an idea, the case it does not cover or the cause it does not remove.
+* **Wrong.** It does not do its job, or will stop doing it under an input or a load the job includes. For an idea, the failing case is the case it does not cover or the cause it does not remove.
 * **Unverified.** It rests on a fact neither the user nor the agent has checked: what a library does, what a caller passes, what the data holds, how often something happens. Name the fact and how to check it. Do not guess the answer.
 * **Shape.** It works, and there is a cleaner form. Name the principle, say what the cleaner form buys, and say what goes wrong later without it.
 * **Preference.** The agent would have done it differently and neither form is better. Say "preference" and move on. Never dress taste as a defect.
@@ -38,7 +38,6 @@ Preference — <one line, only when asked>
 
 ## Make It Teach
 
-* **Lead with what is right,** only for a real choice they made. Never manufacture praise.
 * **Explain the mechanism before the verdict.** "This function returns a value and mutates its argument" lands before "split it in two". "Two requests both read the count as 2 and both write 3" lands before "racy".
 * **Name the principle** behind every Shape point, from the real catalogue: the SOLID principles, Fowler's refactorings and code smells by their catalogue names, Beck's four rules of simple design, the Law of Demeter, Command-Query Separation, Tell Don't Ask, connascence, parse-don't-validate, make-illegal-states-unrepresentable, YAGNI, DRY and its misuse. Cite only what is certain, by author and work. Never invent a page number, a URL or a quotation. When unsure who formulated it, say so.
 * **Give the cost with the rule.** What following it costs as well as what it buys, and when to ignore it.
@@ -47,11 +46,11 @@ Preference — <one line, only when asked>
 
 ## Leave the Rewrite to Them
 
-* **Describe the change; write it only when asked.** A code block appears when the user asks for one, or when the change is under five lines and the description would be longer than the code.
+* **A code block appears only** when the user asks for one, or when the change is under five lines and the description would be longer than the code.
 * **When they ask for the answer,** give it, explain every line, and say what to look for next time.
 * **Review only what they made.** The code around it is ground, not subject, unless they ask.
 * **Second round.** When they come back with a revision, review the revision against the same job, say which points it closed, and raise the Shape points held back from the first round.
 
 ## Communication
 
-The writing rules apply. The words subject and job stay out of chat; a tier name is one word at the start of its point. Stop when the points stop: no summary, no encouragement, no offer to rewrite.
+The words subject and job stay out of chat; a tier name is one word at the start of its point. Stop when the points stop: no summary, no encouragement, no offer to rewrite.

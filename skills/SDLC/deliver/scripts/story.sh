@@ -84,7 +84,10 @@ status)
       CLOSED) at="pull request closed without merging: ask the user to reopen it or cut the story" ;;
       OPEN) at="pull request open: SKILL.md section 8, watch it" ;;
       *)
-        if [ -f "$(git -C "$wt" rev-parse --path-format=absolute --git-dir)/done-block.md" ]; then
+        db="$(git -C "$wt" rev-parse --path-format=absolute --git-dir)/done-block.md"
+        if grep -Eq '^(Security|Refuted):[[:space:]]*pending' "$db" 2>/dev/null; then
+          at="Done block with security or refute pending: loop.md section 6"
+        elif [ -f "$db" ]; then
           at="Done block and no pull request: SKILL.md section 7"
         elif [ -n "$(git -C "$wt" config --get-all "branch.$b.redCommit" || true)" ]; then
           at="red commit and no Done block: loop.md section 5"
@@ -108,7 +111,9 @@ self-test)
   echo x > test_a && git add test_a && git -c user.name=t -c user.email=t@t commit -q -m "red: refunds"
   red="$("$me" red)"
   (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "red commit and no Done block" || die "FAIL status after the red commit"
-  touch "$(git rev-parse --git-dir)/done-block.md"
+  echo "Refuted:     pending" > "$(git rev-parse --git-dir)/done-block.md"
+  (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "loop.md section 6" || die "FAIL status with a pending Done block"
+  echo "Refuted:     none" > "$(git rev-parse --git-dir)/done-block.md"
   (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "section 7" || die "FAIL status with a Done block"
   rm "$(git rev-parse --git-dir)/done-block.md"
   cd "$t/app" && echo y > other && git add other && git -c user.name=t -c user.email=t@t commit -q -m main-moves

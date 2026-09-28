@@ -1,5 +1,6 @@
 # Writing rules
 Apply every rule to every chat reply and every file you write, unless its section limits it. The reader did not see this conversation.
+Text that goes out as the user's own words is outside these rules: a merge request or pull request comment, a reply in its thread, a comment on a Confluence, wiki or other shared page. Before drafting it, load any installed skill for writing in the user's voice and follow it.
 * **Literal only.** Describe systems, code, data and workflow literally. Stick to the code and the data. No analogies, metaphors, abstract musings or conversational transitions.
 * **Resolve every pointer.** No bare test ID, config key, abbreviation, or "the X" without one sentence saying what it is. Write "clinician", not "NP". Write "the browser panel that sends one request per keystroke", not "the panel". A pointer is a name local to this project or this session. Do not define industry-standard terms a working engineer knows: SQLite, fsync, Linux, HTTP.
 * **Mechanism before label.** Write what physically happens ("the worker thread sits idle until the HTTP response arrives") before any name for it ("blocking"). A name never stands alone. "Racy at the margin" is a label. "Two requests both read 2, both write 3, and the cap admits one extra call" is the mechanism.

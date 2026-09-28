@@ -1,6 +1,6 @@
 # Review code the agent built
 
-Loaded by the `reviewing` skill when the subject is code this session or a build subagent made. `deliver` runs it in a review subagent.
+Loaded by the `reviewing` skill when the subject is code this session or a build subagent made. The Done block keeps its fixed format over any writing rule.
 
 Run three passes, separately and in order. Never merge them.
 
@@ -38,7 +38,7 @@ Delete anything no requirement asked for:
 * Concurrency and rate limits unchanged.
 * Byte-frozen files unchanged; pin with a hash test where load-bearing.
 * Query shapes known to be slow absent.
-* No name the change claims already claimed at the merge target: a storage key, a route, a column, an environment variable, a flag, an event name. Grep the target for each new name.
+* No new name already claimed at the merge target. Grep the target for each one.
 * Nothing touched outside the permitted directory.
 
 ## Refactor While Green
@@ -55,7 +55,7 @@ Commit before the refactor and again after it. After the refactor commit, re-run
 
 ## Done
 
-Write this block when all three passes have run. Every line is a fact from this session, never a summary. Run by `deliver`, write it to `done-block.md` in the worktree's git directory (`git rev-parse --git-dir`) and return only whether the review is done, the `Rules:` line and the `Proposed refactor:` lines. Run alone, print it.
+Write this block when all three passes have run. Every line is a fact from this session, never a summary, and every row of a field starts with its label, so a grep for the label returns every row. Each finding no failing test shows goes to `findings.md` as a candidate; the refuter adds `Findings:` and `Rules:`, and fills `Security:`, `Exceptions:` and `Refuted:`. Run by `deliver`, write the block to `done-block.md` in the worktree's git directory with `Security: pending` and `Refuted: pending`, and return only whether the review is done and the number of `Proposed refactor:` rows. Run alone, print it once the refuter has run.
 
 ```text
 DONE
@@ -68,9 +68,11 @@ Decided alone: <the choices the build listed, then the review's own; one line ea
 Gate:        <the check command and its result>
 Criteria:    <one row per acceptance criterion: the criterion in a few words, the exact test name, and passed as seen in this run>
 Changed:     <one line per new function, module or branch: what it is for and its file>
-Rules:       <each confirmed finding a pattern could match, for the `guardrails` skill; or "none">
-Security:    <appended by the security review: one line per finding: <file>:<line>, the path, the input that breaks it, blocking or not; or "none">
-Exceptions:  <one line per code the user must read: <file>:<line>, the equivalent mutant or the finding no failing test confirmed and no reading refuted, and the one test that would settle it; or "none">
+Findings:    <added by the refuter>
+Rules:       <added by the refuter>
+Security:    pending
+Exceptions:  <one row per code the user must read: <file>:<line>, the equivalent mutant and the one test that would settle it; the refuter appends unsettled candidates; or "none">
+Refuted:     pending
 ```
 
 A survived mutation that is neither fixed nor listed as unable to change behaviour, or a scar that is not checked, means the block cannot be printed and the change is not done. The same holds when the check command errors instead of reporting pass or fail: report the command, its exit status and its output, and stop. `Decided alone:` lists every choice between alternatives the user did not see and did not have to: an internal name, a helper split, a fixture shape, a default a test pins. A choice a later change inherits (a dependency, a port, an address, a schedule, a format, a schema, a domain noun) is asked before it is made, never listed here after. An empty line means no such choice was made, not that none was noticed.
