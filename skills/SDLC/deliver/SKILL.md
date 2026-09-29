@@ -4,7 +4,7 @@ description: "Use this skill before touching any file on a request to add, chang
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "17.1.0"
+  version: "17.1.1"
 ---
 # Deliver
 
@@ -89,7 +89,7 @@ A story's product-choice criteria stay within the number `AGENTS.md` states. Whe
 2. **Show the criteria** in one message: each criterion that records a product choice, in the user's terms, then the number of other criteria, which stay on the card, accepted unless the user cuts them. On the tracker, write them under "PROPOSED, NOT AGREED" and add `Parked: criteria`. Do not wait.
 3. **Build.** The `build` agent, given the setup's `Red:`, `Paths:` and `Non-negotiable:` lines. Skip it when no row is red. A question about something a person sees is parked. A red row or a touch outside its paths: reset to the latest red commit and reissue with the one new fact. Red twice on sound rows is a split. When the user writes the code, wait for their diff instead.
 4. **Review.** In each repository's worktree, delete any old `done-block.md` from its git directory, then a fresh `review` agent, given the card, the interfaces its criteria name, the branch, the red commit, the check command, the story's permitted paths and the header's `Decided:` line, and nothing from this chat. Read the `Findings:` and `Questions:` rows of `done-block.md`; a question about behaviour no criterion states parks the story as a product decision. A blocking finding that no red attack test already shows goes to a fresh `refute` agent, given `done-block.md`'s path, the worktree and the merge target. Each confirmed finding, and each `unsettled` one's settling test, becomes a red row: the `setup` agent adds a test that fails on it as a new red commit (`story.sh red`), then build and review run again. A second round of confirmed blocking findings on one story is a split, or a question to the user.
-5. **Verify.** The `worker` agent runs `story.sh verify <check command>` in the worktree and returns the last lines of each failure. A red result is a red story. Run the feature acceptance test last and report its failure message when it changed. When it passes, park the story: the user removes its expected-to-fail marker.
+5. **Verify.** The `worker` agent runs `story.sh verify <check command>` in the worktree (a check command with `&&`, a pipe or a variable goes in as `story.sh verify sh -c '<command>'`; quote any glob or bracket, such as a `story/<slug>/<key>-*` pattern or a `[PAY-1420]` title, since zsh refuses an unmatched glob) and returns the last lines of each failure. A red result is a red story. Run the feature acceptance test last and report its failure message when it changed. When it passes, park the story: the user removes its expected-to-fail marker.
 6. **Confirm and open.** The `description` agent, given the branch, its target, `done-block.md` and the header's `Outcome:` and `Success:` lines, drafts the description, with any installed skill for writing in the user's voice. Then one message: the criteria changes since step 2 and why, the review's result, and the description, which goes out as shown unless the user edits it. One question: do you confirm these criteria? On yes, run `story.sh confirm`, write the confirmed card to the issue in place of the proposed one, delete `Parked: criteria`, push, and open the pull request with the issue key in the title, e.g. `[PAY-1420]`. The push guard, where `guardrails` installed it, refuses the push until `confirm` has run. An edit is a wrong row (below).
 7. **Log.** Write this comment on the issue:
 

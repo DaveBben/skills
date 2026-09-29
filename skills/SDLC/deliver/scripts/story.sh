@@ -117,12 +117,17 @@ verify)
     [ "$left" -gt 0 ] || break
     case " $(echo $reds) " in *" $c "*) newest_first="$newest_first $c"; left=$((left - 1)) ;; esac
   done
+  nl='
+'
+  seen="$nl"
   for h in $newest_first; do
-    for f in $(git diff-tree --no-commit-id --name-only -r "$h" | grep -E "$pat" || true); do
-      case "$seen" in *" $f "*) continue ;; esac
-      seen="$seen$f "
-      git diff --quiet "$h" HEAD -- "$f" 2>/dev/null || changed="$changed $f"
-    done
+    # Read one path per line, so a path with a space stays one path.
+    while IFS= read -r f; do
+      [ -n "$f" ] || continue
+      case "$seen" in *"$nl$f$nl"*) continue ;; esac
+      seen="$seen$f$nl"
+      git diff --quiet "$h" HEAD -- "$f" 2>/dev/null || changed="$changed '$f'"
+    done < <(git -c core.quotePath=false diff-tree --no-commit-id --name-only -r "$h" | grep -E "$pat" || true)
   done
   [ -z "$changed" ] || die "FAIL accepted tests changed since their red commit:$changed"
   echo "accepted tests unchanged"
@@ -178,7 +183,7 @@ self-test)
   [ "$(git config branch.story/pay/PAY-1-refunds.issueKey)" = PAY-1 ] || die "FAIL start did not record the issue key"
   "$me" status 2>/dev/null | grep -q "no red commit" || die "FAIL status before the red commit"
   cd "$wt"
-  echo x > test_a && echo stub > app_a && git add test_a app_a && git -c user.name=t -c user.email=t@t commit -q -m "red: refunds"
+  mkdir -p tests && echo x > test_a && echo x > "tests/my test.py" && echo stub > app_a && git add -A && git -c user.name=t -c user.email=t@t commit -q -m "red: refunds"
   red="$("$me" red)"
   (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "red commit and no review" || die "FAIL status after the red commit"
   echo "DONE" > "$(git rev-parse --git-dir)/done-block.md"
@@ -196,6 +201,9 @@ self-test)
   echo z > test_a && git -c user.name=t -c user.email=t@t commit -q -am "edit accepted test"
   if "$me" verify true >/dev/null 2>&1; then die "FAIL verify passed an edited accepted test"; fi
   "$me" red >/dev/null && "$me" verify true >/dev/null || die "FAIL verify after a corrected row's red commit"
+  echo y > "tests/my test.py" && git -c user.name=t -c user.email=t@t commit -q -am "edit a test whose path has a space"
+  if "$me" verify true >/dev/null 2>&1; then die "FAIL verify missed an edited test whose path has a space"; fi
+  "$me" red >/dev/null
   "$me" unred && [ -z "$(git config --get-all branch.story/pay/PAY-1-refunds.redCommit || true)" ] || die "FAIL unred"
   "$me" red "$red" >/dev/null && [ "$(git config --get-all branch.story/pay/PAY-1-refunds.redCommit)" = "$red" ] || die "FAIL red <hash>"
   cd "$t/app" && git worktree add -q -b feature/old "$t/app-old" main && cd "$t/app-old"
