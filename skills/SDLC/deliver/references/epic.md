@@ -45,7 +45,7 @@ Ready when the outcome names what a person does and where, `Success` names a sig
 
 ## 5. The feature acceptance test
 
-The outcome gets one acceptance test, which the user writes. Name the file, the runner and the Given/When/Then it must assert, through the interface the user uses; the user writes the body, or asks the agent to. It lives in a `feature-acceptance` directory in the test tree that the harness denies to the agent, is marked strictly expected-to-fail (pytest `xfail(strict=True)`, jest `test.failing`), and is committed alone on the first story's branch before its red commit. No agent edits, moves, skips or re-marks it. When the interface has no runner yet, the first story adds one and the header says "after story 1".
+The outcome gets one acceptance test, which the user writes. Name the file, the runner and the Given/When/Then it must assert, through the interface the user uses; the user writes the body, or asks the `setup` agent to. It lives in a `feature-acceptance` directory in the test tree that the harness denies to the agent, is marked strictly expected-to-fail (pytest `xfail(strict=True)`, jest `test.failing`), and is committed alone on the first story's branch before its red commit. No agent edits, moves, skips or re-marks it. When the interface has no runner yet, the first story adds one and the header says "after story 1".
 
 ## 6. Pick the next story
 

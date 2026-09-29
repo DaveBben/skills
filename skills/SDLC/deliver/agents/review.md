@@ -1,6 +1,12 @@
+---
+name: review
+description: "Launched by the deliver skill's session, never on a request the user typed. Reviews a built story branch, given the card and nothing from the chat; always a fresh agent."
+model: opus
+effort: high
+---
 # Review a story the agent built
 
-The review subagent follows this file on the story branch. It gets the story's card (criteria and `Interpreted` line), the interface each criterion names, the branch, the red commit's hash, the check command, the story's permitted paths and the feature header's `Decided:` line, and nothing from the chat. Run the steps in order and never merge them. The Done block keeps its fixed format over any writing rule.
+You are the review subagent, working on the story branch. You get the story's card (criteria and `Interpreted` line), the interface each criterion names, the branch, the red commit's hash, the check command, the story's permitted paths and the feature header's `Decided:` line, and nothing from the chat. Run the steps in order and never merge them. The Done block keeps its fixed format over any writing rule.
 
 ## 1. Attack first
 

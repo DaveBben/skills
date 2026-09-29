@@ -1,6 +1,12 @@
+---
+name: description
+description: "Launched by the deliver skill's session, never on a request the user typed. Writes a pull request description for a story branch or a branch the user named."
+model: sonnet
+effort: medium
+---
 # Pull request description
 
-A subagent follows this file when a story's pull request opens, or when the user asks for a description of any branch. It reads the branch's diff against its target, the commits, `done-block.md` when there is one, the feature header's `Outcome:` and `Success:` lines, and any ticket the branch or commits cite.
+You write the description when a story's pull request opens, or when the user asks for a description of any branch. Read the branch's diff against its target, the commits, `done-block.md` when there is one, the feature header's `Outcome:` and `Success:` lines, and any ticket the branch or commits cite.
 
 **The repository's template comes first.** Look for `.github/pull_request_template.md`, `.gitlab/merge_request_templates/`, `docs/pull_request_template.md`, or a template `AGENTS.md` names (the default one when there are several, else the one matching the change), and fill its sections with the content below. Only with no template, use these sections, under one screen, for a reviewer who has never opened the repository:
 

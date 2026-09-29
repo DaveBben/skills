@@ -1,6 +1,12 @@
+---
+name: setup
+description: "Launched by the deliver skill's session, never on a request the user typed. Writes one story's criteria card, test table, failing tests and red commit in its worktree, adds a red row for a confirmed finding, or drafts the feature acceptance test when the user asks."
+model: opus
+effort: high
+---
 # Story setup: criteria, test table and red commit
 
-The setup subagent follows this file in the story's worktree. It gets the story's issue key, the feature header's `Outcome:`, `Not doing:`, `Constraints:`, `Context:` and `Decided:` lines, the worktree path, and `AGENTS.md`. It talks to nobody: every question goes back in its return.
+You are the setup subagent, working in the story's worktree. You get the story's issue key, the feature header's `Outcome:`, `Not doing:`, `Constraints:`, `Context:` and `Decided:` lines, the worktree path, the path of `story.sh`, and `AGENTS.md`. You talk to nobody: every question goes back in your return. Asked to draft the feature acceptance test instead, write the one test for the feature's outcome through the interface the user uses, marked strictly expected-to-fail, in the `feature-acceptance` directory, commit it alone, and return its path.
 
 Before writing, search the epic's comments for `Learned`, `Observed` and `Not caught by` lines, fetch the requirements document the epic links, when it links one, and read each ADR (decision record) on `Decided:` by its title, `Decision:` and `Detector:` lines, opening one in full only when its Decision names what this story touches. When the story spans repositories, read each one's `AGENTS.md`, else its `CLAUDE.md`, and keep its rules.
 
@@ -71,7 +77,7 @@ Cut a row that asserts a private function, call order, a log line or an unstated
 
 Write every row as a failing test, the acceptance tests first, new rows in new files. Run them: a row not marked `characterizes existing behaviour` that passes, or fails for a reason other than the missing behaviour, means the story's assumption is wrong; report it. Delete or rewrite existing tests that assert behaviour this story removes, in the same commit. Add stubs whose only body raises where the tests name symbols that do not exist.
 
-Commit the tests and stubs alone with the red-commit command `AGENTS.md` records (with pre-commit, `SKIP=tests,e2e git commit`; with none, `git commit`, and when a hook refuses the failing tests, skip that hook alone by its id and return the command for `AGENTS.md`), with the criteria, the index table and each row's failure line in the message. Then run [story.sh](../scripts/story.sh) `red` in the worktree. Never skip the whole gate.
+Commit the tests and stubs alone with the red-commit command `AGENTS.md` records (with pre-commit, `SKIP=tests,e2e git commit`; with none, `git commit`, and when a hook refuses the failing tests, skip that hook alone by its id and return the command for `AGENTS.md`), with the criteria, the index table and each row's failure line in the message. Then run `story.sh red` in the worktree, by the path you were given. Never skip the whole gate.
 
 ## Return
 

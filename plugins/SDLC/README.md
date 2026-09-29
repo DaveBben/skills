@@ -193,7 +193,7 @@ Judgment calls go to you. The skills surface the decision, the failure mode or t
 
 **Every sentence has to earn its place by one test: does it change what you do next?** That cuts the preamble announcing what is about to happen, the derivation behind a result you can take on trust, the reasons you supplied in the first place, and the second argument for a point the first already carried. The answer leads, the question closes. Several findings arrive as one line each, for you to pick which to open, rather than being worked through in order. A document or a diff that was just written is named and located rather than reproduced. The pictures are the exception to the volume rule: those go up, not down.
 
-**Subagents get the cheapest model that can do the job, named when they are launched.** Bulk mechanical work goes to a small one. The failing tests, the design review and the implementation review do not.
+**Each subagent's model and effort are fixed in its agent file.** Setup and review run on Opus at high effort, and build on Opus at medium. Refute runs on Fable at medium, so a finding is checked by a different model from the one that found it. The pull request description, fact lookups and the worker run on Sonnet at medium.
 
 # Installing
 
@@ -207,6 +207,8 @@ Judgment calls go to you. The skills surface the decision, the failure mode or t
 The four skills surface under their own names.
 
 The plugin also installs two hooks. They print `hooks/writing.md`, the writing rules every reply and document follows, into every session and every subagent, in every project where the plugin is enabled. That costs about 900 tokens per session and per subagent.
+
+It also installs seven named agents, one per `deliver` subagent step: `SDLC:lookup`, `setup`, `build`, `review`, `refute` and `description`, plus `worker` for any other task `deliver` delegates that changes no code. Each agent file is that step's whole prompt, at `skills/SDLC/deliver/agents/`, linked into the plugin by the `agents` symlink. Other agents read the same files as prompts for general subagents. Each file's frontmatter sets that step's model and effort.
 
 **Any other agent** (Codex, Cursor, Windsurf, and more), via the [`skills` CLI](https://github.com/vercel-labs/skills):
 

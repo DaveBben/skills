@@ -10,7 +10,7 @@
       "name": "SDLC",
       "source": "./plugins/SDLC",
       "description": "Engineering practice run with the human rather than recited at them, in four skills. deliver maps an idea, PRD or epic into stories and takes each through criteria the user agrees before anything is pushed, failing tests first, a build, an independent review and a pull request into main. architecture spikes unknowns and records each expensive decision with the user's reasons. guardrails writes AGENTS.md and the checks. reviewing critiques pull requests, epics and the user's own work. The user makes every product call and every call expensive to reverse, one question at a time.",
-      "version": "12.0.0",
+      "version": "12.1.0",
       "license": "MIT",
       "skills": [
         "./skills/deliver",

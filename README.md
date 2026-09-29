@@ -58,6 +58,8 @@ skills/<area>/<skill>/SKILL.md      canonical, what every agent reads
 plugins/<area>/                     Claude Code plugin wrapper
   .claude-plugin/plugin.json
   skills -> ../../skills/<area>      symlink, so there is one source of truth
+  hooks/                            optional Claude Code-only hooks
+  agents -> ../../skills/<area>/<skill>/agents   optional symlink to a skill's subagent prompts
 .claude-plugin/marketplace.json     the Claude Code marketplace
 ```
 
