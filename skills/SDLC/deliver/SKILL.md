@@ -1,136 +1,110 @@
 ---
 name: deliver
-description: "Use this skill before touching any file on every request to add, change, remove or fix behaviour in a system that already has an application, to pick the next story, or to describe a branch for review. Use it on: 'add X', 'implement X', 'fix the bug where X', 'X is broken', 'refactor X', 'add tests for X', 'build story X', 'work through this epic', 'implement this prd', 'pick up where we left off', 'what should I pick up next', 'what is ready', 'open a pull request', 'write the PR description', 'write the MR body'. Use it even when the change looks small. Sizes each request, then runs each story through criteria, setup, build and review subagents to a pull request into main, building on proposed criteria and pausing before the first push for the user to confirm them and asking each question as it arises. For an epic it picks each ready story until all are merged or cut. Not for a repository with no application (`architecture`), planning without building (`define`), throwaway code (`spike`), checks or rules (`guardrails`), or AGENTS.md (`orient`)."
+description: "Use this skill before touching any file on a request to add, change, fix or remove behaviour in code that exists, or to turn an idea, a PRD or an epic into stories. Use it on: 'add X', 'fix the bug where X', 'X is broken', 'refactor X', 'build story X', 'I have an idea', 'break this epic down', 'write the acceptance criteria', 'work through this epic', 'what should I pick up next', 'pick up where we left off', 'write the PR description'. Use it even when the change looks small. Maps the stories, then takes each one through agreed criteria, failing tests, a build, a review and a pull request into main."
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "16.0.0"
+  version: "17.0.0"
 ---
 # Deliver
 
-Two phases. **With the user, once per feature:** Orient -> Define -> Architecture -> Record. **Per story:** Criteria, shown to the user at once -> Setup and red commit -> Build -> Review -> Verify -> the user confirms the criteria -> Log -> Pull request, then the user merges. For an epic the loop runs until every story is merged or cut, starting each ready story as soon as its blockers merge. Every story merges into main.
+Take a request from its outcome to merged pull requests. Every behaviour change starts as failing tests committed before any code, and the user agrees each story's criteria before anything leaves the machine.
 
-## Principles
+## Words used here
 
-* **Working software over documentation.** No documents beyond the tracker's issues, ADRs, `AGENTS.md`, and any file `AGENTS.md` says to keep current.
-* **Executable specifications.** Never write implementation code first. Two levels of acceptance test. Every criterion of a story has one, the agent writes it, and the story is complete when all of them pass. Every feature has one, the user writes it, and the feature is complete when it passes.
+* **Tracker:** the project tracker the `Backlog:` line of `AGENTS.md` names, reached by the methods listed under it. An epic per feature, its stories and spikes as child issues with blocking links, each issue's comments as its log. The **slug** is the epic's key, or the issue's key for a one-story request.
+* **Feature header:** the epic's description, in the named lines [references/epic.md](references/epic.md) gives. A one-story request has none; its issue's description stands in.
+* **Story:** a change a person outside the system can observe, in one workflow step and one variation.
+* **Criterion:** one Given/When/Then statement of what a person sees. It **records a product choice** when it holds a number, a rule a person could argue with, or what happens at a boundary the requirements leave open, or when it touches a data shape, a trust boundary, an interface another team calls, a value a person sees, personal or health data, or a record lost or half stored.
+* **Red commit:** the commit holding a story's failing tests and stubs only, made before any code, by the red-commit command `AGENTS.md` records when it records one.
+* **Check command:** the one command `AGENTS.md` names that runs every check.
+* **Feature acceptance test:** the one test the user writes for a feature's outcome, in a `feature-acceptance` directory the agent never edits, marked strictly expected-to-fail until the feature is whole.
+* **ADR:** an architecture decision record under `docs/adr/`, holding a decision, its reasons and the alternatives rejected.
+* **Parked:** a question written on a story's issue as a comment starting `Parked:`. The story keeps going up to the step that needs the answer. **The waiting question** is the oldest parked question only the user can answer that the loop cannot move past; a `Parked: ask <person>` question is not one, and neither are criteria still being built on.
+* **[scripts/story.sh](scripts/story.sh):** the git steps of a story. Run it with no arguments for its usage.
+
+## Talking to the user
+
+Sort every question, including each one a subagent returns, before it reaches the user:
+
+* **A fact the agent can reach** (what a table holds, whether a secret exists, what a route returns, what CI runs): look it up in a read-only subagent given the one question and the paths, and use the answer. Ask only when no tool reaches it, and say where it looked.
+* **A fact only a named person knows:** write `Parked: ask <person>: <question>` on the story, tell the user once whom to ask, and work on what the answer does not block. After one failed run against another team's system, do the same with that team's owner.
+* **A technical choice a `git revert` undoes, that no person sees and no later story inherits:** decide it and list it among the choices decided alone.
+* **A repository setting** (criteria per story, stories at once): use the default here and record it in `AGENTS.md`, else on the feature header.
+* **The loop's own next step** (write criteria, run a review, start the next ready story, push a story the user confirmed): take it.
+* **Product intent, or a choice expensive to reverse:** ask the user.
+
+Then ask:
+
+* **One question per message:** ask only the waiting question, and hold every other until it is answered. Open with one line naming the repository and the story or feature in plain words. Use the harness's multiple-choice tool where it has one (Claude Code's AskUserQuestion), recommended option first, each option with its consequence in one sentence.
+* **An answer that fits no option** ("yes" to an either/or) gets the question again, naming the options.
+* **Never restate a question.** It lives on its story as a `Parked:` comment. When a subagent returns nothing the user must act on, send nothing.
+* **A command the user must run** reports every step's result in one run. When the harness blocks a command that reads a secret or health data, or that force-pushes, say so and ask whether the user wants to run it.
+* **Where things stand.** Open with the `Outcome:` line and one clause per repository saying its part. Then one line per open story (key, what it does in plain words, and building, in review, or which question it is parked on), each `Parked: ask <person>` with whom to ask, what threatens the `Target:` date, and the waiting question.
+* **Overload.** When the user says they are overloaded, send one message: where things stand without the waiting question, opening with "Nothing needs you now" when no question waits for the user. Ask the waiting question in the reply to their next message.
+
+The message that reports an opened or merged pull request also carries whether the last merged story deployed and what its `Success` signal showed, and the splits, new stories and choices the loop decided alone. A signal that moved the wrong way past its noise band goes in the next message, whatever it reports.
 
 ## Subagents
 
-* **Every step and every skill the loop runs goes to a subagent** that returns its result and its questions in at most ten lines. Give it the feature header lines it needs by name, and grep results in place of whole files. This session sorts those questions by "Sort every question first", asks the user the ones left one at a time, and reissues the subagent with the answers. `define` and `architecture` run in this session, since they are conversations with the user.
-* **Inside the per-story loop, this session holds the feature header, the last ten log comments and what each subagent returns.** It never reads a diff, a test file, source, an ADR or the PRD; the subagents read those and return the lines it needs.
-* **The holdout is the user's alone.** Only the verify subagent gets the feature header's `Holdout:` line. Nothing reads the holdout directory, and no holdout result reaches a builder.
-* **Where the agent cannot start subagents,** run each step inline, one story at a time, without asking; run the review in a fresh session where the harness allows one; say so once.
+Setup, build, review, refute and the description each run in a subagent given one prompt file from `references/`, the feature header lines it names, and paths in place of file contents. It returns at most ten lines. This session reads the tracker and `AGENTS.md` itself, and never a diff, a test or source. Where the harness has no subagents, run each step inline, one story at a time, and say so once.
 
-## Communication
+## Start
 
-* **Challenge bad ideas.** Offer the simpler alternative, then defer to the user's product vision.
-* **Say when an instruction does not parse.** Name any story, criterion or constraint that is ambiguous, contradicts `AGENTS.md`, or asks for what the code cannot do, and park that story. Never proceed on a guess.
-
-### Sort every question first
-
-Sort each question before it reaches the user, including every question a subagent returns:
-
-* **A fact the agent can reach** (what a table holds, whether a secret exists, what a route returns, what the tracker says): look it up in a subagent and use the answer. Ask only when no tool reaches it, and say where it looked. A command the user must run reports every step's result in one run. After one failed run against another team's system, write `Parked: ask <owner>: <question>` and stop. When the harness blocks a command that reads a secret or health data, or that force-pushes, say so and ask whether the user wants to run it; never hand it over as a routine step.
-* **A fact only a named person knows:** write it on the story's issue as `Parked: ask <person>: <question>`, and tell the user in one line whom to ask. Work on whatever the answer does not block.
-* **A technical choice a `git revert` undoes, that no person using the system sees and no later story inherits:** decide it, and list it among the choices decided alone. The user can reverse it.
-* **A setting of this repository** (criteria per story, stories at once): use this skill's default and record it in `AGENTS.md`. The user edits that line to change it.
-* **The loop's own next step** (write criteria, run a review, start the next ready story, open a draft pull request): take it.
-* **An action on a shared system** (a push, a tracker write, a rebase or force-push of a pushed branch): ask once per feature for each kind, for branches named `story/{slug}/*` and the epic's issues, and record the grant on the feature header's `Context:` line. When the user widens a grant, say in one line exactly which branches or pull requests it now covers before acting.
-* **Product intent, or a choice expensive to reverse** (a data shape, a trust boundary, an interface another team calls, a value a person sees): ask the user.
-
-### Ask one question at a time
-
-* **One question per message.** Open with one line naming the repository and the story in words, then ask. Hold every other question until this one is answered.
-* **Offer choices.** Use the harness's multiple-choice question tool where it has one (Claude Code's AskUserQuestion), recommended option first; otherwise number the options, recommendation first. Give each option its consequence in one sentence.
-* **Use the user's terms.** A name a subagent coined (a placeholder such as N, a label for a kind of record) never reaches the user; say what it stands for.
-* **Never restate a question.** An unanswered question lives on its story's issue as a `Parked:` comment. When a subagent returns nothing the user must act on, send no message about it.
-* **Where things stand.** When the user asks where things are, open with the feature's `Outcome:` line and one clause per repository saying its part, taken from the open stories. Then give one line per open story (its key, what it does in plain words, and its state: building, in review, or parked on what), then what threatens the target date, then the one question now waiting.
-* **Overload.** When the user says they are overloaded, send one message: where things stand, opening with "Nothing needs you now" when that is true, and no question. The next message asks the waiting question.
-
-The message that reports an opened or merged pull request carries, in one place: whether the last merged story deployed and what its signal showed, whose answer becomes its `Observed` line; when it moved the wrong way past the `Success` line's noise band, the code that emits the signal, for the user to read; every fifth merged story, which pause or check has cost time without catching anything, and how often reading code changed anything, handed to the `guardrails` skill; and the splits, new stories and rules the loop decided alone. A signal that moved the wrong way past the `Success` line's noise band goes in the next message, whatever it reports.
-
-## Before sizing
-
-These three requests skip sizing.
-
-**Describe an existing branch.** When the request is only for a pull request description, of a branch built here or elsewhere, load [references/pull-request.md](references/pull-request.md). A subagent reads the branch's diff against its target, the commits, and any ticket the branch name or commits cite, and returns the description's lines. Write the description and stop.
-
-**What should I pick up next.** When several features are open, ask which one. A subagent finds where the stories live, as Orient does, runs [references/next.md](references/next.md) as a request from the user, and returns the report.
-
-**Pick up where we left off.** Load [references/resume.md](references/resume.md).
-
-## Orient
-
-Every other request runs Orient first.
-
-* **Load the charter.** Silently read `AGENTS.md`, the file the `orient` skill writes: purpose, users, non-goals, nouns, boundaries, commands, constraints. Fall back to `ARCHITECTURE.md`, then `README.md`. When none states a purpose, offer the `orient` skill once, then proceed.
-* **Check the floor.** When `AGENTS.md` names no check command, names one that runs less than CI runs, the suite is red on main in CI, or the log comments of the feature's last ten closed stories show three `Not caught by` lines, halt and offer the `guardrails` skill before the first story. When it records no red-commit command, say that failing tests cannot be committed and start no story until `guardrails` adds it. When the user declines, write "Red commit: none, declined <date>" on the feature header, or on the issue for a one-story request, and start stories without it; verify's diff of the accepted test files still runs. When only the mutation runner is missing, offer `guardrails` once; when the user declines, continue, and the review applies each mutation by hand. When `CODEOWNERS` has an `# owner reads:` section, the user reads code only when a signal fires (section 7), and a missing mutation runner halts the loop instead. When the interface the outcome names has no runner in the repo (a screen and no browser test), the first story adds the runner with one hardcoded acceptance test, hardcoding the rest; for a command, the entry point called in-process is the runner.
-* **A PRD** goes to `define` as raw material; close-out checks its success metrics.
-* **State the last story.** When the feature has a closed story, tell the user in one line what the last merged story changed and why, from its log comment's `Done` line. Ask nothing.
-* **Find the tracker.** Load [references/tracker.md](references/tracker.md) and run its first section; with no tracker set up, it halts and helps the user connect one. The slug is the epic's key, or the issue's key for a one-story request.
+* **Read `AGENTS.md`** in each repository the work touches, and find the tracker by section 1 of [references/tracker.md](references/tracker.md). When there is no check command, use what CI runs, else the test command the README gives; when there is no red-commit command, commit red tests with plain `git commit`. Record both as decided alone. When the user declines red commits, the tests land in the build's first commit and `story.sh red` records that commit. Mention once that the `guardrails` skill sets these up properly; ask nothing.
+* **Resume** when `story.sh status`, run from each main checkout, prints a story, or a story carries a `Parked:` comment: read those comments and the epic's open pull requests, send where things stand, and restart each story at the step its line prints. Take the slug from a printed branch name (`story/<slug>/...`); with none, search the tracker for the user's open epics.
+* **Find work already begun.** Look up each story's issue key among open branches and pull requests on the code host; skip this when the host is unreachable. A pull request the user authored is theirs: add a worktree for its branch (`git worktree add <path> <branch>`), run `story.sh adopt <key>` there, and skip `story.sh start` for that story. When the branch is checked out in a checkout the agent did not create, park `Parked: switch <checkout> off <branch>` for the user. An adopted story has no red commit: the setup subagent keeps its existing tests as characterization rows, commits the new failing rows, and runs `story.sh red` on that commit. Another person's: the story waits for it. Never touch uncommitted changes in a checkout the agent did not create. Say each in one line.
+* **For several stories, clear the way once.** Ask one question: may the loop push branches named `story/{slug}/*` and adopted ones, rebase them with `--force-with-lease`, open and update their pull requests, and write to the epic's issues, for this feature. Record the answer on the header's `Context:` line. Anything wider (other pull requests, other branches) is asked when it comes up, naming exactly what it covers. Check from the repository and CI config that each repository on `Repositories:` deploys to production from main by a command in the repository, and that the feature acceptance test can run without manual steps; tell the user each gap once, as a story or as a risk.
 
 ## Size the request
 
-When the request names a story in an open feature, run that story (section 4) and stop after its merge. When it names an epic or hands over a PRD, it is several stories. Otherwise, write the request's outcome in one sentence and list the steps a person takes, and size it from those, never by whether it is called a bug, a chore or a feature. Write no criteria until the size is known, so a request that turns out to be several stories gets its criteria one story at a time.
+Write the outcome in one sentence and the steps a person takes, and size from those, whatever the request calls itself.
 
 | Size | Test | Path |
 |---|---|---|
-| No behaviour change | A refactor, a dependency bump, a rename, or tests added for behaviour that already exists: nothing a person sees or a caller receives changes | One subagent runs [references/no-behaviour-change.md](references/no-behaviour-change.md). No criteria and no red commit. Open its pull request by [references/pull-request.md](references/pull-request.md); it is the record, linked to an issue when one exists. |
-| Trivial | Nobody is harmed and nothing a person reads is wrong before a `git revert` lands: copy, layout, colour, a log line nobody operates from, a dev-only tool | One criterion from `define` in its trivial mode, confirmed by the user. Then one subagent commits one acceptance test red with the red-commit command `AGENTS.md` records, makes it pass, runs the check command and commits, on a story branch with a pull request. No test plan, build subagent, review subagent or Done block. The pull request is the record, linked to an issue when one exists. |
-| One story | One change a person can see, in one workflow step and one variation, with nothing unknown that changes what gets built | Section 4 of [references/loop.md](references/loop.md). One issue with no epic, whose comments are its log. Skip the feature header, the `architecture` skill and the feature acceptance test. |
-| Several stories | More than one step or variation, an unknown whose answer changes what gets built, or a PRD or epic | Section 0 onward of [references/loop.md](references/loop.md). The loop runs every story, choosing each next one by its section 3. |
+| No behaviour change | A refactor, a dependency bump, a rename, or tests for behaviour that exists | Cut `story/{slug}/0-<name>`, commit characterization tests first where none pin the code, change it by a tool or codemod where one exists, run the suite green with no assertion changed, and open the pull request by [references/pull-request.md](references/pull-request.md). |
+| Trivial | Nobody is harmed before a `git revert` lands: copy, layout, a dev-only tool | One outcome criterion, shown to the user; one red test, the fix, the check command, a pull request. |
+| One story | One step and one variation, nothing unknown | "Each story" below, on one issue whose comments are its log. |
+| Several stories | More than one step or variation, an unknown that changes what gets built, a PRD or an epic | [references/epic.md](references/epic.md) for the feature header, the story map and the feature acceptance test, then "Each story" for every story. |
 
-A bug is sized like any request. Its outcome is the behaviour the person should have seen, and its first criterion is the reproduction, which `define` writes. A flaky test is a bug whose reproduction is the test failing on repeated runs of unchanged code. A red CI run is a bug report, and its failing step's output is the report.
+A bug is sized like any request; its first criterion is the reproduction. A red CI run is a bug report. These stop early: a request only to break work down runs `epic.md` to the confirmed map; a request only for criteria runs sections 1 and 2 of [references/criteria.md](references/criteria.md) in a subagent with no worktree and shows the card; a request only for a pull request description runs `pull-request.md` on that branch; "what next" runs the pick section of `epic.md`. When a decision that costs more than a day to reverse is open (a library, a data shape, a trust boundary, a new repository), or a fact nobody can supply without building (a library's real behaviour, a throughput number), run the `architecture` skill with the user before the story that needs it.
 
-Say the size and the reason in the first message. The user can move the request to another size. When a one-story request's criteria cross more than one step or variation, or exceed the number of criteria that record a product choice `AGENTS.md` states, it is several stories: split it by the split rule in section "When to Park and When to Ask". When `AGENTS.md` states no number, use 8 and record it under its constraints as "A story has at most 8 acceptance criteria that record a product choice."
+A story's product-choice criteria stay within the number `AGENTS.md` states. When it states none, use 8 and record "A story has at most 8 acceptance criteria that record a product choice."
 
-## 0 to 6. The loop
+## Each story
 
-Sections 0 to 6 (Define, Architecture, Record, Pick, Set up, Build, Review and Verify) are in [references/loop.md](references/loop.md). Load it for a request sized as one story or several.
+1. **Set up.** In each repository the story changes, run `story.sh start {slug} {key} {short-name}` (the short name is two or three words of its title), finding each clone from `Repositories:` and cloning one that is missing. For an epic's first story, the user's feature acceptance test is committed on the branch first, or the story parks. A subagent with [references/criteria.md](references/criteria.md) writes the criteria, the test table, the failing tests and the red commit, and writes the card to `card.md` in the worktree's git directory, and returns its path, the criteria and its questions. When it proposes a split instead, run `story.sh close` on the branch and split. When the story changes more than one repository, the called repository's pull request merges first.
+2. **Show the criteria** in one message: each criterion that records a product choice, in the user's terms, then the number of other criteria, which stay on the card, accepted unless the user cuts them. On the tracker, write them under "PROPOSED, NOT AGREED" and add `Parked: criteria`. Do not wait.
+3. **Build.** A subagent with [references/build.md](references/build.md). Skip it when no row is red. A question about something a person sees is parked. A red row or a touch outside its paths: reset to the latest red commit and reissue with the one new fact. Red twice on sound rows is a split. When the user writes the code, wait for their diff instead.
+4. **Review.** In each repository's worktree, delete any old `done-block.md` from its git directory, then a fresh subagent with [references/review.md](references/review.md), given the card, the interfaces its criteria name, the branch, the red commit, the check command, the story's permitted paths and the header's `Decided:` line, and nothing from this chat. Read the `Findings:` and `Questions:` rows of `done-block.md`; a question about behaviour no criterion states parks the story as a product decision. A blocking finding that no red attack test already shows goes to a second fresh subagent with [references/refute.md](references/refute.md). Each confirmed finding, and each `unsettled` one's settling test, becomes a red row: the setup subagent adds a test that fails on it as a new red commit (`story.sh red`), then build and review run again. A second round of confirmed blocking findings on one story is a split, or a question to the user.
+5. **Verify.** Run `story.sh verify <check command>` in the worktree. A red result is a red story. Run the feature acceptance test last and report its failure message when it changed. When it passes, park the story: the user removes its expected-to-fail marker.
+6. **Confirm and open.** A subagent drafts the description by [references/pull-request.md](references/pull-request.md), with any installed skill for writing in the user's voice. Then one message: the criteria changes since step 2 and why, the review's result, and the description, which goes out as shown unless the user edits it. One question: do you confirm these criteria? On yes, run `story.sh confirm`, write the confirmed card to the issue in place of the proposed one, delete `Parked: criteria`, push, and open the pull request with the issue key in the title, e.g. `[PAY-1420]`. The push guard, where `guardrails` installed it, refuses the push until `confirm` has run. An edit is a wrong row (below).
+7. **Log.** Write this comment on the issue:
 
-## 7. Log and Pull Request
+```text
+- Done: <what shipped, one line>
+- Learned: **<mechanism, one sentence>**; <the test, ADR or AGENTS.md line that pins it, or "not pinned">
+- Not caught by: <bugs only: the gap, and the rule or row now closing it>
+- Proposed refactor: <files>; <the duplication it removes>; open
+- Observed: <seen <date>, <signal> = <value>; appended when seen>
+```
 
-* **Write the story's log comment.** Load [references/log.md](references/log.md) for the entry's format and rules.
-* **Open the pull request from the story branch into main,** and have a subagent write its description by [references/pull-request.md](references/pull-request.md) from the Done block file and `exceptions.txt`. Its `Why` comes from the feature header, or, when the request has none, from the story's `Outcome` and `Why` lines. Its `Try it` is the command, URL or screen that shows the outcome criterion on the story branch. Its `Assumes` comes from the criteria and setup subagents. With a remote but no tool that opens pull requests, push the branch, print the description, and ask the user to open it and paste its link.
-* **Text posted as the user** (a reply in a review thread, a pull request description): draft it with any installed skill for writing text in the user's voice. Then run the `reviewing` skill's refute step once on the whole batch, on the final text, given every repository the text names. Show the user the result before posting.
-* **Tag the pull request, its tests and its commits** with the story's issue key, e.g. `[PAY-1420]`. Where `guardrails` installed its `issue-key` commit hook, the hook tags each commit on a branch `story.sh start` cut. Where the repo has no remote, the merge commit message is the description's Why, criteria table and Try it, and the user merges locally.
+Every line but `Done` is optional; a finding that needs more than a line is an ADR.
 
-## 8. Merge and Next
+8. **Review comments.** One refute subagent per pull request checks every new reviewer comment that claims how the code behaves against the code. A confirmed defect becomes a red row as in step 4. Then draft the reply with any installed skill for writing in the user's voice, run the refute subagent on every claim in it about how code, a service or data behaves, given every repository the text names, and show the user the reply. The user posts it, or says to.
 
-* **Move on while the pull request waits.** Run section 3 as soon as a pull request opens, and set up every ready story whose blockers have all merged, each in its own worktree, up to the number of stories at once `AGENTS.md` states. When it states none, use 1 and record "Stories at once: 1" there. A story counts from its setup until its pull request opens, parked or not.
-* **A story whose blocker is still in review waits for that merge.** Watch the blocker's pull request, and set the story up from the updated main once it merges.
-* **Watch every open pull request.** The agent never merges. When the harness can poll a pull request's state, poll it. On merge, run [scripts/story.sh](scripts/story.sh) `close <branch>`, which deletes the story's branch and worktree and clears its red-commit guard, and set the story Done with its log comment as the resolution; then run section 3. A pull request closed without merging: ask the user to reopen it or cut the story. On a cut, clean up the same way and close the issue as cut; when an expand change already merged elsewhere, add a story to remove the new form. When it cannot poll, end the turn with every open pull request's link and the parked questions, and resume when the user says which merged.
-* **Deploy from main, by a command in the repo.** A `deploy` script or task target, committed with the story that first needs it. Never from the working tree, never from a branch, never by commands that live only in chat.
-* **Exercise the rollback once** before anything a `git revert` cannot undo: a backfill, a migration, a bulk send.
-* **Stop after the merge** when the request was trivial, one story, one named story, or a change without new behaviour. For an epic, keep going until every child issue is done or cut. When nothing is ready and nothing is building, show section 3's report with the parked questions and wait.
-* **Close out** when every child issue is done or cut, by the close-out section of [references/feature-header.md](references/feature-header.md).
+## Park, and decide alone
 
-## When to Park and When to Ask
+Park a story on: its criteria before the push; a builder question about what a person sees; a wrong row; a product decision a test row exposes that no PRD or ADR records; a criterion that cannot be written as a test; a `Deferred:` decision the story needs, decided with the `architecture` skill; the feature acceptance test not yet written, for the first story; a change to behaviour that test asserts, since only the user edits it; that test passing.
 
-A parked story waits for one answer while the loop works on other stories already set up. When a story parks, write its question as a comment on the story's issue starting `Parked:`, so the user and a later session find it there; for criteria waiting for confirmation, the comment says only `Parked: criteria`. Edit or delete it once answered where the tracker allows. The loop waits for the user only when no story is ready, no build is running, and a merge or a parked answer is what everything left needs.
+A **wrong row** is one the builder cannot satisfy for a reason that holds against the code, or one the user edits. Once the user accepts the correction, run `story.sh unred`, commit the corrected test as a new red commit, and run `story.sh red <hash>` for it and for every earlier red commit of the story.
 
-Park a story on these and nothing else:
+Decide these alone and list them in the next pull request message: a split, by the patterns in `epic.md`, closing the original as `cut: split into <keys>`; a new story for a bug in shipped work or a `Learned` fact that changes what gets built; a rebase conflict resolved outside test files.
 
-* **Its criteria wait for confirmation before its first push.** The story builds on its criteria as proposed, and parks before its first push, or before its merge commit where the repository has no remote, until the user confirms or edits them (section 4).
-* **The builder asks a question** about a choice a person would see (section 5).
-* **An accepted row is wrong:** the builder reports a row it cannot satisfy and the reason holds against the code, or a refactor renames a file an accepted test names, or the user edits a criterion at that confirmation. Queue the row, the reason and the corrected row. Once the user re-accepts it, clear the story's red-commit guard, land the corrected row as a new red commit, and re-add every red commit of this story to the guard.
-* **This story removes behaviour a feature acceptance test asserts.** The user edits or retires that test, since the agent cannot touch it.
-* **A decision is forced:** a `Deferred:` item this story needs, or an architecture decision not in the feature header. Section 1 runs for it.
-* **A product decision a test row exposes** that no PRD or ADR records: a timezone, whether refunds count, what a limit is.
-* **A criterion cannot be written as a test,** or contradicts `AGENTS.md`.
-* **The live PRD contradicts a line of the feature header,** as the criteria subagent reports.
-* **The feature acceptance test is not written yet,** unless the feature header says "after story 1". The first story's red commit waits for the user to write it.
-* **The feature acceptance test passes.** Verify reports it on its own (section 6). The user removes its expected-to-fail marker. With stories remaining, they may not be needed, and the user cuts or keeps them.
-* **The user writes the code.** When they have said they will implement this story themselves, the red commit lands and the story waits for their diff.
-* **The holdout line names a failure or a leak** (section 6). The user reads its report and hands over a bug report or changes the scenario.
+## Merge and next
 
-Decide these without asking, and list each in the next message that reports a pull request:
-
-* **A split.** When a story's criteria cross more than one workflow step or variation, `define` reports it is several stories, or the builder is red twice on sound rows (counting every red in build and verify), run the `define` skill's splitting patterns in a subagent. Create the new stories as children of the epic, close the original as `cut: split into <keys>`, run `story.sh close` on its branch, and carry on.
-* **A conflict resolution** outside test files during a rebase: list it among the choices decided alone on the pull request.
-* **A new story.** A bug in shipped work, or a `Learned` or `Observed` fact that changes what gets built, becomes a new child issue with its blocking links. The user can cut it.
-
-## Working in a Team
-
-* **One epic per feature. One story, one branch and one worktree per repository it changes.** Two stories never share a branch. Each story writes only its own comments. The shared backlog is the tracker on the `Backlog:` line of `AGENTS.md`.
+* **Stories at once.** Set up the next ready story when a pull request opens, up to the number `AGENTS.md` states, else 1. A story counts from setup until its pull request opens. Branch only from main: a story whose blocker is unmerged, or waits on another person's branch, waits for that merge.
+* **Watch this feature's open pull requests** for merges, failing checks, review comments and conflicts with main, rebasing a story branch under the grant. The agent never merges. A poll set up in this session stops with the session: say so when starting it; a later session resumes from `story.sh status` and the epic. Watching other pull requests needs the user to name them; "all my open pull requests" names them, and acting on any of them beyond reading is asked, naming exactly which. Outside this feature, rebase with plain git and park any pull request that conflicts; conflicts are resolved alone only on story branches. On merge, run `story.sh close <branch>` unless `status` already closed it, and set the story Done with its log comment as the resolution. When nothing is ready and nothing is building, say which blocker frees the most and wait.
+* **Deploy from main** by a command committed in the repository, and exercise the rollback once before anything a revert cannot undo.
+* **Stop** after the merge for a request that was not an epic. For an epic, close out by `epic.md` when every child is done or cut.
+* **In a team,** each story has its own branch and worktree per repository and writes only its own comments.

@@ -1,6 +1,6 @@
 # Where the stories live
 
-Load this before reading or writing any story. The SDLC skills need a project tracker: an epic per feature whose description holds the feature header, its stories and spikes as child issues linked by blocking links, and each issue's comments as its log. The tracker's own words are used throughout: epic, story, bug, spike, rank, status.
+Load this before reading or writing any story. The work needs a project tracker: an epic per feature whose description holds the feature header, its stories and spikes as child issues linked by blocking links, and each issue's comments as its log. The tracker's own words are used throughout: epic, story, bug, spike, rank, status.
 
 ## 1. Find the tracker, or set one up
 
@@ -11,7 +11,7 @@ Take the first case that holds.
 3. **The session can reach a tracker:** an MCP server whose tools read issues, or a tracker CLI that reports a logged-in user (`gh auth status`, `tea login list`). A reachable tracker does not prove it holds this backlog. Name what was found and ask the user once which project holds this work.
 4. **Nothing is reachable.** Halt. Help the user pick and connect one: GitHub Issues (sub-issues and dependencies, optionally a Project), Gitea, Jira, Linear, or any tracker that can create epics and stories, link them, and hold a description and comments. Name the connection step for the choice (an MCP server, `gh auth login`, `tea login add`, `acli jira auth login`, or a token the user puts in the environment). Start no work until one read of the project succeeds.
 
-After cases 2 to 4, write the `Backlog:` block into `AGENTS.md` after the Boundaries line, in the next commit the work makes. Record the methods in order of preference, never which one worked in one session, since each teammate's session has different tools connected.
+After cases 2 to 4, write the `Backlog:` block into the `AGENTS.md` of each repository the work touches, after the Boundaries line, in the next commit the work makes there; where a repository has no `AGENTS.md`, create one holding its name and the block. Record the methods in order of preference, never which one worked in one session, since each teammate's session has different tools connected.
 
 ```text
 Backlog:   Jira project PAY at https://acme.atlassian.net; Atlassian MCP server, else `acli jira`, else REST
@@ -55,13 +55,12 @@ Use, in order, an MCP server the session already has, the tracker's own CLI, the
 
 | In the loop | On the tracker |
 |---|---|
-| The feature header | The epic's description, in its named lines, `Holdout:` and the feature acceptance test's path included |
+| The feature header | The epic's description, in its named lines |
 | A story, bug or spike | A child issue of the epic. A spike has the spike type or label, and blocks each story that waits on its answer. A story's criteria go in the criteria field, else the top of its description |
 | Status | To Do until the branch is cut, In Progress from branch cut, In Review from pull request, Done at merge; a cut story is closed with the reason as its resolution comment. Use the board's own column names |
-| A story's log entry | A comment written when its pull request opens, in the form `log.md` gives; at merge it becomes the resolution, with the Done status. `Observed` is a second comment when it arrives later |
+| A story's log entry | A comment written when its pull request opens, in the form `SKILL.md` gives; at merge it becomes the resolution. `Observed` is a second comment when it arrives later |
 | A parked question | A comment on the story starting `Parked:`, edited or deleted once answered where the tracker allows |
 | A spike's findings | The spike issue's resolution comment, every line a `Learned` line |
-| Architecture snapshot | `docs/architecture/snapshots/<date>.md`, committed; `AGENTS.md` points at the latest |
 | A finding about the system, not one story | A comment on the epic, so close-out finds every one in one place |
 | A bug in shipped work | A bug issue under the epic, ranked by the user. `Not caught by` is its resolution comment |
 
@@ -69,10 +68,9 @@ A one-story request or a bug is one issue with no epic, and its comments are its
 
 ## When the board is already filled
 
-* **The children are the proposed stories.** Read them in rank order and show them as the story list, each with an outcome line the agent writes from the story's text. The user confirms, rewords, cuts or re-ranks in one turn. Criteria are written with the `define` skill when each story starts. Write each story's confirmed criteria back to its issue before its red commit.
-* **Run the `reviewing` skill's epic review on the children** in a subagent before the first story, and take back only its report. Apply what the user accepts on the board.
-* **An epic with no description** gets the header written into it after `deliver` sections 0 through 2 run, the same as a new epic.
-* **Sprints are not pauses.** The loop runs the epic's children as `references/next.md` picks them and crosses a sprint boundary without stopping. A team that wants the loop to stop at the sprint edge adds that rule to `AGENTS.md`.
+* **The children are the proposed stories.** Show them in rank order, each with an outcome line written from its text, and check them against the ready check in `epic.md` section 4. The user confirms, rewords, cuts or re-ranks in one turn. Criteria are written when each story starts.
+* **An epic with no description** gets the header written into it by `epic.md`.
+* **Sprints are not pauses.** The loop crosses a sprint boundary without stopping. A team that wants the loop to stop at the sprint edge adds that rule to `AGENTS.md`.
 * **Several epics are several features.** One epic, one loop each, never interleaved in one session.
 
 ## When the tracker cannot be reached

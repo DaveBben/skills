@@ -1,18 +1,26 @@
 #!/usr/bin/env bash
-# Usage: story.sh start <slug> <key> <short-name> | red | rebase | close <branch> | status | self-test
+# Usage: story.sh start <slug> <key> <short-name> | adopt <key> | red [hash...] | unred | confirm | rebase | verify <check command...> | close <branch> | status | self-test
 #
 # The git steps of a story, run from any worktree of the repository.
 #   start   cuts story/<slug>/<key>-<short-name> from the latest main into a
 #           worktree beside the repository, records <key> as the branch's
 #           issueKey for the commit hook that tags messages, and prints its path
-#   red     records HEAD, the red commit just made, in the accepted-test guard
+#   adopt   makes the branch checked out here a story branch for <key>, for
+#           work that already has a branch or an open pull request
+#   red     records HEAD, or each hash given, in the accepted-test guard
+#   unred   clears the guard's record of every red commit on this branch
+#   confirm records that the user confirmed the story's criteria; the push
+#           guard refuses a push or pull request for the branch until then
 #   rebase  rebases the current story branch on the latest main and re-records
 #           every red commit under its new hash, matched by commit message
+#   verify  rebases as above, fails when a file a red commit touched has changed
+#           since that commit, then runs the check command and exits with its
+#           status
 #   close   removes the branch's worktree, its guard keys and the branch, after
 #           a merge or a cut
-#   status  prints one line per story worktree: branch, path, and where the loop
-#           restarts. It runs close on a branch whose pull request has merged.
-#           Run it from the main checkout.
+#   status  prints one line per story worktree: branch, path, and the next step.
+#           It runs close on a branch whose pull request has merged. Run it
+#           from the main checkout.
 # MAIN overrides the main branch name (default main).
 set -euo pipefail
 main="${MAIN:-main}"
@@ -26,31 +34,12 @@ base() {
     echo "$main"
   fi
 }
-story_branch() {
-  local b; b="$(git branch --show-current)"
-  case "$b" in story/*) echo "$b" ;; *) die "Run this in a story worktree; the current branch is '$b'." ;; esac
-}
-
-case "${1:-}" in
-start)
-  [ $# -eq 4 ] || die "Usage: story.sh start <slug> <key> <short-name>"
-  r="$(repo)"
-  wt="$(dirname "$r")/$(basename "$r")-$3"
-  git worktree add -q -b "story/$2/$3-$4" "$wt" "$(base)" >&2
-  git config "branch.story/$2/$3-$4.issueKey" "$3"
-  echo "$wt"
-  ;;
-red)
-  b="$(story_branch)"
-  git config --add "branch.$b.redCommit" "$(git rev-parse HEAD)"
-  git rev-parse HEAD
-  ;;
-rebase)
-  b="$(story_branch)"
+do_rebase() {
+  local b="$1" old onto h msg match c
   old="$(git config --get-all "branch.$b.redCommit" || true)"
   onto="$(base)"
   git rebase -q "$onto" || die "The rebase stopped on a conflict. Resolve it, run 'git rebase --continue', then run story.sh rebase again."
-  new=()
+  local new=()
   for h in $old; do
     msg="$(git log -1 --format=%B "$h")"
     match=""
@@ -62,6 +51,82 @@ rebase)
   done
   git config --unset-all "branch.$b.redCommit" || true
   for c in ${new[@]+"${new[@]}"}; do git config --add "branch.$b.redCommit" "$c"; echo "$c"; done
+}
+is_story() { case "$1" in story/*) return 0 ;; esac; [ "$(git config --get "branch.$1.story" || true)" = true ]; }
+story_branch() {
+  local b; b="$(git branch --show-current)"
+  is_story "$b" && echo "$b" || die "Run this in a story worktree; the current branch is '$b'. Run story.sh adopt <key> to make it one."
+}
+pr_state() {  # prints MERGED, OPEN, CLOSED or nothing, from gh or glab
+  local s
+  if command -v gh >/dev/null && s="$(gh pr view "$1" --json state -q .state </dev/null 2>/dev/null)"; then echo "$s"; return; fi
+  if command -v glab >/dev/null && s="$(glab mr view "$1" -F json </dev/null 2>/dev/null | sed -n 's/.*"state": *"\([a-z]*\)".*/\1/p' | head -1)"; then
+    case "$s" in merged) echo MERGED ;; opened) echo OPEN ;; closed) echo CLOSED ;; esac
+  fi
+}
+
+case "${1:-}" in
+start)
+  [ $# -eq 4 ] || die "Usage: story.sh start <slug> <key> <short-name>"
+  r="$(repo)"
+  wt="$(dirname "$r")/$(basename "$r")-$3"
+  git worktree add -q -b "story/$2/$3-$4" "$wt" "$(base)" >&2
+  git config "branch.story/$2/$3-$4.issueKey" "$3"
+  echo "$wt"
+  ;;
+adopt)
+  [ $# -eq 2 ] || die "Usage: story.sh adopt <key>"
+  b="$(git branch --show-current)"
+  [ -n "$b" ] && [ "$b" != "$main" ] || die "Check out the story's own branch first; adopt refuses '$b'."
+  git config "branch.$b.story" true
+  git config "branch.$b.issueKey" "$2"
+  echo "$b"
+  ;;
+red)
+  b="$(story_branch)"; shift
+  [ $# -gt 0 ] || set -- HEAD
+  for h in "$@"; do c="$(git rev-parse "$h")"; git config --add "branch.$b.redCommit" "$c"; echo "$c"; done
+  ;;
+unred)
+  b="$(story_branch)"
+  git config --unset-all "branch.$b.redCommit" || true
+  ;;
+rebase)
+  do_rebase "$(story_branch)"
+  ;;
+confirm)
+  b="$(story_branch)"
+  git config "branch.$b.criteriaConfirmed" true
+  echo "criteria confirmed on $b"
+  ;;
+verify)
+  [ $# -ge 2 ] || die "Usage: story.sh verify <check command...>"
+  shift
+  b="$(story_branch)"
+  do_rebase "$b" | sed 's/^/red: /'
+  changed=""; seen=" "
+  # Each test file is compared with the newest red commit that touched it, so a
+  # corrected row committed as a later red commit passes.
+  # ponytail: a test file is a path under test/, tests/, spec/ or __tests__/, or
+  # named test_*, *_test.*, *.test.* or *.spec.*; set TESTS to a grep -E
+  # pattern when the project names tests differently.
+  pat="${TESTS:-(^|/)(tests?|specs?|__tests__)/|(^|/)test_[^/]*$|_test\\.[^/]*$|\\.(test|spec)\\.[^/]*$}"
+  reds="$(git config --get-all "branch.$b.redCommit" || true)"
+  newest_first=""; left="$(printf '%s\n' $reds | grep -c . || true)"
+  for c in $(git rev-list HEAD); do
+    [ "$left" -gt 0 ] || break
+    case " $(echo $reds) " in *" $c "*) newest_first="$newest_first $c"; left=$((left - 1)) ;; esac
+  done
+  for h in $newest_first; do
+    for f in $(git diff-tree --no-commit-id --name-only -r "$h" | grep -E "$pat" || true); do
+      case "$seen" in *" $f "*) continue ;; esac
+      seen="$seen$f "
+      git diff --quiet "$h" HEAD -- "$f" 2>/dev/null || changed="$changed $f"
+    done
+  done
+  [ -z "$changed" ] || die "FAIL accepted tests changed since their red commit:$changed"
+  echo "accepted tests unchanged"
+  "$@"
   ;;
 close)
   [ $# -eq 2 ] || die "Usage: story.sh close <branch>"
@@ -69,30 +134,35 @@ close)
   wt="$(git -C "$r" worktree list --porcelain | awk -v b="branch refs/heads/$2" '/^worktree /{w=substr($0,10)} $0==b{print w}')"
   [ -z "$wt" ] || git -C "$r" worktree remove "$wt"
   git -C "$r" config --unset-all "branch.$2.redCommit" || true
+  git -C "$r" config --unset-all "branch.$2.criteriaConfirmed" || true
+  git -C "$r" config --unset-all "branch.$2.story" || true
   git -C "$r" config --unset-all agile.redCommit || true
   git -C "$r" branch -q -D "$2"
   ;;
 status)
   r="$(repo)"; me="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
-  command -v gh >/dev/null || echo "gh is not installed, so pull request state is not checked." >&2
+  command -v gh >/dev/null || command -v glab >/dev/null || echo "Neither gh nor glab is installed, so pull request state is not checked." >&2
   git -C "$r" worktree list --porcelain \
-    | awk '/^worktree /{w=substr($0,10)} /^branch refs\/heads\/story\//{print substr($0,19) "\t" w}' \
+    | awk '/^worktree /{w=substr($0,10)} /^branch refs\/heads\//{print substr($0,19) "\t" w}' \
     | while IFS=$'\t' read -r b wt; do
-    pr="$(cd "$wt" && gh pr view "$b" --json state -q .state </dev/null 2>/dev/null || true)"
+    (cd "$wt" && is_story "$b") || continue
+    pr="$(cd "$wt" && pr_state "$b" || true)"
     case "$pr" in
       MERGED) "$me" close "$b" && at="merged; worktree, branch and guard removed" ;;
       CLOSED) at="pull request closed without merging: ask the user to reopen it or cut the story" ;;
-      OPEN) at="pull request open: SKILL.md section 8, watch it" ;;
+      OPEN) at="pull request open: watch it" ;;
       *)
         db="$(git -C "$wt" rev-parse --path-format=absolute --git-dir)/done-block.md"
-        if grep -Eq '^(Security|Refuted):[[:space:]]*pending' "$db" 2>/dev/null; then
-          at="Done block with security or refute pending: loop.md section 6"
-        elif [ -f "$db" ]; then
-          at="Done block and no pull request: SKILL.md section 7"
+        if [ -f "$db" ]; then
+          if [ "$(git -C "$wt" config --get "branch.$b.criteriaConfirmed" || true)" = true ]; then
+            at="reviewed and confirmed: verify, log and open the pull request"
+          else
+            at="reviewed: verify, then show the criteria for confirmation"
+          fi
         elif [ -n "$(git -C "$wt" config --get-all "branch.$b.redCommit" || true)" ]; then
-          at="red commit and no Done block: loop.md section 5"
+          at="red commit and no review: build"
         else
-          at="no red commit: loop.md section 4, setup"
+          at="no red commit: set up"
         fi ;;
     esac
     printf '%s\t%s\t%s\n' "$b" "$wt" "$at"
@@ -108,23 +178,37 @@ self-test)
   [ "$(git config branch.story/pay/PAY-1-refunds.issueKey)" = PAY-1 ] || die "FAIL start did not record the issue key"
   "$me" status 2>/dev/null | grep -q "no red commit" || die "FAIL status before the red commit"
   cd "$wt"
-  echo x > test_a && git add test_a && git -c user.name=t -c user.email=t@t commit -q -m "red: refunds"
+  echo x > test_a && echo stub > app_a && git add test_a app_a && git -c user.name=t -c user.email=t@t commit -q -m "red: refunds"
   red="$("$me" red)"
-  (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "red commit and no Done block" || die "FAIL status after the red commit"
-  echo "Refuted:     pending" > "$(git rev-parse --git-dir)/done-block.md"
-  (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "loop.md section 6" || die "FAIL status with a pending Done block"
-  echo "Refuted:     none" > "$(git rev-parse --git-dir)/done-block.md"
-  (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "section 7" || die "FAIL status with a Done block"
+  (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "red commit and no review" || die "FAIL status after the red commit"
+  echo "DONE" > "$(git rev-parse --git-dir)/done-block.md"
+  (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "show the criteria" || die "FAIL status with a review and no confirmation"
+  "$me" confirm >/dev/null
+  (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "reviewed and confirmed" || die "FAIL status after confirm"
   rm "$(git rev-parse --git-dir)/done-block.md"
   cd "$t/app" && echo y > other && git add other && git -c user.name=t -c user.email=t@t commit -q -m main-moves
   cd "$wt" && moved="$("$me" rebase)"
   [ "$moved" != "$red" ] && [ "$(git config --get-all branch.story/pay/PAY-1-refunds.redCommit)" = "$moved" ] \
     || die "FAIL rebase did not re-record the red commit"
+  echo built > app_a && git -c user.name=t -c user.email=t@t commit -q -am "build fills the stub"
+  "$me" verify true | grep -q "accepted tests unchanged" || die "FAIL verify on unchanged tests"
+  if "$me" verify false >/dev/null 2>&1; then die "FAIL verify ignored the check command's status"; fi
+  echo z > test_a && git -c user.name=t -c user.email=t@t commit -q -am "edit accepted test"
+  if "$me" verify true >/dev/null 2>&1; then die "FAIL verify passed an edited accepted test"; fi
+  "$me" red >/dev/null && "$me" verify true >/dev/null || die "FAIL verify after a corrected row's red commit"
+  "$me" unred && [ -z "$(git config --get-all branch.story/pay/PAY-1-refunds.redCommit || true)" ] || die "FAIL unred"
+  "$me" red "$red" >/dev/null && [ "$(git config --get-all branch.story/pay/PAY-1-refunds.redCommit)" = "$red" ] || die "FAIL red <hash>"
+  cd "$t/app" && git worktree add -q -b feature/old "$t/app-old" main && cd "$t/app-old"
+  "$me" red >/dev/null 2>&1 && die "FAIL red on a branch that is not a story"
+  "$me" adopt PAY-2 >/dev/null && "$me" red >/dev/null || die "FAIL adopt"
+  st="$(cd "$t/app" && "$me" status 2>/dev/null)"; case "$st" in *feature/old*) ;; *) die "FAIL status misses an adopted branch" ;; esac
+  cd "$t/app" && "$me" close feature/old && [ -z "$(git config --get branch.feature/old.story || true)" ] || die "FAIL close of an adopted branch"
   cd "$t/app" && "$me" close story/pay/PAY-1-refunds
   [ ! -d "$wt" ] && ! git rev-parse -q --verify story/pay/PAY-1-refunds >/dev/null \
     && [ -z "$(git config --get-all branch.story/pay/PAY-1-refunds.redCommit || true)" ] \
+    && [ -z "$(git config --get branch.story/pay/PAY-1-refunds.criteriaConfirmed || true)" ] \
     || die "FAIL close left the worktree, branch or guard key"
   echo "self-test passed"
   ;;
-*) sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+*) sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac

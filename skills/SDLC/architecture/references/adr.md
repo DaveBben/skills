@@ -24,10 +24,10 @@ Before recording <decision>, correct anything wrong:
 
 ## File Naming and Location
 
-Write every ADR by the writing rules for a reader who did not see the conversation, reconstruction test included.
+Write every ADR for a reader who did not see the conversation: from the file alone, they can say what was decided, why, and what would make it wrong.
 
 
-* **Feature-scoped:** `docs/adr/{slug}/<decision-name>.md` for a decision belonging to one change. The `{slug}` is the feature's slug, the one in its `story/{slug}/` branches and its log path.
+* **Feature-scoped:** `docs/adr/{slug}/<decision-name>.md` for a decision belonging to one change. The `{slug}` is the feature's slug, the one in its `story/{slug}/` branches.
 * **Global:** `docs/adr/architecture/<decision-name>.md` for a decision applying to the whole repository, or when no feature is open.
 * **Format:** `<decision-name>` is short and kebab-case, e.g. `use-redis-for-rate-limiting.md`.
 * **Already recorded:** when the change's own PRD records the decision with its rejected alternative, write no ADR; put the PRD path on the feature header's `Decided:` line.
@@ -66,4 +66,21 @@ Long form, only when the decision accepts a hazard or follows an incident: add t
 
 When a new ADR supersedes an old one, add `**Superseded by:** <new file>` under the old one's title.
 
-Read `references/adr-example.md` before drafting the first long-form ADR in a repository: it is a complete one, and the draft must match its density and tone.
+A short-form ADR, for density and tone:
+
+```text
+# Cap the LLM at one call per browser, not a timeout
+
+**Decision:** Each browser makes at most one AI call at a time, and a soft limit caps calls across
+the instance. A timeout cannot work: it bounds how long one call takes, and the outage came from
+how many ran at once on a worker pool of 5.
+
+**Detector:** T-15 asserts one call per request and that the over-limit call is refused. It does
+not assert the cap number, which is not measured yet.
+
+## Alternatives rejected
+- A timeout: already 30 s, and it did not prevent the outage.
+- A strict global limit: the plugin cache has no atomic counter.
+
+**Supersedes:** none.
+```

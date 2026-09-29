@@ -1,81 +1,16 @@
 # Pull request description
 
-Load this when a story's pull request opens, or when the user asks for a description of a branch built outside the loop.
+A subagent follows this file when a story's pull request opens, or when the user asks for a description of any branch. It reads the branch's diff against its target, the commits, `done-block.md` when there is one, the feature header's `Outcome:` and `Success:` lines, and any ticket the branch or commits cite.
 
-Write for a reviewer who has never opened this repository and does not know the feature. Under one screen, in this order.
+**The repository's template comes first.** Look for `.github/pull_request_template.md`, `.gitlab/merge_request_templates/`, `docs/pull_request_template.md`, or a template `AGENTS.md` names (the default one when there are several, else the one matching the change), and fill its sections with the content below. Only with no template, use these sections, under one screen, for a reviewer who has never opened the repository:
 
-0. **Read code:** the first line, for the user who reads code only when a
-   signal fires. The signals are the lines of `exceptions.txt`, which verify
-   writes from the repository's `CODEOWNERS` `# owner reads:` sections and
-   the diff, and the Done block's `Exceptions:` line. It says `none`,
-   `<n> slices`, or `whole diff of <paths>` when the slices would pass three,
-   or 120 lines in all. Until the last ten log comments carry no
-   `Not caught by: exception list` line, add "shadow period: read the whole
-   diff", since the list is still being tested. Omit the line for a branch
-   built outside the loop.
+1. **Why:** two or three sentences: what the product is and who uses it, the outcome this change serves, and where it sits ("two of five stories shipped").
+2. **Criteria:** one table, one row per criterion: a check mark, the criterion in a few words, and the exact name of the test that proves it. Mark green only what you saw pass in this run; write what is wrong in the row otherwise. The criteria live in the ticket; for a change with no ticket, each row carries the criterion in full. A change with no behaviour change says so and lists the tests that prove it.
+3. **Try it:** the exact command, URL or screen that shows the outcome on this branch, the values it produced, and each prerequisite whose absence produces a passing-looking failure.
+4. **What changed:** one paragraph in the domain's nouns, one line per new function, module or branch with its file, then the Done block's `Design:` rows.
+5. **Risk:** one line per fact that changes what a reviewer or merger does: what merging deploys and where; anything a revert cannot undo; a diff touching authentication, secrets, money, health or personal data; files under an `# owner reads:` section of `CODEOWNERS`; a design departure no snapshot or ADR on this branch records. Name the file. Omit when empty.
+6. **Assumes:** each fact the change rests on that was read from a document, and how it was checked.
+7. **The rest,** collapsed where the host allows: tests beyond the criteria table, the choices decided alone, rules `guardrails` wrote, what is deferred and to which story, the attack and gate lines.
+8. **Signal:** what someone reads once deployed to know it worked, and the counter-signal of it silently failing.
 
-1. **Why,** two or three sentences: what the product is and who uses it; the
-   outcome this change serves; where this change sits in it ("two of five
-   stories shipped: the upload and the thumbnail").
-
-2. **Criteria,** one table, one row per acceptance criterion: a green check
-   mark, the criterion in a few words, and the exact name of the test that
-   proves it. This table is the reason the description exists, and it never gets
-   summarised.
-   - Verify every row. Run the test and read its name out of the passing
-     output. Never mark green what you have not seen pass; write what is wrong
-     in the row instead of a check mark.
-   - A criterion that moved to another change is listed once as out of scope,
-     never green.
-   - A green mark you cannot reproduce right now says so in the row, with the
-     date it passed and what is missing.
-   - A branch built outside the loop with no criteria anywhere gets the
-     heading "No acceptance criteria found", then one row per test the
-     branch adds.
-   - Criteria live in the ticket. Do not restate them verbatim here; the table
-     names them and the ticket is the text of record. For a change with no
-     issue, each row carries the criterion in full.
-
-3. **Try it:** the exact command, URL or screen that shows the outcome
-   criterion working on this branch, and directly beneath it the result it
-   produced — the values, as a table.
-   - List every prerequisite whose absence produces a *passing-looking*
-     failure: an unset variable, a fixture the command cannot create, a state
-     the system must be in. These are the ones that cost hours, because the
-     run completes and reports the wrong reason.
-
-4. **What changed,** one paragraph in the domain's nouns, then one line per new
-   function, module or branch saying what it is for and which file it is in.
-   Then the Done block's `Design:` rows unchanged, headed **Design**. A
-   departure no new snapshot or ADR on this branch records is also a Risk line.
-
-5. **Risk,** one line per fact that changes what a reviewer or merger does:
-   what merging itself deploys and where; a guard that is off in the
-   environment this ships to; anything a revert cannot undo; a diff touching
-   authentication, authorization, secrets, money, health or personal data.
-   Name the file. Omit the section only when every line would be empty.
-   Each signal is one slice of at most 40 lines of the hunk it names, in
-   four lines:
-   `Read: <file>:<first>-<last> (<n> lines) — <the signal>`, linked to those
-   lines of the diff on the code host, or followed by the code without a remote;
-   `Decides:` what that code decides, in the system's terms;
-   `Covered by:` the test, and whether its mutation was killed;
-   `Question:` the one yes-or-no the user answers after reading.
-
-6. **Assumes,** one line per fact the change rests on that was read from a
-   document rather than from the code, and how it was checked. Omit when empty.
-
-7. **Read first:** the first slice, or, when there is none, the one file a
-   reviewer opens to understand the change.
-
-8. **The rest,** collapsed where the host supports it: the edge-case rows
-   and other tests beyond the criteria table, the rules the `guardrails` skill
-   wrote on the branch, what is deliberately deferred and to which change, and
-   from the review's Done block only its Correctness, Subtraction, Scars,
-   Decided alone and Gate lines, or the feedback points, and the verify's
-   `Scenarios:` and the attack's `Attack:` lines, when the change came
-   from `deliver`.
-
-9. **Signal:** the event someone reads to know it worked once deployed, and the
-   counter-signal that would show it silently not working, with the `Success`
-   line's good direction and noise band.
+Where the repository has no remote, the merge commit message carries Why, Criteria and Try it.

@@ -26,23 +26,6 @@ case "$scan" in
     echo "Never --no-verify." >&2
     exit 2 ;;
 esac
-# The holdout directory (~/.holdout/ by default) holds the user's hidden
-# scenarios. Only its `run` command may name it, alone, with no pipe, chain or
-# redirect. This stops accidents; anything that runs code can still read it.
-# The raw command is matched, since quoting the path must not hide it.
-case "$cmd" in
-  *.holdout*)
-    first="${cmd%% *}"
-    case "$cmd" in *[\;\|\&\`\<\>]*|*'$('*) first="" ;; esac
-    case "$first" in
-      *.holdout/*/run) ;;
-      *)
-        echo "The holdout directory holds the user's hidden scenarios. Do not read," >&2
-        echo "list or copy it. The only command that may name it is its run command," >&2
-        echo "on its own: <holdout dir>/run --done <story keys> --diff <file>." >&2
-        exit 2 ;;
-    esac ;;
-esac
 # rm and mv through the shell get past the deny list and the accepted-test
 # guard, which see only the edit tool. Block them on the feature acceptance
 # directory, and on each story's accepted tests: by absolute path in any story

@@ -1,8 +1,8 @@
 # Write an architecture snapshot
 
-Load this whenever the `architecture` skill writes the system's shape: the capture path, and section 6 of the plan reference. A snapshot is one Markdown file, `docs/architecture/snapshots/<YYYY-MM-DD>.md`, that lets a reader who has never opened the code explain how the system works and predict what a change would do. It is dated, and never edited after its commit. A later snapshot replaces it, and `AGENTS.md` points at the latest one. On a day that already has a snapshot, edit that day's file.
+Load this whenever the `architecture` skill writes the system's shape: the capture path and its Record step. A snapshot is one Markdown file, `docs/architecture/snapshots/<YYYY-MM-DD>.md`, that lets a reader who has never opened the code explain how the system works and predict what a change would do. It is dated, and never edited after its commit. A later snapshot replaces it, and `AGENTS.md` points at the latest one. On a day that already has a snapshot, edit that day's file.
 
-Write it by the writing rules. The reader is a person, or an agent about to change the code. Its test is the reconstruction test: from the file alone, the reader can follow each key flow through the system, say what fails and what the person using it sees, and name the file to change.
+Write it for a reader who did not see the conversation. The reader is a person, or an agent about to change the code. Its test is the reconstruction test: from the file alone, the reader can follow each key flow through the system, say what fails and what the person using it sees, and name the file to change.
 
 ## Sources
 
@@ -26,7 +26,7 @@ Constraints:  <each hard limit nobody may break: a law, a contract, a platform>
 Risks:        <the three most likely ways the system fails: what the person using it sees, and the outside system or crossing involved>
 ```
 
-When a smaller choice has alternatives and the ranked qualities pick one, the qualities settle it (see `SKILL.md`, section 5).
+When a smaller choice has alternatives and the ranked qualities pick one, the qualities settle it (see "Decide" in `SKILL.md`).
 
 ## Sections, in this order
 

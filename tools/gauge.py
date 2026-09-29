@@ -55,8 +55,7 @@ PLUGIN_DIRS = [os.path.join(REPO, "plugins", "SDLC"),
 # 7, and the third run was still exploring when the budget ran out.
 TURNS = 12
 MODEL = None  # set from --model; None leaves the harness default
-OURS = {"orient", "greenfield", "guardrails", "define", "spike",
-        "architecture", "deliver", "reviewing", "handing-off"}
+OURS = {"guardrails", "architecture", "deliver", "reviewing", "handing-off"}
 TARGET = 0.80  # suite passes at 80% or better
 
 FILES = {
@@ -190,8 +189,8 @@ def tuning_cases(fresh, mid, bare):
         ("I need scaffolding for this.", "architecture", bare),
         ("Let's put together the walking skeleton.", "architecture", bare),
         ("I need a walking skeleton.", "architecture", bare),
-        ("Python project template.", "greenfield", bare),
-        ("Template project.", "greenfield", bare),
+        ("Python project template.", "architecture", bare),
+        ("Template project.", "architecture", bare),
         # adr: a decision exists and the why is the artefact
         ("Record this architecture decision.", "architecture", fresh),
         ("Make an adr.", "architecture", fresh),
@@ -202,26 +201,26 @@ def tuning_cases(fresh, mid, bare):
         ("Create an adr.", "architecture", fresh),
         ("Note this architecture decision.", "architecture", fresh),
         # harness: the repo gives the agent no feedback of its own
-        ("Setup my repo for my agent.", "orient", fresh),
-        ("Setup my repo for Claude.", "orient", fresh),
-        ("Configure my environment for Claude.", "orient", fresh),
-        ("Setup my environment for my AI agent.", "orient", fresh),
-        ("Make this repo ready for an AI agent.", "orient", fresh),
+        ("Setup my repo for my agent.", "guardrails", fresh),
+        ("Setup my repo for Claude.", "guardrails", fresh),
+        ("Configure my environment for Claude.", "guardrails", fresh),
+        ("Setup my environment for my AI agent.", "guardrails", fresh),
+        ("Make this repo ready for an AI agent.", "guardrails", fresh),
         ("Setup harness in this repo.", "guardrails", fresh),
-        ("Make repo AI ready.", "orient", fresh),
+        ("Make repo AI ready.", "guardrails", fresh),
         # spike: prove or explore before committing, code is disposable
-        ("Let's prove this works first.", "spike", fresh),
-        ("Let's try an approach before building.", "spike", fresh),
-        ("Let's prototype this idea.", "spike", fresh),
-        ("Let's create a mock.", "spike", fresh),
-        ("Create a throwaway project.", "spike", fresh),
-        ("Let's see if Redis Streams is feasible here.", "spike", fresh),
-        ("Let's see how this integration would work.", "spike", fresh),
-        ("Let's see the changes which would be needed.", "spike", fresh),
-        ("Explore how this would fit into the system.", "spike", fresh),
-        ("Build a quick throwaway.", "spike", fresh),
-        ("Build a demo.", "spike", fresh),
-        ("Let's do a spike on it.", "spike", fresh),
+        ("Let's prove this works first.", "architecture", fresh),
+        ("Let's try an approach before building.", "architecture", fresh),
+        ("Let's prototype this idea.", "architecture", fresh),
+        ("Let's create a mock.", "architecture", fresh),
+        ("Create a throwaway project.", "architecture", fresh),
+        ("Let's see if Redis Streams is feasible here.", "architecture", fresh),
+        ("Let's see how this integration would work.", "architecture", fresh),
+        ("Let's see the changes which would be needed.", "architecture", fresh),
+        ("Explore how this would fit into the system.", "architecture", fresh),
+        ("Build a quick throwaway.", "architecture", fresh),
+        ("Build a demo.", "architecture", fresh),
+        ("Let's do a spike on it.", "architecture", fresh),
         # agile: any request to write, change or remove code in a system
         ("I want to add rate limiting to the export endpoint.", "deliver", fresh),
         ("I want to remove the order export module.", "deliver", fresh),
@@ -276,11 +275,11 @@ def validation_cases(fresh, mid, bare):
          "lands broken", "guardrails", fresh),
         # spike
         ("before we commit to duckdb i want to know if it chews through our 40gb "
-         "of parquet. throwaway is fine", "spike", fresh),
+         "of parquet. throwaway is fine", "architecture", fresh),
         ("ive got two customers on friday and want something clickable for the "
-         "new onboarding flow", "spike", fresh),
+         "new onboarding flow", "architecture", fresh),
         ("roughly what would it take to move us off celery onto arq? dont build "
-         "it properly", "spike", fresh),
+         "it properly", "architecture", fresh),
         # agile
         ("the retry loop in src/db.js gives up after 3 tries, make it exponential "
          "backoff with jitter capped at 30s", "deliver", fresh),

@@ -8,7 +8,7 @@ The skills are plain Markdown (`SKILL.md`) and work with any skills-compatible a
 
 | Plugin | What it does | Status |
 |---|---|---|
-| [SDLC](plugins/SDLC/) | Take an engineering change from a vague ask to a verified production change: define the outcome, slice it into stories, write each story's criteria as it starts, write failing tests first, build, review in three passes, test against scenarios the agent never sees, show you code only when a signal fires, ship and log. Requires a project tracker (GitHub Issues, Gitea, Jira, Linear or similar). Eight skills. | live |
+| [SDLC](plugins/SDLC/) | Take an engineering change from a vague ask to a verified production change: define the outcome, slice it into stories, write each story's criteria as it starts, write failing tests first, build, review independently, confirm the criteria before anything is pushed, ship and log. Requires a project tracker (GitHub Issues, Gitea, Jira, Linear or similar). Four skills. | live |
 | [context](plugins/context/) | Manage an agent session's context across boundaries. Hands a session over when context fills or work stops partway, recording the dead ends. One skill. | live |
 | [meals](plugins/meals/) | Eat to numbers without cooking from a spreadsheet. Turns a recipe you already make into a reusable meal template that hits a calorie ceiling and protein and fiber floors, verified against USDA values, then plans days of meals from those templates into the meal planner with a shopping list. Two skills. | live |
 | [personalize](plugins/personalize/) | Have an agent write as you. Texts, work replies, docs and video scripts come out in your own voice, from private voice profiles you keep outside the repo. It never invents facts and never sends without your say-so. One skill. | live |
@@ -36,7 +36,7 @@ Use the [`skills` CLI](https://github.com/vercel-labs/skills), which installs pl
 # see everything on offer, grouped by area
 npx skills add DaveBben/davebben-skills --list
 
-# install one skill (the eight SDLC skills call each other by name: install all eight together)
+# install one skill (deliver calls architecture and guardrails by name: install all four SDLC skills together)
 npx skills add DaveBben/davebben-skills --skill deliver
 
 # install everything

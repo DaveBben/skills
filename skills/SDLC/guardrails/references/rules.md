@@ -1,60 +1,63 @@
 # Enforce one rule
 
-Loaded by the `guardrails` skill when one rule, convention or recurring mistake must be enforced, when the instruction files are audited for rules a check could enforce, or when the `define` skill hands over its `Interpreted` line.
-
-Put every rule as far up the ladder in SKILL.md, section "Where a rule lives", as it will go.
+Load this when one rule, convention or recurring mistake must be enforced, when instruction files are audited for rules a check could hold, or when dependency contracts are written.
 
 ## Add one rule
 
-1. **Restate the rule as something a stranger could check.** "Keep the API clean" is not a rule yet. Ask what a violation looks like, and ask for one real example from this codebase.
-2. **Try rung 1, cheapest first.** Stop at the first that holds.
-   * **The language or framework already prevents it:** a compiler flag, a stricter type-checker setting, a framework default. Turn it on.
-   * **The project's linter ships the rule:** ESLint, Ruff, golangci-lint, Clippy, RuboCop, Checkstyle, SwiftLint. Search that linter's rule list before writing anything. Enable the rule in the existing config at error severity, with the options the rule needs.
-   * **The rule is about which module may import which:** it is a dependency contract. Write it by the Contracts section below.
-   * **The rule is about what the agent runs, not the code it writes:** "never force-push", "never edit the migrations directory". It is a hook or a deny-list entry in the agent's settings. Write it by the Loop and Guards sections of `references/setup.md`.
-   * **The rule is a pattern over source that no shipped rule matches:** write a Semgrep rule. Load `references/semgrep.md` now; SKILL.md lists it. It covers installing the engine, what a pattern can and cannot see, writing the rule, proving it fires, and landing it on code that already breaks it.
-   * **The rule is a fact about behaviour:** "every endpoint returns JSON errors". It is a test, not a lint rule. Say which test would hold it.
-3. **Fall to rung 2** when no program can decide it but the rule applies only to some paths, such as "components in `src/ui/` take props, never read the store". Write one rule file per topic, with the path glob in its frontmatter and the rule as one imperative sentence plus the reason. Check how the format matches globs. Claude Code uses gitignore rules, so `"*.py"` matches only files at the root, and the file needs `"**/*.py"` as well. Touch one matching file and one non-matching file to confirm the rule loads for the first only.
-4. **Fall to rung 3** only when the rule needs judgment and applies everywhere, such as "ask before adding a dependency". Add one line under the constraints section `AGENTS.md` already has. When `AGENTS.md` does not exist, offer `orient` first.
-5. **Show the user the rung, the file, the exact text or config, and one real violation it catches** before writing it. A rule with no current violation is a preference, and the user decides whether to take it. Called from `deliver`'s setup subagent, write the rule on the story's branch instead, and list it in the pull request for the user.
+1. **Restate it as something a stranger could check,** with one real violation from this codebase. A rule with no current violation is a preference; the user decides.
+2. **Try rung 1, cheapest first,** and stop at the first that holds:
+   * The language or framework already prevents it: turn on the compiler flag or stricter setting.
+   * The linter ships it (ESLint, Ruff, golangci-lint, Clippy, RuboCop, Checkstyle, SwiftLint): search its rule list and enable it at error severity.
+   * It is about which module may import which: a dependency contract (below).
+   * It is about what the agent runs, not the code ("never force-push"): a hook or deny-list entry, by the Guards section of `setup.md`.
+   * It is a pattern over source no shipped rule matches: a Semgrep rule (below).
+   * It is a fact about behaviour ("every endpoint returns JSON errors"): a test. Say which.
+3. **Rung 2** when it needs judgment and applies to some paths: one rule file per topic, the glob in its frontmatter, one imperative sentence and the reason. Claude Code matches globs like gitignore, so ship `"*.py"` and `"**/*.py"`, and touch a matching and a non-matching file to confirm.
+4. **Rung 3** only when it needs judgment and applies everywhere: one line under Critical Constraints in `AGENTS.md`.
+5. **Show the user the rung, the file, the exact text and the violation it catches,** and wait. Write it on a branch of its own with a pull request; handed a rule from inside a story, write it on the story's branch and list it in the pull request. When existing code already breaks it, the user picks one: enforce on new files only, clean up first as its own change, or ratchet with `scripts/ratchet.py` and a committed baseline.
 
-Every rung-1 rule prints a message the agent reads when it fails. Write that message as the fix: what is forbidden, what to use instead, and the replacement's real name and path.
+Every rung-1 message is the fix: what is forbidden, what to use instead, and its real name and path.
 
 ## Audit the instruction files
 
-Read every file that tells a person or an agent what to do: `AGENTS.md`, `CLAUDE.md` at every level, `CONTRIBUTING.md`, `.claude/rules/`, `.cursor/rules/`, `.github/copilot-instructions.md`, `.github/instructions/`, and any review checklist. Classify each instruction line by the ladder.
-
-* **Rung 1 candidates** name code, a file, a command or a config value: "never call the HTTP client directly, use `httpGet`", "no `any` in exported types", "every query goes through the repository layer", "run the formatter before committing".
-* **Already enforced:** the line restates something a check this repository runs already fails on. Run the check with one violation to confirm, then delete the line.
-* **Rung 2 candidates** in a global file: the line only makes sense for some paths.
-* **Stays where it is:** the line needs judgment and applies everywhere, such as "keep functions small" or "prefer composition".
-
-Search the codebase for a real violation of each rung-1 candidate. Report before changing anything:
+Read `AGENTS.md`, every `CLAUDE.md`, `CONTRIBUTING.md`, `.claude/rules/`, `.cursor/rules/`, `.github/copilot-instructions.md`, `.github/instructions/` and any review checklist. Classify each instruction line: a rung-1 candidate (it names code, a file, a command or a config value), already enforced (confirm by one violation, then delete the line), a rung-2 candidate in a global file, or stays. Report before changing anything:
 
 ```text
 | # | File:line | Instruction | Move to | Mechanism | Violations today |
-|---|-----------|-------------|---------|-----------|------------------|
-| 1 | CLAUDE.md:14 | "never use fetch directly" | rung 1 | Semgrep rule no-raw-fetch | 3 (src/api/user.ts:22, ...) |
-| 2 | AGENTS.md:31 | "no default exports" | rung 1 | ESLint import/no-default-export | 0 |
-| 3 | CLAUDE.md:40 | "UI components never read the store" | rung 2 | .claude/rules/ui.md, paths: src/ui/** | - |
-| 4 | AGENTS.md:9 | "run prettier first" | delete | already failed by the format check | - |
 ```
 
-The user cuts rows by number, and a row not cut is accepted. Convert each accepted row with the steps in "Add one rule". When a rule lands at rung 1 or rung 2, delete the original instruction line. Leave one pointer in `AGENTS.md` to the rules directory.
+The user cuts rows by number. Convert each kept row by "Add one rule", delete the original line, and leave one pointer in `AGENTS.md` to the rules directory.
 
 ## Defend where input becomes instructions
 
-The `define` skill hands over each place a story's input reaches something that interprets it: a query, a shell, a template, a parser. For each technology involved, read the vendor's security page, the published checklist for that platform, and the product's past vulnerabilities. Each has a standard defence. Put it at rung 1: a linter rule or a Semgrep rule, falling back to a framework default or a check in the build where no pattern can see it. Skip one a rule already covers.
-
-## What a check cannot hold
-
-Say plainly which rules stay with the agent: anything met by something absent ("every service has a rate limit"), anything true only at runtime, and anything that needs taste. Those are rung 2 or rung 3, or a criterion the `define` skill writes, or a point for the `reviewing` skill's pull request review.
+For each place outside input reaches a query, a shell, a template or a parser, read the vendor's security page and the platform's published checklist, and put the standard defence at rung 1: a linter or Semgrep rule, else a framework default or a build check. Skip one a rule already covers. Say plainly what stays with the agent: anything met by something absent ("every service has a rate limit"), anything true only at runtime, anything that needs taste.
 
 ## Contracts
 
-* **Read the shape from the latest snapshot.** The `architecture` skill writes the modules, what each owns, and the flows between them into a snapshot under `docs/architecture/snapshots/`, and the `Architecture:` line of `AGENTS.md` points at the latest one. Write one contract per flow that stays inside one process. Never edit the snapshot. When no snapshot exists yet, say so, fill the language-level slots now, and encode contracts after `architecture` has drawn the shape. Never ask the user to draw the modules here.
-* **Brownfield with no Architecture block:** Derive the current dependency graph, render it as a diagram, and ask which edges they did not expect. Those are the ones nobody chose, and they become the first contracts. Never encode the whole current graph.
-* **One contract per allowed-dependency line.** Everything not listed is forbidden, and the config says so explicitly.
-* **Write each contract's name as the rule in plain English**, so a broken build prints the sentence that stopped being true.
-* **Name the shape when it has a name.** When the user's modules match a known pattern (hexagonal, layered, MVI), record the name and its one defining rule in `AGENTS.md`.
-* **The contracts are the record.** Never write a separate architecture document to describe them.
+* **Read the shape from the latest snapshot** `AGENTS.md` points at. Write one contract per flow inside one process. With no snapshot, fill the language slots now and write contracts once the architecture exists.
+* **Brownfield with no snapshot:** derive the current dependency graph, show it, and ask which edges were not expected. Those become the first contracts. Never encode the whole current graph.
+* **One contract per allowed dependency,** everything else forbidden explicitly, each named as its rule in plain English so a broken build prints the sentence that stopped being true.
+
+## Semgrep rules
+
+Run `semgrep --version` first; when it is missing, ask the user to install it (`pipx install semgrep`, `brew install semgrep`, or the `semgrep/semgrep` image) and wait. Say which parser tier each of the repository's languages sits in; an experimental parser silently matches less. Run the registry packs that match the stack (`p/python`, `p/react`, `p/secrets`, `p/owasp-top-ten`) before writing any rule.
+
+A rule sees one file at a time; following a value inside that file is `mode: taint`. It sees what is present, not what is missing, except inside a scope a pattern can name. Rules repay most when they come from a bug that got through, a sink untrusted input reaches, a wrapper everyone must use, or a review comment made more than twice.
+
+```yaml
+rules:
+  - id: no-raw-fetch
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: >-
+      fetch() has no timeout, so a hung server holds the request forever.
+      Use httpGet from src/http.ts, which sets one.
+    pattern: fetch(...)
+    paths:
+      exclude: ["test/**", "src/http.ts"]
+```
+
+* **One rule per file,** named after the mistake, under `.semgrep/`. The message is the fix. `ERROR` only where breaking it is never correct.
+* **Start from the violation's exact code** and generalise one step at a time. Exclude paths in `paths:`, never in the pattern. Add `fix:` where the rewrite is mechanical.
+* **Prove it fires:** a fixture with the same basename, `// ruleid: <id>` above each line that must fire and `// ok: <id>` above each near miss, run with `semgrep --test --config .semgrep/` and `semgrep --validate`. Break the fixture once and confirm the test fails.
+* **Land it** in the command the repository already runs and in a CI job (`semgrep --config .semgrep/ --error`), pinned like the other tools. On code that already breaks it, use `--baseline-commit <sha>` or clean the backlog first. Silence a line with `nosemgrep: <rule-id>` and the reason.

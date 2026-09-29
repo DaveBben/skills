@@ -1,6 +1,6 @@
 # Review a pull request someone opened
 
-Loaded by the `reviewing` skill when the subject is a pull request or merge request someone opened.
+Loaded by the `reviewing` skill for a pull request, a merge request, or a diff an agent built.
 
 The reviewer holds the diff, the description, the reports from whatever ran in the build, and the code at the merge target. It does not hold the conversation that produced the change, or the author.
 
@@ -29,6 +29,10 @@ A surviving mutant on a test the description lists is a finding. A mutant that c
   * A standard met by leaving something out, which no pattern rule can see: no rate limit, no size limit on a request body, no unique constraint.
   * A failure nobody can see: no log at the point it fails, or a log carrying personal data.
 * **Names that do not match the criterion.** Code that says `status == 2` where the criterion says confirmed and unconfirmed costs every later reader, whether that reader is a person or an agent. Raise the names and the branches a reader cannot map to a criterion. Raise nothing else about style.
+
+## Security
+
+For each place the diff takes data from outside the code's control (a route, an argument, a file, a queue message, a third-party response, rows another system writes), check: its type, size and range are checked at the entry; the sink has its standard defence (a parameterized query, an argument array, template escaping, a strict deserializer); the server checks who the caller is and what it may do; sensitive data goes only where `AGENTS.md` allows and never into a log, an error or a response; no secret is written, logged or returned; an entry others reach has a size, rate or time limit; a failure leaves no half-written record another caller sees. Data from outside reaching a sink without its defence, or passing an entry with no authentication or authorization, is blocking. A request for a security review of a whole repository applies this section to every entry point.
 
 ## Know who wrote the data
 

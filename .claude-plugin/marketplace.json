@@ -9,17 +9,13 @@
     {
       "name": "SDLC",
       "source": "./plugins/SDLC",
-      "description": "Engineering practice run with the human rather than recited at them. define writes the outcome, drafts the stories and writes each story's criteria. architecture spikes the unknowns, asks the numbers, maps processes, modules and flows, and records each expensive decision with the user. The deliver loop shows each story's product-choice criteria as it starts, runs it through failing tests, a build subagent, a review subagent, the full suite and a pull request into main, confirming the criteria before the first push, asking each question as it arises and picking each next ready story. Around it: orient, greenfield, guardrails, spike and reviewing. The user makes every product call and every call expensive to reverse, one question at a time; the agent looks up facts, decides the rest and says what it decided.",
-      "version": "11.0.0",
+      "description": "Engineering practice run with the human rather than recited at them, in four skills. deliver maps an idea, PRD or epic into stories and takes each through criteria the user agrees before anything is pushed, failing tests first, a build, an independent review and a pull request into main. architecture spikes unknowns and records each expensive decision with the user's reasons. guardrails writes AGENTS.md and the checks. reviewing critiques pull requests, epics and the user's own work. The user makes every product call and every call expensive to reverse, one question at a time.",
+      "version": "12.0.0",
       "license": "MIT",
       "skills": [
-        "./skills/orient",
-        "./skills/greenfield",
-        "./skills/guardrails",
-        "./skills/define",
-        "./skills/spike",
-        "./skills/architecture",
         "./skills/deliver",
+        "./skills/architecture",
+        "./skills/guardrails",
         "./skills/reviewing"
       ],
       "author": {

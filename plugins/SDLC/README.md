@@ -9,22 +9,18 @@ The workflow is derived from two podcast episodes, and most of what is specific 
 - **[Florian Buetow on Beyond Coding](https://www.youtube.com/watch?v=W1uG25of2t0)** with Patrick Akil, 10 June 2026. Code review as the bottleneck once agents write the code, and shaping the environment so corrections become rules instead of repeat conversations.
 - **[Dex Horthy on The Pragmatic Engineer](https://www.youtube.com/watch?v=Usufn8IQJgw)** with Gergely Orosz, 15 July 2026. Context engineering, why prose specs drift out from under you, and slicing sized to what a human will actually read.
 
-The plugin is eight skills. Plain Markdown, no build step, nothing to compile.
+The plugin is four skills. Plain Markdown, no build step, nothing to compile.
 
 | Skill | Fires on |
 |---|---|
-| `deliver` | any request to add, change or fix behaviour in an existing app: "add X", "fix the bug where X", "X is broken", "build story X", "work through this epic"; "what should I pick up next"; "write the PR description" |
-| `define` | "I have an idea", "turn this prd into stories", "break this epic down", "write the acceptance criteria", "is this story ready", "what tests should this have", "is this covered" |
-| `architecture` | "let's build this" in an empty repository, "how should this be structured", "should I use X for storage", "write an adr", "we will accept that risk" |
-| `reviewing` | "review what you built", "review PR 412", "review this epic", "give me feedback", "poke holes in this" |
-| `orient` | "orient yourself", "setup claude in this repo", "write AGENTS.md", "streamline my CLAUDE.md" |
-| `guardrails` | "set up guardrails", "we have no linting", "add a rule", "the agent keeps making this mistake", "write a semgrep rule" |
-| `spike` | "prototype this", "let's see if X is feasible", "throwaway" |
-| `greenfield` | "python project template", "template project"; usually called by `architecture` |
+| `deliver` | any change to code that exists: "add X", "fix the bug where X", "X is broken", "build story X"; turning work into stories: "I have an idea", "break this epic down", "write the acceptance criteria"; "work through this epic", "what should I pick up next", "pick up where we left off", "write the PR description" |
+| `architecture` | "let's build this" in an empty repository, "how should this be structured", "should I use X or Y", "write an adr", "snapshot the architecture", "spike this", "is X feasible", "start a project from a template" |
+| `guardrails` | "write AGENTS.md", "get this repo ready for agents", "set up guardrails", "we have no linting", "add a rule", "the agent keeps making this mistake" |
+| `reviewing` | "review PR 412", "review what you built", "security review", "review this epic", "give me feedback", "poke holes in this" |
 
-Session handoff, once part of this plugin, now lives in the separate [context](../context/) plugin. Plugins are independent, so nothing in SDLC calls it; install `context` to have it.
+Session handoff lives in the separate [context](../context/) plugin. Plugins are independent, so nothing in SDLC calls it.
 
-`deliver` carries the whole change loop. It used to be six skills, one per stage, and collapsing them was a bet: that a capable model needs orientation rather than a numbered walk, and that most of the length was telling it things it already knew. The bet paid off. What is left is the part it would get wrong by default.
+Version 12 cut the plugin from eight skills and 2,675 lines to four skills and about 1,200. The eight skills named each other 209 times, references loaded references three levels deep, and one story ran eleven subagents, five of them for review. Now hand-offs run one way (`deliver` may call `architecture` or `guardrails`), each subagent gets one self-contained prompt file, and the steps a program can do are scripts: `story.sh verify` rebases, checks the accepted tests are unchanged and runs the check command, and a push guard holds a story on the machine until the user has confirmed its criteria.
 
 ## Three convictions
 
@@ -40,57 +36,26 @@ Session handoff, once part of this plugin, now lives in the separate [context](.
 
 ```mermaid
 flowchart TD
-    REQ([a request to change something]) --> OR[orient: AGENTS.md, the floor, the tracker]
-    OR --> FR[define: outcome, problem, stories with an outcome line and blockers]
-    FR --> ARC[architecture: spikes, numbers, processes, modules and flows, each decision an ADR]
-    ARC --> REC[record: the feature header and the feature acceptance test]
-    REC --> NX[pick the next ready story]
-    NX --> CR[criteria subagent: story criteria]
-    CR --> SL
+    REQ([a request to change something]) --> ST[start: AGENTS.md, the tracker, open work, grants and deploy check]
+    ST --> SZ{size}
+    SZ -- several stories --> EP[epic: outcome, feature header, story map, feature acceptance test]
+    EP -. expensive decision .-> ARC[architecture: spikes, numbers, map, each decision an ADR]
+    EP --> STORY
+    SZ -- one story --> STORY
 
-    subgraph SL [per story]
-      BR[branch from main] --> TT[test table] --> RED[red commit] --> BLD[build subagent] --> REV[review subagent] --> ATK[attack subagent] --> VER[verify the whole feature, holdout, signals] --> OK([you confirm the criteria]) --> LOG[log] --> PR[pull request into main] --> MRG[wait for merge]
+    subgraph STORY [each story]
+      SET[setup subagent: criteria, test table, red commit] --> SHOW([you see the product-choice criteria]) --> BLD[build subagent] --> REV[review subagent: attack, mutations, subtraction, design, security] --> VER[story.sh verify] --> OK([you confirm the criteria and the description]) --> PR[push, pull request into main, log]
     end
 
-    MRG --> NX
-    MRG --> OUT[close out: promote learnings, check the success metric]
-
-    SL -. pause .-> USER([the user])
-    ARC -. untried crossing .-> SPIKE[spike]
-    OR -. no floor .-> HARN[guardrails]
+    PR --> MRG([you merge]) --> NEXT[next ready story, or close out]
+    ST -. no checks .-> G[guardrails]
 ```
 
-Two phases. The first runs with you, once per feature. The second runs once per story: you see its criteria at once while tests, build and review run, and confirm them before anything is pushed; then a pull request follows, and you answer questions as they come up, and for an epic it keeps going until every story is merged or cut. Every request is sized first, from its outcome and the steps a person takes, never by whether it is called a bug or a feature. A refactor that changes no behaviour needs no criteria: the suite stays green before and after, a review runs, and a pull request opens. A trivial change (copy, layout, colour) is one criterion, a red commit and the fix, on a story branch with a pull request. A single story skips the first phase and runs the per-story loop on a branch from main. Only a request that is several stories, or hides an unknown that changes what gets built, runs the first phase.
+Two phases. For several stories, the first runs with you once per feature: the outcome, the feature header, the story map and the feature acceptance test, with `architecture` for each decision that costs more than a day to reverse. The second runs once per story. A setup subagent writes the story's criteria, the test table, the failing tests and the red commit; you see only the criteria that record a product choice, plus a count of the rest, and the build starts without waiting. A fresh review subagent attacks the criteria with its own tests, applies every mutation, deletes what no test asked for, checks the design against the latest snapshot, and walks a security checklist. Then `story.sh verify` rebases, checks the accepted tests are unchanged and runs the check command. One message shows what changed in the criteria, the review's result and the pull request description, with one question: confirm and open? Only then is anything pushed. You merge. Reviewer comments are checked against the code, and replies are drafted for you to post. A refactor with no behaviour change needs no criteria. A trivial change is one criterion and one red test. A single story skips the first phase.
 
-## With you, once per feature
+**The feature acceptance test.** You write one test for the outcome sentence, through the interface you use, marked strictly expected-to-fail so the suite stays green until the feature is whole. The harness denies that directory to the agent for good. When it passes, the feature is done.
 
-**Orient.** The agent reads `AGENTS.md`, checks the repo gives it feedback of its own (a check command, a suite green on main, a mutation runner), and offers `guardrails` when it does not. When a log exists it tells you in one line what the last story changed. The criteria subagent reads the `Learned` lines, the ADRs and the PRD for each story.
-
-**Define.** `define` runs with you. One sentence for the outcome: what you do differently once this ships, and where you see it. A sentence naming a table or an endpoint is rejected, since it is true when the work is half done. Then the problem, the non-goals, and the stories and spikes with what blocks each. Only stories and spikes get cards: a non-functional requirement, an enabler or a decision becomes criteria or a comment on the story it belongs to. Each story gets a title, an outcome line and its blockers here. Its criteria wait until it starts, when `define` writes its outcome criterion plus its boundary, failure and abuse criteria, each a Given/When/Then in values a stranger could check, using what the earlier stories taught. It walks the failure paths and the abuse paths so the decisions they hide, what a repeated submit returns, how many requests a minute one source gets, how long a half-finished state lives, are yours rather than the builder's, and it keeps the standards nobody would choose against out of the criteria. There is no feature branch: every story branches from main and merges back into it. A spike runs only when a fact about the world blocks the criterion, and its code is deleted.
-
-**Architecture.** `architecture` runs with you, the XP way: find out what is unknown, take a broad starting shape, record each decision, prove the shape with a walking skeleton, and change it by refactoring. For a new application it owns the path end to end, then runs `greenfield` per new repository and hands the walking skeleton to `deliver`. It lists each crossing the walking skeleton makes, the places its outcome passes from one running piece into another, and runs a spike on each untried one before anything else. Then it asks four numbers: how many at once, how fast, how much downtime, how much data. It asks which data is sensitive and where it may be stored. "Unknown" is an answer. It draws three tables: the processes with how many copies run and what starts each, the modules with what each owns, and the flows between them with what a person sees when the other side fails and who else can reach the other side. Every flow that crosses a process, a machine or a repository, the data's shape (what makes a record unique, the rules it must keep and who enforces them, retention, backup and restore, schema changes) and each repository's language are put to you one per message; each answer becomes an ADR, a deferral with what will force it, or waits on a spike. The tables go into `AGENTS.md`, never a separate document, and every build prompt cites the module the story lives in and the flows it may call. For a third-party service whose sandbox cannot produce the volume or the failures you name (429 after 100 a minute, a webhook delivered twice), it records a twin: a fake of the service whose contract suite also runs against recorded real responses on a schedule. It also asks which modules you read on every change.
-
-**Record.** You confirm, reword, cut or add stories in one turn, by title and outcome line. No estimates. The result lives on the project tracker, which the skills require: GitHub Issues, Gitea, Jira, Linear, or any tracker that can create epics and stories, link them, and hold a description and comments. The epic's description is the feature header, its child issues are the stories and spikes in rank order with blocking links, and each story's comments are its log. Stories already on the board are read as the proposed list. ADRs are committed on a plan branch whose pull request you merge before the first story.
-
-**feature acceptance test.** Every criterion of every story has its acceptance test, written by the agent. You write one more for the outcome sentence itself, through the interface you actually use, marked expected-to-fail so the suite stays green until the feature is whole. The agent names the file and what it must assert, gives feedback on what you wrote, and never touches it again: the harness denies that directory to the agent for good. When it passes, the feature is done; when it passes early, the remaining stories are questioned.
-
-**Holdout scenarios.** Optionally, you also write 5 to 15 end-to-end scenarios in the terms of the system and its data (the rows before, the request, what comes back, the rows after), in a separate session under `~/.holdout/`, outside every repository. No agent that writes criteria, tests or code reads them, so the build cannot be fitted to them. The deny list and a shell hook keep agents out, and a canary string catches any copy into the repository. Only verify runs them, and it gets back one line of counts; a failure goes to you, never to a builder.
-
-## Per story
-
-1. **Criteria and setup.** The loop picks every ready story. For each, the agent cuts `story/{slug}/{n}-{short-name}` from main in its own worktree, one per repository the story changes, and a criteria subagent writes the criteria with `define`. A fresh subagent reviews them, and you see its gaps with the criteria. You see only the criteria that record a product choice, plus a count of the rest. The story does not wait: a setup subagent writes the test table with `define` and the red commit, and the build runs, on the proposed criteria. Before the first push the story waits until you confirm or edit them; on a tracker they then go to the story's issue. A story that spans repositories merges the called repository's pull request first, compatible with old callers, then the caller's, and removes the old form in a later story.
-2. **Table.** `define` proposes one entry per test: an index table with the level, the generator that produced it and the change that must turn it red, then a bold Given/When/Then block per test. The acceptance row runs through the interface you actually use, a browser, an API or a command, and cannot be cut. The agent applies the cut rules itself.
-3. **Red.** Every row as a failing test, committed on its own with the criteria, the table and each test's failure line in the message. A guardrails hook refuses edits to those files, and to the checks, until the merge; CI runs main's copy of the checks.
-4. **Build.** A subagent with one prompt: the contract, a prohibition list of things models add unasked, an instruction to grep for what exists before writing a helper, the environment facts it would otherwise improve into something wrong, and each alternative an ADR rejected. The agent runs the tests itself afterwards; the builder's report is a claim. A red row or a touched file outside the story resets the tree to the red commit and reissues once, then the story is split. A row the builder shows cannot be satisfied comes back to you to correct instead. A choice the builder meets that changes what a person sees, such as wording, a default or an error message, comes back to you as a question.
-5. **Review and attack.** A `reviewing` subagent that saw none of the chat runs four passes: correctness (every mutation applied, every row goes red), subtraction (delete what no row asked for), scars (pinned values unchanged), design (each place the change departs from the latest snapshot or an ADR, which the pull request lists under Design). Then a refactor while green, and a Done block listing every choice made without you and every refactor it proposes but did not make. Then a security review in two subagents: one maps where data enters, crosses boundaries, is interpreted and is stored when sensitive, into a temporary `attack-surface.md` kept for the feature; the other reviews the branch against that map. Then a fresh subagent, on another model where the harness offers one, tries to disprove every finding from both reviews against the code; only confirmed findings are reported, and each confirmed blocking finding becomes a test to add. Then a fresh subagent, given only the criteria, the interface and the diff, writes tests that try to break a criterion, on another model where the harness offers one. An attack counts only when its test goes red on the built code.
-6. **Verify.** The story branch rebased on main, the full suite, and the story's acceptance tests through the interface you actually use, against the running system. Every earlier acceptance test runs too, then your holdout scenarios when you keep them. A script lists every signal that you should read code: a change to the checks themselves, a skipped test or silenced check, a test weakened after the red commit, a test value branched on in production code, and any path under the `# owner reads:` sections of `CODEOWNERS` (auth, secrets, money, health data, migrations, deploys, dependencies).
-7. **Log.** A comment on the story's issue records what shipped, what was learned, any proposed refactor and, for a bug, why nothing caught it. At merge it becomes the resolution comment.
-8. **Pull request** into main. Its first line says `Read code: none` or names the slices to read, each at most 40 lines with what it decides and the one question to answer; for the first ten stories you read every diff anyway, to test the list. Its body is written by `deliver` for a reviewer who has never opened the repo: why, a table of criteria and the tests that prove them, how to try it on the branch with the result it produced, what changed, the risk (auth, money, health data, a migration, anything a revert cannot undo), what it assumes, what to read first, the other tests and the Done block collapsed, and the signal you will read to know it worked. Under one screen.
-9. **Merge.** You merge into main, and the story can deploy, behind a flag when it exposes half a feature. The agent polls where it can, otherwise ends the turn with the link. Then the loop picks the next one.
-
-When the story list is empty, the agent promotes what was learned, asks whether the PRD's success metric moved, and asks which pause or check cost time without catching anything. You observe each story's signal once deployed.
-
-**For an epic the loop runs until every story is merged or cut.** Criteria, setup, build, review and verify each run in a subagent, so the main session stays small. While a pull request waits for your review, the loop starts other stories whose blockers have merged, each in its own worktree; a story whose blocker is still in review waits for that merge. The loop splits stories and adds new ones itself, and tells you. It parks one story, and keeps working on the rest, when: its criteria wait for your confirmation; your feature acceptance test is not written yet; the builder asks about a choice a person would see; an accepted test row turns out wrong; a deferred or new architecture decision is forced; a test row exposes a product decision no PRD or ADR records; a criterion cannot be tested or contradicts `AGENTS.md`; the story removes behaviour your feature acceptance test asserts; the feature acceptance test passes; the live PRD contradicts the header; you said you will write the code. It asks each question the moment it arises and keeps working on other stories while it waits. There is no fixed story order. The loop picks from the stories whose blockers have merged, starting from your rank, and names every departure from it. A trivial or single-story request stops after its merge.
+**Parking.** A story waits for you only on: its criteria before the first push; a builder question about what a person sees; a test row that turns out wrong; a product decision nothing records; a deferred architecture decision; the feature acceptance test. Every question is sorted first: facts are looked up, a fact only a colleague knows goes on the issue for that colleague, reversible technical choices are decided and listed, and you get product intent and expensive choices one question at a time. Open questions live on the tracker and are never repeated in chat.
 
 ---
 
@@ -101,9 +66,9 @@ When the story list is empty, the agent promotes what was learned, asks whether 
 | Spike findings | the spike issue's resolution comment, as `Learned` lines | durable; the code is deleted |
 | Feature header and story log | the epic's description, and one comment per story | durable, kept after the last story |
 | ADR | `docs/adr/architecture/` or `docs/adr/{slug}/` | durable, committed before the code that depends on it |
-| Architecture snapshot: one unit end to end, core logic, storage, failures, code map, decisions | `docs/architecture/snapshots/<date>.md`, pointed at by `AGENTS.md` | durable, never edited; a story that changes the shape writes a new one |
+| Architecture snapshot: what changed, two diagrams, key flows, owners, then storage, failures, code map, decisions | `docs/architecture/snapshots/<date>.md`, pointed at by `AGENTS.md` | durable, never edited; a story that changes the shape writes a new one |
+| Architecture summary | `docs/architecture/summary.md` | the user's own words: purpose, ranked qualities, tradeoffs, constraints, risks |
 | feature acceptance test | the test tree's `feature-acceptance` directory | durable; written by the user, denied to the agent for the life of the repo |
-| Holdout scenarios | `~/.holdout/<repository>/<slug>/`, outside the repo | the user's; spent ones may become regression tests at close-out |
 | `# owner reads:` sections | `CODEOWNERS` | durable; the paths you read on every change |
 | Failing tests, then passing | the repo's test tree | durable; the red commit message holds the criteria and the table |
 | Rules and contracts | the repo, via `guardrails` | durable, added to when a bug's `Not caught by` names a gap |
@@ -119,7 +84,7 @@ Prose and code become two sources of truth and drift apart. A rule that executes
 
 The ADR is the exception, and it is one for a specific reason: it makes no claim about what the system currently does, so there is nothing for it to drift from. It says what was true at a moment and why a door was closed. What it records, the alternatives that lost and the assumptions the decision rests on, is not recoverable from the code and cannot be regenerated the way research can.
 
-The tracker is the other exception, and it is kept small on purpose: an epic description under 40 lines and one log comment per story. At close-out every unpinned `Learned` line is promoted to a test, an ADR or an `AGENTS.md` line, so nothing the log knows lives only in a comment.
+The tracker is the other exception, and it is kept small on purpose: an epic description under 15 lines and one log comment per story. At close-out every unpinned `Learned` line is promoted to a test, an ADR or an `AGENTS.md` line, so nothing the log knows lives only in a comment.
 
 This is also why the red commit message carries the criteria and the table verbatim. The reason a number is 100 rather than 150 has to survive the conversation that settled it.
 
@@ -127,29 +92,13 @@ This is also why the red commit message carries the criteria and the table verba
 
 # The skills around the loop
 
-**`guardrails` prepares a codebase.** It runs before feature work, not as part of it. It reads what exists rather than assuming a fresh project, then branches on greenfield or brownfield, and the branch is not project age: a two-week-old repo with a thousand lines and no linter is brownfield.
+**`guardrails` prepares a codebase.** It writes `AGENTS.md`, the one file every session reads, from a short interview and the repository itself. Then it sets up the checks, language agnostic: fourteen slots, what a filled slot has to do, and which of three layers it fires in (every edit, turn end, commit and CI), leaving the tool to the model. What it carries is what the model gets wrong by default: the placement rule in seconds, the settings that are decisions rather than defaults, watching each check fail once, and loop safety wired before the checks. Each rule goes to the first place that holds: a program, then a path-scoped rule file, then one line in `AGENTS.md`. On brownfield, rules land by one of three choices (new files only, a cleanup of its own, or a ratchet); adding rules and leaving them red is not one.
 
-It is language agnostic, and deliberately carries no toolchain. It names fourteen slots, states what a filled slot has to do and which of the three layers it fires in, and leaves the choice of tool to the model, which already knows the ecosystem. What it does carry is the part the model would otherwise get wrong: the placement rule, in seconds, for which layer a check belongs to; the settings that are decisions rather than defaults, each with a silent failure mode; and the requirement to watch a check fail once before trusting it.
+**`architecture` decides and records.** It spikes each untried crossing, drafts the numbers for you to correct, draws the process, module and flow tables, and puts each expensive decision to you one at a time, asking for your pick before its own. Each answer is an ADR written the moment it is made, with `Alternatives rejected` and `Detector`. It also stands a new repository up from a template with `scaffold.sh`, and runs spikes: one question, a timebox, findings recorded as they surface, code deleted.
 
-Greenfield runs forward: read the dependency shape `architecture` wrote into `AGENTS.md`, encode every in-process flow as an architectural test, then set up the rest of the checks. It does not work out what the system should be, and where the shape is still open it encodes the language-level checks now and comes back for the architectural tests once the first change has settled it. Brownfield runs the same ground in the opposite direction: fill the slots, then have the agent draw the current dependency graph and encode the edges that surprise you, because those are the ones nobody chose, and only then name the anti-patterns already in the code and write rules for them. Encoding the whole current graph makes the mess permanent.
+**`reviewing` reviews anything already made.** A pull request or a diff an agent built (what it lands on, what the tools reported, the five things no tool reports, a security checklist), an existing epic, or work you made (every point sorted into wrong, unverified, shape or preference, with the rewrite left to you). A second agent tries to refute every finding before it is reported. Reviewing your own work is the manual-flying practice the loop no longer forces.
 
-Both paths end at the same place, a feedback loop split across three layers by cost: format and lint on every edit, whole-package checks at turn end, everything at commit and in CI. Each layer is a subset of the same command list, so what gets fixed at edit time is never rediscovered at commit time. The loop safety is wired before the checks: a retry counter, re-verification after each fix, a skip when nothing relevant changed, and failing open when a checker cannot run. A blocking check with no escape traps the agent on an error it cannot fix.
-
-Three things go into the instructions file before any correction has been made, because none of them shows up in a diff. That silencing a check is not passing it, which goes in verbatim, because the pressure to loosen a config is created by the gate this skill just installed. Where a future correction is meant to land: a static check into the rules directory, a dependency direction into the contracts, a file-specific instruction into a path-scoped rule, anything conversational into the root file. And an answer-length rule, offered rather than imposed, since that file is the user's.
-
-An instruction that governs the conversation is never path-scoped, since path frontmatter would load it only when a matching file is touched. The root file is capped at 100 lines, because every line in it costs context on every turn and a bloated one makes the agent ignore the rules that matter.
-
-Brownfield gets one thing greenfield does not, and it is a decision rather than a step. Every rule just added is violated by code that predates it, so enforcement is scoped to files authored from here on, the backlog is cleaned up as a change of its own, or a ratchet holds each file's finding counts where they are and lets them only fall. Each is a real answer. Adding rules and leaving them red is not.
-
-**`architecture` also records one decision.** Recording is a moment, not a stage: an expensive or irreversible choice, an accepted hazard, or an explicitly rejected alternative. `architecture` takes that path alone when the request is one decision, and writes the ADR the moment the decision is made rather than batching records at the end, by which time the alternatives that lost are gone. Its template always carries `Alternatives rejected` and `Detector`, because an ADR with no rejected alternative recorded a preference rather than a decision.
-
-**`reviewing` reviews anything already made.** It picks one review by subject: code the agent built (four passes, then a refactor while green), a pull request someone opened (what it lands on, what the tools reported, then the five things no tool reports), an existing epic (it calls `define` for the rules the epic is judged against), or work you made (every point sorted into wrong, unverified, shape or preference, with the principle named and the rewrite left to you). Every review of code ends with a security review against a map of the attack surface. Reviewing your own work is the manual-flying practice the loop no longer forces.
-
-**`guardrails` also puts one rule where it will be followed.** A check a program runs is followed every time, and an instruction an agent reads is followed when the agent remembers it. So each rule goes to the first place that holds: a linter setting, a type check, a dependency contract or a Semgrep rule; then a rule file the agent loads only for matching paths; then one line in `AGENTS.md`. A one-rule request loads the rules reference and only the one setup section its rule needs. It also audits the instruction files and deletes each line once its check lands.
-
-**`orient`, `define`, `spike` and `greenfield`** each do one step the loop calls by name, and each runs on its own when asked: write `AGENTS.md`; turn an ask into stories and spikes; write one story's testable acceptance criteria and its test table; answer one question with throwaway code; stand a new repository up from a template, in the language `architecture` recorded.
-
-**Session handoff lives in the [context](../context/) plugin** as the `handing-off` skill. Plugins are independent, so nothing in SDLC calls it; install `context` to have it.
+**Session handoff lives in the [context](../context/) plugin** as the `handing-off` skill.
 
 ---
 
@@ -255,9 +204,9 @@ Judgment calls go to you. The skills surface the decision, the failure mode or t
 /plugin install SDLC@davebben-skills
 ```
 
-The eight skills surface under their own names.
+The four skills surface under their own names.
 
-The plugin also installs two hooks. They print `hooks/writing.md`, the writing rules every reply and document follows, into every session and every subagent, in every project where the plugin is enabled. That costs about 1,600 tokens per session and per subagent.
+The plugin also installs two hooks. They print `hooks/writing.md`, the writing rules every reply and document follows, into every session and every subagent, in every project where the plugin is enabled. That costs about 900 tokens per session and per subagent.
 
 **Any other agent** (Codex, Cursor, Windsurf, and more), via the [`skills` CLI](https://github.com/vercel-labs/skills):
 
