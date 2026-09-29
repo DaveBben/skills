@@ -4,7 +4,7 @@ description: "Use this skill before touching any file on a request to add, chang
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "17.1.1"
+  version: "17.1.2"
 ---
 # Deliver
 
