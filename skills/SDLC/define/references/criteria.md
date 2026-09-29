@@ -16,6 +16,8 @@ Open:     <each undecided value, who decides it, and which criterion waits on it
 Interpreted: <each input this story adds and what interprets it as instructions; omit when none>
 ```
 
+A criterion records a product choice when it holds a number, a rule a person could argue with, or what happens at a boundary the requirements leave open, or when it touches a data shape, a trust boundary, an interface another team calls, a value a person sees, personal or health data, or a record lost or half stored.
+
 Criterion a is the outcome. The criteria after it are the boundaries, failure paths and abuse paths that apply to that outcome. Each criterion is proved by its own acceptance test: an automated test that checks what the person sees. The outcome criterion's test drives the interface the person uses. When a screen only shows what a service returns, the tests for the other criteria may drive that service.
 
 ## 1. Who observes
@@ -110,7 +112,7 @@ Check the story against these before handing it on. A no returns the work to the
 * Every abuse path from section 4 that matters has a criterion with a number in it.
 * Nothing in the criteria is a standard nobody would choose against.
 * The story leaves a person able to do something they could not do before.
-* The story covers one workflow step and one variation, and has no more criteria than the number per story `AGENTS.md` states, or 8 when it states none. When it covers more, say it is several stories and split it by `references/work.md`.
+* The story covers one workflow step and one variation, and has no more criteria that record a product choice than the number per story `AGENTS.md` states, or 8 when it states none. When it covers more, say it is several stories and split it by `references/work.md`.
 * Every undecided value is marked undecided and names who decides it.
 
 ## 10. Review a story

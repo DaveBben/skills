@@ -2,20 +2,20 @@
 
 Loaded by the `architecture` skill for every decision it records: an answer from its Decide step, an expensive or irreversible choice, an accepted hazard, a rejected alternative, a choice a spike made alone that the user chose to record, knowledge that cost time to acquire, or a test the story's test table dropped as "no test required" whose absence a later reader would question. An ADR (architecture decision record) is one Markdown file under `docs/adr/` that says what was decided, why, and what it gave up.
 
-Write it immediately when the decision is made, not at the end of the feature, and only after the user gives the reasons in their own words.
+Write it immediately when the decision is made, not at the end of the feature, and only after the user gives or confirms the reasons.
 
 ## Ask before writing
 
-The reasons in the ADR are the user's. Never fill them in from what the agent can infer.
+The reasons in the ADR are the user's. Never record one the user has not given or confirmed. When the user deferred to the agent's recommendation, record the agent's reason, marked as the agent's, with the line "The user deferred to the agent's recommendation."
 
-* **From the Decide step, the answer is the reasons.** When the decision came from putting alternatives and a tradeoff to the user, their answer to that message is the reasons. Ask nothing more unless it gives no reason at all.
-* **Otherwise ask three things in one message,** then wait. Name the obvious route in the third question:
+* **From the Decide step, the answer is the reasons.** When the decision came from putting alternatives and a tradeoff to the user, their answer to that message is the reasons. Ask nothing more unless it gives no reason at all. An answer that defers to the agent is the reasons: record it by the rule above and ask nothing more.
+* **Otherwise draft the three answers** from the conversation, the code and any spike findings, and put them to the user in one message to correct, then wait. Name the obvious route in the third question. Record the answers as the user leaves or rewrites them, and write "unknown" for any the agent could not draft:
 
 ```text
-Before recording <decision>:
-1. Why this?
-2. What are the tradeoffs?
-3. Why not <the obvious route>?
+Before recording <decision>, correct anything wrong:
+1. Why this? <draft>
+2. What are the tradeoffs? <draft>
+3. Why not <the obvious route>? <draft>
 ```
 
 * **When the decision was the agent's own choice,** state the agent's reason, the obvious alternative and the tradeoff in the same message, and ask the user to confirm, change or replace the reason.

@@ -8,7 +8,7 @@ Where the harness has no subagents, run it in a fresh session where the harness 
 
 ## The refuter's work
 
-Treat every candidate as false until the subject shows the failure. For each one, read what the case passes through, run the case where you can, and append one verdict to its line in `findings.md`:
+Treat every candidate as false until the subject shows the failure. For text posted as the user, each claim about how code, a service or data behaves is a candidate, false until a line shows it; the refuter gets every repository the text names. For each one, read what the case passes through, run the case where you can, and append one verdict to its line in `findings.md`:
 
 * **`confirmed`:** name the `<file>:<line>` read or the command run that shows the failure.
 * **`refuted`:** name the line that stops the case: a guard, a type, a constraint, or a caller that never passes that input.
@@ -28,6 +28,7 @@ When you were given an output file, write the verdicts into it by the table belo
 | Pull request | `issue` comment | `question` comment with the settling test | `Refuted:` line in the review body |
 | Done block | a `review` candidate on `Findings:`, a `security` one on `Security:` | `Exceptions:` | `Refuted:` |
 | Feedback | `Wrong:` point | `Unverified:` point with the settling test | dropped |
+| Reply posted as the user | the claim stays, citing `<file>:<line>` | reworded as not checked, or dropped | removed |
 | Epic report | its report line | its report line, ending `(unsettled: <settling test>)` | `Refuted:` line |
 | Security review of the whole repository | one line: `<file>:<line>`, the path, the input that breaks it, blocking or not | the same, ending `(unsettled: <settling test>)` | `Refuted:` line |
 

@@ -12,7 +12,7 @@ A crossing is a place the walking skeleton's outcome passes from one running pie
 
 ## 3. Numbers and sensitive data
 
-Skip any answer `AGENTS.md` already records. Ask the rest in one message:
+Skip any answer `AGENTS.md` already records. Draft each other answer from `AGENTS.md`, the code and the tracker, and put the drafts to the user in one message to correct; write "unknown" where nothing settles one:
 
 * How many people or requests at once.
 * How long a response may take, and for what share of requests.

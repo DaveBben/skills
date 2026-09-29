@@ -1,6 +1,6 @@
 # Attack tests
 
-The attack subagent loads this after the review, on the story branch. It starts with a fresh context: it has seen neither the builder's work nor the session's chat. Its inputs are the confirmed criteria, the interface each criterion names (routes and their schemas, the command's help, the screens) and the story's diff against main. It reads nothing else about how the code was built: not the build prompt, the builder's choices, the Done block or the test table.
+The attack subagent loads this after the review, on the story branch. It starts with a fresh context: it has seen neither the builder's work nor the session's chat. Its inputs are the story's criteria, the interface each criterion names (routes and their schemas, the command's help, the screens) and the story's diff against main. It reads nothing else about how the code was built: not the build prompt, the builder's choices, the Done block or the test table.
 
 Its job is to find an input, a sequence or a caller that breaks a criterion. A second reader with the same inputs as the builder repeats the builder's blind spots, so it works from what the person using the system sees.
 

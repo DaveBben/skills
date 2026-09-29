@@ -4,7 +4,7 @@ description: "Use this skill when the shape of a system must be decided, when an
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "2.6.0"
+  version: "2.7.0"
 ---
 # Architecture
 
@@ -49,7 +49,7 @@ List the decisions this system cannot cheaply reverse:
 * the system's trust boundaries (the Who else reaches To answers from section 4 of the plan reference) and consistency boundaries
 * each choice a number or a sensitive-data answer from section 3 of the plan reference forces, such as a connection pool, a read replica, failover or encryption
 
-For each one the outcome touches, state in chat what the code already settles, with the file that settles it. Put the rest to the user one per message: the problem, the constraints, and the alternatives with their tradeoff, marking none as recommended. Ask which the user would pick, and wait. Once they answer, say in one sentence whether the agent would have picked differently and why, and let them keep or change their pick. Record each answer by [references/adr.md](references/adr.md) before the next decision is asked and before any code that depends on it.
+For each one the outcome touches, state in chat what the code already settles, with the file that settles it. Put the rest to the user one per message: the problem, the constraints, and the alternatives with their tradeoff, marking none as recommended. Ask which the user would pick, and wait. An answer of "not sure" or "you pick" is an answer: give the recommendation and its reason, and record it. Once they answer, say in one sentence whether the agent would have picked differently and why, and let them keep or change their pick. Record each answer by [references/adr.md](references/adr.md) before the next decision is asked and before any code that depends on it.
 
 * **A data rule that holds for every feature** (sensitive data, retention, backup) goes in one ADR under `docs/adr/architecture/` and one Critical Constraints line, never on a feature header. Record the five data-shape answers as one ADR per store.
 * **Turn each answer a story could break into a constraint** on the feature header's `Constraints:` line, so the `define` skill writes it as a criterion on every story that could break it. "Writing the same sample twice stores one row", "an upload without the credential is refused" and "a row with no unit is refused" are each a criterion with a test.

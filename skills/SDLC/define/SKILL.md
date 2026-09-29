@@ -4,7 +4,7 @@ description: "Use this skill when work must be defined before it is built: an id
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 # Define
 
@@ -27,7 +27,7 @@ Load exactly one reference.
 | The tests of a change, whether existing code is covered, or tests for behaviour that already exists | [references/test-plan.md](references/test-plan.md) |
 | Holdout scenarios, asked for by name in a session opened in a holdout directory outside every repository | [references/holdout.md](references/holdout.md); no other session loads it |
 
-* **Tests before criteria.** When a change's criteria are not yet written or not yet confirmed by the user, write them by `references/criteria.md` first and wait for the confirmation, then load `references/test-plan.md`.
+* **Tests before criteria.** When a change's criteria are not yet written or not yet confirmed by the user, write them by `references/criteria.md` first and wait for the confirmation, then load `references/test-plan.md`. Under `deliver`, which builds on proposed criteria and confirms them before the first push, load the test plan without waiting.
 * **Coverage of existing code:** go straight to the test plan's section "Check existing tests for gaps", taking the behaviours from the code. Write no story.
 * **Tests for behaviour that already exists:** take the behaviours from the code, write no criteria, and keep rows that are already green, since each pins today's behaviour.
 * **Trivial mode.** When `deliver` sizes a request as trivial, write criterion a only, the outcome, and skip sections 3 to 5 of `references/criteria.md` and the ready check's failure and abuse items.

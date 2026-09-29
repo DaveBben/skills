@@ -4,7 +4,7 @@ description: "Use this skill when something must be reviewed or critiqued: code 
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "1.11.0"
+  version: "1.12.0"
 ---
 # Reviewing
 

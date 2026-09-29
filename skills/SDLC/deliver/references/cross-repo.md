@@ -9,3 +9,5 @@ Cut a branch with the same name in each repository the story changes, taken from
 3. **Contract.** When an old form exists, removing it is a later child issue of the epic, blocked by the story that migrated the last caller.
 
 Each pull request links the others. Setup, build, review and verify run once per repository, in expand-then-migrate order. The ADRs and the feature acceptance test live in the first repository on `Repositories:`. Each `AGENTS.md` rewrite goes in the pull request of the repository it describes. The story's log comment is written once, when its last pull request opens. The story is done when all of its pull requests have merged, in every repository.
+
+Before each repository's setup, read its `AGENTS.md`, else its `CLAUDE.md`, and give its rules to that repository's subagents.

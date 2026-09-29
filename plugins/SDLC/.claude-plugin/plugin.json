@@ -1,7 +1,7 @@
 {
   "name": "SDLC",
-  "version": "10.0.0",
-  "description": "Engineering practice run with the human rather than recited at them. define writes the outcome, drafts the stories and writes each story's criteria. architecture spikes the unknowns, asks the numbers, maps processes, modules and flows, and records each expensive decision with the user. The deliver loop confirms each story's criteria as it starts, then runs it through failing tests, a build subagent, a review subagent, the full suite and a pull request into main, asking each question as it arises and picking each next ready story. Around it: orient, greenfield, guardrails, spike and reviewing. The user makes every product call and every call expensive to reverse, one question at a time; the agent looks up facts, decides the rest and says what it decided.",
+  "version": "11.0.0",
+  "description": "Engineering practice run with the human rather than recited at them. define writes the outcome, drafts the stories and writes each story's criteria. architecture spikes the unknowns, asks the numbers, maps processes, modules and flows, and records each expensive decision with the user. The deliver loop shows each story's product-choice criteria as it starts, runs it through failing tests, a build subagent, a review subagent, the full suite and a pull request into main, confirming the criteria before the first push, asking each question as it arises and picking each next ready story. Around it: orient, greenfield, guardrails, spike and reviewing. The user makes every product call and every call expensive to reverse, one question at a time; the agent looks up facts, decides the rest and says what it decided.",
   "license": "MIT",
   "author": {
     "name": "DaveBben"

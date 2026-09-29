@@ -77,7 +77,7 @@ Decide what each candidate is before it gets a card. Only stories and spikes get
 | Task | One step of building a story | A row in the story's test plan, never a card or sub-task |
 | Decision | A value or choice nobody has made yet | A comment on the story it blocks (section 6) |
 
-A story is the right size when a person can see its change on its own, it covers one step and one variation, and its criteria stay within the number per story `AGENTS.md` states, or 8 when it states none. Split a larger one with the first pattern that works:
+A story is the right size when a person can see its change on its own, it covers one step and one variation, and its criteria that record a product choice stay within the number per story `AGENTS.md` states, or 8 when it states none. Split a larger one with the first pattern that works:
 
 1. **Workflow step:** one story per step the person takes.
 2. **Operation:** create, then read, then update, then delete.
