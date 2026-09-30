@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[Question title] - Stack Overflow</title>
+<style>
+  body { -webkit-text-size-adjust: 100%; margin: 0; background: #fff; color: #232629; font: 15px/1.5 -apple-system, "Segoe UI", system-ui, sans-serif; }
+  header { border-top: 3px solid #f48225; box-shadow: 0 1px 2px rgba(0,0,0,.08); padding: 8px 12px; font-size: 1.1rem; }
+  header b { font-weight: 700; } header span { font-weight: 400; }
+  main { max-width: 720px; margin: 0 auto; padding: 12px; }
+  h1 { font-size: 1.3rem; font-weight: 400; line-height: 1.35; margin: 8px 0; color: #3b4045; }
+  .meta { font-size: .8rem; color: #6a737c; border-bottom: 1px solid #e3e6e8; padding-bottom: 10px; }
+  .post { display: grid; grid-template-columns: 40px 1fr; gap: 12px; padding: 14px 0; border-bottom: 1px solid #e3e6e8; }
+  .votes { display: grid; justify-items: center; align-content: start; gap: 2px; color: #6a737c; }
+  .votes .arrow { width: 32px; height: 32px; border: 1px solid #d6d9dc; border-radius: 50%; display: grid; place-items: center; font-size: 12px; }
+  .votes .n { font-size: 1.2rem; color: #232629; }
+  .accepted { color: #2f6f44; font-size: 1.5rem; }
+  .body { min-width: 0; }
+  pre { tab-size: 4; background: #f6f6f6; border-radius: 6px; padding: 12px; overflow-x: auto; font-size: 12.5px; line-height: 1.45; }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; }
+  p code, li code, .comments code { background: #e3e6e8; padding: 1px 4px; border-radius: 3px; font-size: 13px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0; }
+  .tags a { background: #e1ecf4; color: #39739d; font-size: 12px; padding: 3px 6px; border-radius: 4px; text-decoration: none; white-space: nowrap; }
+  .sig { display: flex; justify-content: flex-end; }
+  .card { background: #d9eaf7; border-radius: 4px; padding: 6px 8px; font-size: .78rem; color: #6a737c; }
+  .card.plain { background: none; }
+  .card a { color: #0074cc; text-decoration: none; }
+  .comments { margin-top: 10px; border-top: 1px solid #e3e6e8; font-size: .85rem; overflow-wrap: anywhere; }
+  .comments div { padding: 6px 0; border-bottom: 1px solid #e3e6e8; }
+  .comments .u { color: #0074cc; }
+  .comments .op { background: #e1ecf4; padding: 0 4px; border-radius: 3px; }
+  .comments .t { color: #9199a1; }
+  h2 { font-size: 1.1rem; font-weight: 400; margin: 20px 0 0; }
+</style>
+</head>
+<body>
+<header><b>stack</b><span> overflow</span></header>
+<main>
+<h1>[Question title, as a searcher would type it]</h1>
+<div class="meta">Asked [2 years ago] · Modified [4 months ago] · Viewed [38k] times</div>
+
+<!-- The question -->
+<div class="post">
+  <div class="votes"><div class="arrow">▲</div><div class="n">[42]</div><div class="arrow">▼</div></div>
+  <div class="body">
+    <p>[What the asker has and what they want, in two or three sentences. Inline code looks like <code>this</code>.]</p>
+    <p>I tried this:</p>
+<pre><code>[minimal attempt, under 10 lines]</code></pre>
+    <p>and got:</p>
+<pre><code>[exact error or wrong output, copied from a real run]</code></pre>
+    <p>[The one or two questions a beginner asks next.]</p>
+    <div class="tags"><a>[language]</a><a>[library]</a><a>[concept]</a></div>
+    <div class="sig"><div class="card">asked [Mar 3, 2024]<br><a>[asker]</a> · [311]</div></div>
+  </div>
+</div>
+
+<!-- N equals the number of answer posts below -->
+<h2>[N] Answers</h2>
+
+<!-- The accepted answer: the only post with the check mark -->
+<div class="post">
+  <div class="votes"><div class="arrow">▲</div><div class="n">[87]</div><div class="arrow">▼</div><div class="accepted">✔</div></div>
+  <div class="body">
+    <p>[One sentence naming what went wrong in the attempt.]</p>
+<pre><code>[working code, 10 to 15 lines]</code></pre>
+    <p>[One sentence introducing the trace.]</p>
+<pre><code>[one input traced through the core step with real values]</code></pre>
+    <p>Things that will bite you:</p>
+    <ul>
+      <li>[mistake, with the exact warning or error it produces in <code>code</code>]</li>
+      <li>[mistake]</li>
+    </ul>
+    <div class="sig"><div class="card plain">answered [Mar 3, 2024]<br><a>[answerer]</a> · [18.2k]</div></div>
+    <div class="comments">
+      <!-- One exchange is two divs; repeat for each. The asker's name carries class "u op" -->
+      <div>[follow-up question] – <span class="u op">[asker]</span> <span class="t">[Mar 3, 2024]</span></div>
+      <div>@[asker] [reply in two or three sentences] – <span class="u">[answerer]</span> <span class="t">[Mar 3, 2024]</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- A further answer: repeat this block for each technique -->
+<div class="post">
+  <div class="votes"><div class="arrow">▲</div><div class="n">[23]</div><div class="arrow">▼</div></div>
+  <div class="body">
+    <p>[When to prefer this technique, in one sentence.]</p>
+<pre><code>[code]</code></pre>
+    <p>[What the code does to the data, in two or three sentences.]</p>
+    <div class="sig"><div class="card plain">answered [Aug 19, 2024]<br><a>[another user]</a> · [4,107]</div></div>
+    <div class="comments">
+      <div>[at most one comment] – <span class="u">[another user]</span> <span class="t">[Feb 2, 2025]</span></div>
+    </div>
+  </div>
+</div>
+</main>
+</body>
+</html>

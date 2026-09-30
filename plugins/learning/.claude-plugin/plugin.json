@@ -1,0 +1,9 @@
+{
+  "name": "learning",
+  "version": "0.1.0",
+  "description": "Skills for learning a topic in a format the reader absorbs. teach-like-stackoverflow answers a programming or computer-science question as a mock Stack Overflow thread on one HTML page: an asker's real error, an accepted answer with short working code and a traced example, follow-up comments, and further answers that each solve it a different way. Every code block is run before it goes on the page.",
+  "license": "MIT",
+  "author": {
+    "name": "DaveBben"
+  }
+}

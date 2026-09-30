@@ -4,7 +4,7 @@
   "owner": {
     "name": "DaveBben"
   },
-  "description": "Dave's personal collection of Claude Code plugins, one per area of life. Install the ones you want. The SDLC plugin takes an engineering change from a vague ask to a verified production change; more areas (finance, learning, fitness) are on the way.",
+  "description": "Dave's personal collection of Claude Code plugins, one per area of life. Install the ones you want. The SDLC plugin takes an engineering change from a vague ask to a verified production change; more areas (finance, fitness) are on the way.",
   "plugins": [
     {
       "name": "SDLC",
@@ -57,6 +57,19 @@
       "license": "MIT",
       "skills": [
         "./skills/sound-like-me"
+      ],
+      "author": {
+        "name": "DaveBben"
+      }
+    },
+    {
+      "name": "learning",
+      "source": "./plugins/learning",
+      "description": "Skills for learning a topic in a format the reader absorbs. teach-like-stackoverflow answers a programming or computer-science question as a mock Stack Overflow thread on one HTML page: an asker's real error, an accepted answer with short working code and a traced example, follow-up comments, and further answers that each solve it a different way. Every code block is run before it goes on the page.",
+      "version": "0.1.0",
+      "license": "MIT",
+      "skills": [
+        "./skills/teach-like-stackoverflow"
       ],
       "author": {
         "name": "DaveBben"
