@@ -30,7 +30,7 @@ Name every conflict before changing it: two tools on one slot, two package manag
 | `env_check` | session start | report whether the environment is built, naming the fixing command |
 | `tests` | turn end when fast enough, else commit | run the suite, failing past the time limit `AGENTS.md` states |
 | `e2e` | CI, and commit when under a minute | drive the interface users use: a browser, a running service, the command |
-| `deadcode`, `duplication`, `audit`, `secrets` | commit | unreferenced symbols; new clones in changed files; dependencies against a CVE feed; credentials |
+| `deadcode`, `duplication`, `audit`, `secrets` | commit | unreferenced symbols; new clones in changed files; dependencies against a CVE feed; credentials and personal data in staged changes, by "Secrets and personal data" below |
 
 Edit time finishes one file in under a second; turn end covers the whole project in under five seconds; everything else, and anything needing the network, runs at commit. Where no single-file semantic check exists, leave `fast_check` returning 0 and wire `types` at turn end. Where no contract tool exists, write contracts as tests on the import graph. Use Semgrep for `rules` unless the project has a pattern engine.
 
@@ -97,6 +97,19 @@ The red commit is the one commit that skips the `tests` and `e2e` hooks, since i
 * **`ratchet.py`:** for brownfield, holds existing code to its baseline finding counts per rule per file.
 
 A missing mutation or `e2e` slot does not block the story loop: the review applies mutations by hand, and the first story adds the `e2e` runner.
+
+## Secrets and personal data
+
+Nothing secret or personal reaches history. Wire every layer; each catches what the one before misses.
+
+* **At commit:** one secret scanner as the `secrets` hook over staged changes, offline, for example Gitleaks through pre-commit (hook id `gitleaks`), pinned like every hook.
+* **Personal data rules** in the scanner's config committed at the root (for Gitleaks, `.gitleaks.toml` with `[extend] useDefault = true` and one `[[rules]]` entry each): one rule per identifier format the data this product touches holds, taken from the stores `AGENTS.md` lists: a national identity number such as a US Social Security number, the product's record or account number format, a date of birth beside a name field. Show each rule one synthetic match before adding it. A known false alarm goes in the scanner's committed ignore file by fingerprint, never as a broader rule.
+* **In CI:** the same scanner and config on every pull request, run from `origin/main`'s copy like every check, so a commit made without the hook is still caught and a pull request cannot weaken its own check.
+* **On the code host:** check that push protection is on (GitHub: `security_and_analysis.secret_scanning_push_protection` from `gh api repos/{owner}/{repo}`; GitLab: the project's secret push protection setting). It is a repository setting: tell the user when it is off and how to turn it on, and never change it.
+* **Once, over all history:** run the scanner over every commit (for Gitleaks, `gitleaks git`) and report each finding by commit and file, never its value. Rewriting history is the user's call. A live credential in history is told to the user at once, to rotate first.
+* **Made-up data only:** write under Critical Constraints in `AGENTS.md` that test fixtures, seeds, examples and docs hold made-up data only, and nothing is copied from a real system's rows, logs or screenshots. No scanner reliably finds a name or a free-text note; this rule and the security review are the defence there.
+
+List the scanner's config and ignore file under `# owner reads: checks` in `CODEOWNERS`.
 
 ## CI
 

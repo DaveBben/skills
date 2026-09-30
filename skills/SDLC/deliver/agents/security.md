@@ -24,7 +24,7 @@ From the diff against the merge target and the code it calls, list:
 
 Follow each entry to every sink it reaches, through the calls in between. For each path, check: its type, size and range are checked at the entry; the sink has its standard defence (a parameterized query, an argument array, template escaping, a strict deserializer); the server checks who the caller is and what it may do; sensitive data goes only where `AGENTS.md` allows and never into a log, an error or a response; no secret is written, logged or returned; an entry others reach has a size, rate or time limit; an outbound request follows no redirect to another host with credentials attached, and sends to allowed hosts only; a failure leaves no half-written record another caller sees.
 
-Then check what each dependency the diff calls returns when access is denied or the resource is missing (a secret under a scoped grant, a bucket, a table), and what the code does with that answer: a crash loop or a silent skip is a candidate.
+Then read every test fixture, seed, example and doc the diff adds: real-looking personal data in them (a name beside a date of birth, a record or account number, an address, a free-text note about a person) is a candidate, since no scanner reliably finds it. Then check what each dependency the diff calls returns when access is denied or the resource is missing (a secret under a scoped grant, a bucket, a table), and what the code does with that answer: a crash loop or a silent skip is a candidate.
 
 ## 3. Run the tools
 

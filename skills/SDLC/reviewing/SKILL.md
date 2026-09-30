@@ -4,7 +4,7 @@ description: "Use this skill when something must be reviewed or critiqued: a pul
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "3.0.0"
+  version: "3.1.0"
 ---
 # Reviewing
 
