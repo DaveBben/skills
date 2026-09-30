@@ -20,6 +20,7 @@ Problem:     <who hits it, how often, what they do today instead>
 Not doing:   <one checkable non-goal per line>
 Success:     <the signal that shows the outcome happened; which direction is good; the noise band>
 Target:      <the date the outcome must ship by, from the epic's due date; omit when none>
+Release:     <the story keys that must ship by Target, in rank order; the release line sits under the last>
 Constraints: <one line per rule every story must keep true>
 Context:     <facts every story needs: environments, variables, URLs, test accounts, deploy and rollback commands, where each credential lives but never its value; the grants the user gave>
 Repositories: <one line per repository: name and remote URL, local path without a remote, or "new: <name>">
@@ -39,7 +40,9 @@ Only stories and spikes get cards. A requirement on how well a story behaves, an
 
 Split a story that covers more than one step or variation with the first pattern that works: one per workflow step; create, then read, update, delete; the simplest business rule first; one kind of data first; the plainest interface first; the simplest version first, each complication its own story; make it work, then make it fast; a timeboxed spike when something unknown blocks every pattern. Cut across layers, never along them. Fold hardening into the story that creates the exposure. Hardcode data in the walking skeleton, never a crossing into another running piece.
 
-Write each blocker on the story it blocks: a story it builds on, a spike it needs, or an open decision. Read one blocking link back from the tracker before creating the rest, and record the direction on the `Blocks:` line under `Backlog:`. Put the drafted header lines and the map to the user in one message, saying that the first story waits for their feature acceptance test (section 5). Create cards only after the user confirms. Record no order.
+Write each blocker on the story it blocks: a story it builds on, a spike it needs, or an open decision. Read one blocking link back from the tracker before creating the rest, and record the direction on the `Blocks:` line under `Backlog:`. Put the drafted header lines and the map to the user in one message, saying that the first story waits for their feature acceptance test (section 5). Create cards only after the user confirms. Record no order beyond the `Release:` line.
+
+Adding a story that building revealed is expected. A child added after the map is agreed goes below the release line unless the user moves it above, and where things stand counts how many were added. A task, or a fix the outcome does not need, stays off the epic. A property of open stories is a row on each of them.
 
 Ready when the outcome names what a person does and where, `Success` names a signal someone can check, every story sits under a step with its blockers or "nothing", and one slice is the walking skeleton unless the work extends a deployed application.
 
@@ -47,11 +50,13 @@ Ready when the outcome names what a person does and where, `Success` names a sig
 
 The outcome gets one acceptance test, which the user writes. Name the file, the runner and the Given/When/Then it must assert, through the interface the user uses; the user writes the body, or asks the `setup` agent to. It lives in a `feature-acceptance` directory in the test tree that the harness denies to the agent, is marked strictly expected-to-fail (pytest `xfail(strict=True)`, jest `test.failing`), and is committed alone on the first story's branch before its red commit. No agent edits, moves, skips or re-marks it. When the interface has no runner yet, the first story adds one and the header says "after story 1".
 
+When a named person who owns the outcome (a product owner, a domain expert) writes Given/When/Then examples, take their list as the acceptance set: map each example to the story whose criteria must hold it, add any example no story holds as a criterion on the story that should, and park any example that contradicts an agreed criterion for that person.
+
 ## 6. Pick the next story
 
 A story or spike is ready when every blocker is done (a spike is done when its findings comment is written), no question on it is unanswered, its comments hold no answer its description lacks, and no `story/{slug}/{key}-*` branch exists. Re-read each blocker from the tracker now.
 
-Take the tracker's rank. Move a story ahead only because no story has reached a real deploy yet (the walking skeleton goes first), a spike's answer changes other stories, or it unblocks more stories; say which.
+Take stories above the release line first, then the tracker's rank. Move a story ahead only because no story has reached a real deploy yet (the walking skeleton goes first), a spike's answer changes other stories, or it unblocks more stories; say which.
 
 ```text
 Next:    <story> -> <why: rank, or the reason it moved>
@@ -64,4 +69,11 @@ When the user asked, print it and wait for their choice. When nothing is ready, 
 
 ## 7. Close out
 
-When every child is done or cut: the feature acceptance test's marker is gone and the suite is green, else give its failure message and propose the story that would pass it. Turn each unpinned `Learned` line into a test, an ADR or an `AGENTS.md` line on one last branch, or delete it with the user's agreement. Put each open `Proposed refactor` to the user. Delete the `Parked:` comments. Ask whether the `Success` signal moved, and which pause cost time without catching anything, for the `guardrails` skill. Close the epic.
+When every child above the release line is done or cut, in this order:
+
+1. **The feature test:** its marker is gone and the suite is green, else give its failure message and propose the story that would pass it. Report each example of a named person's acceptance set with the test that holds it.
+2. **What is left:** ask whether the stories below the line become a new epic or are cut. Turn each unpinned `Learned` line into a test, an ADR or an `AGENTS.md` line on one last branch, or delete it with the user's agreement. Put each open `Proposed refactor` to the user. Delete the `Parked:` comments.
+3. **Whether it worked:** ask whether the `Success` signal moved, and which pause cost time without catching anything, for the `guardrails` skill.
+4. **The user's model:** when `docs/architecture/summary.md` exists (the one-page summary the user writes in their own words), quote its ranked qualities and its risks and ask which line this feature made wrong; the user edits it or says none. Name one design lesson in four lines: the structural decision the feature's code made (a module boundary, a data shape, where the input and output happen), the pattern it follows by its name, the alternative not taken, and the condition under which that alternative would win.
+5. **The user's pattern,** as counts with no judgement, from the stories' `Yours:` log lines and the ADRs: cores written, sketches written and turns skipped; `Read first:` hunks shown; confirmations as shown and edited; ADR reasons the user wrote against ones the agent drafted and the user left.
+6. **Close the epic.**

@@ -46,6 +46,8 @@ Wire three layers, each a subset of one command list, to the agent harness's eve
 
 **Claude Code.** Copy each script from `scripts/` into `.claude/hooks/` unchanged, `chmod +x` it, and merge `scripts/settings.json` into `.claude/settings.json`. Edit only lines marked `# EDIT` and the entries named here.
 
+The template sets `promptCacheTtl` to `1h` (Claude Code 2.1.242 and later, per https://code.claude.com/docs/en/prompt-caching). A story loop waits on subagents and reviewers for longer than five minutes, and on the five-minute default each wait makes the next turn write the whole conversation to the cache again.
+
 | Script | Event | Does |
 |---|---|---|
 | `_slots.sh` | sourced | defines every project command once; its `read_json_field` uses `jq` or `sed`, never `python3` |
@@ -67,7 +69,7 @@ In `_slots.sh`: pick a lockfile check that resolves without installing and stays
 * **Block edits to accepted tests and to the checks** while a red commit is recorded, at edit time and in the shell.
 * **Hold a story branch on this machine** until the user confirmed its criteria (`push-guard.sh`).
 * **Deny the feature acceptance directory for good:** edits, writes and deletes, for the agent and every subagent. Replace `tests/feature-acceptance/` in `settings.json` with the project's own, and set `acceptance_dir` in `_slots.sh`.
-* **Deny secrets files, the lockfile, and the git directory's config, hooks, objects, refs, `HEAD` and index.** Leave the rest of the git directory writable for the files the story loop keeps there (`done-block.md`, `attack/`).
+* **Deny secrets files, the lockfile, and the git directory's config, hooks, objects, refs, `HEAD` and index.** Leave the rest of the git directory writable for the files the story loop keeps there (`done-block.md`, `findings.md`, `security.md`, `attack/`).
 * **Write `# owner reads:` sections in `CODEOWNERS`:** `checks` for every file this skill wrote or configured, `deps` for the manifest and lockfile, and `data` for directories the architecture names. Each is a `# owner reads: <label>` heading, then one line per path with the user's handle, ending at a blank line.
 * **Pre-approve every verification command,** and say plainly that the deny list stops accidents and is not a security boundary.
 * **Add a `UserPromptSubmit` line** where the harness allows it, reminding the agent that a behaviour change starts in a story worktree.

@@ -21,23 +21,25 @@
 #   status  prints one line per story worktree: branch, path, and the next step.
 #           It runs close on a branch whose pull request has merged. Run it
 #           from the main checkout.
-# MAIN overrides the main branch name (default main).
+# MAIN names the branch start cuts from (default main); start records it as the
+# branch's base, and rebase and verify reuse that base.
 set -euo pipefail
 main="${MAIN:-main}"
 die() { echo "$*" >&2; exit 1; }
 
 repo() { dirname "$(git rev-parse --path-format=absolute --git-common-dir)"; }
-base() {
+base() {  # $1: branch name, default $main
+  local m="${1:-$main}"
   if git remote get-url origin >/dev/null 2>&1; then
-    git fetch -q origin "$main" && echo "origin/$main"
+    git fetch -q origin "$m" && echo "origin/$m"
   else
-    echo "$main"
+    echo "$m"
   fi
 }
 do_rebase() {
   local b="$1" old onto h msg match c
   old="$(git config --get-all "branch.$b.redCommit" || true)"
-  onto="$(base)"
+  onto="$(base "$(git config --get "branch.$b.base" || echo "$main")")"
   git rebase -q "$onto" || die "The rebase stopped on a conflict. Resolve it, run 'git rebase --continue', then run story.sh rebase again."
   local new=()
   for h in $old; do
@@ -72,6 +74,7 @@ start)
   wt="$(dirname "$r")/$(basename "$r")-$3"
   git worktree add -q -b "story/$2/$3-$4" "$wt" "$(base)" >&2
   git config "branch.story/$2/$3-$4.issueKey" "$3"
+  git config "branch.story/$2/$3-$4.base" "$main"
   echo "$wt"
   ;;
 adopt)
@@ -141,6 +144,7 @@ close)
   git -C "$r" config --unset-all "branch.$2.redCommit" || true
   git -C "$r" config --unset-all "branch.$2.criteriaConfirmed" || true
   git -C "$r" config --unset-all "branch.$2.story" || true
+  git -C "$r" config --unset-all "branch.$2.base" || true
   git -C "$r" config --unset-all agile.redCommit || true
   git -C "$r" branch -q -D "$2"
   ;;
@@ -158,12 +162,16 @@ status)
       OPEN) at="pull request open: watch it" ;;
       *)
         db="$(git -C "$wt" rev-parse --path-format=absolute --git-dir)/done-block.md"
-        if [ -f "$db" ]; then
+        if [ -f "$db" ] && grep -q 'pending refute' "$db"; then
+          at="reviewed, not refuted: run the refute agent on findings.md and security.md"
+        elif [ -f "$db" ]; then
           if [ "$(git -C "$wt" config --get "branch.$b.criteriaConfirmed" || true)" = true ]; then
             at="reviewed and confirmed: verify, log and open the pull request"
           else
             at="reviewed: verify, then show the criteria for confirmation"
           fi
+        elif git -C "$wt" grep -q 'TODO(user)' -- . 2>/dev/null; then
+          at="waits for the user's turn: offer the core or sketch at its TODO(user) marker"
         elif [ -n "$(git -C "$wt" config --get-all "branch.$b.redCommit" || true)" ]; then
           at="red commit and no review: build"
         else
@@ -181,11 +189,17 @@ self-test)
   wt="$("$me" start pay PAY-1 refunds)"
   [ "$wt" = "$t/app-PAY-1" ] || die "FAIL start path: $wt"
   [ "$(git config branch.story/pay/PAY-1-refunds.issueKey)" = PAY-1 ] || die "FAIL start did not record the issue key"
+  [ "$(git config branch.story/pay/PAY-1-refunds.base)" = main ] || die "FAIL start did not record the base"
   "$me" status 2>/dev/null | grep -q "no red commit" || die "FAIL status before the red commit"
   cd "$wt"
   mkdir -p tests && echo x > test_a && echo x > "tests/my test.py" && echo stub > app_a && git add -A && git -c user.name=t -c user.email=t@t commit -q -m "red: refunds"
   red="$("$me" red)"
   (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "red commit and no review" || die "FAIL status after the red commit"
+  echo "# TODO(user): row 1" > app_a
+  (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "user's turn" || die "FAIL status misses a waiting user's turn"
+  echo stub > app_a
+  printf 'DONE\nFindings:    pending refute\n' > "$(git rev-parse --git-dir)/done-block.md"
+  (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "not refuted" || die "FAIL status before the refute"
   echo "DONE" > "$(git rev-parse --git-dir)/done-block.md"
   (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "show the criteria" || die "FAIL status with a review and no confirmation"
   "$me" confirm >/dev/null
@@ -218,5 +232,5 @@ self-test)
     || die "FAIL close left the worktree, branch or guard key"
   echo "self-test passed"
   ;;
-*) sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+*) sed -n '2,25p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac

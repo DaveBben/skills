@@ -8,6 +8,13 @@ Loaded by the `reviewing` skill when the subject is code, a test, a design, a pl
 * **Its job** is what it must do: the behaviour the code must produce, the decision the document must support, the bug the fix idea must remove. Take it from the acceptance criterion or the test that states it; when neither exists, take it from the conversation or the document's own opening. When nothing states it, ask one question and wait.
 * **The ground,** beyond the code the subject lands on: an implementation idea is checked against what the codebase already has, a document's claims about the system against the system, and a design for a system that does not exist yet against the constraints the user has stated.
 
+## Read for Craft
+
+Beyond whether it does its job, read the code for what makes an engineer better, and raise each as a point:
+
+* **Complexity:** each changed function's time and space cost against the best a standard structure gives: a nested scan where a set or a map lookup does it in one pass, a repeated query inside a loop, a sort where a heap or a single pass will do. Name both bounds, the structure that gets the better one, and the input size at which the difference shows.
+* **Resources:** everything acquired (a file, a socket, a database connection or cursor, a lock, a subprocess, a temporary file, memory the language does not free) is released on every path, the error paths included, by the language's scoped form (`with`, `try`/`finally`, `defer`, `using`, a destructor).
+
 ## Sort Every Point Into One Tier
 
 * **Wrong.** It does not do its job, or will stop doing it under an input or a load the job includes. For an idea, the failing case is the case it does not cover or the cause it does not remove.

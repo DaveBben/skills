@@ -32,7 +32,9 @@ A surviving mutant on a test the description lists is a finding. A mutant that c
 
 ## Security
 
-For each place the diff takes data from outside the code's control (a route, an argument, a file, a queue message, a third-party response, rows another system writes), check: its type, size and range are checked at the entry; the sink has its standard defence (a parameterized query, an argument array, template escaping, a strict deserializer); the server checks who the caller is and what it may do; sensitive data goes only where `AGENTS.md` allows and never into a log, an error or a response; no secret is written, logged or returned; an entry others reach has a size, rate or time limit; a failure leaves no half-written record another caller sees. Data from outside reaching a sink without its defence, or passing an entry with no authentication or authorization, is blocking. A request for a security review of a whole repository applies this section to every entry point.
+The security pass runs this section in its own subagent, never the reviewer that reads for the five things above. First map the diff: each entry that takes data from outside, each sink that interprets it or sends it out (a query, a shell, a template, a parser, a log, an error, a response, an outbound request), and each check of who the caller is. Trace each entry to every sink it reaches through the calls in between.
+
+For each place the diff takes data from outside the code's control (a route, an argument, a file, a queue message, a third-party response, rows another system writes), check: its type, size and range are checked at the entry; the sink has its standard defence (a parameterized query, an argument array, template escaping, a strict deserializer); the server checks who the caller is and what it may do; sensitive data goes only where `AGENTS.md` allows and never into a log, an error or a response; no secret is written, logged or returned; an entry others reach has a size, rate or time limit; a failure leaves no half-written record another caller sees. Data from outside reaching a sink without its defence, or passing an entry with no authentication or authorization, is blocking. Check what each dependency the diff calls returns when access is denied or the resource is missing (a secret under a scoped grant, a bucket, a table), and what the code does then: a crash loop or a silent skip is a finding. Run each static analyser the repository has installed (for example Semgrep, Bandit, CodeQL) on the changed files, and raise an alert only when its path traces from an entry to a sink with no guard; most alerts are false. A request for a security review of a whole repository applies this section to every entry point.
 
 ## Know who wrote the data
 
@@ -68,7 +70,7 @@ Use these labels and no others:
 
 | Label | For |
 |---|---|
-| `issue` | A finding with a failure behind it: a criterion with no test, behaviour against production data, a name a reader cannot map to a criterion. `blocking` when merging it breaks something a person or a caller sees. |
+| `issue` | A finding with a failure behind it: a criterion with no test, behaviour against production data, a name a reader cannot map to a criterion. `blocking` when a caller that exists reaches it under the configuration production runs with, and a person or a caller sees the failure. |
 | `question` | A claim that would change a rating and cannot be checked, or a decision the author did not own. Name who answers it and the test that would settle it. |
 | `suggestion` | Code no test asked for. Say what to delete. |
 | `todo` | A small required change with no failure of its own, such as a missing link to the ticket. Always `blocking`. |
@@ -78,5 +80,6 @@ End the report with the refuted findings and the verdict:
 
 ```
 Refuted: <file>:<line> — <what was raised> — <the line that stops it>
+Refuted by: <model>
 Merge. | Changes requested: <n> blocking.
 ```

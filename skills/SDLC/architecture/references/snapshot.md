@@ -16,7 +16,7 @@ Write it for a reader who did not see the conversation. The reader is a person, 
 
 ## The summary the user owns
 
-`docs/architecture/summary.md` is one page, at most about 40 lines, that the user writes in their own words and only the user edits. It is not dated. Writing it is how the user keeps their own model of the system. Draft it once, from the numbers, the decisions and the failure table, headed `DRAFT: rewrite this in your own words, then delete this line`, and ask the user to rewrite it. Never edit it after that. When a decision or a snapshot contradicts it, say so in chat, quoting the line.
+`docs/architecture/summary.md` is one page, at most about 40 lines, that the user writes in their own words and only the user edits. It is not dated. Writing it is how the user keeps their own model of the system. Draft it once, from the numbers, the decisions and the failure table, headed `DRAFT: rewrite this in your own words, then delete this line`, and ask the user to rewrite it. Never edit it after that. When a decision or a snapshot contradicts it, say so in chat, quoting the line. At a feature's close-out, quote its ranked qualities and its risks and ask which line the feature made wrong.
 
 ```text
 Purpose:      <one sentence: who uses this and what they get>

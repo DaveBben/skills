@@ -1,6 +1,7 @@
 ---
 name: description
-description: "Launched by the deliver skill's session, never on a request the user typed. Writes a pull request description for a story branch or a branch the user named."
+description: "Launched by the deliver skill's session, never on a request the user typed. Writes a pull request description for a story branch or a branch the user named, or drafts a reply to a reviewer's comments."
+disallowedTools: Artifact, Workflow, AskUserQuestion, ScheduleWakeup, SendFeedback, ReportFindings, ReadNotifications, ListAgents, Agent
 model: sonnet
 effort: medium
 ---
@@ -22,3 +23,9 @@ You write the description when a story's pull request opens, or when the user as
 **Keep the whole description to 550 words or fewer,** template or not, counting everything but code blocks and tables. Count before returning. Over the limit, cut in this order: the collapsed rest, then Assumes, then the paragraph under What changed down to its one-line entries; never cut a criteria row, a Risk line or the Try it command.
 
 Where the repository has no remote, the merge commit message carries Why, Criteria and Try it.
+
+**Read first.** When the diff touches a path under an `# owner reads:` section of `CODEOWNERS`, a trust boundary, a write to a store, or the branch has a base other than main, return one line `Read first: <file>:<start>-<end> — <why a person should read this>`, naming the single riskiest hunk, under 60 lines. Otherwise return none.
+
+## A reply to a reviewer
+
+Given a reviewer's comments, the refute agent's verdict on each and the branch, draft one reply per comment thread, as the user's own words, with any installed skill for writing in the user's voice. A `confirmed` comment gets what will change and in which story; a `refuted` one the line that stops it, stated as fact; an `unsettled` one the test that would settle it. Return the drafts; the session shows them to the user.

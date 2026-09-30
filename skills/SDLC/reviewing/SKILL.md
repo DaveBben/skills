@@ -4,7 +4,7 @@ description: "Use this skill when something must be reviewed or critiqued: a pul
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "2.0.0"
+  version: "3.0.0"
 ---
 # Reviewing
 
@@ -18,7 +18,7 @@ The subject is the thing under review. When it is ambiguous, ask once.
 | Uncommitted code, a test, a design, a plan, an ADR or a fix idea the user made | [references/feedback.md](references/feedback.md) | Points sorted into Wrong, Unverified, Shape and Preference |
 | An epic, a PRD's breakdown or a story list someone wrote | "Review an epic" below | The epic report |
 
-Run the review, then the refute step, then report only what survives, in the subject's output.
+Run the review and the security pass side by side, then the refute step, then report only what survives, in the subject's output.
 
 ## Rules every review keeps
 
@@ -28,9 +28,19 @@ Run the review, then the refute step, then report only what survives, in the sub
 * **List every candidate, doubted ones included,** one line each in `findings.md` in the git directory (`git rev-parse --git-dir`): `<n>. <anchor> — <what breaks> — case: <...> — blocking | non-blocking[ — rule]`. The anchor is `<file>:<line>`, `<document>:<section>` or `<card>:<field>`. Mark `rule` where a pattern could match it; after the report, offer the `guardrails` skill once for all surviving ones.
 * **Never rewrite the user's work.** Describe the change; write code only when asked.
 
+## Security pass
+
+Every review gets one fresh subagent for security alone, started beside the review, given the subject's path, the merge target and `AGENTS.md`, and nothing from this chat. It writes every candidate, doubted ones included, to `security.md` in the git directory in the `findings.md` format, each marked `security`.
+
+* **Pull request or diff:** the "Security" section of [references/pull-request.md](references/pull-request.md).
+* **The user's own work:** where it takes data from outside, holds a secret, or touches personal data, the same section's checks on those places; a design or a plan gets the question of who may do what at each boundary it draws.
+* **Epic:** each story that crosses a trust boundary or touches personal or health data has a criterion saying who may do what, and what is refused; a story without one is a `No access rule:` line.
+
 ## Refute
 
-Start one fresh subagent that found none of the candidates, on another model where the harness offers one, with `findings.md`, the subject's path and the merge target, and nothing else. It treats each candidate as false until the subject shows the failure, reads what the case passes through, runs it where it can, and marks each: `confirmed` (the line or command that shows it), `refuted` (the line that stops it), `unsettled` (the one test that would settle it) or `lowered` (the new severity and the line that bounds it). A comment, a docstring or the finder's wording never settles one.
+Start one fresh subagent that found none of the candidates, with `findings.md`, `security.md`, the subject's path and the merge target, and nothing else. Run it on a model other than the finder's: in Claude Code, pass the Agent tool's `model` parameter (`sonnet` when the finder ran on Opus, `opus` when it ran on Sonnet), and record the model on the report's `Refuted by:` line. It first merges candidates with the same anchor and the same way of failing. It treats each candidate as false until the subject shows the failure, reads what the case passes through, runs it where a command or a test can show it, and marks each: `confirmed` (the line or command that shows it), `refuted` (the line that stops it), `unsettled` (the one test that would settle it) or `lowered` (the new severity and the line that bounds it). A comment, a docstring or the finder's wording never settles one, and an objection that cites no line and no run is `unsettled`, never `refuted`.
+
+Severity is set by rule: a finding is `blocking` only when a caller that exists reaches it under the configuration production runs with, and a person or a caller sees the failure. The refuter checks those facts; a finding reached only under settings production does not use is `lowered`.
 
 | Output | `confirmed` or `lowered` | `unsettled` | `refuted` |
 |---|---|---|---|
@@ -47,6 +57,8 @@ An epic is one tracker issue whose child issues are its stories (changes a perso
 * **Too many cards:** siblings that are one story. Search for one distinctive sentence; the cards containing it are the ones to merge.
 * **Ships nothing:** a story that leaves no person able to do something new, or covers more than one workflow step and one variation.
 * **Wrong blocker:** a link in the wrong direction, a story shown ready whose blocker was dropped with a closed ticket, a hardening story blocked by the story it hardens.
+* **Stale card:** criteria or a description naming a route, a module or a design the code no longer has.
+* **Over the limit:** a story with more criteria that record a product choice (a number, an arguable rule, an open boundary) than the limit `AGENTS.md` states, else 8; it is several stories.
 
 ```text
 Unanswered:      <card> "<quoted comment>" -> <what in the card it changes>
@@ -55,7 +67,11 @@ Not a story:     "<title>" -> <kind> -> criteria on <story>
 Too many cards:  <cards> -> <shared sentence> -> one story
 Ships nothing:   "<title>" -> <what a person still cannot do>
 Wrong blocker:   <story> -> <what blocks it in fact>
+Stale card:      <card> -> <what it names> -> <what the code has instead>
+Over the limit:  <card> -> <n> product-choice criteria -> <the split>
+No access rule:  <card> -> <the boundary or data it touches>
 Refuted:         <card>:<field> -> <what was raised> -> <what stops it>
+Refuted by:      <model>
 
 Ready to build.   (or: <n> blocking items)
 ```
