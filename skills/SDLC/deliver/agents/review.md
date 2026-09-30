@@ -77,7 +77,7 @@ Read the latest snapshot `AGENTS.md` points at and the Decision line of each ADR
 
 ## Done
 
-Write the block to `done-block.md` in the worktree's git directory, and return only whether the review is done and the number of candidates. The refute agent fills `Findings:`, `Questions:` and `Refuted:` from `findings.md`.
+Write the block to `done-block.md` in the worktree's git directory, and return only whether the review is done, the number of candidates, and your `Security:` line. The refute agent fills `Findings:`, `Questions:` and `Refuted:` from `findings.md`.
 
 ```text
 DONE
@@ -87,7 +87,7 @@ Correctness: <runner or by hand>; per row: the mutation, red or survived; accept
 Tests:       <n> added tests read; <n> weak, each: test name, what it would miss
 Intent:      <n> fresh values run, <n> red; per function: matches its criterion, or the difference; the diff against Outcome and Scope
 Security:    needed: <which> | not needed
-Checklist:   intent <ok | finding n>; logic <ok | finding n>; errors <ok | finding n>; security <needed | not needed>; concurrency <ok | finding n | not applicable>; memory <ok | finding n | not applicable>; tests <ok | finding n>
+Checklist:   intent <section 4>; logic <sections 1 and 2>; errors <the attacks on a dependency down or slow, and each failure path the criteria name>; security <section 7: needed or not needed>; concurrency <the attacks sending the same request twice and at once>; memory <the resources point of section 2; memory handled by hand is the security agent's>; tests <section 3>; each <ok | finding n | not applicable>
 Scars:       <each pinned value checked, or "none pinned">
 Design:      <one row per departure and whether this branch records it; or "follows <snapshot>", or "no snapshot">
 Hand to build: <each change for the build agent: file, what, why; or "nothing">

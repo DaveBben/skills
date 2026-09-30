@@ -4,7 +4,7 @@ description: "Use this skill when a repository's AGENTS.md or CLAUDE.md must be 
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "3.2.0"
+  version: "3.2.1"
 ---
 # Guardrails
 

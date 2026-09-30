@@ -162,7 +162,10 @@ status)
       OPEN) at="pull request open: watch it" ;;
       *)
         db="$(git -C "$wt" rev-parse --path-format=absolute --git-dir)/done-block.md"
-        if [ -f "$db" ] && grep -q 'pending refute' "$db"; then
+        gd="$(dirname "$db")"
+        if [ -f "$db" ] && [ ! -f "$gd/security.md" ] && grep -qs '^Security: *needed' "$db" "$gd/card.md"; then
+          at="reviewed, security needed and not run: run the security agent"
+        elif [ -f "$db" ] && grep -q 'pending refute' "$db"; then
           at="reviewed, not refuted: run the refute agent on findings.md and security.md"
         elif [ -f "$db" ]; then
           if [ "$(git -C "$wt" config --get "branch.$b.criteriaConfirmed" || true)" = true ]; then
@@ -205,6 +208,11 @@ self-test)
   rm "$(git rev-parse --git-dir)/refactor.md"
   printf 'DONE\nFindings:    pending refute\n' > "$(git rev-parse --git-dir)/done-block.md"
   (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "not refuted" || die "FAIL status before the refute"
+  printf 'Security: needed: auth\n' > "$(git rev-parse --git-dir)/card.md"
+  (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "security needed" || die "FAIL status misses a pending security review"
+  touch "$(git rev-parse --git-dir)/security.md"
+  (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "not refuted" || die "FAIL status after the security review"
+  rm "$(git rev-parse --git-dir)/card.md" "$(git rev-parse --git-dir)/security.md"
   echo "DONE" > "$(git rev-parse --git-dir)/done-block.md"
   (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "show the criteria" || die "FAIL status with a review and no confirmation"
   "$me" confirm >/dev/null

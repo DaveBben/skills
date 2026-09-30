@@ -34,6 +34,7 @@ Criteria:
   b. <a boundary, a failure path or an abuse path, same form>
 Open:     <each undecided value, who decides it, and which criterion waits on it; "none">
 Interpreted: <each input this story adds and what interprets it as instructions: a query, a shell, a template, a parser; omit when none>
+Security: <needed: which, as on the return's Security line | not needed>
 ```
 
 A criterion records a product choice when it holds a number, a rule a person could argue with, or what happens at a boundary the requirements leave open, or when it touches a data shape, a trust boundary, an interface another team calls, a value a person sees, personal or health data, or a record lost or half stored.
