@@ -1,8 +1,12 @@
 # Write an architecture snapshot
 
-Load this whenever the `architecture` skill writes the system's shape: the capture path and its Record step. A snapshot is one Markdown file, `docs/architecture/snapshots/<YYYY-MM-DD>.md`, that lets a reader who has never opened the code explain how the system works and predict what a change would do. It is dated and frozen once a later day's snapshot exists. A later snapshot replaces it, and `AGENTS.md` points at the latest one. On a day that already has a snapshot, edit that day's file instead of adding a second.
+Brief for the subagent that writes the system's shape for the `architecture` skill. A snapshot is one Markdown file, `docs/architecture/snapshots/<YYYY-MM-DD>.md`, that lets a reader who has never opened the code explain how the system works and predict what a change would do. It is dated and frozen once a later day's snapshot exists. A later snapshot replaces it, and `AGENTS.md` points at the latest one. On a day that already has a snapshot, edit that day's file instead of adding a second.
 
 The reader is a person, or an agent about to change the code. Its test is the reconstruction test: from the file alone, the reader can follow each key flow through the system, say what fails and what the person using it sees, and name the file to change.
+
+The task gives you the repository, the latest snapshot or "none", and the checkout and branch to commit in. For a planned system it also gives the agreed tables of processes, modules and flows, the numbers, the `Decided:` ADR paths, and the `Deferred:` items, each an open question: head that snapshot "planned, not yet built" and take its shape from those tables, which are the agreed shape. You ask nobody: write "unknown" where a fact is missing and return each question.
+
+A crossing is a place a unit of work passes from one running piece into another: a database, a third-party API, a host, a device, a queue, another repository.
 
 ## Sources
 
@@ -12,11 +16,11 @@ The reader is a person, or an agent about to change the code. Its test is the re
 * **Write "unknown" where nothing read settles a fact,** and list it under Open questions. Never fill a cell from what is plausible.
 * **Cite a test as an enforcer only after reading its assertions.** A test whose name matches the rule but asserts something narrower is not the rule's enforcer; name what it does cover.
 * **Follow each write to its commit.** For every file, store or message a unit of work touches, state whether it happens before or after the commit, and what a failure between the two leaves behind.
-* **Refute a snapshot of built code before committing it.** Hand the draft to the `refute` agent (`../agents/refute.md`), or a fresh subagent where the harness has no named agents, told to disprove each claim against the code (every test ID, number, path, link and failure row), and fix or delete each claim it refutes. A "planned, not yet built" snapshot skips this.
+* **Refute a snapshot of built code before committing it.** Hand the draft to a fresh refuting subagent (in Claude Code, the `SDLC:refute` agent) told to disprove each claim against the code (every test ID, number, path, link and failure row), and fix or delete each claim it refutes. Where you cannot launch a subagent, leave the draft uncommitted and return it as unrefuted; the launching agent runs the pass and sends you what it refutes to fix or delete before you commit. A "planned, not yet built" snapshot skips this.
 
 ## The summary the user owns
 
-`docs/architecture/summary.md` is one page, at most about 40 lines, that the user writes in their own words and only the user edits. It is not dated. Writing it is how the user keeps their own model of the system. Draft it once, from the numbers, the decisions and the failure table, headed `DRAFT: rewrite this in your own words, then delete this line`, and ask the user to rewrite it. Never edit it after that. When a decision or a snapshot contradicts it, say so in chat, quoting the line. At a feature's close-out, quote its ranked qualities and its risks and ask which line the feature made wrong.
+`docs/architecture/summary.md` is one page, at most about 40 lines, that the user writes in their own words and only the user edits. It is not dated. Writing it is how the user keeps their own model of the system. When it does not exist, draft it from the numbers, the decisions and the failure table, headed `DRAFT: rewrite this in your own words, then delete this line`, and return its path; the launching agent asks the user to rewrite it. Never edit it after that. When this snapshot or a decision it cites contradicts it, return the line, quoted.
 
 ```text
 Purpose:      <one sentence: who uses this and what they get>
@@ -25,8 +29,6 @@ Tradeoffs:    <three to five lines: "<chosen> over <rejected>, accepting <the co
 Constraints:  <each hard limit nobody may break: a law, a contract, a platform>
 Risks:        <the three most likely ways the system fails: what the person using it sees, and the outside system or crossing involved>
 ```
-
-When a smaller choice has alternatives and the ranked qualities pick one, the qualities settle it (see "Decide" in `SKILL.md`).
 
 ## Sections, in this order
 
@@ -55,4 +57,15 @@ Leave out a section with nothing to say. Add a section for any mechanism a reade
 * **Link where the reader acts.** Link a decision beside the sentence it explains, as well as in Current decisions. Write file and function names in backticks so a reader can search for them.
 * **Tables for parallel facts, paragraphs for mechanism.** A store, a failure or a module is a row. A step that depends on the step before it is a sentence.
 * **No length cap.** A section is as long as its mechanism needs and no longer. Snapshots of small systems run to about 200 lines, of which sections 1 to 7 are the part most readers need.
-* **Commit it on its own branch with a pull request,** together with the `AGENTS.md` pointer change and any summary draft, so they land together.
+* **Commit it in the checkout and on the branch the task names,** creating the branch from main when it does not exist and never switching the branch of a checkout with uncommitted changes (return a question instead), together with the `AGENTS.md` change and any summary draft, so they land together. The `AGENTS.md` change sets its `Architecture:` line to the new snapshot's path and moves any architecture tables out of `AGENTS.md` into the snapshot.
+
+## Return
+
+```text
+Snapshot:  <path>, <commit hash>
+Settles:   <for built code, each language, store and check on a caller the code settles, with its file>
+Drift:     <each difference from the previous snapshot, and each doc or decision the code contradicts, one line each; or "none">
+Summary:   <"drafted at <path>", or each summary line contradicted, quoted; or "none">
+Refuted:   <how many claims the refute pass fixed or deleted; "unrefuted"; or "planned, skipped">
+Questions: <each open question and who can answer it; or "none">
+```

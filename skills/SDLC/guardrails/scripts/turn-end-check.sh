@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
+# Stop and SubagentStop. Runs turn_end on the main checkout and on the story
+# worktree the agent works in, only when files under pathspec changed. Blocks
+# the stop on a failure, three times per session at most, then lets it through
+# and says so.
 set -euo pipefail
 root="${CLAUDE_PROJECT_DIR:-.}"
+. "$root/.claude/hooks/_lib.sh"
 . "$root/.claude/hooks/_slots.sh"
 
 input="$(cat)"

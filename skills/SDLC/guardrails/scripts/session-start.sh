@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
+# SessionStart. Reports whether the environment is built and lists uncommitted
+# changes, on stdout. Never exits non-zero.
 set -euo pipefail
 root="${CLAUDE_PROJECT_DIR:-.}"
+. "$root/.claude/hooks/_lib.sh"
 . "$root/.claude/hooks/_slots.sh"
 cd "$root"
 

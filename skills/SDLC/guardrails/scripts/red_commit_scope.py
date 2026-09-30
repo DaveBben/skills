@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Usage: red_commit_scope.py <test glob>... | --self-test"""
+"""Usage: red_commit_scope.py <test glob>... | --self-test
+
+Pre-commit hook for the red commit, the one commit that skips the tests and e2e
+hooks. When SKIP names tests or e2e, fail unless every staged file is a test or
+a stub that removes no lines."""
 import fnmatch, os, subprocess, sys
 
 

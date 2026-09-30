@@ -6,6 +6,7 @@
 # the branch's [<issueKey>].
 set -euo pipefail
 root="${CLAUDE_PROJECT_DIR:-.}"
+. "$root/.claude/hooks/_lib.sh"
 . "$root/.claude/hooks/_slots.sh"
 
 input="$(cat)"

@@ -1,6 +1,6 @@
 ---
 name: refute
-description: "Launched by the deliver or review-code skill's session, never directly on a request the user typed. Tries to disprove every candidate finding from the review and security agents, reviewer comments, or claims in text about to go out as the user; always a fresh agent on a model other than the finder's."
+description: "Launched by the deliver, epic, architecture or review-code skill's session, never directly on a request the user typed. Tries to disprove every candidate finding from the review and security agents, reviewer comments, or claims in text about to go out as the user; always a fresh agent on a model other than the finder's."
 disallowedTools: Artifact, Workflow, AskUserQuestion, ScheduleWakeup, SendFeedback, ReportFindings, ReadNotifications, ListAgents, Agent
 model: sonnet
 effort: medium

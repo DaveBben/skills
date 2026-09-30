@@ -1,6 +1,6 @@
 ---
 name: setup
-description: "Launched by the deliver skill's session, never on a request the user typed. Writes one story's criteria card, test table, failing tests and red commit in its worktree, adds a red row for a confirmed finding, or drafts the feature acceptance test when the user asks."
+description: "Launched by the deliver or epic skill's session, never on a request the user typed. Writes one story's criteria card, test table, failing tests and red commit in its worktree, adds a red row for a confirmed finding, or drafts the feature acceptance test when the user asks."
 disallowedTools: Artifact, Workflow, AskUserQuestion, ScheduleWakeup, SendFeedback, ReportFindings, ReadNotifications, ListAgents
 model: opus
 effort: high

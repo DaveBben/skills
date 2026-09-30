@@ -3,7 +3,7 @@ name: guardrails
 description: "Use this skill when a repository's AGENTS.md or CLAUDE.md must be written, checked or rewritten, when its automated checks must be set up or repaired, or when one rule or recurring mistake must be enforced. Use it on: 'write AGENTS.md', 'set up CLAUDE.md', 'get this repo ready for agents', 'orient yourself', 'set up guardrails', 'add hooks', 'set up the commit gate', 'we have no linting', 'add a rule', 'always do X', 'never do Y', 'the agent keeps making this mistake', 'ban this pattern'. Writes AGENTS.md, one tool per check slot, the agent hooks and one check command, and puts each rule where a program can enforce it."
 license: MIT
 metadata:
-  version: "3.2.1"
+  version: "3.3.0"
 ---
 # Guardrails
 
@@ -12,7 +12,7 @@ A check is a program that passes or fails a change: a formatter, a linter, a typ
 ## Pick the path
 
 * **Write, check or rewrite `AGENTS.md`,** or orient in a repository: "AGENTS.md" below.
-* **Set up or repair the checks,** hooks, deny list, commit gate or CI: [references/setup.md](references/setup.md). The hook scripts and checks ship in `scripts/`.
+* **Set up or repair the checks,** hooks, deny list, commit gate or CI: run `scripts/setup-next.sh <repository>` and do the stage it prints, then run it again; it resumes at the first stage not done. To repair one part, run `scripts/setup-next.sh <repository> <stage>`, where the stage is one of survey, slots, contracts, loop, guards, instructions, gate, secrets and ci. Decide nothing about what the system should be.
 * **Enforce one rule,** stop a recurring mistake, or audit instruction files for rules a check could hold: [references/rules.md](references/rules.md).
 
 ## What never bends
@@ -68,7 +68,7 @@ Architecture: <path of the latest snapshot under docs/architecture/snapshots/; o
 * **Charter from the interview, the rest from the repository:** the package manager from the lockfile, commands from the task runner. Run each safe command once before listing it. When there is no manifest or task runner, leave the line out and say what was not found.
 * **Never write** improve, better, seamless, robust, correct, properly, handled, intuitive, flexible, scalable or modern; write what is observed. Leave a section out rather than fill it with "Users: our users".
 * **Write the mechanism** in a constraint: "never hold a worker longer than one HTTP round trip; the pool has 5 and a full pool returns 502 to every user", not "keep the pool safe". Give each project-local name one sentence saying what it is.
-* **Cap it at 100 lines and 8 KB,** with the `agents-md-size` commit check from `setup.md`. A module's conventions go in a nested file; a file type's rule goes in a path-scoped rule.
+* **Cap it at 100 lines and 8 KB,** with the `agents-md-size` commit check the gate stage installs. A module's conventions go in a nested file; a file type's rule goes in a path-scoped rule.
 * **Symlink `CLAUDE.md` to it,** and any other conventional name the repository carries, and commit them together.
 
 **When asked to write or rewrite it and an instructions file already exists** (`AGENTS.md`, a real `CLAUDE.md`, or both): read each whole, show one table mapping each line to its section, to a check (rung 1 or 2), or to "dropped, cannot be checked", and ask once whether to adopt this format. On yes, carry every kept line over and replace a real `CLAUDE.md` with the symlink; keep a line mapped to a check until `rules.md` has landed that check. Land checks only for rows the user accepts. On no, touch nothing.

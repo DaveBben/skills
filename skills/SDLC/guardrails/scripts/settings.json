@@ -11,7 +11,8 @@
       "Edit(./.git/objects/**)", "Write(./.git/objects/**)",
       "Edit(./.git/refs/**)", "Write(./.git/refs/**)",
       "Edit(./.git/**/HEAD)", "Write(./.git/**/HEAD)",
-      "Edit(./.git/**/index)", "Write(./.git/**/index)"
+      "Edit(./.git/**/index)", "Write(./.git/**/index)",
+      "ScheduleWakeup", "CronCreate", "Skill(loop)"
     ]
   },
   "hooks": {

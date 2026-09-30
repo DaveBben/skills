@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
+# PreToolUse on Edit|Write|MultiEdit. While a red commit is recorded for the
+# branch, refuses edits to the test files it touched and to the paths under
+# `# owner reads: checks` in CODEOWNERS.
 set -euo pipefail
 root="${CLAUDE_PROJECT_DIR:-.}"
+. "$root/.claude/hooks/_lib.sh"
 . "$root/.claude/hooks/_slots.sh"
 
 file="$(read_json_field file_path)"
 case "$file" in /*) ;; *) file="$root/$file" ;; esac
+file="$(physical "$file")"
 
 # The file may sit in any worktree of this clone; find the nearest existing directory.
 dir="$(dirname "$file")"

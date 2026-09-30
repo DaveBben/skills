@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Usage: story.sh start <slug> <key> <short-name> | adopt <key> | red [hash...] | unred | confirm | rebase | verify <check command...> | close <branch> | status | self-test
+# Usage: story.sh start <slug> <key> <short-name> | adopt <key> | red [hash...] | unred | confirm | rebase | verify '<check command>' | close <branch> | status [--local] | next [step] | self-test
 #
 # The git steps of a story, run from any worktree of the repository.
 #   start   cuts story/<slug>/<key>-<short-name> from the latest main into a
@@ -14,13 +14,16 @@
 #   rebase  rebases the current story branch on the latest main and re-records
 #           every red commit under its new hash, matched by commit message
 #   verify  rebases as above, fails when a file a red commit touched has changed
-#           since that commit, then runs the check command and exits with its
-#           status
+#           since that commit, then runs the check command, given as one string,
+#           through sh -c and exits with its status
 #   close   removes the branch's worktree, its guard keys and the branch, after
 #           a merge or a cut
 #   status  prints one line per story worktree: branch, path, and the next step.
 #           It runs close on a branch whose pull request has merged. Run it
-#           from the main checkout.
+#           from the main checkout. --local skips the pull request check.
+#   next    prints the rules of the current story's next step, from
+#           references/steps/<step>.md; with a step name, prints that step.
+#           next open also records that the story's pull request is open
 # MAIN names the branch start cuts from (default main); start records it as the
 # branch's base, and rebase and verify reuse that base.
 set -euo pipefail
@@ -67,6 +70,34 @@ pr_state() {  # prints MERGED, OPEN, CLOSED or nothing, from gh or glab
   fi
 }
 
+steps="$(dirname "$0")/../references/steps"
+state() {  # $1 branch, $2 worktree: prints "<where it stands>\t<step>" from local files
+  local b="$1" wt="$2" db gd
+  db="$(git -C "$wt" rev-parse --path-format=absolute --git-dir)/done-block.md"
+  gd="$(dirname "$db")"
+  if [ -f "$db" ] && [ ! -f "$gd/security.md" ] && grep -qs '^Security: *needed' "$db" "$gd/card.md"; then
+    printf 'reviewed, security needed and not run: run the security agent\tsecurity'
+  elif [ -f "$db" ] && grep -q 'pending refute' "$db"; then
+    printf 'reviewed, not refuted: run the refute agent on findings.md and security.md\trefute'
+  elif [ -f "$db" ]; then
+    if [ "$(git -C "$wt" config --get "branch.$b.prOpened" || true)" = true ]; then
+      printf 'pull request open: watch it\topen'
+    elif [ "$(git -C "$wt" config --get "branch.$b.criteriaConfirmed" || true)" = true ]; then
+      printf 'reviewed and confirmed: verify, log and open the pull request\tconfirm'
+    else
+      printf 'reviewed: act on the review, verify, then show the criteria for confirmation\tverdicts'
+    fi
+  elif [ -f "$gd/refactor.md" ]; then
+    printf 'refactored and not reviewed: review\treview'
+  elif git -C "$wt" grep -q 'TODO(user)' -- . 2>/dev/null; then
+    printf "waits for the user's turn: offer the core or sketch at its TODO(user) marker\tbuild"
+  elif [ -n "$(git -C "$wt" config --get-all "branch.$b.redCommit" || true)" ]; then
+    printf 'red commit and no review: build\tbuild'
+  else
+    printf 'no red commit: set up\tsetup'
+  fi
+}
+
 case "${1:-}" in
 start)
   [ $# -eq 4 ] || die "Usage: story.sh start <slug> <key> <short-name>"
@@ -88,7 +119,11 @@ adopt)
 red)
   b="$(story_branch)"; shift
   [ $# -gt 0 ] || set -- HEAD
-  for h in "$@"; do c="$(git rev-parse "$h")"; git config --add "branch.$b.redCommit" "$c"; echo "$c"; done
+  for h in "$@"; do
+    c="$(git rev-parse "$h")"
+    git config --get-all "branch.$b.redCommit" "^$c\$" >/dev/null || git config --add "branch.$b.redCommit" "$c"
+    echo "$c"
+  done
   ;;
 unred)
   b="$(story_branch)"
@@ -103,7 +138,7 @@ confirm)
   echo "criteria confirmed on $b"
   ;;
 verify)
-  [ $# -ge 2 ] || die "Usage: story.sh verify <check command...>"
+  [ $# -ge 2 ] || die "Usage: story.sh verify '<check command>'"
   shift
   b="$(story_branch)"
   do_rebase "$b" | sed 's/^/red: /'
@@ -134,7 +169,9 @@ verify)
   done
   [ -z "$changed" ] || die "FAIL accepted tests changed since their red commit:$changed"
   echo "accepted tests unchanged"
-  "$@"
+  # One string through sh -c, so &&, pipes, variables and globs in the check
+  # command work whatever shell the caller runs.
+  sh -c "$*"
   ;;
 close)
   [ $# -eq 2 ] || die "Usage: story.sh close <branch>"
@@ -149,42 +186,39 @@ close)
   git -C "$r" branch -q -D "$2"
   ;;
 status)
-  r="$(repo)"; me="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
-  command -v gh >/dev/null || command -v glab >/dev/null || echo "Neither gh nor glab is installed, so pull request state is not checked." >&2
+  r="$(repo)"; me="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"; local_only="${2:-}"
+  [ -n "$local_only" ] || command -v gh >/dev/null || command -v glab >/dev/null || echo "Neither gh nor glab is installed, so pull request state is not checked." >&2
   git -C "$r" worktree list --porcelain \
     | awk '/^worktree /{w=substr($0,10)} /^branch refs\/heads\//{print substr($0,19) "\t" w}' \
     | while IFS=$'\t' read -r b wt; do
     (cd "$wt" && is_story "$b") || continue
-    pr="$(cd "$wt" && pr_state "$b" || true)"
+    pr=""; [ -n "$local_only" ] || pr="$(cd "$wt" && pr_state "$b" || true)"
     case "$pr" in
       MERGED) "$me" close "$b" && at="merged; worktree, branch and guard removed" ;;
       CLOSED) at="pull request closed without merging: ask the user to reopen it or cut the story" ;;
       OPEN) at="pull request open: watch it" ;;
-      *)
-        db="$(git -C "$wt" rev-parse --path-format=absolute --git-dir)/done-block.md"
-        gd="$(dirname "$db")"
-        if [ -f "$db" ] && [ ! -f "$gd/security.md" ] && grep -qs '^Security: *needed' "$db" "$gd/card.md"; then
-          at="reviewed, security needed and not run: run the security agent"
-        elif [ -f "$db" ] && grep -q 'pending refute' "$db"; then
-          at="reviewed, not refuted: run the refute agent on findings.md and security.md"
-        elif [ -f "$db" ]; then
-          if [ "$(git -C "$wt" config --get "branch.$b.criteriaConfirmed" || true)" = true ]; then
-            at="reviewed and confirmed: verify, log and open the pull request"
-          else
-            at="reviewed: verify, then show the criteria for confirmation"
-          fi
-        elif [ -f "$(dirname "$db")/refactor.md" ]; then
-          at="refactored and not reviewed: review"
-        elif git -C "$wt" grep -q 'TODO(user)' -- . 2>/dev/null; then
-          at="waits for the user's turn: offer the core or sketch at its TODO(user) marker"
-        elif [ -n "$(git -C "$wt" config --get-all "branch.$b.redCommit" || true)" ]; then
-          at="red commit and no review: build"
-        else
-          at="no red commit: set up"
-        fi ;;
+      *) at="$(state "$b" "$wt" | cut -f1)" ;;
     esac
     printf '%s\t%s\t%s\n' "$b" "$wt" "$at"
   done
+  ;;
+next)
+  step="${2:-}"
+  if [ -z "$step" ]; then
+    b="$(story_branch)"; wt="$(git rev-parse --show-toplevel)"
+    pr="$(pr_state "$b" || true)"
+    case "$pr" in
+      MERGED|OPEN|CLOSED) at="pull request $(echo "$pr" | tr 'A-Z' 'a-z')"; step=open ;;
+      *) st="$(state "$b" "$wt")"; at="${st%%$'\t'*}"; step="${st##*$'\t'}" ;;
+    esac
+    echo "Story $b: $at."
+  fi
+  [ -f "$steps/$step.md" ] || die "No step '$step'. Steps: $(cd "$steps" && ls | sed 's/\.md$//' | tr '\n' ' ')"
+  if [ "$step" = open ]; then
+    b="$(git branch --show-current 2>/dev/null || true)"
+    ! is_story "$b" 2>/dev/null || git config "branch.$b.prOpened" true
+  fi
+  cat "$steps/$step.md"
   ;;
 self-test)
   t="$(cd "$(mktemp -d)" && pwd -P)"; trap 'rm -rf "$t"' EXIT
@@ -197,9 +231,15 @@ self-test)
   [ "$(git config branch.story/pay/PAY-1-refunds.base)" = main ] || die "FAIL start did not record the base"
   "$me" status 2>/dev/null | grep -q "no red commit" || die "FAIL status before the red commit"
   cd "$wt"
+  "$me" next | grep -q "^# Step: set up" || die "FAIL next before the red commit"
+  "$me" next verify | grep -q "^# Step: verify" || die "FAIL next with a step name"
+  if "$me" next nosuch >/dev/null 2>&1; then die "FAIL next accepted an unknown step"; fi
   mkdir -p tests && echo x > test_a && echo x > "tests/my test.py" && echo stub > app_a && git add -A && git -c user.name=t -c user.email=t@t commit -q -m "red: refunds"
   red="$("$me" red)"
-  (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "red commit and no review" || die "FAIL status after the red commit"
+  "$me" red >/dev/null && [ "$(git config --get-all branch.story/pay/PAY-1-refunds.redCommit | wc -l)" -eq 1 ] \
+    || die "FAIL red recorded one commit twice"
+  (cd "$t/app" && "$me" status --local) | grep -q "red commit and no review" || die "FAIL status --local after the red commit"
+  "$me" next | grep -q "^# Step: build" || die "FAIL next after the red commit"
   echo "# TODO(user): row 1" > app_a
   (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "user's turn" || die "FAIL status misses a waiting user's turn"
   echo stub > app_a
@@ -208,15 +248,21 @@ self-test)
   rm "$(git rev-parse --git-dir)/refactor.md"
   printf 'DONE\nFindings:    pending refute\n' > "$(git rev-parse --git-dir)/done-block.md"
   (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "not refuted" || die "FAIL status before the refute"
+  "$me" next | grep -q "^# Step: refute" || die "FAIL next before the refute"
   printf 'Security: needed: auth\n' > "$(git rev-parse --git-dir)/card.md"
   (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "security needed" || die "FAIL status misses a pending security review"
+  "$me" next | grep -q "^# Step: security review" || die "FAIL next before the security review"
   touch "$(git rev-parse --git-dir)/security.md"
   (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "not refuted" || die "FAIL status after the security review"
   rm "$(git rev-parse --git-dir)/card.md" "$(git rev-parse --git-dir)/security.md"
   echo "DONE" > "$(git rev-parse --git-dir)/done-block.md"
   (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "show the criteria" || die "FAIL status with a review and no confirmation"
+  "$me" next | grep -q "^# Step: act on the review" || die "FAIL next after the refute"
   "$me" confirm >/dev/null
   (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "reviewed and confirmed" || die "FAIL status after confirm"
+  "$me" next open >/dev/null
+  (cd "$t/app" && "$me" status --local) | grep -q "pull request open" || die "FAIL status --local after the pull request opened"
+  "$me" next | grep -q "^# Step: pull request open" || die "FAIL next with no code host after the pull request opened"
   rm "$(git rev-parse --git-dir)/done-block.md"
   cd "$t/app" && echo y > other && git add other && git -c user.name=t -c user.email=t@t commit -q -m main-moves
   cd "$wt" && moved="$("$me" rebase)"
@@ -225,6 +271,8 @@ self-test)
   echo built > app_a && git -c user.name=t -c user.email=t@t commit -q -am "build fills the stub"
   "$me" verify true | grep -q "accepted tests unchanged" || die "FAIL verify on unchanged tests"
   if "$me" verify false >/dev/null 2>&1; then die "FAIL verify ignored the check command's status"; fi
+  "$me" verify 'true && echo "a b" | grep -q "a b"' >/dev/null || die "FAIL verify of a check command with && and a pipe"
+  if "$me" verify 'true && false' >/dev/null 2>&1; then die "FAIL verify ignored the status of a compound check command"; fi
   echo z > test_a && git -c user.name=t -c user.email=t@t commit -q -am "edit accepted test"
   if "$me" verify true >/dev/null 2>&1; then die "FAIL verify passed an edited accepted test"; fi
   "$me" red >/dev/null && "$me" verify true >/dev/null || die "FAIL verify after a corrected row's red commit"
@@ -245,5 +293,5 @@ self-test)
     || die "FAIL close left the worktree, branch or guard key"
   echo "self-test passed"
   ;;
-*) sed -n '2,25p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+*) sed -n '2,28p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac

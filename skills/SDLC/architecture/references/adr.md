@@ -1,42 +1,26 @@
-# Record one decision
+# Write one ADR
 
-Loaded by the `architecture` skill for every decision it records: an answer from its Decide step, an expensive or irreversible choice, an accepted hazard, a rejected alternative, a choice a spike made alone that the user chose to record, knowledge that cost time to acquire, or a test that a story's test plan listed and then dropped as "no test required" whose absence a later reader would question. An ADR (architecture decision record) is one Markdown file under `docs/adr/` that says what was decided, why, and what it gave up.
+Brief for the subagent that writes one ADR (architecture decision record) for the `architecture` skill: one Markdown file under `docs/adr/` that says what was decided, why, and what it gave up. The task gives you the decision; the user's reasons in their own words, or that the user deferred to the agent's recommendation and the agent's reason; any feedback from the agent that launched you; the alternatives and why each lost; any hazard it accepts or incident it follows; the path of any ADR it supersedes; the feature slug or "none"; and the checkout and branch to commit in. You ask nobody: return any question instead.
 
-Write it immediately when the decision is made, not at the end of the feature.
+## The reasons
 
-## Ask before writing
+* **Quote the user's reasons** in the Decision paragraph and in "Why the obvious fixes don't work here", in their words. Add no reason the task does not give.
+* **The launching agent's feedback** goes in "What it doesn't buy" or "Alternatives rejected", marked as the agent's.
+* **When the user deferred,** record the agent's reason, marked as the agent's, with the line "The user deferred to the agent's recommendation."
 
-The reasons in the ADR are the user's. Never record one the user has not given or confirmed. When the user deferred to the agent's recommendation, record the agent's reason, marked as the agent's, with the line "The user deferred to the agent's recommendation."
-
-* **From the Decide step, the answer is the reasons.** When the decision came from putting alternatives and a tradeoff to the user, their answer to that message is the reasons. Ask nothing more unless it gives no reason at all.
-* **Otherwise draft the three answers** from the conversation, the code and any spike findings, and put them to the user in one message to correct, then wait. Name the obvious route in the third question. Record the answers as the user leaves or rewrites them, and write "unknown" for any the agent could not draft:
-
-```text
-Before recording <decision>, correct anything wrong:
-1. Why this? <draft>
-2. What are the tradeoffs? <draft>
-3. Why not <the obvious route>? <draft>
-```
-
-* **When the decision was the agent's own choice,** state the agent's reason, the obvious alternative and the tradeoff in the same message, and ask the user to confirm, change or replace the reason.
-* **Outside the Decide step, give feedback on the answer before writing, only when there is something to give.** One message: a tradeoff the answer did not name, an alternative nobody considered, a hazard the answer accepts without a test, or a reason that does not hold against the code, each with its mechanism. When the answer holds up, write the file without a feedback message. The user amends the decision or the reason, or says write it.
-* **Quote the user's reasons** in the Decision paragraph and in "Why the obvious fixes don't work here", in their words. The agent's feedback goes in "What it doesn't buy" or "Alternatives rejected", marked as the agent's.
-
-## File Naming and Location
+## File naming and location
 
 * **Feature-scoped:** `docs/adr/{slug}/<decision-name>.md` for a decision belonging to one change. The `{slug}` is the feature's slug, the one in its `story/{slug}/` branches.
-* **Global:** `docs/adr/architecture/<decision-name>.md` for a decision applying to the whole repository, or when no feature is open.
+* **Global:** `docs/adr/architecture/<decision-name>.md` for a decision applying to the whole repository, or when the slug is "none".
 * **Format:** `<decision-name>` is short and kebab-case, e.g. `use-redis-for-rate-limiting.md`.
-* **Already recorded:** when the change's own PRD records the decision with its rejected alternative, write no ADR; put the PRD path on the feature header's `Decided:` line.
-* **Commit each ADR on its own when it is written:** on the plan branch `story/{slug}/0-plan` before the first story, on the story's branch when a story forced it, and on main when no feature is open.
+* **Commit the ADR on its own** in the checkout and on the branch the task names, creating the branch from main when it does not exist. Never switch the branch of a checkout with uncommitted changes; return a question instead. Return the file's path and the commit hash.
 
 ## Error handling
 
-* **The user gives no reasons:** write no file. With a feature open, put the item on the feature header's `Deferred:` line as "no reasons given"; with none, say in chat that the decision is unrecorded. Carry on with the work.
 * **An existing ADR contradicts the new one:** leave the old file in place, name its path on the new one's `Supersedes:` line, and add the `Superseded by:` line to the old one.
 * **The detector test does not exist yet:** name the test ID the change will add, and say what it will assert.
 
-## The Template
+## The template
 
 From the file alone, a reader can say what was decided, why, and what would make it wrong. Title: an imperative sentence stating the decision, e.g. `# Keep the LLM safe with a concurrency cap, not a timeout`. Readers read the title, the Decision and the Detector, and open the rest only when the Decision names what they touch, so those three carry the decision on their own.
 

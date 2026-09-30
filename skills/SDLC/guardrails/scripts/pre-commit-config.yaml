@@ -1,0 +1,42 @@
+# Template for the repository's .pre-commit-config.yaml: the Python / uv example,
+# one hook per slot with the slot's name as its id. Copy it to the root, edit
+# every `# EDIT` line, then run `pre-commit autoupdate` to pin current revs and
+# `pre-commit install`. The red commit runs `SKIP=tests,e2e git commit`; never
+# put red-commit-scope or accepted-tests in SKIP.
+default_install_hook_types: [pre-commit, prepare-commit-msg]
+default_stages: [pre-commit]
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: debug-statements
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
+  # EDIT: each entry below names this project's tool for the slot.
+  - repo: local
+    hooks:
+      - {id: format, name: format, entry: uv run ruff format --check, language: system, types: [python]}
+      - {id: fast_check, name: fast_check, entry: uv run ruff check, language: system, types: [python]}
+      - {id: rules, name: rules, entry: semgrep --config .semgrep/ --error, language: system, pass_filenames: false}
+      - {id: complexity, name: complexity, entry: uv run ruff check --select C901, language: system, types: [python]}
+      - {id: types, name: types, entry: uv run mypy src, language: system, types: [python], pass_filenames: false}
+      - {id: contracts, name: contracts, entry: uv run lint-imports, language: system, types: [python], pass_filenames: false}
+      - {id: deps_check, name: deps_check, entry: uv lock --check, language: system, files: ^(pyproject\.toml|uv\.lock)$, pass_filenames: false}
+      - {id: deadcode, name: deadcode, entry: uv run vulture src vulture_allowlist.py, language: system, types: [python], pass_filenames: false}
+      - {id: duplication, name: duplication, entry: uv run pylint --disable=all --enable=duplicate-code, language: system, types: [python]}
+      - {id: audit, name: audit, entry: uv run pip-audit, language: system, files: ^uv\.lock$, pass_filenames: false}
+      - {id: tests, name: tests, entry: uv run pytest, language: system, types: [python], pass_filenames: false}
+      # EDIT: add the e2e hook when the first story adds its runner, and only when it finishes in under a minute.
+      # - {id: e2e, name: e2e, entry: <e2e command>, language: system, pass_filenames: false}
+      # Copied unchanged from the skill's scripts/ into the repository's scripts/.
+      # EDIT: the test globs, the same as is_test in .claude/hooks/_slots.sh.
+      - {id: red-commit-scope, name: red-commit-scope, entry: python3 scripts/red_commit_scope.py, args: ['tests/*', '*/tests/*', 'test_*.py', '*/test_*.py'], language: system, always_run: true, pass_filenames: false}
+      - {id: accepted-tests, name: accepted-tests, entry: python3 scripts/accepted_tests.py, args: ['tests/*', '*/tests/*', 'test_*.py', '*/test_*.py'], language: system, always_run: true, pass_filenames: false}
+      - {id: agents-md-size, name: agents-md-size, entry: python3 scripts/agents_md_size.py, language: system, files: ^AGENTS\.md$}
+      - {id: issue-key, name: issue-key, entry: python3 scripts/issue_key.py, language: system, stages: [prepare-commit-msg], always_run: true}

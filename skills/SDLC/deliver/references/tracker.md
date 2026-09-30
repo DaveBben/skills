@@ -1,6 +1,6 @@
 # Where the stories live
 
-Read section 1, "Where each artifact lives" and "When the tracker cannot be reached" in the main session. Sections 2 and 3 are for the agent that runs a tracker operation. The tracker's own words are used throughout: epic, story, bug, spike, rank, status.
+Section 1 connects a tracker when `AGENTS.md` has no `Backlog:` line. Sections 2 and 3 are for the agent that runs a tracker operation. The tracker's own words are used throughout: epic, story, bug, spike, rank, status.
 
 ## 1. Find the tracker, or set one up
 
@@ -49,34 +49,4 @@ Use, in order, an MCP server the session already has, the tracker's own CLI, the
 * **GitHub:** the dependency API takes the blocking issue's numeric `id`, not its `#number`. The GitHub MCP server has no dependency tool; `gh` 2.94 and later has `--add-blocked-by`.
 * **Gitea:** the paths are under `/api/v1/repos/{owner}/{repo}`. The dependency endpoints (`.../issues/{index}/dependencies` and `.../blocks`) arrived in Gitea 1.20 (go-gitea/gitea pull request 17935). Gitea has no sub-issues or issue types (go-gitea/gitea issue 36696 is an open proposal), so an epic is an issue labelled `epic` that depends on each of its children. A repository can turn dependencies off, and whether closing keywords close an issue at merge depends on the instance's settings: confirm both on the instance with the first read.
 * **Linear:** closing words in a pull request move the issue when it opens and when it merges. Do not also move it by hand.
-* **Every tracker:** read one blocking link back after creating it, and write the direction on the `Blocks:` line.
-
-## Where each artifact lives
-
-| In the loop | On the tracker |
-|---|---|
-| The feature header | The epic's description, in its named lines |
-| A story, bug or spike | A child issue of the epic. A spike has the spike type or label, and blocks each story that waits on its answer. A story's criteria go in the criteria field, else the top of its description |
-| Status | To Do until the branch is cut, In Progress from branch cut, In Review from pull request, Done at merge; a cut story is closed with the reason as its resolution comment. Use the board's own column names |
-| A story's log entry | A comment written when its pull request opens, in the form `SKILL.md` gives; at merge it becomes the resolution. `Observed` is a second comment when it arrives later |
-| A parked question | A comment on the story starting `Parked:`, edited or deleted once answered where the tracker allows |
-| A spike's findings | The spike issue's resolution comment, every line a `Learned` line |
-| A finding about the system, not one story | A comment on the epic, so close-out finds every one in one place |
-| A bug in shipped work | A bug issue under the epic, ranked by the user. `Not caught by` is its resolution comment |
-
-A one-story request or a bug is one issue with no epic, and its comments are its log. A trivial change or a change without new behaviour has the pull request as its record, linked to an issue when one exists.
-
-## When the board is already filled
-
-* **The children are the proposed stories.** Show them in rank order, each with an outcome line written from its text, and check them against the ready check in `epic.md` section 4. The user confirms, rewords, cuts or re-ranks in one turn. Criteria are written when each story starts.
-* **An epic with no description** gets the header written into it by `epic.md`.
-* **Sprints are not pauses.** The loop crosses a sprint boundary without stopping. A team that wants the loop to stop at the sprint edge adds that rule to `AGENTS.md`.
-* **Several epics are several features.** One epic, one loop each, never interleaved in one session.
-
-## When the tracker cannot be reached
-
-An auth error, a 401 or 403, or a tool that is not connected.
-
-* Say once which method failed and its error text, and name the login step. Try the next method in section 2 before asking. Then ask whether to wait or go on.
-* **Going on:** for reads, ask the user to paste the epic and its children with keys, rank and blockers. For writes, append each owed write to an outbox, the file `sdlc-outbox.md` in the shared git directory (`git rev-parse --git-common-dir`), which is never committed. One line per write, with the text it will post: `- comment PAY-12: <the log entry>`, `- status PAY-12: Done`, `- create story under PAY-1: "<title>", ranked after PAY-9`.
-* Show the outbox at every story end. When a method works again, ask once, then replay it top down, delete each line as it lands, and delete the file once it is empty.
+* **Every tracker:** read one blocking link back after creating it, and write the direction on the `Blocks:` line. Set a status the task names (To Do, In Progress, In Review, Done) by the board's own column name on the `Status:` line.

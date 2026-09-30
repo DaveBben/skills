@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
+# PostToolUse on Edit|Write|MultiEdit. Runs deps_check when the edit touched
+# the manifest (deps_file).
 set -euo pipefail
 root="${CLAUDE_PROJECT_DIR:-.}"
+. "$root/.claude/hooks/_lib.sh"
 . "$root/.claude/hooks/_slots.sh"
 
 file="$(read_json_field file_path)"
 case "$file" in /*) ;; *) file="$root/$file" ;; esac
+file="$(physical "$file")"
 wt="$(clone_worktree "$(dirname "$file")")" || exit 0
 [ "$file" = "$wt/$deps_file" ] && [ -f "$file" ] || exit 0
 cd "$wt"

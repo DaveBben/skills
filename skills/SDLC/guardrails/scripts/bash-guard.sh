@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
+# PreToolUse on Bash. Blocks --no-verify and its -n form, the direct install
+# command (edit its `<direct install>` line), and rm or mv of accepted tests
+# (test files a recorded red commit touched) and of the feature acceptance
+# directory (acceptance_dir: the user's end-to-end tests, never edited by the agent).
 set -euo pipefail
 root="${CLAUDE_PROJECT_DIR:-.}"
+. "$root/.claude/hooks/_lib.sh"
 . "$root/.claude/hooks/_slots.sh"
 
 input="$(cat)"

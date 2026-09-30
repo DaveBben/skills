@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
+# PostToolUse on Edit|Write|MultiEdit. Runs fast_fix, then fast_check, on the
+# edited file; blocks on findings and fails open when the checker breaks.
 set -euo pipefail
 root="${CLAUDE_PROJECT_DIR:-.}"
+. "$root/.claude/hooks/_lib.sh"
 . "$root/.claude/hooks/_slots.sh"
 
 file="$(read_json_field file_path)"

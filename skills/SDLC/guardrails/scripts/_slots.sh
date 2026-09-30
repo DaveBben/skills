@@ -1,27 +1,6 @@
 #!/usr/bin/env bash
-# Sourced by every hook. Every project-specific command lives here, defined once.
-
-read_json_field() {
-  local field="$1" body
-  body="$(cat)"
-  if command -v jq >/dev/null 2>&1; then
-    printf '%s' "$body" | jq -r --arg f "$field" '.tool_input[$f] // .[$f] // ""' 2>/dev/null
-  else
-    printf '%s' "$body" | sed -n "s/.*\"$field\"[[:space:]]*:[[:space:]]*\"\([^\"]*\)\".*/\1/p" | head -1
-  fi
-}
-
-# Prints the top of the worktree holding <path> when that worktree belongs to
-# this clone, and fails otherwise. A session can hold other repositories, and
-# deliver's story worktrees sit outside the project directory.
-clone_worktree() {
-  local dir="$1" wt
-  while [ ! -d "$dir" ]; do dir="$(dirname "$dir")"; done
-  wt="$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)" || return 1
-  [ "$(git -C "$wt" rev-parse --path-format=absolute --git-common-dir)" = \
-    "$(git -C "$root" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)" ] || return 1
-  echo "$wt"
-}
+# Sourced by every hook after _lib.sh, which holds the shared functions. Every
+# project-specific command lives here, defined once.
 
 # EDIT: every line below. This is the Python / uv example; fill the same slots
 # for the project's own language and tools.
@@ -32,9 +11,22 @@ is_test()    { case "$1" in tests/*|*/tests/*|test_*.py|*/test_*.py) return 0 ;;
 pathspec=('*.py')
 fast_fix()   { ruff check --fix "$1" >/dev/null 2>&1 || true
                ruff format "$1"     >/dev/null 2>&1 || true; }
+# fast-check.sh reads exit 1 as "found problems" and any other non-zero exit
+# as "could not run". Check the checker's exit codes, and map them here when
+# they differ.
 fast_check() { ruff check "$1"; }
-turn_end()   { uv run mypy src; }
+# Every turn-end slot: types, contracts, rules, complexity, and tests when the
+# suite finishes in under five seconds. Fail when any fails; turn-end-check.sh
+# runs only this.
+turn_end()   { local rc=0
+               uv run mypy src || rc=1
+               # One line each for contracts, rules, complexity and fast tests.
+               return $rc; }
 deps_file='pyproject.toml'
+# A lockfile check that resolves without installing and stays offline; a dry
+# run often skips the frozen-lockfile check. Of two dependency checks, pick the
+# one that compares the manifest with the source, not the one that checksums
+# downloads.
 deps_check() { uv lock --check; }
 deps_fix='uv add / uv remove'
 env_check()  {
@@ -43,5 +35,5 @@ env_check()  {
   uv sync --check >/dev/null 2>&1 || echo "NOTE: .venv is out of sync with uv.lock, run 'uv sync'."
 }
 main_branch='main'
-main_ok=('AGENTS.md' 'CLAUDE.md' 'docs/adr/*')
+main_ok=('AGENTS.md' 'CLAUDE.md' 'docs/adr/*' 'docs/architecture/*')
 acceptance_dir='tests/feature-acceptance/'

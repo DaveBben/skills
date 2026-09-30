@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Usage: agents_md_size.py [AGENTS.md ...] | --self-test"""
+"""Usage: agents_md_size.py [AGENTS.md ...] | --self-test
+
+Pre-commit hook. Fails an AGENTS.md over 100 lines or 8 KB."""
 import os, sys
 
 MAX_LINES, MAX_BYTES = 100, 8192
