@@ -1,16 +1,15 @@
 # Review work the user made
 
-Loaded by the `review-code` skill when the subject is code, a test, a design, a plan or a fix idea the user made and wants an opinion on.
-
 ## Find the Subject and Its Job
 
-* **The subject** is the thing the user just wrote or said: the last chat message, a file they name, a diff, a document. When it is ambiguous which, ask once.
+For a design, a plan, an ADR or a fix idea:
+
 * **Its job** is what it must do: the behaviour the code must produce, the decision the document must support, the bug the fix idea must remove. Take it from the acceptance criterion or the test that states it; when neither exists, take it from the conversation or the document's own opening. When nothing states it, ask one question and wait.
 * **The ground,** beyond the code the subject lands on: an implementation idea is checked against what the codebase already has, a document's claims about the system against the system, and a design for a system that does not exist yet against the constraints the user has stated.
 
 ## Code Points Come From the Review Agents
 
-For code, the `review` agent's `teach` rows (complexity, resources, style), its findings and the `security` agent's rows, as the `refute` agent left them, are the points; sort them into the tiers below. For a design, a plan, an ADR or a fix idea, read it here, against its ground, and raise every point yourself, doubted ones included, anchored `<document>:<section>`, for the `refute` agent to judge before the reply; check a fix idea against every caller of what it changes, and never judge anything from its own description of itself; a design or a plan also gets the question of who may do what at each boundary it draws.
+For code, the rows `done-block.md` holds after the `refute` agent are the points, placed by the skill's table. For a design, a plan, an ADR or a fix idea, raise every point yourself against its ground, doubted ones included, anchored `<document>:<section>`, for the `refute` agent to judge before the reply. Check a fix idea against every caller of what it changes. Never judge a subject from its own description of itself. Ask of a design or a plan who may do what at each boundary it draws.
 
 ## Sort Every Point Into One Tier
 
@@ -42,7 +41,6 @@ Preference — <one line, only when asked>
 
 ## Make It Teach
 
-* **Explain the mechanism before the verdict.** "This function returns a value and mutates its argument" lands before "split it in two". "Two requests both read the count as 2 and both write 3" lands before "racy".
 * **Name the principle** behind every Shape point, from the real catalogue: the SOLID principles, Fowler's refactorings and code smells by their catalogue names, Beck's four rules of simple design, the Law of Demeter, Command-Query Separation, Tell Don't Ask, connascence, parse-don't-validate, make-illegal-states-unrepresentable, YAGNI, DRY and its misuse. Cite only what is certain, by author and work. Never invent a page number, a URL or a quotation. When unsure who formulated it, say so.
 * **Give the cost with the rule.** What following it costs as well as what it buys, and when to ignore it.
 * **Ask before telling when the answer is reachable.** "What happens here when the list is empty?" beats "this crashes on an empty list." One question per point, and only when the user can answer it from what is in front of them.
@@ -57,4 +55,4 @@ Preference — <one line, only when asked>
 
 ## Communication
 
-The words subject and job stay out of chat; a tier name is one word at the start of its point. Stop when the points stop: no summary, no encouragement, no offer to rewrite.
+A tier name is one word at the start of its point. Stop when the points stop: no summary, no encouragement, no offer except the `guardrails` one.

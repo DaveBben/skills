@@ -1,10 +1,12 @@
 # The epic: header, story map, pick and close-out
 
+Sections: 1 find what exists, 2 discover the problem, 3 the feature header, 4 the story map, 5 the feature acceptance test, 6 pick the next story, 7 close out, 8 review an existing epic.
+
 Load this for a request sized as several stories, a request to break work down, "what should I pick up next", close-out, and a review of an epic or a story list someone wrote (section 8). The header and the story map are agreed with the user: propose them, then wait.
 
 ## 1. Find what exists first
 
-Read the epic's description, its children and any requirements document it links. When they state the problem, the outcome and the non-goals, take those lines, citing where each came from. Draft any missing line from them and put the drafts to the user in one message to correct. When the epic has children, they are the candidate stories: show them in rank order, each with an outcome line, and draft no second list. Search this codebase and the product for the behaviour; when something already does the job, say where and wait.
+Have the `lookup` agent return the epic's header lines, each child's key, title, rank, blockers and outcome line, and the problem, outcome and non-goals any linked requirements document states. When they state the problem, the outcome and the non-goals, take those lines, citing where each came from. Draft any missing line from them and put the drafts to the user in one message to correct. When the epic has children, they are the candidate stories: show them in rank order, each with an outcome line, and draft no second list. Have it search this codebase for the behaviour; when something already does the job, say where and wait.
 
 ## 2. Discover the problem
 
@@ -40,9 +42,9 @@ Only stories and spikes get cards. A requirement on how well a story behaves, an
 
 Split a story that covers more than one step or variation with the first pattern that works: one per workflow step; create, then read, update, delete; the simplest business rule first; one kind of data first; the plainest interface first; the simplest version first, each complication its own story; make it work, then make it fast; a timeboxed spike when something unknown blocks every pattern. Cut across layers, never along them. Fold hardening into the story that creates the exposure. Hardcode data in the walking skeleton, never a crossing into another running piece.
 
-Write each blocker on the story it blocks: a story it builds on, a spike it needs, or an open decision. Read one blocking link back from the tracker before creating the rest, and record the direction on the `Blocks:` line under `Backlog:`. Put the drafted header lines and the map to the user in one message, saying that the first story waits for their feature acceptance test (section 5). Create cards only after the user confirms. Record no order beyond the `Release:` line.
+Write each blocker on the story it blocks: a story it builds on, a spike it needs, or an open decision. Put the drafted header lines and the map to the user in one message, saying that the first story waits for their feature acceptance test (section 5). Create cards only after the user confirms. Record no order beyond the `Release:` line.
 
-Adding a story that building revealed is expected. A child added after the map is agreed goes below the release line unless the user moves it above, and where things stand counts how many were added. A task, or a fix the outcome does not need, stays off the epic. A property of open stories is a row on each of them.
+Adding a story that building revealed is expected. A child added after the map is agreed goes below the release line unless the user moves it above, and where things stand counts how many were added. A task, or a fix the outcome does not need, stays off the epic.
 
 Ready when the outcome names what a person does and where, `Success` names a signal someone can check, every story sits under a step with its blockers or "nothing", and one slice is the walking skeleton unless the work extends a deployed application.
 
@@ -54,7 +56,7 @@ When a named person who owns the outcome (a product owner, a domain expert) writ
 
 ## 6. Pick the next story
 
-A story or spike is ready when every blocker is done (a spike is done when its findings comment is written), no question on it is unanswered, its comments hold no answer its description lacks, and no `story/{slug}/{key}-*` branch exists. Re-read each blocker from the tracker now.
+A story or spike is ready when every blocker is done (a spike is done when its findings comment is written), no question on it is unanswered, its comments hold no answer its description lacks, and no `story/{slug}/{key}-*` branch exists.
 
 Take stories above the release line first, then the tracker's rank. Move a story ahead only because no story has reached a real deploy yet (the walking skeleton goes first), a spike's answer changes other stories, or it unblocks more stories; say which.
 

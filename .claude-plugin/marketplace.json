@@ -10,7 +10,7 @@
       "name": "SDLC",
       "source": "./plugins/SDLC",
       "description": "Engineering practice run with the human rather than recited at them, in four skills. deliver maps an idea, PRD or epic into stories, reviews an existing epic, and takes each through criteria the user agrees before anything is pushed, failing tests first, a build, an independent review and a pull request into main. architecture spikes unknowns and records each expensive decision with the user's reasons. guardrails writes AGENTS.md and the checks. review-code reviews pull requests and the user's own code, designs and plans through one review engine. The user makes every product call and every call expensive to reverse, one question at a time.",
-      "version": "14.0.0",
+      "version": "14.1.0",
       "license": "MIT",
       "skills": [
         "./skills/deliver",
@@ -26,7 +26,7 @@
       "name": "context",
       "source": "./plugins/context",
       "description": "Skills for managing an agent session's context across boundaries. Today it hands a session over when context fills or work stops partway, recording the dead ends a fresh session would otherwise rediscover.",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "license": "MIT",
       "skills": [
         "./skills/handing-off"
@@ -39,7 +39,7 @@
       "name": "meals",
       "source": "./plugins/meals",
       "description": "Skills for eating to numbers without cooking from a spreadsheet. It builds reusable meal templates: a recipe the user already makes, paired with a fixed add-on that closes the gap to a calorie ceiling and protein and fiber floors, proven as a real dish before it is proven as macros, then written back to the recipe manager with ingredients that scale. It then plans days of meals from those templates, stretching batch dinners across days, checking daily averages against targets, and writing the meal plan and a shopping list to the recipe manager.",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "license": "MIT",
       "skills": [
         "./skills/meal-template",
@@ -53,7 +53,7 @@
       "name": "personalize",
       "source": "./plugins/personalize",
       "description": "Skills that make an agent act as you. sound-like-me composes texts, work replies, docs and scripts in your own voice by following private voice profiles kept outside the repo, never inventing facts and never sending without your say-so.",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "license": "MIT",
       "skills": [
         "./skills/sound-like-me"
@@ -66,7 +66,7 @@
       "name": "learning",
       "source": "./plugins/learning",
       "description": "Skills for learning a topic in a format the reader absorbs. teach-like-stackoverflow answers a programming or computer-science question as a mock Stack Overflow thread on one HTML page: an asker's real error, an accepted answer with short working code and a traced example, follow-up comments, and further answers that each solve it a different way. Every code block is run before it goes on the page.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "license": "MIT",
       "skills": [
         "./skills/teach-like-stackoverflow"

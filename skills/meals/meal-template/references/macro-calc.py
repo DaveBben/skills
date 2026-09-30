@@ -22,13 +22,14 @@ FOODS = {
     "egg_white_raw":      (52, 10.9, 0.0, 0.2, 0.7),
 }
 
+# example targets from template 1; pass the user's own
 TARGETS = {"kcal_max": 600, "protein_min": 40, "fiber_min": 10}
 
 
 def per_serving(rows, servings, targets=TARGETS):
     """rows: [(food_key, grams_for_whole_recipe), ...]. Prints a table, returns totals."""
     total = [0.0] * 5
-    print(f"{'ingredient':22}{'g/serv':>8}{'kcal':>7}{'P':>7}{'F':>7}{'fat':>7}{'carb':>7}")
+    print(f"{'ingredient':22}{'g/serv':>8}{'kcal':>7}{'P':>7}{'fib':>7}{'fat':>7}{'carb':>7}")
     for key, grams in rows:
         vals = [x * grams / 100 / servings for x in FOODS[key]]
         total = [a + b for a, b in zip(total, vals)]

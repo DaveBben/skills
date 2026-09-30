@@ -12,11 +12,9 @@ Load this when one rule, convention or recurring mistake must be enforced, when 
    * It is about what the agent runs, not the code ("never force-push"): a hook or deny-list entry, by the Guards section of `setup.md`.
    * It is a pattern over source no shipped rule matches: a Semgrep rule (below).
    * It is a fact about behaviour ("every endpoint returns JSON errors"): a test. Say which.
-3. **Rung 2** when it needs judgment and applies to some paths: one rule file per topic, the glob in its frontmatter, one imperative sentence and the reason. Claude Code matches globs like gitignore, so ship `"*.py"` and `"**/*.py"`, and touch a matching and a non-matching file to confirm.
+3. **Rung 2** when it needs judgment and applies to some paths: one rule file per topic, the glob in its frontmatter, one imperative sentence and the reason. In Claude Code globs, `*` matches within one path segment and `**` matches across directories, so ship `"**/*.py"` to match at every depth, and touch a matching and a non-matching file to confirm.
 4. **Rung 3** only when it needs judgment and applies everywhere: one line under Critical Constraints in `AGENTS.md`.
 5. **Show the user the rung, the file, the exact text and the violation it catches,** and wait. Write it on a branch of its own with a pull request; handed a rule from inside a story, write it on the story's branch and list it in the pull request. When existing code already breaks it, the user picks one: enforce on new files only, clean up first as its own change, or ratchet with `scripts/ratchet.py` and a committed baseline.
-
-Every rung-1 message is the fix: what is forbidden, what to use instead, and its real name and path.
 
 ## Audit the instruction files
 
@@ -30,13 +28,13 @@ The user cuts rows by number. Convert each kept row by "Add one rule", delete th
 
 ## Defend where input becomes instructions
 
-For each place outside input reaches a query, a shell, a template or a parser, read the vendor's security page and the platform's published checklist, and put the standard defence at rung 1: a linter or Semgrep rule, else a framework default or a build check. Skip one a rule already covers. Say plainly what stays with the agent: anything met by something absent ("every service has a rate limit"), anything true only at runtime, anything that needs taste.
+When setting up checks for code that passes outside input to a query, a shell, a template or a parser, put the standard defence for each such place at rung 1, using the registry packs in the Semgrep section below (for example `p/owasp-top-ten`): a linter or Semgrep rule, else a framework default or a build check. Skip one a rule already covers. Say plainly what stays with the agent: anything met by something absent ("every service has a rate limit"), anything true only at runtime, anything that needs taste.
 
 ## Contracts
 
-* **Read the shape from the latest snapshot** `AGENTS.md` points at. Write one contract per flow inside one process. With no snapshot, fill the language slots now and write contracts once the architecture exists.
+* **Read the shape from the latest snapshot** `AGENTS.md` points at. Write one contract per allowed dependency. With no snapshot, fill the language slots now and write contracts once the architecture exists.
 * **Brownfield with no snapshot:** derive the current dependency graph, show it, and ask which edges were not expected. Those become the first contracts. Never encode the whole current graph.
-* **One contract per allowed dependency,** everything else forbidden explicitly, each named as its rule in plain English so a broken build prints the sentence that stopped being true.
+* **Forbid everything else explicitly,** each named as its rule in plain English so a broken build prints the sentence that stopped being true.
 
 ## Semgrep rules
 
@@ -57,7 +55,7 @@ rules:
       exclude: ["test/**", "src/http.ts"]
 ```
 
-* **One rule per file,** named after the mistake, under `.semgrep/`. The message is the fix. `ERROR` only where breaking it is never correct.
+* **One rule per file,** named after the mistake, under `.semgrep/`. `ERROR` only where breaking it is never correct.
 * **Start from the violation's exact code** and generalise one step at a time. Exclude paths in `paths:`, never in the pattern. Add `fix:` where the rewrite is mechanical.
 * **Prove it fires:** a fixture with the same basename, `// ruleid: <id>` above each line that must fire and `// ok: <id>` above each near miss, run with `semgrep --test --config .semgrep/` and `semgrep --validate`. Break the fixture once and confirm the test fails.
 * **Land it** in the command the repository already runs and in a CI job (`semgrep --config .semgrep/ --error`), pinned like the other tools. On code that already breaks it, use `--baseline-commit <sha>` or clean the backlog first. Silence a line with `nosemgrep: <rule-id>` and the reason.

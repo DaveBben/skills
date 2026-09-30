@@ -1,9 +1,10 @@
 ---
 name: meal-template
-version: "0.2.0"
 description: "Use this skill whenever a meal must be built or rebuilt to hit numeric nutrition targets drawn from a personal recipe library: a calorie ceiling, a protein floor, a fiber floor. Use it on: 'build a dinner template', 'create breakfast templates', 'make reusable meal templates', 'make this recipe hit 40g protein', 'fit my recipes into my macros', 'I want 10 dinners I can repeat'. Use it when the user names a recipe they already like and wants it adjusted rather than replaced. Pair a base recipe the user chooses with a fixed add-on that closes the macro gap, prove the pairing is an established dish rather than a macro graft, then write the result back to the recipe manager with ingredients that scale. Do not use it to invent recipes from nothing, and do not use it to schedule a week of meals from templates that already exist."
 license: MIT
-compatibility: any-agent
+compatibility: Needs HTTP access to a recipe manager API (Mealie by default) and Python 3.
+metadata:
+  version: "0.2.0"
 ---
 # Meal template
 
@@ -14,23 +15,23 @@ A **template** is one base recipe, one add-on, and a verified per-serving macro 
 ## Establish before building
 
 * **Get the three numbers.** A calorie ceiling, a protein floor, a fiber floor, all per meal. Ask if not stated. Do not assume targets from a daily total.
-* **Get read and write access to the recipe library.** Most are self-hosted with a REST API. See `references/mealie-api.md` for Mealie specifics.
+* **Get read and write access to the recipe library.** For Mealie, `MEALIE_BASE_URL` and `MEALIE_API_KEY`; see `references/mealie-api.md`.
 * **Pull the whole catalog once and cache it.** Fetch every recipe's nutrition and ingredient list to a local file. Re-fetching per query wastes minutes on a library of a few hundred.
 * **Report the feasibility count first.** State how many recipes meet each target alone and all targets together. Expect zero to meet all three. That number justifies the base-plus-add-on structure, and skipping it makes the structure look arbitrary.
 
 ## The loop
 
-Build one template at a time. Never batch. Each template ends with the user confirming before the next starts.
+Build one template at a time. Each template ends with the user confirming before the next starts.
 
 1. **Let the user name the base recipe.** They know which meals they actually cook. Offer candidates only when asked.
 2. **Record their deviations from the written recipe.** Users routinely omit ingredients. An omission changes the macros and must be computed against the version they cook, not the version on file.
 3. **Compute the base macros.** See below.
 4. **State the gap and the headroom.** Report the shortfall on each target and the calories remaining under the ceiling. The headroom sets the add-on budget.
 5. **Choose the add-on.** See below.
-6. **Recompute with the add-on.** Confirm every target clears with margin.
-7. **Write it to the library.** See `references/mealie-api.md`.
+6. **Recompute with the add-on.** Confirm every target clears, then run the low-end recompute in Computing macros.
+7. **Write it to the library.** Create the template as a new recipe. Leave the base recipe unchanged; the verifier compares against it. See `references/mealie-api.md`.
 8. **Verify it.** Dispatch the verification subagent and the realism subagent. See below.
-9. **Apply the fixes, then ask for the next base recipe.**
+9. **Apply the fixes, rewrite `nutrition` and the macros in `description` from the recomputed figures, then ask for the next base recipe.**
 
 ## Computing macros
 
@@ -63,7 +64,7 @@ Give it three tasks and require a one-line verdict on each:
 
 * **Parsing.** Every ingredient row has a correct quantity, unit, and food, and the list scales sensibly to half and double the servings.
 * **Macro math.** An independent recompute from USDA values, per ingredient, against the stored figures. Require it to audit the per-100 g assumptions used and name any that are off.
-* **Instructions.** The method is sound and complete: temperatures, sequence, pan capacity, doneness, and what will burn, overcook, or go watery. Then low-effort technique upgrades, capped at a stated calorie cost, using only ingredients already listed.
+* **Instructions.** The method is sound and complete: temperatures, sequence, doneness, and what will burn, overcook, or go watery. Then low-effort technique upgrades, using only ingredients already listed, and give the calorie cost per serving of each upgrade.
 
 **Pass the subagent the base recipe's identifier too.** It must be able to compare the template against what it was derived from.
 
@@ -80,7 +81,7 @@ Require it to:
 * **Decide, then fix.** Realism outranks the targets. Close a gap with a lever native to the cuisine: more of the main protein, a leaner cut, a starch swap, or a legume or vegetable at a published amount. When no realistic version meets the targets, keep the realistic version with the smallest miss and state the miss. Never keep an unrealistic quantity to pass a number.
 * **Return fixed rows, not options.** Give the corrected ingredient amounts, the method changes, and recomputed per-serving nutrition. Do not hand the user a menu of alternatives.
 
-Apply its fixes before asking for the next base recipe. A template is not finished until it passes this review.
+A template is not finished until it passes this review.
 
 ## Recurring defects
 

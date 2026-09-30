@@ -2,6 +2,18 @@
 
 Load this when a repository's checks, hooks, deny list, commit gate or CI must be set up or repaired. Decide nothing about what the system should be. Resume at the first missing output when a repository is part-way through.
 
+Contents: Survey, Slots, Contracts and rules, Loop, Guards, Instructions, Gate, Secrets and personal data, CI, Landing rules on existing code.
+
+Terms used below:
+
+* **Story worktree:** a git worktree, often outside the project directory, on a `story/*` branch where one change is built.
+* **Red commit:** the commit that holds a story's failing tests before any code.
+* **Accepted tests:** the test files a red commit touched, once the user accepted them.
+* **Feature acceptance directory:** the directory holding the user's end-to-end test for a feature; the agent never edits it.
+* **`story.sh adopt` and `story.sh confirm`:** the story script's commands that mark an existing branch as a story branch, and record that the user confirmed a story's criteria.
+* **Twin:** a fake of an external service under `tests/twins/<service>/`, with a contract suite.
+* **Retry limit:** the count of failed re-checks per session (three) after which a blocking check stops blocking and says so.
+
 ```text
 SURVEY -> SLOTS -> CONTRACTS -> RULES -> LOOP -> GUARDS -> INSTRUCTIONS -> GATE -> CI
 ```
@@ -42,11 +54,11 @@ Write dependency contracts, and on brownfield the codebase's own anti-patterns a
 
 ## Loop
 
-Wire three layers, each a subset of one command list, to the agent harness's events: edit time, turn end, session start. Auto-fix and silence what is mechanical; surface only what needs a decision. Count retries per session and give up after three, saying so. Re-check after each fix. Skip when nothing relevant changed. Fail open when the tool itself breaks. Apply only to this repository and its worktrees, including story worktrees outside the project directory. A harness with no events still gets the checks at commit and in CI, a turn later.
+Wire three layers, each a subset of one command list, to the agent harness's events: edit time, turn end, session start. Feedback arrives at the edit, on the developer's machine; CI is the backstop. A blocking check needs an escape, so wire the retry limit before the checks. A harness with no events still gets the checks at commit and in CI, a turn later.
+
+For a harness other than Claude Code, write hooks that: auto-fix and silence what is mechanical and surface only what needs a decision; count retries per session and give up after three, saying so; re-check after each fix; skip when nothing relevant changed; fail open when the tool itself breaks; apply only to this repository and its worktrees, including story worktrees outside the project directory. Claude Code runs the shipped scripts, which do this.
 
 **Claude Code.** Copy each script from `scripts/` into `.claude/hooks/` unchanged, `chmod +x` it, and merge `scripts/settings.json` into `.claude/settings.json`. Edit only lines marked `# EDIT` and the entries named here.
-
-The template sets `promptCacheTtl` to `1h` (Claude Code 2.1.242 and later, per https://code.claude.com/docs/en/prompt-caching). A story loop waits on subagents and reviewers for longer than five minutes, and on the five-minute default each wait makes the next turn write the whole conversation to the cache again.
 
 | Script | Event | Does |
 |---|---|---|
@@ -60,19 +72,15 @@ The template sets `promptCacheTtl` to `1h` (Claude Code 2.1.242 and later, per h
 | `tests-guard.sh` | PreToolUse on edits | while a red commit is recorded, refuses edits to the test files it touched and to paths under `# owner reads: checks` in `CODEOWNERS` |
 | `push-guard.sh` | PreToolUse on Bash | refuses `git push` and opening a pull request for a story branch (`story/*`, or one `story.sh adopt` marked) with a red commit until `story.sh confirm` has run; a pull request title must carry the issue key |
 
-In `_slots.sh`: pick a lockfile check that resolves without installing and stays offline, since a dry run often skips the frozen-lockfile check; pick the dependency check that compares the manifest with the source, not the one that checksums downloads. Check what exit codes the checker uses before trusting the `-eq 1` test in `fast-check.sh`. On `PreToolUse`, `PostToolUse` and `Stop`, exit 2 blocks and feeds stderr to the agent; on `SessionStart`, stdout reaches the agent.
+In `_slots.sh`: pick a lockfile check that resolves without installing and stays offline, since a dry run often skips the frozen-lockfile check; pick the dependency check that compares the manifest with the source, not the one that checksums downloads. Check what exit codes the checker uses before trusting the `-eq 1` test in `fast-check.sh`. Define `turn_end` to run every turn-end slot (`types`, `contracts`, `rules`, `complexity`, and `tests` when the suite finishes in under five seconds) and to fail when any fails; `turn-end-check.sh` runs only `turn_end`. On `PreToolUse`, `PostToolUse` and `Stop`, exit 2 blocks and feeds stderr to the agent; on `SessionStart`, stdout reaches the agent.
 
 ## Guards
 
-* **Two hard blocks, and justify a third.** A rule earns one only when breaking it is never correct and nothing catches it later. Blocking the flag that skips the commit gate qualifies.
-* **Block edits on main,** so work happens on story branches.
-* **Block edits to accepted tests and to the checks** while a red commit is recorded, at edit time and in the shell.
-* **Hold a story branch on this machine** until the user confirmed its criteria (`push-guard.sh`).
+* **The shipped guards are the hard blocks.** Add another only when breaking the rule is never correct and nothing catches it later.
 * **Deny the feature acceptance directory for good:** edits, writes and deletes, for the agent and every subagent. Replace `tests/feature-acceptance/` in `settings.json` with the project's own, and set `acceptance_dir` in `_slots.sh`.
-* **Deny secrets files, the lockfile, and the git directory's config, hooks, objects, refs, `HEAD` and index.** Leave the rest of the git directory writable for the files the story loop keeps there (`done-block.md`, `findings.md`, `security.md`, `attack/`).
+* **Deny secrets files, the lockfile, and the git directory's config, hooks, objects, refs, `HEAD` and index.** Leave the rest of the git directory writable for the files the story loop keeps there (`done-block.md`, `findings.md`, `security.md`, `attack/`). Replace `./uv.lock` in `settings.json` with the project's lockfile.
 * **Write `# owner reads:` sections in `CODEOWNERS`:** `checks` for every file this skill wrote or configured, `deps` for the manifest and lockfile, and `data` for directories the architecture names. Each is a `# owner reads: <label>` heading, then one line per path with the user's handle, ending at a blank line.
 * **Pre-approve every verification command,** and say plainly that the deny list stops accidents and is not a security boundary.
-* **Add a `UserPromptSubmit` line** where the harness allows it, reminding the agent that a behaviour change starts in a story worktree.
 
 ## Instructions
 
@@ -103,7 +111,7 @@ A missing mutation or `e2e` slot does not block the story loop: the review appli
 Nothing secret or personal reaches history. Wire every layer; each catches what the one before misses.
 
 * **At commit:** one secret scanner as the `secrets` hook over staged changes, offline, for example Gitleaks through pre-commit (hook id `gitleaks`), pinned like every hook.
-* **Personal data rules** in the scanner's config committed at the root (for Gitleaks, `.gitleaks.toml` with `[extend] useDefault = true` and one `[[rules]]` entry each): one rule per identifier format the data this product touches holds, taken from the stores `AGENTS.md` lists: a national identity number such as a US Social Security number, the product's record or account number format. Show each rule one synthetic match before adding it. A known false alarm goes in the scanner's committed ignore file by fingerprint, never as a broader rule.
+* **Personal data rules** in the scanner's config committed at the root (for Gitleaks, `.gitleaks.toml` with `[extend] useDefault = true` and one `[[rules]]` entry each): one rule for each identifier format found in the stores `AGENTS.md` lists, such as a US Social Security number or the product's account number. Show each rule one synthetic match before adding it. A known false alarm goes in the scanner's committed ignore file by fingerprint, never as a broader rule.
 * **In CI:** the same scanner and config on every pull request, run from `origin/main`'s copy like every check, so a commit made without the hook is still caught and a pull request cannot weaken its own check.
 * **On the code host:** check that push protection is on (GitHub: `security_and_analysis.secret_scanning_push_protection` from `gh api repos/{owner}/{repo}`; GitLab: the project's secret push protection setting). It is a repository setting: tell the user when it is off and how to turn it on, and never change it. A GitHub response with no `security_and_analysis` block means the token lacks admin permission, not that protection is off: ask the user to read the repository's Settings, under Code security.
 * **Once, over all history:** run the scanner over every commit (for Gitleaks, `gitleaks git`) and report each finding by commit and file, never its value. Rewriting history is the user's call. A live credential in history is told to the user at once, to rotate first.
@@ -117,4 +125,4 @@ Install from the lockfile. Run each check as its own step, from `origin/main`'s 
 
 ## Landing rules on existing code
 
-Brownfield only, and the user picks one: enforce on files authored from now on; clean up in a subagent as its own change; or ratchet with a committed baseline under `# owner reads: checks`. Adding rules and leaving them red is not an option. The same choice applies to a failing suite: quarantine or fix before it enters the gate.
+Brownfield only, and the user picks the option `rules.md` lists, with the ratchet baseline under `# owner reads: checks`. Adding rules and leaving them red is not an option. Choose as in `rules.md`; the same applies to a failing suite: quarantine or fix before it enters the gate.

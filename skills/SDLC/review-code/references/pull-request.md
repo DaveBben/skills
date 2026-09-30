@@ -1,16 +1,10 @@
 # Review a pull request someone opened
 
-Loaded by the `review-code` skill to report on a pull request, a merge request or a diff someone opened.
-
-The reviewer holds the diff, the description, the reports from whatever ran in the build, and the code at the merge target. It does not hold the conversation that produced the change, or the author.
-
-The shared `review`, `security` and `refute` agents have already judged the code ("Review code" in the skill). This file turns what survived into the report.
-
 ## Report
 
-Write each finding that survived the refuter as a Conventional Comment: a label, a decoration in parentheses, a one-line subject, then the discussion. The format is published at conventionalcomments.org. Blocking comments come first. Say what each rests on: read this run, inferred from something read this run, or asserted by a tool, a comment or the description. A comment raises a concern and never lowers one.
+Write each finding that survived the refuter as a Conventional Comment: a label, a decoration in parentheses, a one-line subject, then the discussion. The format is published at conventionalcomments.org. Blocking comments come first. Say what each rests on: read this run, inferred from something read this run, or asserted by a tool, a comment or the description. A code comment, a docstring or the description can raise a concern and never settles one.
 
-The comments, and every reply to the author in their threads, go out under the user's name as the user's own words, in their voice. Before drafting them, load any installed skill for writing text in the user's voice, and write the subject and discussion by it. The label, the decoration, the anchor line and the `Rests on:` line keep the format below.
+The comments, and every reply to the author in their threads, go out under the user's name as the user's own words. The label, the decoration, the anchor line and the `Rests on:` line keep the format below.
 
 Each comment sits on one line of code:
 
@@ -32,7 +26,7 @@ Use these labels and no others:
 
 | Label | For |
 |---|---|
-| `issue` | A finding with a failure behind it: a criterion with no test, behaviour against production data, a name a reader cannot map to a criterion. `blocking` when a caller that exists reaches it under the configuration production runs with, and a person or a caller sees the failure. |
+| `issue` | A finding with a failure behind it: a criterion with no test, behaviour against production data, a name a reader cannot map to a criterion. `blocking` or `non-blocking` as the refuted row says. |
 | `question` | A claim that would change a rating and cannot be checked, or a decision the author did not own. Name who answers it and the test that would settle it. |
 | `suggestion` | Code no test asked for. Say what to delete. |
 | `todo` | A small required change with no failure of its own, such as a missing link to the ticket. Always `blocking`. |

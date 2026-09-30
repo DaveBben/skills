@@ -1,15 +1,15 @@
 ---
 name: meal-plan
-description: Use this skill whenever the user wants a number of days of meals planned from their existing meal templates and written into the recipe manager. Use it on 'plan my meals for the week', 'plan 5 days of dinners', 'make a meal plan', 'fill the mealie meal plan', 'what should we eat this week', 'plan meals using up the leftover spinach'. Fixed breakfast and lunch, dinners chosen from templates, batch meals stretched across days, daily averages checked against calorie, protein, and fiber targets. Delivers the plan in the Mealie meal planner plus a shopping list scaled to the servings made, after the user approves it. Do not use it to build or change a template; that is `meal-template`.
+description: Use this skill whenever the user wants a number of days of meals planned from their existing meal templates and written into the recipe manager. Use it on 'plan my meals for the week', 'plan 5 days of dinners', 'make a meal plan', 'fill the mealie meal plan', 'what should we eat this week', 'plan meals using up the leftover spinach'. Writes the approved plan and a scaled shopping list to Mealie. Do not use it to build or change a template; that is `meal-template`.
 ---
 
 # Meal plan
 
 Plan meals for two people, the user and their partner, over the number of days the user names (the **plan period**). Plan them from finished meal templates. Deliver two things in the recipe manager: meal plan entries, and a shopping list covering every serving made in the plan period.
 
-The endpoints in `references/mealie-mealplan.md` are for Mealie. If the user's library is a different recipe manager, adapt the endpoints and keep the rules.
+Read `references/mealie-mealplan.md` before the first Mealie request. It holds the endpoints, payloads, tested scaling behaviour and server limits. If the user's library is a different recipe manager, adapt the endpoints and keep the rules.
 
-A **template** is a recipe tagged with a tag containing "Template" (for example "Dinner Template", "Breakfast Template"). Its stored nutrition is per serving and already verified; use it as is. Do not recompute template macros.
+A **template** is a recipe tagged with a tag containing "Template" (for example "Dinner Template", "Breakfast Template"). Its stored nutrition is per serving and already verified by `meal-template`; do not recompute it.
 
 ## Ask before planning
 
@@ -21,6 +21,7 @@ Ask in one message, and accept defaults for anything the user skips:
 * **Dinners to avoid or to repeat.**
 * **How many granola bowls are left in the current batch.**
 * **Whether pantry staples are stocked:** oil, salt, pepper, dried spices, soy sauce.
+* **Whether the partner's egg bomb includes berries.** The berry rows scale to the servings that do.
 
 ## Fixed meals
 
@@ -36,11 +37,9 @@ Look the recipes up by name. If one no longer exists, or has no stored calories,
 
 Read their nutrition and `recipeServings` at run time. Subtract one serving of each from the daily targets. The remainder is the **dinner budget**. For example, on 2026-09-14 the fixed meals came to ~1,330 kcal / 112 g protein / 24 g fiber. That left dinner ~670-720 kcal, with protein and fiber already near their floors.
 
-The egg bomb includes berries. Ask whether the partner's serving includes them, and scale the berry rows to the servings that do.
-
 ## Targets
 
-Averaged per day across the plan period, for the user only. The partner's servings do not count.
+Averaged per day across the plan period, for the user only. The user eats 1 serving of each dinner and each fixed meal. The partner's servings do not count.
 
 | Metric | Target | Tolerance | Acceptable average |
 |---|---|---|---|
@@ -68,14 +67,13 @@ Choose from recipes tagged "Dinner Template". Do not use "Carb Load Template", "
 
 **Selection.** Choose dinners so the targets hold. Within that constraint, prefer in this order:
 
-1. **Leftover ingredients.** Templates that use the leftover ingredients the user named. Match ingredient food names and notes, allowing plurals and near-synonyms (spinach / baby spinach).
+1. **Leftover ingredients.** Templates that use the leftover ingredients the user named. Match ingredient food names and notes, (spinach / baby spinach).
 2. **Variety.** Avoid repeating a template within the plan period or within the previous 14 days of the existing meal plan. Avoid the same main protein on consecutive cooks. Break these when they would leave too few candidates, and say so.
 
-Fetch full recipes for candidates. The recipe list endpoint returns no nutrition or ingredients.
-
+Fetch full recipes for candidates.
 ## Servings and scale
 
-Total the servings of every recipe across the plan period; the totals drive the shopping list. A recipe's **scale** is servings made ÷ `recipeServings`, with `recipeServings` read from the recipe.
+Total the servings of every recipe across the plan period; the totals drive the shopping list. A recipe's **scale** is servings made ÷ `recipeServings`, with `recipeServings` read from the recipe. In the bullets below, days means the days that meal is planned, after the user's changes to the fixed meals.
 
 * **Egg bomb and espresso:** 2 × days servings each.
 * **Dinners:** 2 × dinner days that template covers. A 4-serving template over 2 days is scale 1. A cook on the last day of the plan period is scale 2/S. A template planned twice sums its scales.
@@ -96,7 +94,7 @@ Writing to the meal plan and shopping list is an outward-facing change. Get the 
 
 ## Writing the meal plan
 
-* **Check existing entries in the date range first.** If any exist, show them and ask whether to keep, replace, or add alongside. Never delete entries without that answer.
+* **Check existing entries in the date range first.** If any exist, show them and ask whether to keep, replace, or add alongside. Never delete entries without that answer. Read the meal plan once, from 14 days before the start date through the end date. The same read serves the variety check and this one.
 * **One entry per slot per day:** breakfast, drink, lunch, dinner. Link each entry by `recipeId`.
 * **Put servings and leftovers in `text`**, since Mealie meal plan entries have no servings field:
   * `2 servings (user + partner)` for breakfast and drink, or `1 serving (user)` for lunch

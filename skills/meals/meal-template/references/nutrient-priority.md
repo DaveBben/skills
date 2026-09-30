@@ -1,38 +1,38 @@
 # Priority foods by nutrient density
 
+When choosing the add-on, read the section for the nutrient the template is short on.
+
+Contents: Fiber, Protein, Fat quality, Micronutrient density.
+
 Foods ranked per 100 kcal, so a template can be built under a calorie ceiling. Values are USDA FoodData Central, approximate to +/-10-20%.
-
-**The conversion:** `g per 100 kcal = (g per 100 g) / (kcal per 100 g) * 100`.
-
-**The protein ceiling:** protein is 4 kcal/g, so 25 g per 100 kcal is the physical maximum. `g protein per 100 kcal = 25 * (protein's share of calories)`.
 
 **The denominator distortion:** ranking per calorie rewards water content. A food at the top of the fiber or micronutrient list may require a portion nobody will eat. Check the gram weight of 100 kcal before selecting an add-on.
 
 ## Fiber
 
+**Practical add-ons:** cooked legumes rank lower per calorie (lentils 6.8, black beans 6.6, split peas 7.0) but deliver fiber and protein in one portion a person will actually eat. Prefer them when both targets are short. Endive and sauerkraut rank high only through water content (500+ g per 100 kcal). Wheat bran and cocoa powder reach their rank in gram-scale amounts that do not fit a dish (see the g = 100 kcal column).
+
 Whole foods only. Supplements and dried spices excluded; they outrank everything and are eaten in gram-scale amounts.
 
-| # | Food | Fiber g | kcal | g/100 kcal |
-|---|---|---|---|---|
-| 1 | Wheat bran, raw | 42.8 | 216 | 19.8 |
-| 2 | Endive, raw | 3.1 | 17 | 18.2 |
-| 3 | Turnip greens, boiled | 3.5 | 20 | 17.5 |
-| 4 | Chicory greens, raw | 4.0 | 23 | 17.4 |
-| 5 | Sauerkraut, canned | 2.9 | 19 | 15.3 |
-| 6 | Cocoa powder, unsweetened | 33.2 | 228 | 14.6 |
-| 7 | Nopales, raw | 2.2 | 16 | 13.8 |
-| 8 | Kohlrabi, raw | 3.6 | 27 | 13.3 |
-| 9 | Jicama, raw | 4.9 | 38 | 12.9 |
-| 10 | Raspberries, raw | 6.5 | 52 | 12.5 |
-| 11 | Blackberries, raw | 5.3 | 43 | 12.3 |
-| 12 | Mustard greens, boiled | 3.2 | 26 | 12.3 |
-| 13 | Collards, boiled | 4.0 | 33 | 12.1 |
-| 14 | Eggplant, raw | 3.0 | 25 | 12.0 |
-| 15 | Passion fruit, raw | 10.4 | 97 | 10.7 |
+| # | Food | Fiber g | kcal | g/100 kcal | g = 100 kcal |
+|---|---|---|---|---|---|
+| 1 | Wheat bran, raw | 42.8 | 216 | 19.8 | 46 |
+| 2 | Endive, raw | 3.1 | 17 | 18.2 | 588 |
+| 3 | Turnip greens, boiled | 3.5 | 20 | 17.5 | 500 |
+| 4 | Chicory greens, raw | 4.0 | 23 | 17.4 | 435 |
+| 5 | Sauerkraut, canned | 2.9 | 19 | 15.3 | 526 |
+| 6 | Cocoa powder, unsweetened | 33.2 | 228 | 14.6 | 44 |
+| 7 | Nopales, raw | 2.2 | 16 | 13.8 | 625 |
+| 8 | Kohlrabi, raw | 3.6 | 27 | 13.3 | 370 |
+| 9 | Jicama, raw | 4.9 | 38 | 12.9 | 263 |
+| 10 | Raspberries, raw | 6.5 | 52 | 12.5 | 192 |
+| 11 | Blackberries, raw | 5.3 | 43 | 12.3 | 233 |
+| 12 | Mustard greens, boiled | 3.2 | 26 | 12.3 | 385 |
+| 13 | Collards, boiled | 4.0 | 33 | 12.1 | 303 |
+| 14 | Eggplant, raw | 3.0 | 25 | 12.0 | 400 |
+| 15 | Passion fruit, raw | 10.4 | 97 | 10.7 | 103 |
 
 Near misses: artichoke 10.8, beet greens 10.7, asparagus 10.5, spinach 10.4, cabbage 10.0.
-
-**Practical add-ons:** cooked legumes rank lower per calorie (lentils 6.8, black beans 6.6, split peas 7.0) but deliver fiber and protein in one portion a person will actually eat. Prefer them when both targets are short.
 
 ## Protein
 
@@ -114,4 +114,4 @@ Ranked by count of essential micronutrients reaching 10% DV or more per 100 kcal
 
 **Cap liver at 100 g per week.** Preformed retinol accumulates; 100 g of beef liver is roughly 9000 ug RAE against a 3000 ug daily upper limit.
 
-**Shellfish is the only category that ranks high and eats in one sitting.** Rows 3, 6, and 8 win the ratio and lose the meal.
+**Organ meats, shellfish and small oily fish rank high and eat in one sitting.** Rows 3, 6, and 8 win the ratio and lose the meal.

@@ -1,14 +1,14 @@
 # Record one decision
 
-Loaded by the `architecture` skill for every decision it records: an answer from its Decide step, an expensive or irreversible choice, an accepted hazard, a rejected alternative, a choice a spike made alone that the user chose to record, knowledge that cost time to acquire, or a test the story's test table dropped as "no test required" whose absence a later reader would question. An ADR (architecture decision record) is one Markdown file under `docs/adr/` that says what was decided, why, and what it gave up.
+Loaded by the `architecture` skill for every decision it records: an answer from its Decide step, an expensive or irreversible choice, an accepted hazard, a rejected alternative, a choice a spike made alone that the user chose to record, knowledge that cost time to acquire, or a test that a story's test plan listed and then dropped as "no test required" whose absence a later reader would question. An ADR (architecture decision record) is one Markdown file under `docs/adr/` that says what was decided, why, and what it gave up.
 
-Write it immediately when the decision is made, not at the end of the feature, and only after the user gives or confirms the reasons.
+Write it immediately when the decision is made, not at the end of the feature.
 
 ## Ask before writing
 
 The reasons in the ADR are the user's. Never record one the user has not given or confirmed. When the user deferred to the agent's recommendation, record the agent's reason, marked as the agent's, with the line "The user deferred to the agent's recommendation."
 
-* **From the Decide step, the answer is the reasons.** When the decision came from putting alternatives and a tradeoff to the user, their answer to that message is the reasons. Ask nothing more unless it gives no reason at all. An answer that defers to the agent is the reasons: record it by the rule above and ask nothing more.
+* **From the Decide step, the answer is the reasons.** When the decision came from putting alternatives and a tradeoff to the user, their answer to that message is the reasons. Ask nothing more unless it gives no reason at all.
 * **Otherwise draft the three answers** from the conversation, the code and any spike findings, and put them to the user in one message to correct, then wait. Name the obvious route in the third question. Record the answers as the user leaves or rewrites them, and write "unknown" for any the agent could not draft:
 
 ```text
@@ -19,13 +19,10 @@ Before recording <decision>, correct anything wrong:
 ```
 
 * **When the decision was the agent's own choice,** state the agent's reason, the obvious alternative and the tradeoff in the same message, and ask the user to confirm, change or replace the reason.
-* **Give feedback on the answer before writing, only when there is something to give.** One message: a tradeoff the answer did not name, an alternative nobody considered, a hazard the answer accepts without a test, or a reason that does not hold against the code, each with its mechanism. When the answer holds up, write the file without a feedback message. The user amends the decision or the reason, or says write it.
+* **Outside the Decide step, give feedback on the answer before writing, only when there is something to give.** One message: a tradeoff the answer did not name, an alternative nobody considered, a hazard the answer accepts without a test, or a reason that does not hold against the code, each with its mechanism. When the answer holds up, write the file without a feedback message. The user amends the decision or the reason, or says write it.
 * **Quote the user's reasons** in the Decision paragraph and in "Why the obvious fixes don't work here", in their words. The agent's feedback goes in "What it doesn't buy" or "Alternatives rejected", marked as the agent's.
 
 ## File Naming and Location
-
-Write every ADR for a reader who did not see the conversation: from the file alone, they can say what was decided, why, and what would make it wrong.
-
 
 * **Feature-scoped:** `docs/adr/{slug}/<decision-name>.md` for a decision belonging to one change. The `{slug}` is the feature's slug, the one in its `story/{slug}/` branches.
 * **Global:** `docs/adr/architecture/<decision-name>.md` for a decision applying to the whole repository, or when no feature is open.
@@ -41,7 +38,7 @@ Write every ADR for a reader who did not see the conversation: from the file alo
 
 ## The Template
 
-Title: an imperative sentence stating the decision, e.g. `# Keep the LLM safe with a concurrency cap, not a timeout`. Readers read the title, the Decision and the Detector, and open the rest only when the Decision names what they touch, so those three carry the decision on their own.
+From the file alone, a reader can say what was decided, why, and what would make it wrong. Title: an imperative sentence stating the decision, e.g. `# Keep the LLM safe with a concurrency cap, not a timeout`. Readers read the title, the Decision and the Detector, and open the rest only when the Decision names what they touch, so those three carry the decision on their own.
 
 Short form, the default, under 20 lines:
 
@@ -57,14 +54,12 @@ One bullet per alternative: what it is, the exact metric or reason it lost.
 **Supersedes:** none, or the exact file it replaces.
 ```
 
-Long form, only when the decision accepts a hazard or follows an incident: add these sections after `Alternatives rejected`, each only when it has something to say.
+Long form, only when the decision accepts a hazard or follows an incident: add these sections after `Alternatives rejected` and before `Supersedes:`, each only when it has something to say.
 
 * `## The problem`: what the feature does, the platform mechanism it strains with its config key and default, and the incident.
 * `## Why the obvious fixes don't work here`: one bullet per fix a reader reaches for first and why it misses, then the actual cause in one sentence.
 * `## What it buys`: load or risk before versus after in the reader's terms, the kill switch, and any dependency added or avoided.
 * `## What it doesn't buy`: what stays soft or accepted, the assumptions it rests on, and the measurements to take before the next expansion.
-
-When a new ADR supersedes an old one, add `**Superseded by:** <new file>` under the old one's title.
 
 A short-form ADR, for density and tone:
 

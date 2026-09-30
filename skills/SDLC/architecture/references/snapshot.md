@@ -1,8 +1,8 @@
 # Write an architecture snapshot
 
-Load this whenever the `architecture` skill writes the system's shape: the capture path and its Record step. A snapshot is one Markdown file, `docs/architecture/snapshots/<YYYY-MM-DD>.md`, that lets a reader who has never opened the code explain how the system works and predict what a change would do. It is dated, and never edited after its commit. A later snapshot replaces it, and `AGENTS.md` points at the latest one. On a day that already has a snapshot, edit that day's file.
+Load this whenever the `architecture` skill writes the system's shape: the capture path and its Record step. A snapshot is one Markdown file, `docs/architecture/snapshots/<YYYY-MM-DD>.md`, that lets a reader who has never opened the code explain how the system works and predict what a change would do. It is dated and frozen once a later day's snapshot exists. A later snapshot replaces it, and `AGENTS.md` points at the latest one. On a day that already has a snapshot, edit that day's file instead of adding a second.
 
-Write it for a reader who did not see the conversation. The reader is a person, or an agent about to change the code. Its test is the reconstruction test: from the file alone, the reader can follow each key flow through the system, say what fails and what the person using it sees, and name the file to change.
+The reader is a person, or an agent about to change the code. Its test is the reconstruction test: from the file alone, the reader can follow each key flow through the system, say what fails and what the person using it sees, and name the file to change.
 
 ## Sources
 
@@ -12,7 +12,7 @@ Write it for a reader who did not see the conversation. The reader is a person, 
 * **Write "unknown" where nothing read settles a fact,** and list it under Open questions. Never fill a cell from what is plausible.
 * **Cite a test as an enforcer only after reading its assertions.** A test whose name matches the rule but asserts something narrower is not the rule's enforcer; name what it does cover.
 * **Follow each write to its commit.** For every file, store or message a unit of work touches, state whether it happens before or after the commit, and what a failure between the two leaves behind.
-* **Refute before committing.** Hand the draft to a fresh subagent told to disprove each claim against the code (every test ID, number, path, link and failure row), and fix or delete each claim it refutes.
+* **Refute a snapshot of built code before committing it.** Hand the draft to the `refute` agent (`../agents/refute.md`), or a fresh subagent where the harness has no named agents, told to disprove each claim against the code (every test ID, number, path, link and failure row), and fix or delete each claim it refutes. A "planned, not yet built" snapshot skips this.
 
 ## The summary the user owns
 
@@ -32,7 +32,7 @@ When a smaller choice has alternatives and the ranked qualities pick one, the qu
 
 Leave out a section with nothing to say. Add a section for any mechanism a reader needs that this list lacks. Sections 1 to 7 are the part a person reads, and stay under about 100 lines together. Head section 8 onward with "Reference: read when changing that part".
 
-1. **Header:** the date, the commit read (hash and subject) or "planned, not yet built", and one line saying the file is never edited, and that `AGENTS.md` points at the latest snapshot and at `docs/architecture/summary.md`.
+1. **Header:** the date, the commit read (hash and subject) or "planned, not yet built", and one line saying the file is not edited after its date, and that `AGENTS.md` points at the latest snapshot and at `docs/architecture/summary.md`.
 2. **Changed since the previous snapshot:** one line per process, store, module, flow, owner, failure row or decision added, removed or changed, with the story that changed it. On the first snapshot, write "First snapshot."
 3. **What the system does:** one paragraph a person could say aloud. Name who uses the output and what they see, the one unit of work, and each outside system it depends on. Then the numbers the system is held to (load, response time, downtime, accuracy), each with its source, and what a spike or a log measured.
 4. **The system and what it talks to:** one Mermaid `flowchart` with the system as one box, and each kind of person and each outside system around it, each arrow labelled by what crosses it.

@@ -32,7 +32,7 @@ Structured `quantity`, `unit`, and `food` fields are what the serving slider sca
 
 * **Use the `nlp` parser.** The built-in CRF parser needs no API key and returns usable confidence scores. The `openai` parser requires a key configured server-side and fails silently with non-JSON when it is missing, which manifests as a client hanging through its retry backoff.
 * **Create missing foods before assigning them.** A parser result whose `food` has no `id` needs `POST /api/foods` first.
-* **Verify after patching.** Re-fetch and confirm every row kept its text and gained a food. Restore from a snapshot taken before the write if any row is corrupted.
+* **Verify after patching.** Re-fetch and confirm every row kept its text and gained a food. Before any `PUT` or `PATCH`, save the recipe JSON from a `GET` to a local file, and restore from it if any row is corrupted.
 
 ## Scaling
 
@@ -54,8 +54,8 @@ Further rules:
 | Field | Content |
 |---|---|
 | `name` | Prefix with the template number so the set sorts together |
-| `tags` | One tag shared by every template, for filtering |
-| `description` | Per-serving macros, the base recipe and its source, what the add-on closes, the targets, the sensitivity result, known weak points such as sodium, valid swaps, and the note that instruction amounts do not scale |
+| `tags` | `<Meal> Template`, for example `Dinner Template` or `Breakfast Template`. The meal planner selects templates by this tag. |
+| `description` | Per-serving macros, the base recipe and its source, what the add-on closes, the targets, the low-end recompute result, known weak points such as sodium, valid swaps, and the note that instruction amounts do not scale |
 | `nutrition` | Per serving: `calories`, `proteinContent`, `fiberContent`, `fatContent`, `carbohydrateContent`, `sodiumContent`. Strings. |
 | `recipeServings`, `recipeYieldQuantity` | Both set to the native serving count. `recipeYieldQuantity` defaults to 0 and is easy to miss. |
 | `prepTime`, `performTime`, `cookTime`, `totalTime` | Update after an instruction rewrite; added steps change them |

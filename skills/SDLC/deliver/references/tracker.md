@@ -1,6 +1,6 @@
 # Where the stories live
 
-Load this before reading or writing any story. The work needs a project tracker: an epic per feature whose description holds the feature header, its stories and spikes as child issues linked by blocking links, and each issue's comments as its log. The tracker's own words are used throughout: epic, story, bug, spike, rank, status.
+Read section 1, "Where each artifact lives" and "When the tracker cannot be reached" in the main session. Sections 2 and 3 are for the agent that runs a tracker operation. The tracker's own words are used throughout: epic, story, bug, spike, rank, status.
 
 ## 1. Find the tracker, or set one up
 

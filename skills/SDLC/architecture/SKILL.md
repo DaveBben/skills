@@ -1,26 +1,25 @@
 ---
 name: architecture
-description: "Use this skill when a choice costs more than a day to reverse, when a system's shape must be decided or mapped, when a decision or an accepted risk must be recorded, when an idea must be tried, compared or tested with throwaway code before it is built for real (which approach, library, model or pattern works best, or whether a change helps), or when work is asked for in a repository with no application yet. Use it on: 'how should this be structured', 'should I use X or Y', 'let's build this' in an empty repo, 'note this decision', 'record the why', 'write an ADR', 'snapshot the architecture', 'do a spike', 'let's prove this works first', 'try a few approaches and see', 'test whether X improves Y', 'find the best model for this', 'experiment with', 'prototype', 'mock this up', 'a demo', 'is X feasible', 'see how this would fit or integrate', 'what would it take to move to X', 'template project'. Load it before asking what the user means. Runs spikes, maps the system, records decisions with the user's reasons."
+description: "Use this skill when a choice costs more than a day to reverse, when a system's shape must be decided or mapped, when a decision or an accepted risk must be recorded, when an idea must be tried, compared or tested with throwaway code before it is built for real, or when work is asked for in a repository with no application yet. Use it on: 'how should this be structured', 'should I use X or Y', 'let's build this' in an empty repo, 'note this decision', 'record the why', 'write an ADR', 'snapshot the architecture', 'do a spike', 'let's prove this works first', 'try a few approaches and see', 'test whether X improves Y', 'find the best model for this', 'experiment with', 'prototype', 'mock this up', 'a demo', 'is X feasible', 'see how this would fit or integrate', 'what would it take to move to X', 'template project'. Load it before asking what the user means. Runs spikes, maps the system, records decisions with the user's reasons."
 license: MIT
-compatibility: any-agent
 metadata:
   version: "3.1.0"
 ---
 # Architecture
 
-Architecture is the set of decisions that are expensive to reverse, and the shape they give the system: which processes run, which modules own what, and how they talk. Decide it in this order: prove each unknown with a spike, take a broad starting shape, record each decision, prove the shape with a walking skeleton (the thinnest end-to-end version a real person can use, built first), and change it by refactoring as stories teach more.
+Decide architecture in this order: prove each unknown with a spike, take a broad starting shape, record each decision, prove the shape with a walking skeleton (the thinnest end-to-end version a real person can use, built first), and change it by refactoring as stories teach more.
 
 ## Where things are written
 
 * **The shape:** a dated snapshot under `docs/architecture/snapshots/`, by [references/snapshot.md](references/snapshot.md), with one `Architecture:` line in `AGENTS.md` pointing at the latest. The user owns a one-page summary, `docs/architecture/summary.md`, by the same reference.
 * **Each decision:** an ADR (architecture decision record) under `docs/adr/`, by [references/adr.md](references/adr.md).
 * **Each rule:** a test or a dependency contract, which the `guardrails` skill writes.
-* **The feature:** when a feature is open, its epic's description on the tracker the `Backlog:` line of `AGENTS.md` names (the feature header) gets `Decided:` (one ADR path per line) and `Deferred:` (one open item per line, with what will force it), and each number on its `Constraints:` line. With no feature header, ask the user for the outcome in one sentence and the steps a person takes.
+* **The feature:** the feature header is the epic's description on the tracker that the `Backlog:` line of `AGENTS.md` names. When a feature is open, write to it `Decided:` (one ADR path per line), `Deferred:` (one open item per line, with what will force it), and each number on `Constraints:`. With no feature header, ask the user for the outcome in one sentence and the steps a person takes.
 * **Commit** a plan's ADRs, snapshot and `AGENTS.md` change on `story/{slug}/0-plan` (the slug is the epic's key) with a pull request the user merges before the first story, or on main in a repository with no remote. A single decision commits by `adr.md`.
 
 ## Asking
 
-Everything here is agreed with the user. Look up any fact the code, the data or the tracker holds, and use it. Put a fact only a named person knows on the epic for that person. Ask one question per message, opening with one line naming the repository and the feature, with the harness's multiple-choice tool where it has one (Claude Code's AskUserQuestion).
+Everything here is agreed with the user. Look up any fact the code, the data or the tracker holds, and use it. Put a fact only a named person knows on the epic for that person. Ask one question per message. A set of drafts for the user to correct (the Numbers, the Map tables, an ADR's three answers) goes in one message. Open each message with one line naming the repository and the feature, with the harness's multiple-choice tool where it has one (Claude Code's AskUserQuestion).
 
 ## Pick the path
 
@@ -60,7 +59,7 @@ Propose three tables, only for what the outcome touches, and let the user edit t
 
 List what the outcome touches and cannot cheaply reverse: the repositories and the language and platform of each; every flow crossing a process, machine or repository; per store, what makes a record unique, the rules the data always keeps (preferring database constraints), retention and deletion, backup and a proved restore, and how the schema changes; the trust and consistency boundaries; each choice a number or the sensitive-data answer forces.
 
-Read the latest snapshot `AGENTS.md` points at and the titles under `docs/adr/`, skipping superseded ones, and state what the code and those records already settle, with the file. Put each other item to the user one per message: the problem, the constraints, and the alternatives with their tradeoff, marking none as recommended. Ask which the user would pick, and wait. "Not sure" or "you pick" is an answer: give the recommendation and its reason, and record it. Once they answer, say in one sentence whether the agent would have picked differently and why. Record each answer before the next question and before any code that depends on it.
+Read the latest snapshot `AGENTS.md` points at and the titles under `docs/adr/`, skipping superseded ones, and state what the code and those records already settle, with the file. Put each other item to the user one per message: the problem, the constraints, and the alternatives with their tradeoff, marking none as recommended. Ask which the user would pick, and wait. "Not sure" or "you pick" is an answer: give the recommendation and its reason, and record it. Once they answer, say in one sentence whether the agent would have picked differently and why, and in the same message any tradeoff, alternative or untested hazard the answer missed. Record each answer before the next question and before any code that depends on it.
 
 * **A third-party service** the tests cannot use at the volume or failure modes needed gets an ADR for a twin: a fake under `tests/twins/<service>/` whose contract suite runs against the twin in every check and against recorded real responses on a schedule.
 * **Data the system cannot regenerate** puts a restore criterion on the story that first stores it.
@@ -71,7 +70,7 @@ Each item ends Decided (an ADR on `Decided:`), Deferred (on `Deferred:` with wha
 
 ## Stand up a repository
 
-Once a new repository's language is decided, run [scripts/scaffold.sh](scripts/scaffold.sh) `<template> <name> <directory> <test command>`. It clones the template, strips its history, renames `example_project`, runs the tests and commits each step. The Python template is `https://github.com/DaveBben/claude-ready-python-codebase`, tested with `uv run pytest`. With no template for the language, run the platform's own generator (`cargo new`, `npm init`) and add one passing test. Then replace the README with the project name and one sentence, delete docs that describe the template, remove sample modules and the dependencies only they used, keeping anything ambiguous, and run the tests again. Rewrite the `new:` line to the remote URL or path. Then run the `guardrails` skill for `AGENTS.md` and the checks, before "Record" points `AGENTS.md` at the snapshot.
+Once a new repository's language is decided, run [scripts/scaffold.sh](scripts/scaffold.sh) `<template> <name> <directory> <test command>`. It clones the template, strips its history, renames `example_project`, runs the tests and commits each step. The Python template is `https://github.com/DaveBben/claude-ready-python-codebase`, tested with `uv run pytest`. With no template for the language, run the platform's own generator (`cargo new`, `npm init`) and add one passing test. Then replace the README with the project name and one sentence, delete docs that describe the template, remove sample modules and the dependencies only they used, keeping anything ambiguous, and run the tests again, then commit. Rewrite the `new:` line to the remote URL or path. Then run the `guardrails` skill for `AGENTS.md` and the checks, before "Record" points `AGENTS.md` at the snapshot.
 
 ## Record
 
