@@ -108,5 +108,6 @@ Non-negotiable: <pinned values, limits and frozen files from the code, with file
 Assumes: <each fact read from a document, and how it was checked>
 Questions: <each open value or product decision, one line>
 Split: <proposed stories, only when the story is several>
+Security: needed: <which of: a trust boundary, personal or health data, a credential or secret, authentication or authorization, payments, cryptography, memory handled by hand> | not needed
 Yours:   <proposed mode, core or sketch, and why in a few words>; sketch: <file with the marker>; core: <row number, file:lines, signature, the function that calls it, where its data comes from and goes>; or "none"
 ```

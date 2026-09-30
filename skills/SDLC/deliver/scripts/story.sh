@@ -170,6 +170,8 @@ status)
           else
             at="reviewed: verify, then show the criteria for confirmation"
           fi
+        elif [ -f "$(dirname "$db")/refactor.md" ]; then
+          at="refactored and not reviewed: review"
         elif git -C "$wt" grep -q 'TODO(user)' -- . 2>/dev/null; then
           at="waits for the user's turn: offer the core or sketch at its TODO(user) marker"
         elif [ -n "$(git -C "$wt" config --get-all "branch.$b.redCommit" || true)" ]; then
@@ -198,6 +200,9 @@ self-test)
   echo "# TODO(user): row 1" > app_a
   (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "user's turn" || die "FAIL status misses a waiting user's turn"
   echo stub > app_a
+  touch "$(git rev-parse --git-dir)/refactor.md"
+  (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "refactored and not reviewed" || die "FAIL status after the refactor"
+  rm "$(git rev-parse --git-dir)/refactor.md"
   printf 'DONE\nFindings:    pending refute\n' > "$(git rev-parse --git-dir)/done-block.md"
   (cd "$t/app" && "$me" status 2>/dev/null) | grep -q "not refuted" || die "FAIL status before the refute"
   echo "DONE" > "$(git rev-parse --git-dir)/done-block.md"
