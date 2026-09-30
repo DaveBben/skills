@@ -3,7 +3,7 @@ name: deliver
 description: "Use this skill before touching any file on a request to add, change, fix or remove behaviour in code that exists, or to build stories already mapped. Use it on: 'add X', 'fix the bug where X', 'X is broken', 'refactor X', 'build story X', 'work through this epic', 'write the acceptance criteria', 'pick up where we left off', 'write the PR description'. Use it even when the change looks small. Takes each story through agreed criteria, failing tests, a build, a review and a pull request into main."
 license: MIT
 metadata:
-  version: "20.0.0"
+  version: "20.1.0"
 # Claude Code only: registered when the skill runs, for the rest of the session.
 # scripts/hook.py says what each handler does; any agent reaches the same rules
 # through `story.sh next`. Without the plugin's path or python3, each exits 0.

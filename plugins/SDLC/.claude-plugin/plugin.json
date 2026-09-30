@@ -1,6 +1,6 @@
 {
   "name": "SDLC",
-  "version": "15.0.0",
+  "version": "15.1.0",
   "description": "Engineering practice run with the human rather than recited at them, in five skills. epic maps an idea, PRD or epic into stories, reviews an existing epic and closes it out. deliver takes each story through criteria the user agrees before anything is pushed, failing tests first, a build, an independent review and a pull request into main. architecture spikes unknowns and records each expensive decision with the user's reasons. guardrails writes AGENTS.md and the checks. review-code reviews pull requests and the user's own code, designs and plans through one review engine. The user makes every product call and every call expensive to reverse, one question at a time.",
   "license": "MIT",
   "author": {

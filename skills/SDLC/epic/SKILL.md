@@ -3,7 +3,7 @@ name: epic
 description: "Use this skill when an idea, a PRD or an epic must become stories, or when an epic's stories must be reviewed, picked or closed out. Use it on: 'I have an idea', 'break this epic down', 'turn this PRD into stories', 'review this epic', 'are these the right stories', 'what should I pick up next', 'close out this epic'. Agrees the feature header, the story map and the feature acceptance test with the user, then hands each story to the deliver skill."
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 # Epic
 
@@ -29,7 +29,7 @@ The `lookup`, `worker`, `setup` and `refute` agents are each defined by one file
 
 ## 1. Find what exists first
 
-Have the `lookup` agent return the epic's header lines, each child's key, title, rank, blockers and outcome line, and the problem, outcome and non-goals any linked requirements document states. When they state the problem, the outcome and the non-goals, take those lines, citing where each came from. Draft any missing line from them and put the drafts to the user in one message to correct. An epic with no description gets the header written into it by section 3. Have the `lookup` agent search this codebase for the behaviour; when something already does the job, say where and wait.
+Have the `lookup` agent return the epic's header lines, each child's key, title, rank, blockers and outcome line, and the problem, outcome, non-goals, author and the priority of each requirement (must, should, nice to have, a phase or an MVP label) any linked requirements document states. When they state the problem, the outcome and the non-goals, take those lines, citing where each came from. Draft any missing line from them and put the drafts to the user in one message to correct. An epic with no description gets the header written into it by section 3. Have the `lookup` agent search this codebase for the behaviour; when something already does the job, say where and wait.
 
 When the epic has children, they are the proposed stories: show them in rank order, each with an outcome line written from its text, check them against the ready check in section 4, and draft no second list. The user confirms, rewords, cuts or re-ranks in one turn. Criteria are written when each story starts. Several epics are several features, one loop each.
 
@@ -47,7 +47,8 @@ Problem:     <who hits it, how often, what they do today instead>
 Not doing:   <one checkable non-goal per line>
 Success:     <the signal that shows the outcome happened; which direction is good; the noise band>
 Target:      <the date the outcome must ship by, from the epic's due date; omit when none>
-Release:     <the story keys that must ship by Target, in rank order; the release line sits under the last>
+Release:     <the smallest set of story keys that delivers Outcome, in rank order; the release line sits under the last>
+Owner:       <the named person who agrees the release line and each story's product-choice criteria (a product owner, often the requirements document's author); omit when the user decides>
 Constraints: <one line per rule every story must keep true>
 Context:     <facts every story needs: environments, variables, URLs, test accounts, deploy and rollback commands, where each credential lives but never its value; the grants the user gave>
 Repositories: <one line per repository: name and remote URL, local path without a remote, or "new: <name>">
@@ -61,17 +62,19 @@ A fact true of the whole repository belongs in `AGENTS.md`, not here.
 
 ## 4. The story map
 
-Under each step, draft the stories that let a person do it, each with a title naming what the person can do and an outcome line. Mark the thinnest slice across all the steps, touching every layer and reaching a real deploy, as `[walking skeleton]`. When the work is uncertain, draft the walking skeleton and the spike for the largest unknown in full, and mark the rest `[candidate]`. Write no criteria here; each story's criteria are written when it starts.
+Under each step, draft the stories that let a person do it, each with a title naming what the person can do and an outcome line. Mark the thinnest slice across all the steps, touching every layer and reaching a real deploy, as `[walking skeleton]`. When the work is uncertain, draft the walking skeleton and the spike for the largest unknown in full, and mark the rest `[candidate]`. A `[candidate]` has a title and an outcome line only, with no split and no blockers until it is picked. Write no criteria here; each story's criteria are written when it starts.
+
+Draw the release line under the smallest set of stories that delivers the outcome. Place each story by the priority the requirements document gives it, citing it; a story the document marks optional, or one the outcome does not need, goes below the line as a `[candidate]`. Ask the user about the stories whose side no document states, as one question that picks the ones above the line. When the header names an `Owner:`, the line stays proposed until the user reports that person agreed it.
 
 Only stories and spikes get cards. A requirement on how well a story behaves, an enabler nobody perceives alone (a column, a service), a property of a behaviour, and a task are criteria or test rows on the story that needs them. A decision is a comment on the story it blocks.
 
 Split a story that covers more than one step or variation with the first pattern that works: one per workflow step; create, then read, update, delete; the simplest business rule first; one kind of data first; the plainest interface first; the simplest version first, each complication its own story; make it work, then make it fast; a timeboxed spike when something unknown blocks every pattern. Cut across layers, never along them. Fold hardening into the story that creates the exposure. Hardcode data in the walking skeleton, never a crossing into another running piece.
 
-Write each blocker on the story it blocks: a story it builds on, a spike it needs, or an open decision. A spike blocks each story that waits on its answer. Put the drafted header lines and the map to the user in one message, saying that the first story waits for their feature acceptance test (section 5). Have a `worker` create the cards only after the user confirms. Record no order beyond the `Release:` line.
+Write each blocker on the story it blocks: a story it builds on, a spike it needs, or an open decision. A spike blocks each story that waits on its answer. Put the drafted header lines and the map to the user in one message, each story marked above or below the release line with its reason, saying that the first story waits for their feature acceptance test (section 5). Have a `worker` create the cards only after the user confirms. Record no order beyond the `Release:` line.
 
-Adding a story that building revealed is expected. A child added after the map is agreed goes below the release line unless the user moves it above. A task, or a fix the outcome does not need, stays off the epic.
+Adding a story that building revealed is expected. A child added after the map is agreed goes below the release line as a `[candidate]` unless the user, or the `Owner:` when the header names one, moves it above. A task, or a fix the outcome does not need, stays off the epic.
 
-Ready when the outcome names what a person does and where, `Success` names a signal someone can check, every story sits under a step with its blockers or "nothing", and one slice is the walking skeleton unless the work extends a deployed application.
+Ready when the outcome names what a person does and where, `Success` names a signal someone can check, every story sits under a step, every story above the release line has its blockers or "nothing", every story's side of the line cites the requirements document or the user's answer, and one slice is the walking skeleton unless the work extends a deployed application.
 
 ## 5. The feature acceptance test
 

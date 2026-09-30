@@ -9,6 +9,7 @@ An epic is one tracker issue whose child issues are its stories (changes a perso
 * **No access rule:** a story that crosses a trust boundary or touches personal or health data with no criterion saying who may do what, and what is refused.
 * **Wrong blocker:** a link in the wrong direction, a story shown ready whose blocker was dropped with a closed ticket, a hardening story blocked by the story it hardens.
 * **Stale card:** criteria or a description naming a route, a module or a design the code no longer has.
+* **No release line:** no `Release:` line on the epic, or a story above it that its own text or the linked requirements document marks optional (should, could, nice to have, a later phase).
 * **Over the limit:** a story with more criteria that record a product choice (a number, an arguable rule, an open boundary) than the limit `AGENTS.md` states, else 8; it is several stories.
 
 ```text
@@ -19,6 +20,7 @@ Too many cards:  <cards> -> <shared sentence> -> one story
 Ships nothing:   "<title>" -> <what a person still cannot do>
 Wrong blocker:   <story> -> <what blocks it in fact>
 Stale card:      <card> -> <what it names> -> <what the code has instead>
+No release line: <story, or "epic"> -> <the quoted priority> -> below the line
 Over the limit:  <card> -> <n> product-choice criteria -> <the split>
 No access rule:  <card> -> <the boundary or data it touches>
 Refuted:         <card>:<field> -> <what was raised> -> <what stops it>
