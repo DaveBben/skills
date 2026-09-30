@@ -60,11 +60,12 @@ One index table, then one block per row. Keep index cells under forty characters
 ```text
 | # | Test | Level | Generator | Killed by |
 |---|---|---|---|---|
-| 1 | <what the person can do> | Acceptance | Requirement | <the one-line change, or observable change, that turns it red> |
+| 1 | <what the person can do> | Acceptance | Requirement | <its competitor, in a few words> |
 
 **1. <title>**
 **Given** <a concrete state>  **When** <an action>  **Then** <what the person sees>
 **Prevents** <the failure a person would see>
+**Killed by** <the competitor, and the fixture value that fails on it>
 ```
 
 Generate rows in this order; a generator with nothing to fire on adds none.
@@ -72,12 +73,25 @@ Generate rows in this order; a generator with nothing to fire on adds none.
 * **Requirement:** one acceptance row per criterion, through the interface the person uses: a browser test for a screen, a request to a running service for an API, the command for a CLI. It is never cut.
 * **Seam:** one row per boundary crossed (a database, a queue, a third-party API), pinned against a recorded exchange where the real one is unreachable.
 * **Type:** for each field touched, empty, null, zero, negative, the delimiter, each enum value, and the wrong type for data written outside this system.
-* **Cardinality:** zero, one and many for each collection, page or retry.
-* **Both sides:** a negative test from the attacker's seat for each authorisation check.
+* **Cardinality:** zero, one and many for each collection, page or retry; many is at least three, more than one page, or past the retry bound.
+* **Both sides:** a negative test from the attacker's seat for each authorisation check, and its twin: the same request succeeding for the owner.
 * **Invariant:** a round trip, ordering or conservation law becomes one property test.
 * **Budget:** each number in `AGENTS.md` or the header this story touches, asserted.
 
-Cut a row that asserts a private function, call order, a log line or an unstated order; one that only fails when another does; and one that prevents nothing a person would see. A row already green on the current code stays only when it is a Requirement row; mark it `characterizes existing behaviour`. A row that exposes a product decision nothing records goes back as a question, and stays out of the red commit.
+**Killed by** names the row's **competitor**: a wrong implementation a builder could plausibly ship that passes every other row. A row is **blind** when its fixture gives the right code and its competitor the same result. The review writes each competitor as a patch to the lines the story wrote, and `story.sh kill` reports each patch no test turns red; that row is rewritten. Fixtures that make a row blind, and the competitor each hides:
+
+* **A batch of one, or the failing item first or last:** skips the bad item, or stops at it. Fail the middle item of three and assert its neighbours' stored state.
+* **An error row that asserts only the raise:** writes half the batch. Assert the stored rows after the error.
+* **The same value in two fields** (`id=1, user_id=1`): swapped arguments, a join on the wrong column.
+* **An identity or default value** (quantity 1, discount 0, the config default): ignores the input.
+* **Input already in order, or fewer rows than a page:** no sort, no second page, a cursor that repeats.
+* **Two calls in sequence for a race, a fake that never fails for a retry, a clock that never reaches the limit for a timeout:** no lock, no retry, no timeout.
+* **A failure raised from the code's own function:** skips the code that translates the dependency's error. Make the dependency fail.
+* **A test inside a wrapping transaction, or on another database engine than production's:** on-commit hooks that never fire, a rollback that passes trivially.
+* **A property-test generator narrower than the field** (positive, ASCII, non-empty): fails on the excluded values.
+* **An idempotency row that reads only the response:** a second stored row. Assert the count.
+
+Cut a row that asserts a private function, call order, a log line or an unstated order; one that only fails when another does; and one that prevents nothing a person would see. A row already green on the current code stays only when it is a Requirement row; write `characterizes existing behaviour` in its index row. A row that exposes a product decision nothing records goes back as a question, and stays out of the red commit.
 
 ## The user's turn
 

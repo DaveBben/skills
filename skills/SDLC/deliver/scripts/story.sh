@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Usage: story.sh start <slug> <key> <short-name> | adopt <key> | red [hash...] | unred | confirm | rebase | verify '<check command>' | close <branch> | status [--local] | next [step] | self-test
+# Usage: story.sh start <slug> <key> <short-name> | adopt <key> | red [hash...] | unred | confirm | rebase | verify '<check command>' | kill '<test command>' | close <branch> | status [--local] | next [step] | self-test
 #
 # The git steps of a story, run from any worktree of the repository.
 #   start   cuts story/<slug>/<key>-<short-name> from the latest main into a
@@ -7,7 +7,8 @@
 #           issueKey for the commit hook that tags messages, and prints its path
 #   adopt   makes the branch checked out here a story branch for <key>, for
 #           work that already has a branch or an open pull request
-#   red     records HEAD, or each hash given, in the accepted-test guard
+#   red     records HEAD, or each hash given, in the accepted-test guard, and
+#           refuses a commit whose test table leaves a Killed by cell empty
 #   unred   clears the guard's record of every red commit on this branch
 #   confirm records that the user confirmed the story's criteria; the push
 #           guard refuses a push or pull request for the branch until then
@@ -16,6 +17,11 @@
 #   verify  rebases as above, fails when a file a red commit touched has changed
 #           since that commit, then runs the check command, given as one string,
 #           through sh -c and exits with its status
+#   kill    applies each row's competitor patch, attack/mutants/<row>.patch in
+#           the git directory, runs the test command through sh -c, restores
+#           the tree, and prints killed, SURVIVED, REFUSED, DID NOT APPLY or
+#           MISSING per row. A patch may change only lines the story wrote,
+#           and no test file. Exits 1 unless every row is killed or skipped
 #   close   removes the branch's worktree, its guard keys and the branch, after
 #           a merge or a cut
 #   status  prints one line per story worktree: branch, path, and the next step.
@@ -25,7 +31,7 @@
 #           references/steps/<step>.md; with a step name, prints that step.
 #           next open also records that the story's pull request is open
 # MAIN names the branch start cuts from (default main); start records it as the
-# branch's base, and rebase and verify reuse that base.
+# branch's base, and rebase, verify and kill reuse that base.
 set -euo pipefail
 main="${MAIN:-main}"
 die() { echo "$*" >&2; exit 1; }
@@ -56,6 +62,63 @@ do_rebase() {
   done
   git config --unset-all "branch.$b.redCommit" || true
   for c in ${new[@]+"${new[@]}"}; do git config --add "branch.$b.redCommit" "$c"; echo "$c"; done
+}
+# ponytail: a test file is a path under test/, tests/, spec/ or __tests__/, or
+# named test_*, *_test.*, *.test.* or *.spec.*; set TESTS to a grep -E pattern
+# when the project names tests differently.
+test_pat() { echo "${TESTS:-(^|/)(tests?|specs?|__tests__)/|(^|/)test_[^/]*$|_test\.[^/]*$|\.(test|spec)\.[^/]*$}"; }
+reds_newest_first() {  # $1 branch: its recorded red commits, newest first
+  local c left; set -- " $(echo $(git config --get-all "branch.$1.redCommit" || true)) "
+  left="$(echo $1 | wc -w | tr -d ' ')"
+  for c in $(git rev-list HEAD); do
+    [ "$left" -gt 0 ] || break
+    case "$1" in *" $c "*) echo "$c"; left=$((left - 1)) ;; esac
+  done
+}
+rows() {  # commits, newest first: "<row>\t<Killed by>\t<1 when it characterizes existing behaviour>" per index row, newest wins
+  local h
+  for h in "$@"; do git log -1 --format=%B "$h"; done | awk -F'|' '
+    /^\| *[0-9]+ *\|/ {
+      n = $2; k = $6; gsub(/^[ \t]+|[ \t]+$/, "", n); gsub(/^[ \t]+|[ \t]+$/, "", k)
+      if (!(n in seen)) { seen[n] = 1; print n "\t" k "\t" ($0 ~ /characteri[sz]es existing behaviou?r/) }
+    }'
+}
+vacuous() {  # rows on stdin: prints the numbers whose Killed by names no competitor
+  awk -F'\t' '{ k = tolower($2) } k == "" || k ~ /^(none|n\/?a|-+|\?+|tbd|todo|stub|missing|not implemented|any (change|mutation|mutant|wrong implementation))$/ { print $1 }'
+}
+story_lines() {  # "<file>\t<line>" for each line of HEAD the story wrote since its base, and each place it deleted
+  local m onto
+  m="$(git config --get "branch.$1.base" || echo "$main")"
+  onto="$m"; git rev-parse -q --verify "origin/$m" >/dev/null && onto="origin/$m"
+  git -c core.quotePath=false diff -U0 "$(git merge-base "$onto" HEAD)" HEAD | awk '
+    /^\+\+\+ b\// { f = substr($0, 7); next }
+    /^\+\+\+ / { f = ""; next }
+    /^@@ / && f != "" {
+      split($3, a, ","); s = substr(a[1], 2) + 0; c = (a[2] == "") ? 1 : a[2] + 0
+      if (c == 0) { print f "\t" s; print f "\t" (s + 1) }
+      for (i = 0; i < c; i++) print f "\t" (s + i)
+    }'
+}
+refuse_patch() {  # $1 patch, $2 story lines: prints why the patch is refused, or nothing
+  printf '%s\n' "$2" | PAT="$(test_pat)" awk '
+    function refuse(m) { print m; bad = 1; exit }
+    NR == FNR { split($0, t, "\t"); ok[t[1] "\t" t[2]] = 1; next }
+    !inhunk && /^--- / {
+      if ($0 !~ /^--- a\//) refuse("creates a file")
+      f = substr($0, 7); if (f ~ ENVIRON["PAT"]) refuse("edits the test file " f)
+      next
+    }
+    !inhunk && /^@@ / {
+      split($0, h, " "); split(substr(h[2], 2), o, ","); split(substr(h[3], 2), w, ",")
+      l = o[1] + 0; oc = (o[2] == "") ? 1 : o[2] + 0; nc = (w[2] == "") ? 1 : w[2] + 0; inhunk = 1; next
+    }
+    !inhunk { next }
+    /^-/ { if (!ok[f "\t" l]) refuse("changes " f ":" l ", a line the story did not write"); l++; oc--; n++ }
+    /^\+/ { if (!ok[f "\t" l] && !ok[f "\t" (l - 1)]) refuse("inserts at " f ":" l ", outside the lines the story wrote"); nc--; n++ }
+    /^ / || $0 == "" { l++; oc--; nc-- }
+    oc <= 0 && nc <= 0 { inhunk = 0 }
+    END { if (!bad && !n) print "changes nothing" }
+  ' - "$1"
 }
 is_story() { case "$1" in story/*) return 0 ;; esac; [ "$(git config --get "branch.$1.story" || true)" = true ]; }
 story_branch() {
@@ -121,6 +184,8 @@ red)
   [ $# -gt 0 ] || set -- HEAD
   for h in "$@"; do
     c="$(git rev-parse "$h")"
+    bad="$(rows "$c" | vacuous)"
+    [ -z "$bad" ] || die "Red commit $c: row $(echo $bad) names no competitor in Killed by. Name the wrong implementation each row's fixture rejects, amend the message, and run story.sh red again."
     git config --get-all "branch.$b.redCommit" "^$c\$" >/dev/null || git config --add "branch.$b.redCommit" "$c"
     echo "$c"
   done
@@ -142,23 +207,14 @@ verify)
   shift
   b="$(story_branch)"
   do_rebase "$b" | sed 's/^/red: /'
-  changed=""; seen=" "
-  # Each test file is compared with the newest red commit that touched it, so a
-  # corrected row committed as a later red commit passes.
-  # ponytail: a test file is a path under test/, tests/, spec/ or __tests__/, or
-  # named test_*, *_test.*, *.test.* or *.spec.*; set TESTS to a grep -E
-  # pattern when the project names tests differently.
-  pat="${TESTS:-(^|/)(tests?|specs?|__tests__)/|(^|/)test_[^/]*$|_test\\.[^/]*$|\\.(test|spec)\\.[^/]*$}"
-  reds="$(git config --get-all "branch.$b.redCommit" || true)"
-  newest_first=""; left="$(printf '%s\n' $reds | grep -c . || true)"
-  for c in $(git rev-list HEAD); do
-    [ "$left" -gt 0 ] || break
-    case " $(echo $reds) " in *" $c "*) newest_first="$newest_first $c"; left=$((left - 1)) ;; esac
-  done
+  changed=""
   nl='
 '
   seen="$nl"
-  for h in $newest_first; do
+  # Each test file is compared with the newest red commit that touched it, so a
+  # corrected row committed as a later red commit passes.
+  pat="$(test_pat)"
+  for h in $(reds_newest_first "$b"); do
     # Read one path per line, so a path with a space stays one path.
     while IFS= read -r f; do
       [ -n "$f" ] || continue
@@ -172,6 +228,29 @@ verify)
   # One string through sh -c, so &&, pipes, variables and globs in the check
   # command work whatever shell the caller runs.
   sh -c "$*"
+  ;;
+kill)
+  [ $# -eq 2 ] || die "Usage: story.sh kill '<command that runs the story's tests>'"
+  b="$(story_branch)"; cmd="$2"
+  git diff --quiet && git diff --cached --quiet || die "Commit or undo the worktree's changes first; kill applies each patch to HEAD."
+  dir="$(git rev-parse --path-format=absolute --git-dir)/attack/mutants"
+  table="$(rows $(reds_newest_first "$b") | sort -n)"
+  [ -n "$table" ] || die "No red commit's message holds a test table, so no row names a competitor."
+  sh -c "$cmd" </dev/null >/dev/null 2>&1 || die "The test command fails on the built code, so no competitor can be judged: $cmd"
+  lines="$(story_lines "$b")"; status=0
+  trap 'exit 130' INT TERM
+  while IFS=$'\t' read -r n k c; do
+    p="$dir/$n.patch"
+    if [ "$c" = 1 ]; then echo "skipped $n: characterizes existing behaviour"; continue; fi
+    if [ ! -s "$p" ]; then echo "MISSING $n: no $p for '$k'"; status=1; continue; fi
+    why="$(refuse_patch "$p" "$lines")"
+    if [ -n "$why" ]; then echo "REFUSED $n: the patch $why"; status=1; continue; fi
+    git apply "$p" 2>/dev/null || { echo "DID NOT APPLY $n: $p"; status=1; continue; }
+    trap 'git apply -R "$p"' EXIT
+    if sh -c "$cmd" </dev/null >/dev/null 2>&1; then echo "SURVIVED $n: $k"; status=1; else echo "killed $n: $k"; fi
+    git apply -R "$p"; trap - EXIT
+  done <<< "$table"
+  exit "$status"
   ;;
 close)
   [ $# -eq 2 ] || die "Usage: story.sh close <branch>"
@@ -291,7 +370,35 @@ self-test)
     && [ -z "$(git config --get-all branch.story/pay/PAY-1-refunds.redCommit || true)" ] \
     && [ -z "$(git config --get branch.story/pay/PAY-1-refunds.criteriaConfirmed || true)" ] \
     || die "FAIL close left the worktree, branch or guard key"
+  k="$("$me" start pay PAY-3 price)" && cd "$k"
+  commit() { git -c user.name=t -c user.email=t@t commit -q "$@"; }
+  mkdir -p tests && echo '[ "$(sh price.sh 3 5)" = 15 ]' > tests/t.sh && echo 'exit 1' > price.sh && git add -A
+  commit -m "red: price" -m "| 1 | total | Unit | Requirement | none |"
+  if "$me" red >/dev/null 2>&1; then die "FAIL red accepted a row with no competitor"; fi
+  table='| # | Test | Level | Generator | Killed by |
+|---|---|---|---|---|
+| 1 | total | Unit | Requirement | ignores the quantity |
+| 2 | total | Unit | Type | swaps the operands |
+| 3 | total | Unit | Type | edits the test |
+| 4 | total | Unit | Type | edits old code |
+| 5 | total | Unit | Type | never written |
+| 6 | old | Acceptance | Requirement | breaks other; characterizes existing behaviour |'
+  commit --amend -m "red: price" -m "$table" && "$me" red >/dev/null || die "FAIL red refused a table that names every competitor"
+  printf 'echo $(( $1 * $2 ))\n' > price.sh && commit -am build
+  m="$(git rev-parse --git-dir)/attack/mutants" && mkdir -p "$m"
+  printf 'echo $2\n' > price.sh && git diff > "$m/1.patch"
+  printf 'echo $(( $2 * $1 ))\n' > price.sh && git diff > "$m/2.patch" && git checkout -q -- price.sh
+  echo true > tests/t.sh && git diff > "$m/3.patch" && git checkout -q -- tests/t.sh
+  echo z > other && git diff > "$m/4.patch" && git checkout -q -- other
+  out="$("$me" kill 'sh tests/t.sh')" && die "FAIL kill exited 0 with a survivor"
+  printf '%s\n' "$out" | grep -q '^killed 1:' || die "FAIL kill missed a killed competitor: $out"
+  printf '%s\n' "$out" | grep -q '^SURVIVED 2: swaps the operands' || die "FAIL kill missed a survivor: $out"
+  printf '%s\n' "$out" | grep -q '^REFUSED 3: the patch edits the test file tests/t.sh' || die "FAIL kill applied a patch to a test: $out"
+  printf '%s\n' "$out" | grep -q '^REFUSED 4: the patch changes other:1' || die "FAIL kill applied a patch outside the story: $out"
+  printf '%s\n' "$out" | grep -q '^MISSING 5:' || die "FAIL kill missed a row with no patch: $out"
+  printf '%s\n' "$out" | grep -q '^skipped 6:' || die "FAIL kill did not skip a characterization row: $out"
+  git diff --quiet || die "FAIL kill left a patch applied"
   echo "self-test passed"
   ;;
-*) sed -n '2,28p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+*) sed -n '2,34p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac

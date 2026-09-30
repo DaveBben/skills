@@ -42,7 +42,7 @@ Write each attack as a test in the project's framework, through the interface a 
 
 ## 2. Correctness
 
-* **Mutate.** Run the mutation runner over the changed files where there is one. Otherwise, for a story, apply each row's `Killed by` from the red commit message by hand; for any other subject, flip each changed comparison, condition and return value by hand. One at a time: confirm a test goes red, and undo it. A row that stays green asserts nothing: a candidate `finding`, which the `setup` agent rewrites as a red row once confirmed. List any surviving mutant that cannot change behaviour, with its reason.
+* **Mutate.** Run the mutation runner over the changed files where there is one. For a story, also write each row's `Killed by`, the wrong implementation it names from the red commit's table, as the smallest edit to the lines the story wrote, saved as `git diff` output to `attack/mutants/<row>.patch` in the git directory and undone. Implement the named wrong behaviour. A patch that raises, crashes or deletes a function proves nothing. Then run `story.sh kill '<the command that runs the story's test files>'`. For any other subject, flip each changed comparison, condition and return value by hand, one at a time, confirm a test goes red, and undo it. A `SURVIVED` row or a surviving mutant is a blind test: a candidate `finding` naming its fixture and the two behaviours it cannot tell apart, which the `setup` agent rewrites as a red row once confirmed. Rewrite a `REFUSED` or `DID NOT APPLY` patch and run `kill` again. List any competitor that cannot change behaviour, or that lives only in lines the story did not write, with its reason.
 * **Complexity:** each changed function's time and space cost against the best a standard structure gives: a nested scan where a set or a map lookup does it in one pass, a repeated query inside a loop, a sort where a heap or a single pass will do. Name both bounds, the structure that gets the better one, and the input size at which the difference shows.
 * **Resources:** everything acquired (a file, a socket, a database connection or cursor, a lock, a subprocess, a temporary file, memory the language does not free) is released on every path, the error paths included, by the language's scoped form (`with`, `try`/`finally`, `defer`, `using`, a destructor).
 * **Where each complexity or resource point goes:** on the user's own code, a `teach` row; on a story's built code, a `finding` when a case makes it fail (a leak on an error path), else a line on `Hand to build:`; on a merge request, a `finding`, non-blocking unless a case makes it fail.
@@ -64,6 +64,7 @@ Assume every test this branch adds is weak until you fail to show it. For each, 
 * asserts internal call order, a private function or a log line instead of what the criterion's observer sees;
 * holds whatever the code does: an assertion with no expected value, one that only checks a type or that nothing raised, or an expected value computed by the code under test;
 * pins one value of a rule that covers a range, so a wrong comparison passes;
+* uses a fixture a plausible wrong implementation also passes: a batch of one, a failing item first or last, the same value in two fields, an identity value, input already in order, fewer rows than a page, calls in sequence for a race, a fake that never fails, a clock that never reaches the limit, a failure raised from the code's own function, a test inside a transaction or on another database engine, a generator narrower than the field, an idempotency check on the response alone, or a negative authorisation test with no twin that succeeds for the owner;
 * survived its mutation in section 2.
 
 Try to disprove each weakness by reading the test and running it against a deliberately broken version of the logic, undone after. A weak test that holds up is a `finding` naming the test and what it would miss; once confirmed, on a story the `setup` agent rewrites it as a corrected red row, and otherwise the report asks for it to be rewritten.
@@ -101,7 +102,7 @@ Write the block to `done-block.md` in the worktree's git directory, and return o
 DONE
 Reviewed:    <the branch head's hash this review ran on>
 Attack:      <n> tests; <n> red; one line per red test: criterion, what the person would see
-Correctness: <runner or by hand>; per row: the mutation, red or survived; for a story, accepted tests unchanged since <red commit>, or the diff
+Correctness: <runner or by hand>; for a story, the `story.sh kill` command and each line it printed; per other mutation, red or survived; for a story, accepted tests unchanged since <red commit>, or the diff
 Tests:       <n> added tests read; <n> weak, each: test name, what it would miss
 Intent:      <n> fresh values run, <n> red; per function: matches its criterion, or the difference; the diff against Outcome and Scope
 Security:    needed: <which> | not needed
