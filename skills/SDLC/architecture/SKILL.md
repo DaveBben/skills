@@ -1,10 +1,10 @@
 ---
 name: architecture
-description: "Use this skill when a choice costs more than a day to reverse, when a system's shape must be decided or mapped, when a decision or an accepted risk must be recorded, when something must be proven with throwaway code first, or when work is asked for in a repository with no application yet. Use it on: 'how should this be structured', 'should I use X or Y', 'let's build this' in an empty repo, 'note this decision', 'we will accept that risk', 'write an ADR', 'snapshot the architecture', 'let's prove this works first', 'spike it', 'prototype', 'mock this up', 'a throwaway', 'a demo', 'is X feasible', 'explore how this would fit', 'what would it take to move to X', 'template project', 'start a project from a template'. Spikes unknowns, maps the system, and records each decision with the user's reasons."
+description: "Use this skill when a choice costs more than a day to reverse, when a system's shape must be decided or mapped, when a decision or an accepted risk must be recorded, when an idea must be tried, compared or tested with throwaway code before it is built for real (which approach, library, model or pattern works best, or whether a change helps), or when work is asked for in a repository with no application yet. Use it on: 'how should this be structured', 'should I use X or Y', 'let's build this' in an empty repo, 'note this decision', 'record the why', 'write an ADR', 'snapshot the architecture', 'do a spike', 'let's prove this works first', 'try a few approaches and see', 'test whether X improves Y', 'find the best model for this', 'experiment with', 'prototype', 'mock this up', 'a demo', 'is X feasible', 'see how this would fit or integrate', 'what would it take to move to X', 'template project'. Load it before asking what the user means. Runs spikes, maps the system, records decisions with the user's reasons."
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "3.0.0"
+  version: "3.1.0"
 ---
 # Architecture
 

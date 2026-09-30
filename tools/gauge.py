@@ -221,6 +221,15 @@ def tuning_cases(fresh, mid, bare):
         ("Build a quick throwaway.", "architecture", fresh),
         ("Build a demo.", "architecture", fresh),
         ("Let's do a spike on it.", "architecture", fresh),
+        # spike phrased as an experiment: try, test whether, find the best
+        ("I want to try a few approaches and see which one works best.", "architecture", fresh),
+        ("Let's experiment with a different data model before we commit to one.", "architecture", fresh),
+        ("Test whether switching the importer to async actually makes it faster.", "architecture", fresh),
+        ("I want to evaluate which embedding model fits our articles best.", "architecture", fresh),
+        ("Let's trial the pydantic library before we adopt it.", "architecture", fresh),
+        # near-misses for the experiment wording: a known change, or a question
+        ("Refactor the export handlers to use a factory pattern.", "deliver", fresh),
+        ("What is the factory pattern?", None, fresh),
         # agile: any request to write, change or remove code in a system
         ("I want to add rate limiting to the export endpoint.", "deliver", fresh),
         ("I want to remove the order export module.", "deliver", fresh),
@@ -280,6 +289,9 @@ def validation_cases(fresh, mid, bare):
          "new onboarding flow", "architecture", fresh),
         ("roughly what would it take to move us off celery onto arq? dont build "
          "it properly", "architecture", fresh),
+        ("I want to try and see if I can find the best model for this approach", "architecture", fresh),
+        ("I want to test if adopting a factory pattern improves readability", "architecture", fresh),
+        ("Let's do a spike on the best approach to modeling the dataset", "architecture", fresh),
         # agile
         ("the retry loop in src/db.js gives up after 3 tries, make it exponential "
          "backoff with jitter capped at 30s", "deliver", fresh),
