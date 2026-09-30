@@ -8,3 +8,7 @@
 
 __pycache__/
 *.pyc
+
+# handing-off: session handoffs are private working state, never committed
+docs/agents/handoff/
+docs/handoffs/

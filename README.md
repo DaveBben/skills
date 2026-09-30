@@ -37,7 +37,8 @@ Use the [`skills` CLI](https://github.com/vercel-labs/skills), which installs pl
 # see everything on offer, grouped by area
 npx skills add DaveBben/davebben-skills --list
 
-# install one skill (deliver calls architecture and guardrails by name: install all four SDLC skills together)
+# install one skill (deliver calls architecture and guardrails by name: install all four SDLC skills together,
+# and copy skills/SDLC/agents/ beside them, since deliver and review-code launch the subagents defined there)
 npx skills add DaveBben/davebben-skills --skill deliver
 
 # install everything
@@ -56,11 +57,12 @@ Skills live once, at the repo root, and are grouped by area:
 
 ```
 skills/<area>/<skill>/SKILL.md      canonical, what every agent reads
+skills/<area>/agents/<name>.md      optional subagent prompts the area's skills share
 plugins/<area>/                     Claude Code plugin wrapper
   .claude-plugin/plugin.json
   skills -> ../../skills/<area>      symlink, so there is one source of truth
   hooks/                            optional Claude Code-only hooks
-  agents -> ../../skills/<area>/<skill>/agents   optional symlink to a skill's subagent prompts
+  agents -> ../../skills/<area>/agents   optional symlink to the area's shared subagent prompts
 .claude-plugin/marketplace.json     the Claude Code marketplace
 ```
 

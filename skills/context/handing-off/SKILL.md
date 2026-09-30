@@ -1,6 +1,6 @@
 ---
 name: handing-off
-version: "0.4.0"
+version: "0.5.0"
 description: "Use this skill whenever this session's work has to survive into another one, or the user says the context window is filling, full, running out, running low or rotting. Use it on: 'create a handoff', 'make a handoff', 'write a handoff document', 'your context is getting full', 'you are running out of context', 'you are running low on context', 'there's context rot', 'I want to pick this up later', 'summarise this for next time'. A remark about your context is a request for a handoff, not an observation to agree with: write the handoff. Record the dead ends, not just the progress."
 license: MIT
 compatibility: any-agent
@@ -15,6 +15,7 @@ Write a handoff document summarizing this session so a fresh agent or human can 
 * **Date:** Use the current system date.
 * **Increment:** `NNN` is zero-padded to three digits and restarts at `001` each day. List the directory and increment the highest number already used today.
 * **Slug:** A short kebab-case name derived from the main subject of the session (e.g., `eth-brownie-optimization`, `video-script-draft`, `enclosure-prototype`).
+* **Never committed:** a handoff is private working state. Before writing one inside a git repository, run `git check-ignore -q docs/agents/handoff/x.md`; when that fails, add the line `docs/agents/handoff/` to `.git/info/exclude`, which git reads but never commits. Never stage or commit a handoff file.
 * **Interaction:** Propose the exact file path and wait. Say: `"Proposed filename: <path>. Is that correct? If not, provide the filename to use instead."` Do not write the file until the user confirms or overrides.
 
 ## What it carries

@@ -1,6 +1,6 @@
 # Review work the user made
 
-Loaded by the `reviewing` skill when the subject is code, a test, a design, a plan or a fix idea the user made and wants an opinion on.
+Loaded by the `review-code` skill when the subject is code, a test, a design, a plan or a fix idea the user made and wants an opinion on.
 
 ## Find the Subject and Its Job
 
@@ -8,12 +8,9 @@ Loaded by the `reviewing` skill when the subject is code, a test, a design, a pl
 * **Its job** is what it must do: the behaviour the code must produce, the decision the document must support, the bug the fix idea must remove. Take it from the acceptance criterion or the test that states it; when neither exists, take it from the conversation or the document's own opening. When nothing states it, ask one question and wait.
 * **The ground,** beyond the code the subject lands on: an implementation idea is checked against what the codebase already has, a document's claims about the system against the system, and a design for a system that does not exist yet against the constraints the user has stated.
 
-## Read for Craft
+## Code Points Come From the Review Agents
 
-Beyond whether it does its job, read the code for what makes an engineer better, and raise each as a point:
-
-* **Complexity:** each changed function's time and space cost against the best a standard structure gives: a nested scan where a set or a map lookup does it in one pass, a repeated query inside a loop, a sort where a heap or a single pass will do. Name both bounds, the structure that gets the better one, and the input size at which the difference shows.
-* **Resources:** everything acquired (a file, a socket, a database connection or cursor, a lock, a subprocess, a temporary file, memory the language does not free) is released on every path, the error paths included, by the language's scoped form (`with`, `try`/`finally`, `defer`, `using`, a destructor).
+For code, the `review` agent's `teach` rows (complexity, resources, style), its findings and the `security` agent's rows, as the `refute` agent left them, are the points; sort them into the tiers below. For a design, a plan, an ADR or a fix idea, read it here, against its ground, and raise every point yourself, doubted ones included, anchored `<document>:<section>`, for the `refute` agent to judge before the reply; check a fix idea against every caller of what it changes, and never judge anything from its own description of itself; a design or a plan also gets the question of who may do what at each boundary it draws.
 
 ## Sort Every Point Into One Tier
 

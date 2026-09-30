@@ -55,7 +55,7 @@ PLUGIN_DIRS = [os.path.join(REPO, "plugins", "SDLC"),
 # 7, and the third run was still exploring when the budget ran out.
 TURNS = 12
 MODEL = None  # set from --model; None leaves the harness default
-OURS = {"guardrails", "architecture", "deliver", "reviewing", "handing-off"}
+OURS = {"guardrails", "architecture", "deliver", "review-code", "handing-off"}
 TARGET = 0.80  # suite passes at 80% or better
 
 FILES = {
@@ -227,6 +227,15 @@ def tuning_cases(fresh, mid, bare):
         ("Test whether switching the importer to async actually makes it faster.", "architecture", fresh),
         ("I want to evaluate which embedding model fits our articles best.", "architecture", fresh),
         ("Let's trial the pydantic library before we adopt it.", "architecture", fresh),
+        # review-code: code or a design already made, whoever wrote it
+        ("Review PR 412.", "review-code", fresh),
+        ("Is this merge request ready to merge?", "review-code", fresh),
+        ("Review my code in src/export.py.", "review-code", fresh),
+        ("Do a security review of this branch.", "review-code", fresh),
+        ("Poke holes in this plan: we cache sessions in Redis for a week.", "review-code", fresh),
+        # epic review lives in deliver
+        ("Review this epic.", "deliver", fresh),
+        ("Are these the right stories?", "deliver", fresh),
         # near-misses for the experiment wording: a known change, or a question
         ("Refactor the export handlers to use a factory pattern.", "deliver", fresh),
         ("What is the factory pattern?", None, fresh),
@@ -292,6 +301,9 @@ def validation_cases(fresh, mid, bare):
         ("I want to try and see if I can find the best model for this approach", "architecture", fresh),
         ("I want to test if adopting a factory pattern improves readability", "architecture", fresh),
         ("Let's do a spike on the best approach to modeling the dataset", "architecture", fresh),
+        ("can you look over the diff on my branch before i open the MR", "review-code", fresh),
+        ("take a look at !971 and tell me if its good to merge", "review-code", fresh),
+        ("sanity check the stories under the export epic before we start", "deliver", fresh),
         # agile
         ("the retry loop in src/db.js gives up after 3 tries, make it exponential "
          "backoff with jitter capped at 30s", "deliver", fresh),
