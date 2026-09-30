@@ -74,6 +74,19 @@
       "author": {
         "name": "DaveBben"
       }
+    },
+    {
+      "name": "skills-craft",
+      "source": "./plugins/skills-craft",
+      "description": "Skills for writing instructions an agent reads. review-skill reviews a SKILL.md, its reference files or a subagent prompt line by line: it cuts what the model already knows or can read, keeps the conventions it cannot infer, names failures specifically, and reports each finding with the evidence behind it.",
+      "version": "0.1.0",
+      "license": "MIT",
+      "skills": [
+        "./skills/review-skill"
+      ],
+      "author": {
+        "name": "DaveBben"
+      }
     }
   ]
 }

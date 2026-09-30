@@ -13,6 +13,7 @@ The skills are plain Markdown (`SKILL.md`) and work with any skills-compatible a
 | [meals](plugins/meals/) | Eat to numbers without cooking from a spreadsheet. Turns a recipe you already make into a reusable meal template that hits a calorie ceiling and protein and fiber floors, verified against USDA values, then plans days of meals from those templates into the meal planner with a shopping list. Two skills. | live |
 | [personalize](plugins/personalize/) | Have an agent write as you. Texts, work replies, docs and video scripts come out in your own voice, from private voice profiles you keep outside the repo. It never invents facts and never sends without your say-so. One skill. | live |
 | [learning](plugins/learning/) | Understand a programming or computer-science topic from a mock Stack Overflow thread: an asker's real error, an accepted answer with short working code, follow-up comments, and further answers that each solve it a different way. One skill. | live |
+| [skills-craft](plugins/skills-craft/) | Write instructions an agent actually follows. Reviews a skill or subagent prompt line by line: cuts what the model already knows or can read, keeps the conventions it cannot infer, and names failures specifically, citing the evidence for each finding. One skill. | live |
 
 Open a plugin's folder for its own README and the detail behind it.
 
