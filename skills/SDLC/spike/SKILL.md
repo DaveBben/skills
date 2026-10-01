@@ -1,6 +1,6 @@
 ---
 name: spike
-description: "Use this skill when the user wants to find something out by building throwaway code rather than ship it: proving an approach, prototyping, mocking something up (not a test double), a demo, comparing approaches, or exploring what an integration or change would involve. Use it on: 'let's prove this works first', 'let's prototype this idea', 'let's mock this up', 'build a quick throwaway', 'build a demo', 'let's do a spike on it', 'is X feasible', 'let's see how this integration would work', 'what would it take to move to X', 'try a few approaches and see which works best', 'test whether X makes Y faster', 'find the best model for this'. Use it on the words prototype, mock, demo, throwaway, spike, feasible, experiment and explore even when the ask sounds small. Builds the smallest thing that answers one question inside a timebox, records findings as they surface, and deletes the code. Not for code meant to ship; that is `deliver`."
+description: "Use this skill when the user wants to find something out by building throwaway code rather than ship it: proving an approach, prototyping, mocking something up (not a test double), a demo, comparing approaches, or exploring what an integration or change would involve. Use it on: 'let's prove this works first', 'let's prototype this idea', 'let's mock this up', 'build a quick throwaway', 'build a demo', 'let's do a spike on it', 'is X feasible', 'let's see how this integration would work', 'what would it take to move to X', 'try a few approaches and see which works best', 'test whether X makes Y faster', 'find the best model for this'. Use it on the words prototype, mock, demo, throwaway, spike, feasible, experiment and explore even when the ask sounds small. Builds the smallest thing that answers one question inside a timebox, records findings as they surface, and deletes the code. Not for code meant to ship; that is `story`."
 license: MIT
 metadata:
   version: "2.0.0"
@@ -31,7 +31,7 @@ In the same message, tell the user the code is throwaway: deleted once the findi
 
 ## Record as you go
 
-Write the findings from the first one, never only in chat, to `docs/spikes/<question-slug>.md` on a branch of its own, or as a comment on the spike's issue when the user names a tracker. Add each line the moment it surfaces, and repeat a line for each finding of its kind:
+Write the findings from the first one, never only in chat, to `docs/spikes/<question-slug>.md`, committed alone on branch `spike/<question-slug>` in a worktree of its own (`git worktree add -b spike/<question-slug> <path> main`), never in the throwaway worktree, which step 3 deletes; offer the user a pull request of that file alone. Or write them as a comment on the spike's issue when the user names a tracker. Add each line the moment it surfaces, and repeat a line for each finding of its kind:
 
 ```text
 ## <date> — spike: <the question>
@@ -54,4 +54,4 @@ Stop at the finish line. When the timebox runs out first, the outcome is inconcl
 | Chosen | Rejected | Why | Cost to change later | record / drop / defer |
 ```
 
-3. **Delete the spike code** once the findings are complete, and say so in them. Never open a pull request of spike code or evolve it into the real build; the real build starts fresh from the findings, by the `story` and `deliver` skills.
+3. **Delete the spike code** once the findings are complete, and say so in them. Never open a pull request of spike code or evolve it into the real build; the real build starts fresh from the findings, by the `story` skill.

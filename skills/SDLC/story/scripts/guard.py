@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PreToolUse guard on Bash commands, for the deliver skill.
+"""PreToolUse guard on Bash commands, for the story skill.
 
 Denies, with a message saying what to do instead:
   * merging a pull request (gh pr merge, glab mr merge) or merging into main:
@@ -10,7 +10,7 @@ Denies, with a message saying what to do instead:
     whichever tool edited them.
 
 The guard reads the hook input on stdin and prints a deny decision, or nothing. Registered by
-deliver's SKILL.md frontmatter and by the SDLC plugin's hooks.json, so it runs
+story's SKILL.md frontmatter and by the SDLC plugin's hooks.json, so it runs
 for the main session and for subagents. Run with --self-test to check it.
 """
 import json, os, re, shlex, subprocess, sys

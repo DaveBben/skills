@@ -49,7 +49,7 @@ Symlink `CLAUDE.md`, and any other instructions-file name the repository carries
 
 ## Writing it
 
-Ask the user only what the repository cannot answer, in one message of draft lines to correct; usually that is the constraints and the traps.
+Ask the user only what the repository cannot answer, in one message of draft lines to correct; usually that is the constraints and the traps. In the same message, ask which of these hold for every change, and write each that does as a constraint with its number or list: response time and volume; supported locales (time zones, date, number and currency formats); supported browsers, devices and screen sizes; and the regulations that apply, such as GDPR, HIPAA, PCI or SOX.
 
 When an instructions file exists (`AGENTS.md`, a real `CLAUDE.md`, or both), read each whole, then show one table: each line, and whether it is kept, moved to a check by `guardrails`, or dropped, with the reason. Ask once. On yes, write `AGENTS.md` from the kept lines and replace a real `CLAUDE.md` with the symlink. On no, touch nothing.
 
