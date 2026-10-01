@@ -23,6 +23,6 @@ rules:
 * **One rule per file,** named after the mistake, under `.semgrep/`. `ERROR` only where breaking it is never correct.
 * **Start from the violation's exact code** and generalise one step at a time. Exclude paths in `paths:`, never in the pattern. Add `fix:` where the rewrite is mechanical.
 * **Prove it fires:** a fixture with the same basename, `// ruleid: <id>` above each line that must fire and `// ok: <id>` above each near miss, run with `semgrep --test --config .semgrep/` and `semgrep --validate`. Break the fixture once and confirm the test fails.
-* **Wire it** into the command the repository already runs and a CI job (`semgrep --config .semgrep/ --error`), pinned like the other tools. When existing code already breaks it, wire nothing for that code: return the count of findings, since the user picks between new code only (`--baseline-commit <sha>`), a cleanup first, or a ratchet. A line is silenced with `nosemgrep: <rule-id>` and the reason.
+* **Wire it** into `./check` at the repository root (`semgrep --config .semgrep/ --error`). When existing code already breaks it, wire nothing for that code: return the count of findings, since the user picks between new code only (`--baseline-commit <sha>`), a cleanup first, or a ratchet. A line is silenced with `nosemgrep: <rule-id>` and the reason.
 
 Return: each file written, the `semgrep --test` and `--validate` results, each language's parser tier, the pack findings, and the count of existing violations.

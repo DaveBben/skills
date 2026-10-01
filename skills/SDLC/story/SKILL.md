@@ -14,7 +14,7 @@ A story says what a person will be able to do once a change ships, in cases conc
 * **Story:** a change a person outside the system can observe, in one workflow step and one variation.
 * **Case:** one numbered line of a story: a starting state, an action, and what the person sees, with real values.
 * **Feature:** several stories that share one outcome. Its **feature file** holds the feature header and the stories.
-* **Tracker:** the issue tracker the `Backlog:` line of `AGENTS.md` names, if any. The ways to reach one are in [../deliver/references/tracker.md](../deliver/references/tracker.md).
+* **Tracker:** the issue tracker the request or the user names, if any; never recorded in a repository.
 
 ## The story
 
@@ -61,7 +61,7 @@ The feature header, at the top of the feature file or the epic's description:
 Outcome:      <what a person does differently once the whole feature ships>
 Not doing:    <one checkable non-goal per line>
 Order:        <the story titles or keys, in the order they will be built>
-Decided:      <one ADR path per line, written by the architecture skill>
+Decided:      <one ADR path per line, written by the adr skill>
 Deferred:     <one open decision per line, with what will force it>
 Repositories: <one line per repository the feature touches, when more than one>
 ```

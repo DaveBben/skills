@@ -11,7 +11,7 @@ Split a story that covers more than one step or variation with the first pattern
 5. The plainest interface first.
 6. The simplest version first, each complication its own story.
 7. Make it work, then make it fast.
-8. A timeboxed spike when something unknown blocks every pattern: the `architecture` skill runs it.
+8. A timeboxed spike when something unknown blocks every pattern: the `spike` skill runs it.
 
 Cut across layers, never along them: a story that only adds a table or only adds an endpoint ships nothing a person can see. A requirement on how well a story behaves, an enabler nobody perceives alone, and a task are cases on the story that needs them, not stories. Fold hardening into the story that creates the exposure.
 

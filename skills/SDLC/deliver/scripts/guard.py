@@ -4,13 +4,12 @@
 Denies, with a message saying what to do instead:
   * merging a pull request (gh pr merge, glab mr merge) or merging into main:
     the user merges;
-  * pushing a story branch, or opening its pull request, before
-    `story.sh confirm` records that the user confirmed the story;
-  * a commit on a story branch that changes a test file a recorded red commit
-    holds: accepted tests are locked, whichever tool edited them.
+  * a commit, on a branch with red commits recorded in git config
+    (branch.<branch>.redCommit), that changes a test file a red commit holds or
+    a test that existed where the branch left main: those tests are locked,
+    whichever tool edited them.
 
-A story branch is story/* or one `story.sh adopt` marked. The guard reads the
-hook input on stdin and prints a deny decision, or nothing. Registered by
+The guard reads the hook input on stdin and prints a deny decision, or nothing. Registered by
 deliver's SKILL.md frontmatter and by the SDLC plugin's hooks.json, so it runs
 for the main session and for subagents. Run with --self-test to check it.
 """
@@ -41,10 +40,6 @@ def where(cmd, cwd):
     return cwd
 
 
-def is_story(d, branch):
-    return branch.startswith("story/") or git(d, "config", "--get", f"branch.{branch}.story") == "true"
-
-
 def locked_files(d, branch):
     """The test files of the branch's red commits, and the tests that existed at its base."""
     reds = git(d, "config", "--get-all", f"branch.{branch}.redCommit").split()
@@ -53,7 +48,7 @@ def locked_files(d, branch):
     files = set()
     for red in reds:
         files |= {f for f in git(d, "diff-tree", "--no-commit-id", "--name-only", "-r", red).splitlines() if TEST.search(f)}
-    base = git(d, "config", "--get", f"branch.{branch}.base") or "main"
+    base = next((b for b in MAINS if git(d, "rev-parse", "-q", "--verify", b)), "main")
     onto = f"origin/{base}" if git(d, "rev-parse", "-q", "--verify", f"origin/{base}") else base
     mb = git(d, "merge-base", onto, "HEAD")
     if mb:
@@ -73,14 +68,7 @@ def check(cmd, cwd):
     onto_main = branch in MAINS or re.search(GIT + r"(switch|checkout)\s+(" + "|".join(MAINS) + r")\b", cmd)
     if merging and onto_main:
         return "Never merge into main: the user merges the pull request."
-    if re.search(GIT + r"push\b|\b(gh\s+pr|glab\s+mr)\s+create\b", cmd):
-        named = re.findall(r"(?:^|[\s:])(story/\S+)", cmd) or re.findall(r"--head\s+(\S+)", cmd)
-        for b in named or [branch]:
-            b = b.split(":")[-1]
-            if b and is_story(d, b) and git(d, "config", "--get", f"branch.{b}.criteriaConfirmed") != "true":
-                return ("The user has not confirmed this story. Show them the story and the review's result, "
-                        "and run story.sh confirm once they say yes.")
-    if not branch or not is_story(d, branch) or not re.search(GIT + r"commit\b", cmd):
+    if not branch or not re.search(GIT + r"commit\b", cmd):
         return None
     locked = locked_files(d, branch)
     if not locked:
@@ -124,8 +112,8 @@ def self_test():
     assert not check("git merge-base HEAD story/x", t), "merge-base"
     assert not check("git merge --ff-only origin/main", t), "fast-forward"
     run("git", "switch", "-q", "-c", "story/f/K-1-x")
-    assert check("git push -u origin story/f/K-1-x", t), "push before confirm"
-    assert check("gh pr create --fill", t), "pr before confirm"
+    assert not check("git push -u origin story/f/K-1-x", t), "push is the agent's call"
+    assert not check("gh pr create --fill", t), "so is opening the pull request"
     os.makedirs(f"{t}/tests")
     open(f"{t}/tests/test_a.py", "w").write("x\n")
     run("git", "add", "-A")
@@ -159,9 +147,6 @@ def self_test():
     assert not check("git commit -m 'fix the bug tests/test_a.py found'", t), "message naming a test path"
     os.makedirs(f"{t}/sp ace/tests")
     assert check("git switch main && git merge story/f/K-1-x", t), "switch to main then merge"
-    assert check("git push -u origin story/f/K-1-x", "/"), "push of a story branch named from elsewhere"
-    run("git", "config", "branch.story/f/K-1-x.criteriaConfirmed", "true")
-    assert not check("git push -u origin story/f/K-1-x", t), "push after confirm"
     print("self-test passed")
 
 

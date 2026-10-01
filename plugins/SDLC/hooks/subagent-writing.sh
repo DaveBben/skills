@@ -6,7 +6,7 @@
 # Run with --self-test to check the filter and the output shape.
 if [ "$1" = --self-test ]; then
   fail=0
-  for t in SDLC:test-author SDLC:review SDLC:security; do
+  for t in SDLC:test-author SDLC:review SDLC:verify; do
     out=$(printf '{"hook_event_name":"SubagentStart","agent_type":"%s"}' "$t" | "$0")
     [ -z "$out" ] || { echo "FAIL: $t got output"; fail=1; }
   done
@@ -19,7 +19,7 @@ if [ "$1" = --self-test ]; then
   exit $fail
 fi
 type=$(tr -d '\n' | sed -n 's/.*"agent_type" *: *"\([^"]*\)".*/\1/p')
-case "$type" in SDLC:test-author|SDLC:review|SDLC:security) exit 0 ;; esac
+case "$type" in SDLC:test-author|SDLC:review|SDLC:verify) exit 0 ;; esac
 f="$(dirname "$0")/writing.md"
 printf '{"hookSpecificOutput":{"hookEventName":"SubagentStart","additionalContext":"'
 sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/	/\\t/g' "$f" | awk '{printf "%s\\n", $0}'
