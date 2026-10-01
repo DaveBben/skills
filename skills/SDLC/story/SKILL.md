@@ -15,14 +15,20 @@ hooks:
 ---
 # Story
 
-A story says what a person will be able to do once a change ships, in acceptance criteria concrete enough that a test can be written from each one without asking anybody. Every change to behaviour is built from one: write it, agree it with the user, then implement it. Write as little up front as building needs: one story's acceptance criteria when it starts, not a specification for the whole feature.
+A story states what a person can do once a change ships, in acceptance criteria concrete enough to write a test from each without asking anybody.
+
+* **Build from a story:** write it, agree it with the user, then implement it.
+* **Write little up front:** one story's acceptance criteria when it starts, not a specification for the whole feature.
 
 ## Words used here
 
-* **Story:** a change someone outside the change can observe (a person, or a program that calls the changed code), along one path through the workflow end to end, in one variation.
+* **Story:** a change someone outside it can observe (a person, or a program that calls the changed code), along one path through the workflow end to end, in one variation.
 * **Variation:** one business rule, kind of data or way of entering it that changes the main outcome.
-* **Acceptance criterion:** one numbered rule of a story in one line, with one to three examples under it, each a Given / When / Then with real values: Given the starting state, When one action, Then what the person or caller sees. A rule so obvious that an example would only restate it has none.
-* **Feature:** several stories that share one outcome. Its **feature file** holds the feature header and the stories.
+* **Acceptance criterion:** one numbered rule of a story in one line, with one to three examples under it.
+* **Example:** Given the starting state, When one action, Then what the person or caller sees, all in real values.
+* **Obvious rule:** a rule an example would only restate has no example.
+* **Feature:** several stories that share one outcome.
+* **Feature file:** holds the feature header and the stories.
 * **Tracker:** the issue tracker the request or the user names, if any; never recorded in a repository.
 
 ## Pick the path
@@ -33,15 +39,20 @@ A story says what a person will be able to do once a change ships, in acceptance
 
 ## Size first
 
-* **No story:** a change no person or caller sees (a rename, a dependency bump, a refactor), or a one-sentence fix whose test is obvious. Say so and build it with no new acceptance criteria, or the reproduction as the only acceptance criterion.
+* **No story:** a change no person or caller sees (a rename, a dependency bump, a refactor), or a one-sentence fix whose test is obvious.
+* **No story, build:** say so and build it with no new acceptance criteria, or with the reproduction as the only one.
 * **One story:** one path end to end and one variation; every acceptance criterion's `when` is the same action by the same role.
-* **Several stories:** more than one path or variation, an acceptance criterion whose `when` is a different action or person, or an unknown that changes what gets built. Split it by [references/split.md](references/split.md) into a feature, then build one story at a time.
+* **Several stories:** more than one path or variation, or an acceptance criterion whose `when` is a different action or person.
+* **Several stories, also:** an unknown that changes what gets built.
+* **Several stories, then:** split into a feature by [references/split.md](references/split.md) and build one story at a time.
 
 A decision that costs more than a day to reverse goes to the `adr` skill before any code.
 
 ## Talking to the user
 
-* **A fact a tool can reach** (what a table holds, what a route returns, what a function does with empty input, what CI runs): look it up and use it; don't ask it.
-* **A small choice that changes nothing a person or caller sees, no architecture, and nothing touching money, authentication or personal data** (a name, a helper's signature, a file layout, which existing library to call): decide it and list it under the story's `Decided` or in the report.
-* **Product intent, a reading that changes the acceptance criteria, or a choice expensive to reverse:** ask, one question per message, with the harness's multiple-choice tool where it has one (Claude Code's AskUserQuestion), recommended option first.
+* **A fact a tool can reach:** look it up and use it; don't ask. Examples: what a table holds, what a route returns, what CI runs.
+* **A small choice:** decide it and list it under the story's `Decided` or in the report.
+* **A small choice is:** one that changes nothing a person or caller sees, involves no architecture, and touches no money, authentication or personal data. Examples: a name, a helper's signature, a file layout, which existing library to call.
+* **Product intent, a reading that changes the acceptance criteria, or a choice expensive to reverse:** ask.
+* **How to ask:** one question per message, recommended option first, with the harness's multiple-choice tool where it has one (Claude Code's AskUserQuestion).
 * **The user is away:** take the recommended option, keep going, and list every choice made that way.

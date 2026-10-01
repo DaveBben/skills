@@ -7,14 +7,23 @@ metadata:
 ---
 # ADR
 
-An ADR (architecture decision record) is one Markdown file under `docs/adr/` that says what was decided, why, and what it gave up. Write one when the decision is made, not at the end of the feature: for an expensive or irreversible choice, an accepted hazard, a rejected alternative, knowledge that cost time to acquire, or a test dropped as "no test required" whose absence a later reader would question.
+An ADR (architecture decision record) is one Markdown file under `docs/adr/` saying what was decided, why, and what it gave up.
+
+Write it when the decision is made, not at the end of the feature. Write one for:
+
+* An expensive or irreversible choice.
+* An accepted hazard.
+* A rejected alternative.
+* Knowledge that cost time to acquire.
+* A test dropped as "no test required" whose absence a later reader would question.
 
 ## Get the reasons
 
-The reasons are the user's. Never record one the user has not given or confirmed, and add no alternative, mechanism or measurement nobody named.
+The reasons are the user's. Never record a reason the user has not given or confirmed. Add no alternative, mechanism or measurement nobody named.
 
 * **An open decision:** put the alternatives and the tradeoff they turn on to the user in one message. Their answer is the reasons.
-* **A decision already made:** draft the three answers from the conversation and the code, and put them to the user in one message to correct. Name the obvious route in the third. Write "unknown" for any you cannot draft.
+* **A decision already made:** draft the three answers from the conversation and the code, and put them to the user in one message to correct.
+* **Draft answer 3:** name the obvious route. Write "unknown" for any answer you cannot draft.
 
 ```text
 Before recording <decision>, correct anything wrong:
@@ -23,20 +32,34 @@ Before recording <decision>, correct anything wrong:
 3. Why not <the obvious route>? <draft>
 ```
 
-* **The agent's own choice:** state the agent's reason, the obvious alternative and the tradeoff, and ask the user to confirm, change or replace the reason. When the user defers, record the agent's reason, marked as the agent's, with the line "The user deferred to the agent's recommendation."
-* **Feedback, only when there is some:** a tradeoff the answer did not name, an alternative nobody considered, a hazard accepted without a test, or a reason that does not hold against the code, each with its mechanism, in one message before writing. It goes in "Alternatives rejected" or "What it doesn't buy", marked as the agent's.
+* **The agent's own choice:** state the agent's reason, the obvious alternative and the tradeoff. Ask the user to confirm, change or replace the reason.
+* **The user defers:** record the agent's reason, marked as the agent's, with the line "The user deferred to the agent's recommendation."
+* **Feedback, only when there is some:** send it in one message before writing, giving each point its mechanism. It covers:
+  * a tradeoff the answer did not name;
+  * an alternative nobody considered;
+  * a hazard accepted without a test;
+  * a reason that does not hold against the code.
+* **Where feedback goes:** "Alternatives rejected" or "What it doesn't buy", marked as the agent's.
 * **No reasons given:** write no file. Say the decision is unrecorded, and carry on with the work.
 
 ## Where it goes
 
-* **One feature's decision:** `docs/adr/<slug>/<decision-name>.md`, where the slug is the feature's, as in its `story/<slug>/` branches. **Whole repository:** `docs/adr/architecture/<decision-name>.md`. The name is short and kebab-case: `use-redis-for-rate-limiting.md`.
+* **One feature's decision:** `docs/adr/<slug>/<decision-name>.md`, where the slug is the feature's, as in its `story/<slug>/` branches.
+* **Whole repository:** `docs/adr/architecture/<decision-name>.md`.
+* **The name:** short and kebab-case, like `use-redis-for-rate-limiting.md`.
 * **Commit it on its own** on the current branch. Never switch the branch of a checkout with uncommitted changes; ask instead.
-* **With a feature file open** (`docs/stories/<slug>.md`), add the ADR's path to its `Decided:` line.
-* **An existing ADR it contradicts:** leave the old file in place, name it on the new one's `Supersedes:` line, and add `Superseded by: <new path>` to the old one.
+* **With a feature file open** (`docs/stories/<slug>.md`): add the ADR's path to its `Decided:` line.
+* **An existing ADR it contradicts:** leave the old file in place and name it on the new one's `Supersedes:` line.
+* **The old ADR:** add `Superseded by: <new path>` to it.
 
 ## Write it like these
 
-Match the examples' sections, order and density. Write the short form by default. Write the long form only when the decision accepts a hazard or follows an incident, leaving out a section with nothing to say. Every ADR has a Detector, the test that fails when the decision is broken (or the test ID the change will add and what it will assert), and a Supersedes line.
+Match the examples' sections, order and density.
+
+* **Short form:** the default.
+* **Long form:** only when the decision accepts a hazard or follows an incident. Leave out a section with nothing to say.
+* **Every ADR has a Detector:** the test that fails when the decision is broken, or the test ID the change will add and what it will assert.
+* **Every ADR has a Supersedes line.**
 
 Short form:
 

@@ -3,16 +3,17 @@
 Read the stories from the tracker, the feature file, or what the user pasted. Change nothing without the owner's agreement. For each story, look for:
 
 * **No outcome:** no role, nothing a person would notice once it ships, a `so that` that restates the feature, or no `Out of scope` lines.
-* **Solution as need:** an `I want` that names a control or a design (a dropdown, a modal, a new table) instead of what the person can do. Restate it as the need.
+* **Solution as need:** an `I want` that names a control or a design (a dropdown, a modal, a new table). Restate it as what the person can do.
 * **Not testable:** an acceptance criterion with no concrete value, a vague word (better, faster, properly, handled), or a mechanism instead of what a person sees.
-* **Not a story:** something a person cannot perceive alone (an enabler such as a column or a service, a property of another story's behaviour, a task). Say which story it folds into as an acceptance criterion.
+* **Not a story:** something a person cannot perceive alone (an enabler such as a column or a service, a property of another story's behaviour, a task). Name the story it folds into as an acceptance criterion.
 * **Too big:** more than one path or variation, an `I want` joined by "and" or "or", or an acceptance criterion whose `when` is a different action or person. Propose the split by [split.md](split.md).
-* **Dependent:** a story that cannot be built until another ships. Reorder the stories, or fold the shared part into the earlier one, so each can ship on its own; when one still must wait, name the blocker in `Order:`.
-* **Duplicates:** two stories that are one. Search for one distinctive sentence; the stories containing it are the ones to merge.
-* **Missing paths:** a failure path or, for outside input, an abuse path the change can break, whose outcome no acceptance criterion states and the code does not already settle.
+* **Dependent:** a story that cannot be built until another ships. Reorder, or fold the shared part into the earlier story, so each ships alone.
+* **Dependent, still waiting:** name the blocker in `Order:`.
+* **Duplicates:** two stories that are one. Search for one distinctive sentence and merge the stories containing it.
+* **Missing paths:** a failure path or, for outside input, an abuse path the change can break, whose outcome no acceptance criterion states and the code does not settle.
 * **Stale:** an acceptance criterion naming a route, a module or a design the code no longer has. Grep for it.
 
-Then check every candidate against the quoted text of the story it is about: keep it only when the text shows it, and drop it otherwise. Report:
+Check every candidate against the quoted text of its story. Keep it only when the text shows it. Report:
 
 ```text
 <story>: <finding kind> — "<the quoted text>" — <what to change>

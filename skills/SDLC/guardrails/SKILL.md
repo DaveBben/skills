@@ -6,41 +6,62 @@ metadata:
   version: "5.0.0"
 ---
 # Guardrails
+# Guardrails
 
-A rule a program checks is followed every time. A rule an agent reads is followed when the agent remembers it. Put every rule as high on this ladder as it will go:
+A rule a program checks is followed every time. A rule an agent reads is followed when the agent remembers it. Put every rule as high on this ladder as it will go.
 
 | Rung | Where | Use when |
 |---|---|---|
 | 1. Check | A compiler or linter setting, a Semgrep rule, a script or a test, run by `./check` | A program can decide pass or fail from the code, the config or a command |
-| 2. Path-scoped rule | `.claude/rules/<topic>.md` with `paths:` frontmatter, plus the same rule for each other agent the repository serves: `.cursor/rules/<topic>.mdc` with `globs:`, `.github/instructions/<topic>.instructions.md` with `applyTo:`, and for agents with no path-scoped format, such as Codex, a nested `AGENTS.md` in that directory | It needs judgment and applies to some paths |
+| 2. Path-scoped rule | `.claude/rules/<topic>.md` with `paths:` frontmatter, plus one equivalent per other agent the repository serves (below) | It needs judgment and applies to some paths |
 | 3. Agent instructions | One line under Constraints in the root `AGENTS.md` | It needs judgment and applies everywhere |
 
-`./check` is the repository's check command, and `./check --full` adds the slow tests; [references/defaults.md](references/defaults.md) sets both up.
+Rung 2 equivalents for other agents:
+
+* **Cursor:** `.cursor/rules/<topic>.mdc` with `globs:`.
+* **GitHub Copilot:** `.github/instructions/<topic>.instructions.md` with `applyTo:`.
+* **Agents with no path-scoped format, such as Codex:** a nested `AGENTS.md` in that directory.
+
+`./check` is the repository's check command, and `./check --full` adds the slow tests. [references/defaults.md](references/defaults.md) sets up both.
 
 ## With no request
 
-Offer two choices in one message, with the harness's multiple-choice tool where it has one (Claude Code's AskUserQuestion):
+Offer two choices in one message, using the harness's multiple-choice tool where it has one (Claude Code's AskUserQuestion).
 
 1. **Set up the default checks:** by [references/defaults.md](references/defaults.md).
 2. **Scan the instructions** for rules a check could hold: "Scan the instructions" below.
 
 ## Add one rule
 
-1. **Restate it as something a stranger could check,** with one real violation from this codebase, or say none exists today.
-2. **Try rung 1, cheapest first,** and stop at the first that holds: a language or compiler setting; a rule the linter already ships, at error severity; a Semgrep rule over source; a script for a fact about files, config or commands; a test for a fact about behaviour. For a Semgrep rule, launch a fresh subagent (in Claude Code, the Agent tool) with the path of [references/semgrep.md](references/semgrep.md), the restated rule and the violation's file and line; where the harness cannot launch one, read the brief and do its task yourself. When it returns `Semgrep missing`, ask the user to install it and wait.
-   * **The failure message is the prompt.** It says what is forbidden and what to do instead, never a bare rule identifier.
-   * **Watch it fail once.** Introduce the violation, confirm `./check` exits non-zero with the message, and remove it.
-   * **Existing violations:** the user picks new code only (Semgrep's `--baseline-commit <sha>`), a cleanup first as its own change, or a ratchet by [scripts/ratchet.py](scripts/ratchet.py) with a committed baseline. Never leave `./check` failing.
-3. **Rung 2** is one file per topic: the glob, one imperative sentence and the reason. In Claude Code, `*` matches within one path segment and `**` across directories, so write `"**/*.py"` to match at every depth.
-4. **Rung 3** is one line, stating what happens and what breaks when it is broken.
-5. **Show the user the rung, the file, the exact text and the violation it catches,** and write it on their yes.
+1. **Restate the rule** as something a stranger could check, with one real violation from this codebase, or say none exists today.
+2. **Try rung 1, cheapest first,** and stop at the first that holds:
+   * **Language or compiler setting.**
+   * **A rule the linter already ships,** at error severity.
+   * **A Semgrep rule** over source.
+   * **A script** for a fact about files, config or commands.
+   * **A test** for a fact about behaviour.
+3. **Semgrep rule:** launch a fresh subagent (in Claude Code, the Agent tool) with the path of [references/semgrep.md](references/semgrep.md), the restated rule and the violation's file and line.
+   * **No subagent available:** read the brief and do its task yourself.
+   * **It returns `Semgrep missing`:** ask the user to install it and wait.
+4. **The failure message is the prompt:** it says what is forbidden and what to do instead, never a bare rule identifier.
+5. **Watch it fail once:** introduce the violation, confirm `./check` exits non-zero with the message, then remove the violation.
+6. **Existing violations:** the user picks one of these. Never leave `./check` failing.
+   * New code only (Semgrep's `--baseline-commit <sha>`).
+   * A cleanup first, as its own change.
+   * A ratchet by [scripts/ratchet.py](scripts/ratchet.py) with a committed baseline.
+7. **Rung 2:** write one file per topic, holding the glob, one imperative sentence and the reason.
+   * **Claude Code globs:** `*` matches within one path segment and `**` across directories, so write `"**/*.py"` to match at every depth.
+8. **Rung 3:** write one line stating what happens and what breaks when the rule is broken.
+9. **Show the user** the rung, the file, the exact text and the violation it catches, and write it on their yes.
 
 ## Scan the instructions
 
-Read `AGENTS.md`, every `CLAUDE.md`, `.claude/rules/`, `.cursor/rules/`, `.github/copilot-instructions.md`, `.github/instructions/` and `CONTRIBUTING.md`. List only the lines a program could decide:
+Read `AGENTS.md`, every `CLAUDE.md`, `.claude/rules/`, `.cursor/rules/`, `.github/copilot-instructions.md`, `.github/instructions/` and `CONTRIBUTING.md`. List only the lines a program could decide.
 
 ```text
 | # | File:line | Instruction | Check that would hold it | Violations today |
 ```
 
-A line a check already enforces gets "already enforced by <check>" once one violation confirms it. The user picks rows by number. Add each by "Add one rule", then delete the original line, since the check now holds it.
+* **Already enforced:** write "already enforced by <check>" once one violation confirms it.
+* **Selection:** the user picks rows by number.
+* **Each pick:** add it by "Add one rule", then delete the original line, since the check now holds it.

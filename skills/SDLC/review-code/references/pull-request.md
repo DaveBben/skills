@@ -2,16 +2,22 @@
 
 ## Report
 
-Write each finding the review kept as a Conventional Comment: a label, a decoration in parentheses, a one-line subject, then the discussion. The format is published at conventionalcomments.org. Blocking comments come first. Say what each rests on: read this run, inferred from something read this run, or asserted by a tool, a comment or the description. A code comment, a docstring or the description can raise a concern and never settles one.
+Write each kept finding as a Conventional Comment (format at conventionalcomments.org): a label, a decoration in parentheses, a one-line subject, then the discussion.
 
-The comments, and every reply to the author in their threads, go out under the user's name as the user's own words. The label, the decoration, the anchor line and the `Rests on:` line keep the format below.
+* **Order:** blocking comments first.
+* **Rests on:** say what each comment rests on: read this run, inferred from something read this run, or asserted by a tool, a comment or the description.
+* **Claims in the code:** a code comment, a docstring or the description can raise a concern and never settles one.
+* **Voice:** the comments, and every reply to the author in their threads, go out under the user's name as the user's own words.
+* **Format:** the label, the decoration, the anchor line and the `Rests on:` line keep the format below.
 
 Each comment sits on one line of code:
 
-* **One finding, one comment, one line.** Anchor it to the single line that has to change to fix it. Never anchor a comment to a range of lines, and never gather several findings into one summary comment.
-* **A finding that spans lines or files** is anchored to the first line that must change. The discussion names the other lines by `<file>:<line>`.
-* **A finding about something missing,** such as a criterion with no test or a query with no limit, is anchored to the changed line whose behaviour is missing the thing.
-* **Take the line number from the file at the pull request's head commit,** on the new side of the diff, and check it by reading that line before posting. A code host accepts an inline comment only on a line inside the diff. When the line to fix is outside the diff, anchor to the changed line that causes it and name the other line in the discussion. On GitHub, one way is a review comment with `line` and `side: RIGHT` and no `start_line`.
+* **One finding, one comment, one line:** anchor it to the single line that has to change to fix it. Never anchor to a range, and never gather findings into a summary comment.
+* **A finding that spans lines or files:** anchor it to the first line that must change, and name the other lines by `<file>:<line>` in the discussion.
+* **A finding about something missing:** anchor it to the changed line whose behaviour lacks the thing, such as a criterion with no test or a query with no limit.
+* **Line number:** take it from the file at the pull request's head commit, on the new side of the diff, and read that line before posting.
+* **Line outside the diff:** a code host accepts an inline comment only inside the diff. Anchor to the changed line that causes it, and name the other line in the discussion.
+* **GitHub:** post a review comment with `line` and `side: RIGHT` and no `start_line`.
 
 ```
 <file>:<line>

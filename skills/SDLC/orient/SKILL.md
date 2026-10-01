@@ -21,18 +21,40 @@ hooks:
 ---
 # Orient
 
-`AGENTS.md` at the repository root loads into every session before its first message. Every line costs every session, and the agent reads the README, the manifest and the code on its own. Keep a line only when deleting it would cause a mistake nothing else in the repository prevents.
+`AGENTS.md` at the repository root loads into every session before its first message. Every line costs every session. The agent reads the README, the manifest and the code on its own.
+
+Keep a line only when deleting it would cause a mistake nothing else in the repository prevents.
 
 ## What goes in
 
-* **Commands the repository does not make obvious,** exact and copy-pasteable: the check commands (`Check:`, run at turn end, and `Full check:`, run before a pull request), how to run one test, the red-commit command (how to commit failing tests before their code when a hook runs the tests), and any tool choice the agent would otherwise get wrong ("run Python through `uv run`; never `pip install`"). Run each test, lint and check command once; one that fails is not listed.
-* **Constraints no program checks,** each stated as the mechanism: what happens and what breaks. "Never hold a worker longer than one HTTP round trip; the pool has 5 and a full pool returns 502 to every user", not "keep the pool safe". When the reason is not known, write "cause not established".
-* **Traps,** one line per trap, such as a generated file changed only through its generator, a test that needs a running service, a directory that looks unused and is loaded at runtime, a test that already fails on main.
-* **Architecture:** one `Architecture:` line with the path of the document that describes the system's shape (its processes, stores and flows), when the repository has one.
-* **Pointers** to a document the agent would not find on its own: the path and when to read it.
-* **Boundaries:** one `Boundaries:` line naming each system the product reads, writes or runs inside, and who writes the data in each store it reads: this product, a person through its own screens, or something outside. The security review treats data from an outside writer as untrusted.
+* **Commands the repository does not make obvious:** exact and copy-pasteable, as listed below.
+  * **`Check:`** the check command, run at turn end.
+  * **`Full check:`** the full check command, run before a pull request.
+  * **How to run one test.**
+  * **The red-commit command:** how to commit failing tests before their code when a hook runs the tests.
+  * **Tool choices the agent would get wrong:** "run Python through `uv run`; never `pip install`".
+  * **Verified:** run each test, lint and check command once; list none that fails.
+* **Constraints no program checks:** state each as the mechanism, what happens and what breaks.
+  * **Good:** "Never hold a worker longer than one HTTP round trip; the pool has 5 and a full pool returns 502 to every user".
+  * **Bad:** "keep the pool safe".
+  * **Reason unknown:** write "cause not established".
+* **Traps:** one line each, such as these.
+  * A generated file changed only through its generator.
+  * A test that needs a running service.
+  * A directory that looks unused and is loaded at runtime.
+  * A test that already fails on main.
+* **Architecture:** one `Architecture:` line with the path of the document that describes the system's shape (processes, stores, flows), when the repository has one.
+* **Pointers:** the path of a document the agent would not find on its own, and when to read it.
+* **Boundaries:** one `Boundaries:` line naming each system the product reads, writes or runs inside.
+  * **Writers:** for each store the product reads, name who writes the data: this product, a person through its own screens, or something outside.
+  * **Why:** the security review treats data from an outside writer as untrusted.
 
-Other skills write or read these lines; keep each as found, and exempt it from the findings below: the `Check:` and `Full check:` lines, the red-commit command, a number of stories built at once, and every line `guardrails` wrote under Constraints.
+Other skills write or read these lines. Keep each as found and exempt it from the findings below.
+
+* The `Check:` and `Full check:` lines.
+* The red-commit command.
+* A number of stories built at once.
+* Every line `guardrails` wrote under Constraints.
 
 ## What stays out
 
@@ -43,18 +65,46 @@ Other skills write or read these lines; keep each as found, and exempt it from t
 
 ## Shape
 
-No fixed template. Put the `Boundaries:` and `Architecture:` lines first, then only the headings that have content, in this order: Commands, Constraints, Traps, Pointers. Most repositories need under 40 lines; cap it at 100 lines and 8 KB; in Claude Code, `scripts/size_guard.py` refuses an edit that takes the file past it. To add a line, rewrite the file by these rules rather than appending. A module's own conventions go in a nested `AGENTS.md` inside that module.
+There is no fixed template.
 
-Symlink `CLAUDE.md`, and any other instructions-file name the repository carries, to `AGENTS.md`, and commit them together.
+* **First:** the `Boundaries:` and `Architecture:` lines.
+* **Then:** only the headings that have content, in this order: Commands, Constraints, Traps, Pointers.
+* **Size:** most repositories need under 40 lines. Cap the file at 100 lines and 8 KB.
+* **Cap enforcement:** in Claude Code, `scripts/size_guard.py` refuses an edit that takes the file past the cap.
+* **Adding a line:** rewrite the file by these rules rather than appending.
+* **Module conventions:** put them in a nested `AGENTS.md` inside that module.
+* **Symlinks:** link `CLAUDE.md`, and any other instructions-file name the repository carries, to `AGENTS.md`, and commit them together.
 
 ## Writing it
 
-Ask the user only what the repository cannot answer, in one message of draft lines to correct; usually that is the constraints and the traps. In the same message, ask which of these hold for every change, and write each that does as a constraint with its number or list: response time and volume; supported locales (time zones, date, number and currency formats); supported browsers, devices and screen sizes; and the regulations that apply, such as GDPR, HIPAA, PCI or SOX.
-
-When an instructions file exists (`AGENTS.md`, a real `CLAUDE.md`, or both), read each whole, then show one table: each line, and whether it is kept, moved to a check by `guardrails`, or dropped, with the reason. Ask once. On yes, write `AGENTS.md` from the kept lines and replace a real `CLAUDE.md` with the symlink. On no, touch nothing.
+1. **Ask only what the repository cannot answer,** in one message of draft lines to correct. Usually that is the constraints and the traps.
+2. **In the same message,** ask which of these hold for every change, and write each that does as a constraint with its number or list.
+   * Response time and volume.
+   * Supported locales: time zones, date, number and currency formats.
+   * Supported browsers, devices and screen sizes.
+   * Applicable regulations, such as GDPR, HIPAA, PCI or SOX.
+3. **When an instructions file exists** (`AGENTS.md`, a real `CLAUDE.md`, or both), read each whole.
+4. **Show one table:** each line, whether it is kept, moved to a check by `guardrails`, or dropped, and the reason.
+5. **Ask once.**
+   * **Yes:** write `AGENTS.md` from the kept lines and replace a real `CLAUDE.md` with the symlink.
+   * **No:** touch nothing.
 
 ## Orienting
 
-Report in one message: what the repository is for (from the README), the commands, the constraints and traps, and every finding below. Rewrite nothing unless the user accepts a finding. With no `AGENTS.md`, offer to write one.
+Report in one message:
 
-**Findings,** each quoting its line: a line a check enforces or the repository already shows; a line that cannot fail; a command that does not run; a constraint with no mechanism; a file over 100 lines or 8 KB; no check command, with the `guardrails` skill offered once.
+* What the repository is for, from the README.
+* The commands.
+* The constraints and traps.
+* Every finding below.
+
+Rewrite nothing unless the user accepts a finding. With no `AGENTS.md`, offer to write one.
+
+**Findings,** each quoting its line:
+
+* A line a check enforces or the repository already shows.
+* A line that cannot fail.
+* A command that does not run.
+* A constraint with no mechanism.
+* A file over 100 lines or 8 KB.
+* No check command: offer the `guardrails` skill once.

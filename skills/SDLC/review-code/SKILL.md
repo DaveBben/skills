@@ -11,13 +11,42 @@ The subject is the thing under review. When it is ambiguous, ask once.
 
 ## Review it
 
-Every subject gets the same review whoever wrote it, from the plugin's `review` and `verify` agents. Each is defined by one file in the plugin's `agents/` folder, beside this skill's folder (`../agents/<name>.md`). Where the harness loads named agents, launch each by name (Claude Code's SDLC plugin installs them as `SDLC:review` and `SDLC:verify`); otherwise launch a general subagent told to follow its file. Launch each fresh. Give each paths, never file contents, and nothing from this chat.
+Every subject gets the same review, whoever wrote it, from the plugin's `review` and `verify` agents.
 
-1. **The ground.** Check a merge request's head out detached in its own worktree (`git worktree add --detach <path> <commit>`, after fetching it) and give the agents that path; remove the worktree after the report. The user's local code with uncommitted changes gets the same treatment, so no agent edits the user's files: snapshot it as a commit without touching their index or tree (`i=$(mktemp -u); GIT_INDEX_FILE=$i git add -A && GIT_INDEX_FILE=$i git commit-tree $(GIT_INDEX_FILE=$i git write-tree) -p HEAD -m snapshot; rm -f $i` prints its hash) and check that out. A story branch stays where it is, uncommitted changes and all. The **check command** is the one `AGENTS.md` names, else what CI runs.
-2. **The acceptance criteria.** Write the subject's intent as numbered acceptance criteria, each a behaviour with concrete values: a story's acceptance criteria as written; for a merge request, each behaviour its description, its linked ticket's acceptance criteria and its commit messages state; for the user's code or document, what the user says it is for, and when they have not said, ask once. The agents get the acceptance criteria and never the prose they came from: a claim that the code is safe, tested or reviewed, the author's name, an earlier review's verdict and what a failure would cost each sway a reviewer's verdict.
-3. **Three `review` agents,** launched together, each given its number and focus (1 `correctness`, 2 `tests and production`, 3 `security`), the subject, its path or branch, the merge target, the acceptance criteria in a different order for each, the check command, and for a story the red commit's hash. They work blind to each other. For a security review the user asked for, give all three the `security` focus.
-4. **Merge** the three `findings-<n>.md` files into `findings.md` in the same git directory. Rows that name the same line and the same wrong result become one row carrying every piece of evidence. Keep a row that only one agent found: a row counts by its evidence, not by how many agents found it.
-5. **The `verify` agent,** given the path to `findings.md`, the subject's path or branch, the merge target, the acceptance criteria and the check command, and nothing from the agents that wrote the rows. It keeps a row only when a red test fails for the stated reason or a cited line shows the fault, and drops the rest.
-6. **Report** the rows `verify` kept, blocking first, as it wrote them. For a merge request, write them as comments by [references/pull-request.md](references/pull-request.md) instead; print them, and post them only when the user says to. A failing check command is a blocking finding.
+* **Agent files:** each agent is one file in `../agents/<name>.md`, beside this skill's folder.
+* **Launch by name** where the harness loads named agents (Claude Code's SDLC plugin installs `SDLC:review` and `SDLC:verify`). Otherwise launch a general subagent told to follow the file.
+* **Launch each agent fresh,** giving paths, never file contents, and nothing from this chat.
+
+1. **The ground:** give the agents a path to the code, and have no agent edit the user's files.
+   * **Merge request:** fetch it, then check out its head detached in its own worktree. Remove the worktree after the report.
+   * **Uncommitted local code:** snapshot it as a commit without touching the user's index or tree, then check that commit out the same way.
+   * **Story branch:** leave it where it is, uncommitted changes included.
+   * **Check command:** the one `AGENTS.md` names, else what CI runs.
+
+   ```sh
+   git worktree add --detach <path> <commit>
+   # snapshot: prints the commit hash
+   i=$(mktemp -u); GIT_INDEX_FILE=$i git add -A && GIT_INDEX_FILE=$i git commit-tree $(GIT_INDEX_FILE=$i git write-tree) -p HEAD -m snapshot; rm -f $i
+   ```
+
+2. **The acceptance criteria:** write the subject's intent as numbered acceptance criteria, each a behaviour with concrete values.
+   * **Story:** its acceptance criteria as written.
+   * **Merge request:** each behaviour its description, linked ticket and commit messages state.
+   * **User's code or document:** what the user says it is for. Ask once when they have not said.
+   * **Give the agents the criteria only,** never the prose they came from. A claim that the code is safe, tested or reviewed, the author's name, an earlier verdict and the cost of a failure all sway a reviewer.
+3. **Three `review` agents:** launch them together, blind to each other. Give each:
+   * its number and focus (1 `correctness`, 2 `tests and production`, 3 `security`);
+   * the subject, its path or branch, and the merge target;
+   * the acceptance criteria, in a different order for each;
+   * the check command, and for a story the red commit's hash.
+
+   For a security review the user asked for, give all three the `security` focus.
+4. **Merge** the three `findings-<n>.md` files into `findings.md` in the same git directory.
+   * Rows that name the same line and the same wrong result become one row carrying every piece of evidence.
+   * Keep a row only one agent found. A row counts by its evidence, not by how many agents found it.
+5. **The `verify` agent:** give it the path to `findings.md`, the subject's path or branch, the merge target, the acceptance criteria and the check command. Give it nothing from the agents that wrote the rows. It keeps a row only when a red test fails for the stated reason or a cited line shows the fault.
+6. **Report** the rows `verify` kept, blocking first, as it wrote them.
+   * **Merge request:** write them as comments by [references/pull-request.md](references/pull-request.md). Print them, and post only when the user says to.
+   * **Failing check command:** report it as a blocking finding.
 
 Never rewrite the work under review, and write code only when the user asks. After a report to the user, offer the `guardrails` skill once for a finding a checker could catch next time.
