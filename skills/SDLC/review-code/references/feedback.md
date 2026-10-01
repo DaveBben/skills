@@ -7,9 +7,9 @@ For a design, a plan, an ADR or a fix idea:
 * **Its job** is what it must do: the behaviour the code must produce, the decision the document must support, the bug the fix idea must remove. Take it from the acceptance criterion or the test that states it; when neither exists, take it from the conversation or the document's own opening. When nothing states it, ask one question and wait.
 * **The ground,** beyond the code the subject lands on: an implementation idea is checked against what the codebase already has, a document's claims about the system against the system, and a design for a system that does not exist yet against the constraints the user has stated.
 
-## Code Points Come From the Review Agents
+## The Points Come From the Review Agent
 
-For code, the rows `done-block.md` holds after the `refute` agent are the points, placed by the skill's table. For a design, a plan, an ADR or a fix idea, raise every point yourself against its ground, doubted ones included, anchored `<document>:<section>`, for the `refute` agent to judge before the reply. Check a fix idea against every caller of what it changes. Never judge a subject from its own description of itself. Ask of a design or a plan who may do what at each boundary it draws.
+The `review` agent's kept rows are the points, for code and for a design, a plan, an ADR or a fix idea alike. Check a fix idea against every caller of what it changes. Never judge a subject from its own description of itself.
 
 ## Sort Every Point Into One Tier
 

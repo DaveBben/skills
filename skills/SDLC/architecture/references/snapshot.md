@@ -16,7 +16,7 @@ A crossing is a place a unit of work passes from one running piece into another:
 * **Write "unknown" where nothing read settles a fact,** and list it under Open questions. Never fill a cell from what is plausible.
 * **Cite a test as an enforcer only after reading its assertions.** A test whose name matches the rule but asserts something narrower is not the rule's enforcer; name what it does cover.
 * **Follow each write to its commit.** For every file, store or message a unit of work touches, state whether it happens before or after the commit, and what a failure between the two leaves behind.
-* **Refute a snapshot of built code before committing it.** Hand the draft to a fresh refuting subagent (in Claude Code, the `SDLC:refute` agent) told to disprove each claim against the code (every test ID, number, path, link and failure row), and fix or delete each claim it refutes. Where you cannot launch a subagent, leave the draft uncommitted and return it as unrefuted; the launching agent runs the pass and sends you what it refutes to fix or delete before you commit. A "planned, not yet built" snapshot skips this.
+* **Refute a snapshot of built code before committing it.** Hand the draft to a fresh refuting subagent (in Claude Code, the Agent tool with `subagent_type: general-purpose`) told to disprove each claim against the code (every test ID, number, path, link and failure row), and fix or delete each claim it refutes. Where you cannot launch a subagent, leave the draft uncommitted and return it as unrefuted; the launching agent runs the pass and sends you what it refutes to fix or delete before you commit. A "planned, not yet built" snapshot skips this.
 
 ## The summary the user owns
 

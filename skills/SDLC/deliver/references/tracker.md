@@ -1,6 +1,6 @@
 # Where the stories live
 
-Section 1 connects a tracker when `AGENTS.md` has no `Backlog:` line. Sections 2 and 3 are for the agent that runs a tracker operation. The tracker's own words are used throughout: epic, story, bug, spike, rank, status.
+Section 1 connects a tracker when `AGENTS.md` has no `Backlog:` line. Sections 2 and 3 are for whoever runs a tracker operation. The tracker's own words are used throughout: epic, story, bug, spike, rank, status.
 
 ## 1. Find the tracker, or set one up
 
@@ -8,10 +8,9 @@ Take the first case that holds.
 
 1. **`AGENTS.md` has a `Backlog:` line.** Use the tracker and the methods it lists. Ask nothing.
 2. **The request names an issue key, an epic URL or a tracker.** Use that tracker.
-3. **The session can reach a tracker:** an MCP server whose tools read issues, or a tracker CLI that reports a logged-in user (`gh auth status`, `tea login list`). A reachable tracker does not prove it holds this backlog. Name what was found and ask the user once which project holds this work.
-4. **Nothing is reachable.** Halt. Help the user pick and connect one: GitHub Issues (sub-issues and dependencies, optionally a Project), Gitea, Jira, Linear, or any tracker that can create epics and stories, link them, and hold a description and comments. Name the connection step for the choice (an MCP server, `gh auth login`, `tea login add`, `acli jira auth login`, or a token the user puts in the environment). Start no work until one read of the project succeeds.
+3. **Otherwise,** work without a tracker: stories live in the chat and the feature file, as the `story` skill says. When the session can reach one (an MCP server whose tools read issues, or a tracker CLI that reports a logged-in user, such as `gh auth status` or `tea login list`), mention it once and use it only when the user names the project that holds this work.
 
-After cases 2 to 4, write the `Backlog:` block into the `AGENTS.md` of each repository the work touches, after the Boundaries line, in the next commit the work makes there; where a repository has no `AGENTS.md`, create one holding its name and the block. Record the methods in order of preference, never which one worked in one session, since each teammate's session has different tools connected.
+After case 2, or once the user names a project under case 3, write the `Backlog:` block into the `AGENTS.md` of each repository the work touches, after the Boundaries line, in the next commit the work makes there; where a repository has no `AGENTS.md`, create one holding its name and the block. Record the methods in order of preference, never which one worked in one session, since each teammate's session has different tools connected.
 
 ```text
 Backlog:   Jira project PAY at https://acme.atlassian.net; Atlassian MCP server, else `acli jira`, else REST

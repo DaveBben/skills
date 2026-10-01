@@ -1,0 +1,2 @@
+- Work carefully: first list the behaviours and edge cases this change must handle, write failing tests for them and commit those tests, then implement until they pass. Before you finish, have a fresh subagent review the diff for bugs, missed edge cases and weak tests, fix what it confirms, and run the full test suite.
+- Before you finish, run a mutation-testing tool over the source files you changed (install one if the project has none, for example mutmut for Python or gremlins or go-mutesting for Go), and add a test for each surviving mutant that a test should kill.

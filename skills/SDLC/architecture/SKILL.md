@@ -3,7 +3,7 @@ name: architecture
 description: "Use this skill when a choice costs more than a day to reverse, when a system's shape must be decided or mapped, when a decision or an accepted risk must be recorded, when an idea must be tried, compared or tested with throwaway code before it is built for real, or when work is asked for in a repository with no application yet. Use it on: 'how should this be structured', 'should I use X or Y', 'let's build this' in an empty repo, 'note this decision', 'record the why', 'write an ADR', 'snapshot the architecture', 'do a spike', 'let's prove this works first', 'try a few approaches and see', 'test whether X improves Y', 'find the best model for this', 'experiment with', 'prototype', 'mock this up', 'a demo', 'is X feasible', 'see how this would fit or integrate', 'what would it take to move to X', 'template project'. Load it before asking what the user means. Runs spikes, maps the system, records decisions with the user's reasons."
 license: MIT
 metadata:
-  version: "4.0.0"
+  version: "4.1.0"
 ---
 # Architecture
 
@@ -14,13 +14,13 @@ Decide architecture in this order: prove each unknown with a spike, take a broad
 * **The shape:** a snapshot, a dated Markdown file under `docs/architecture/snapshots/` describing the system's processes, stores and flows, with one `Architecture:` line in `AGENTS.md` pointing at the latest. The user owns a one-page summary, `docs/architecture/summary.md`.
 * **Each decision:** an ADR (architecture decision record), one Markdown file under `docs/adr/` saying what was decided, why, and what it gave up.
 * **Each rule:** a test or a dependency contract, which the `guardrails` skill writes.
-* **The feature:** the feature header is the epic's description on the tracker that the `Backlog:` line of `AGENTS.md` names, and the feature's slug is the epic's key. When a feature is open, write to it `Decided:` (one ADR path per line) and `Deferred:` (one open item per line, with what will force it). With no feature header, ask the user for the outcome in one sentence and the steps a person takes.
+* **The feature:** the feature file the `story` skill writes, `docs/stories/<slug>.md`, or the epic's description when the `Backlog:` line of `AGENTS.md` names a tracker; the slug is the file's name or the epic's key. When a feature is open, write to it `Decided:` (one ADR path per line) and `Deferred:` (one open item per line, with what will force it). With no feature header, ask the user for the outcome in one sentence and the steps a person takes.
 
 Subagents write the ADRs, the snapshots and the spikes, each from a brief under this skill's `references/`. Pass a subagent its brief's full path without reading the brief yourself. Read any other file under `references/` only at the step that names it. To continue a subagent after asking the user, resume it where the harness allows (Claude Code's SendMessage), else launch a fresh one with its brief and what it returned. Where the harness cannot launch a subagent, read the brief and do its task yourself.
 
 ## Asking
 
-Everything here is agreed with the user. Look up any fact the code, the data or the tracker holds, and use it. Put a fact only a named person knows on the epic for that person. Ask one question per message. A set of drafts for the user to correct (the Numbers, the Map tables, an ADR's three answers) goes in one message. Open each message with one line naming the repository and the feature, with the harness's multiple-choice tool where it has one (Claude Code's AskUserQuestion).
+Everything here is agreed with the user. Look up any fact the code, the data or the tracker holds, and use it. Put a fact only a named person knows on the feature, for that person. Ask one question per message. A set of drafts for the user to correct (the Numbers, the Map tables, an ADR's three answers) goes in one message. Open each message with one line naming the repository and the feature, with the harness's multiple-choice tool where it has one (Claude Code's AskUserQuestion).
 
 ## Pick the path
 
@@ -44,4 +44,4 @@ Then launch a fresh general-purpose subagent (in Claude Code, the Agent tool wit
 
 ## Write a snapshot
 
-Launch a fresh general-purpose subagent (in Claude Code, the Agent tool with `subagent_type: general-purpose`) with the full path of `references/snapshot.md`, the repository, the latest snapshot `AGENTS.md` points at or "none", and the checkout and branch to commit in. It writes and commits the snapshot, points `AGENTS.md` at it, drafts the summary when there is none, and returns what it found; relay its `Settles:`, `Drift:` and `Questions:` lines. When it returns a snapshot of built code unrefuted, launch a fresh refuting subagent (in Claude Code, the `SDLC:refute` agent) told to disprove each claim in the snapshot against the code, and continue the writer with what it refutes, to fix or delete. When it drafted the summary, ask the user to rewrite it in their own words. Quote to the user each summary line it reports contradicted.
+Launch a fresh general-purpose subagent (in Claude Code, the Agent tool with `subagent_type: general-purpose`) with the full path of `references/snapshot.md`, the repository, the latest snapshot `AGENTS.md` points at or "none", and the checkout and branch to commit in. It writes and commits the snapshot, points `AGENTS.md` at it, drafts the summary when there is none, and returns what it found; relay its `Settles:`, `Drift:` and `Questions:` lines. When it returns a snapshot of built code unrefuted, launch a fresh general-purpose subagent told to disprove each claim in the snapshot against the code, and continue the writer with what it refutes, to fix or delete. When it drafted the summary, ask the user to rewrite it in their own words. Quote to the user each summary line it reports contradicted.

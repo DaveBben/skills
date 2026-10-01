@@ -1,0 +1,2 @@
+- Work carefully: first list the behaviours and edge cases this change must handle, write failing tests for them and commit those tests, then implement until they pass. Before you finish, have a fresh subagent review the diff for bugs, missed edge cases and weak tests, fix what it confirms, and run the full test suite.
+- Before changing a parser or decoder, add a test that pins its current behaviour on the inputs your change could affect (for example invalid bytes), and keep those tests passing unless the request says that behaviour must change.

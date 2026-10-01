@@ -40,7 +40,7 @@ Write dependency contracts, and on brownfield the codebase's own anti-patterns a
 
 ## Loop
 
-Wire three layers, each a subset of one command list, to the agent harness's events: edit time, turn end, session start. Feedback arrives at the edit, on the developer's machine; CI is the backstop. A blocking check needs an escape, so wire the retry limit before the checks: after three failed re-checks in a session, a blocking check stops blocking and says so. A harness with no events still gets the checks at commit and in CI, a turn later.
+Wire three layers, each a subset of one command list, to the agent harness's events: edit time, turn end, session start. Feedback arrives at the edit, on the developer's machine; CI is the backstop. An agent writes files through the shell as often as through its edit tool, and an edit-time hook sees only the edit tool, so every rule that must hold also runs at turn end over `git status` or at commit; the edit-time layer is fast feedback, never the only enforcement. A blocking check needs an escape, so wire the retry limit before the checks: after three failed re-checks in a session, a blocking check stops blocking and says so. A harness with no events still gets the checks at commit and in CI, a turn later.
 
 **Claude Code.** Run `scripts/install.sh <repository>`. It copies the hook scripts into `.claude/hooks/`, merges `scripts/settings.json` into `.claude/settings.json`, and prints every line to edit. Edit only those lines, by the comment above each, and the entries the guards stage names.
 
@@ -50,7 +50,7 @@ Wire three layers, each a subset of one command list, to the agent harness's eve
 
 * **The shipped guards are the hard blocks.** Add another only when breaking the rule is never correct and nothing catches it later.
 * **Deny the feature acceptance directory for good:** the directory holding the user's end-to-end tests, which the agent never edits. Deny edits, writes and deletes, for the agent and every subagent. Replace `tests/feature-acceptance/` in `settings.json` with the project's own, and set `acceptance_dir` in `_slots.sh`.
-* **Deny secrets files, the lockfile, and the git directory's config, hooks, objects, refs, `HEAD` and index.** Leave the rest of the git directory writable for the files the story loop keeps there (`done-block.md`, `findings.md`, `security.md`, `attack/`). Replace `./uv.lock` in `settings.json` with the project's lockfile.
+* **Deny secrets files, the lockfile, and the git directory's config, hooks, objects, refs, `HEAD` and index.** Leave the rest of the git directory writable for the files the story loop keeps there (`findings.md`, `security.md`, `attack/`). Replace `./uv.lock` in `settings.json` with the project's lockfile.
 * **Deny the harness's scheduling tools** (in Claude Code the `ScheduleWakeup` and `CronCreate` tools and the `loop` skill, already in `settings.json`). Each timed wake-up re-reads the whole session. A session that must wait runs a background command that exits on the change, or asks the user.
 * **Write `# owner reads:` sections in `CODEOWNERS`:** `checks` for every file this skill wrote or configured, `deps` for the manifest and lockfile, and `data` for directories the architecture names. Each is a `# owner reads: <label>` heading, then one line per path with the user's handle, ending at a blank line.
 * **Pre-approve every verification command,** and say plainly that the deny list stops accidents and is not a security boundary.

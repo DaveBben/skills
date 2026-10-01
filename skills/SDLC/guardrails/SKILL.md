@@ -3,7 +3,7 @@ name: guardrails
 description: "Use this skill when a repository's AGENTS.md or CLAUDE.md must be written, checked or rewritten, when its automated checks must be set up or repaired, or when one rule or recurring mistake must be enforced. Use it on: 'write AGENTS.md', 'set up CLAUDE.md', 'get this repo ready for agents', 'orient yourself', 'set up guardrails', 'add hooks', 'set up the commit gate', 'we have no linting', 'add a rule', 'always do X', 'never do Y', 'the agent keeps making this mistake', 'ban this pattern'. Writes AGENTS.md, one tool per check slot, the agent hooks and one check command, and puts each rule where a program can enforce it."
 license: MIT
 metadata:
-  version: "3.3.0"
+  version: "3.4.0"
 ---
 # Guardrails
 
@@ -51,7 +51,7 @@ Nouns:      <the three to five domain terms the code, tables and tests must use;
 ## Tech Stack
 <package manager and any tool choice the manifest does not make obvious>
 Boundaries: <each system it reads, writes or runs inside: name, address, read, write or host; who writes the data in each store it reads>
-Backlog:    <tracker, project, access methods in order of preference (an MCP server, a CLI, an HTTP API); it must hold epics, stories and spikes, link them, and hold descriptions and comments; leave the line out when there is none, the first story that needs one connects it>
+Backlog:    <tracker, project, access methods in order of preference (an MCP server, a CLI, an HTTP API); it must hold epics, stories and spikes, link them, and hold descriptions and comments; leave the line out when there is none>
   Types:    <issue types>   Criteria: <field>   Blocks: <link type and checked direction>   Status: <names>
 Architecture: <path of the latest snapshot under docs/architecture/snapshots/; omitted until one exists>
 

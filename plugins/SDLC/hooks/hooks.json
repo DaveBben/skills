@@ -2,19 +2,16 @@
   "hooks": {
     "SessionStart": [{
       "hooks": [{"type": "command", "command": "cat \"${CLAUDE_PLUGIN_ROOT}/hooks/writing.md\""}]
-    }, {
-      "matcher": "resume",
-      "hooks": [{"type": "command", "command": "f=\"${CLAUDE_PLUGIN_ROOT}/skills/deliver/scripts/hook.py\"; [ -f \"$f\" ] && command -v python3 >/dev/null 2>&1 || exit 0; python3 \"$f\" plugin"}]
     }],
     "SubagentStart": [{
       "hooks": [{"type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/subagent-writing.sh\""}]
     }],
-    "SubagentStop": [{
-      "hooks": [{"type": "command", "command": "f=\"${CLAUDE_PLUGIN_ROOT}/skills/deliver/scripts/hook.py\"; [ -f \"$f\" ] && command -v python3 >/dev/null 2>&1 || exit 0; python3 \"$f\" plugin"}]
-    }],
     "PreToolUse": [{
       "matcher": "Bash",
-      "hooks": [{"type": "command", "if": "Bash(*merge*)", "command": "f=\"${CLAUDE_PLUGIN_ROOT}/skills/deliver/scripts/hook.py\"; [ -f \"$f\" ] && command -v python3 >/dev/null 2>&1 || exit 0; python3 \"$f\" plugin"}]
+      "hooks": [{"type": "command", "if": "Bash(*git*)", "command": "f=\"${CLAUDE_PLUGIN_ROOT}/skills/deliver/scripts/guard.py\"; [ -f \"$f\" ] && command -v python3 >/dev/null 2>&1 || exit 0; python3 \"$f\""}]
+    }, {
+      "matcher": "Bash",
+      "hooks": [{"type": "command", "if": "Bash(*merge*)", "command": "f=\"${CLAUDE_PLUGIN_ROOT}/skills/deliver/scripts/guard.py\"; [ -f \"$f\" ] && command -v python3 >/dev/null 2>&1 || exit 0; python3 \"$f\""}]
     }]
   }
 }

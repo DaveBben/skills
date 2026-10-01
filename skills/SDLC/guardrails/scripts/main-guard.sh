@@ -21,8 +21,8 @@ for ok in "${main_ok[@]}"; do
 done
 
 echo "$rel is on $main_branch, and edits on $main_branch are blocked." >&2
-echo "A request that adds, changes, removes or fixes behaviour runs the deliver" >&2
-echo "skill, which cuts a story branch in its own worktree; edit there. Any other" >&2
-echo "change (a check, a chore, a spike) goes on a branch you create first." >&2
+echo "Cut a branch first and edit there: a story's branch (deliver's story.sh start" >&2
+echo "cuts one in its own worktree), or a branch you create for a check, a chore or" >&2
+echo "a spike." >&2
 echo "Only these paths change on $main_branch: ${main_ok[*]}" >&2
 exit 2

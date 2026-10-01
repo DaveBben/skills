@@ -55,7 +55,7 @@ PLUGIN_DIRS = [os.path.join(REPO, "plugins", "SDLC"),
 # 7, and the third run was still exploring when the budget ran out.
 TURNS = 12
 MODEL = None  # set from --model; None leaves the harness default
-OURS = {"guardrails", "architecture", "deliver", "review-code", "handing-off"}
+OURS = {"guardrails", "architecture", "story", "deliver", "review-code", "handing-off"}
 TARGET = 0.80  # suite passes at 80% or better
 
 FILES = {
@@ -233,9 +233,12 @@ def tuning_cases(fresh, mid, bare):
         ("Review my code in src/export.py.", "review-code", fresh),
         ("Do a security review of this branch.", "review-code", fresh),
         ("Poke holes in this plan: we cache sessions in Redis for a week.", "review-code", fresh),
-        # epic review lives in deliver
-        ("Review this epic.", "deliver", fresh),
-        ("Are these the right stories?", "deliver", fresh),
+        # story writing and review live in story
+        ("Review this epic.", "story", fresh),
+        ("Write a story for exporting orders as CSV.", "story", fresh),
+        ("Break the reporting feature down into stories.", "story", fresh),
+        ("Write the acceptance criteria for cursor pagination.", "story", fresh),
+        ("Are these the right stories?", "story", fresh),
         # near-misses for the experiment wording: a known change, or a question
         ("Refactor the export handlers to use a factory pattern.", "deliver", fresh),
         ("What is the factory pattern?", None, fresh),
@@ -303,7 +306,7 @@ def validation_cases(fresh, mid, bare):
         ("Let's do a spike on the best approach to modeling the dataset", "architecture", fresh),
         ("can you look over the diff on my branch before i open the MR", "review-code", fresh),
         ("take a look at !971 and tell me if its good to merge", "review-code", fresh),
-        ("sanity check the stories under the export epic before we start", "deliver", fresh),
+        ("sanity check the stories under the export epic before we start", "story", fresh),
         # agile
         ("the retry loop in src/db.js gives up after 3 tries, make it exponential "
          "backoff with jitter capped at 30s", "deliver", fresh),
