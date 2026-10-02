@@ -10,7 +10,7 @@
       "name": "SDLC",
       "source": "./plugins/SDLC",
       "description": "Story-first engineering with the evidence behind each step, in six skills. story writes each change as As a / I want / so that, its context, numbered rules each with Given/When/Then examples in concrete values, and an Out of scope list, asking wherever a result is not in the request, the code or a tool, splits or reviews stories, then builds each one: the session fixes the interface, a fresh agent writes failing tests through it from the acceptance criteria alone and they are locked, then the code, a refactor, a review by three fresh agents that a fourth checks, then a push and a pull request into main. adr records each expensive decision with the user's reasons. spike answers one question with throwaway code inside a timebox and keeps only the findings. orient writes AGENTS.md with only what an agent cannot learn by reading the repository, and a one-page architecture snapshot in ARCHITECTURE.md, traced from the code, its outside callers and the systems it calls. guardrails turns each rule into a check, a path-scoped rule or an AGENTS.md line, and runs the checks when Claude ends its turn and before it opens a pull request. review-code reviews stories, pull requests, the user's own code and designs the same way: three fresh agents check each stated acceptance criterion blind to each other, one searching hardest for security, and a fourth keeps only the findings a red test or a cited line proves.",
-      "version": "17.4.0",
+      "version": "17.5.0",
       "license": "MIT",
       "skills": [
         "./skills/story",

@@ -170,7 +170,9 @@ Then stop writing. Add no criterion for a walk item that cannot happen here, for
 The feature header goes at the top of the feature file or the epic's description:
 
 ```text
-Outcome:      <what a person does differently once the whole feature ships, and how you will see that they do>
+Outcome:      <what a person does differently once the whole feature ships>
+Measure:      <the number that shows it, where to read it (a query, a dashboard, a log), its value now, the value that means success, and the date to read it>
+Result:       <the value read and the date, once read>
 Out of scope: <one checkable non-goal per line>
 Order:        <the story titles or keys, in the order they will be built>
 Decided:      <one ADR path per line, written by the adr skill>

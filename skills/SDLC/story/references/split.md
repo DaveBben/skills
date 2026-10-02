@@ -27,7 +27,7 @@ Rules for the stories:
 
 Then agree it:
 
-* **Show the user** the steps, the stories and the proposed `Order:` in one message.
+* **Show the user** the steps, the stories, the proposed `Order:` and the proposed `Outcome:` and `Measure:` in one message. Read the measure's value now with a tool where one reaches it, else ask the user for it.
 * **Write the feature file,** or the epic and its child issues, only after the user confirms.
 * **A story found while building:** add it to the feature after the stories already ordered, unless the user moves it.
 * **Feature acceptance test:** when the user wants one, they write it, marked strictly expected-to-fail. Build each story from its own acceptance criteria.
