@@ -1,6 +1,6 @@
 ---
 name: review-code
-description: "Use this skill when code must be reviewed or critiqued, whoever wrote it: a story branch the story skill built, a pull request or merge request, a diff, or code the user wrote, committed or not; or a design, a plan, an ADR or a fix idea the user made. Use it on: 'review PR 412', 'review this merge request', 'is this PR ready to merge', 'review my code', 'review what you built', 'security review', 'give me feedback', 'poke holes in this', 'what do you think of this approach'. Three fresh agents check each stated acceptance criterion blind to each other, one of them searching hardest for security, and a fourth keeps only the findings a red test or a cited line proves; it never rewrites the user's work."
+description: "Use this skill when code must be reviewed or critiqued, whoever wrote it: a story branch the story skill built, a pull request or merge request, a diff, uncommitted changes, or a file the user wrote; or a design, a plan, an ADR or a fix idea the user made. Use it on: 'review this code', 'do a code review', 'review PR 412', 'look at this merge request', 'is this PR ready to merge', 'review my changes', 'review the diff', 'review my uncommitted changes', 'sanity check my diff before I push', 'check this file for bugs', 'review what you built', 'security review', 'give me feedback', 'poke holes in this', 'what do you think of this approach'. Load it before reading the diff or the files. Reviews it with fresh agents whose findings must be proven by a failing test or a cited line, and never rewrites the user's work. Not for written user stories or acceptance criteria; that is `story`."
 license: MIT
 metadata:
   version: "6.0.0"
@@ -18,10 +18,15 @@ Every subject gets the same review, whoever wrote it, from the plugin's `review`
 * **Launch each agent fresh,** giving paths, never file contents, and nothing from this chat.
 
 1. **The ground:** give the agents a path to the code, and have no agent edit the user's files.
-   * **Merge request:** fetch it, then check out its head detached in its own worktree. Remove the worktree after the report.
-   * **Uncommitted local code:** snapshot it as a commit without touching the user's index or tree, then check that commit out the same way.
+   * **Merge request:** fetch it, then check out its head detached in its own worktree.
+   * **Uncommitted local code:** snapshot it as a commit without touching the user's index or tree, then check that commit out the same way. Its merge target is the snapshot's parent, `HEAD`, unless the user names a branch.
+   * **Committed local branch:** check out its head detached the same way.
+   * **A file with no pending change:** give its path and no merge target; the agents review the whole file.
    * **Story branch:** leave it where it is, uncommitted changes included.
-   * **Check command:** the one `AGENTS.md` names, else what CI runs.
+   * **Design, plan, ADR or fix idea:** give its file path with the code it lands on. When it exists only in this chat, write it to `design.md` in the git directory first and give that path.
+   * **New worktree:** run the repository's install step there (the setup line of `AGENTS.md`, else the README's) before launching any agent. A check that fails on setup is a setup error to report to the user, not a finding.
+   * **Cleanup:** remove each worktree this skill added after the report.
+   * **Check command:** the `Full check:` line of `AGENTS.md`, else its `Check:` line, else what CI runs.
 
    ```sh
    git worktree add --detach <path> <commit>
@@ -43,8 +48,9 @@ Every subject gets the same review, whoever wrote it, from the plugin's `review`
    For a security review the user asked for, give all three the `security` focus.
 4. **Merge** the three `findings-<n>.md` files into `findings.md` in the same git directory.
    * Rows that name the same line and the same wrong result become one row carrying every piece of evidence.
-   * Keep a row only one agent found. A row counts by its evidence, not by how many agents found it.
-5. **The `verify` agent:** give it the path to `findings.md`, the subject's path or branch, the merge target, the acceptance criteria and the check command. Give it nothing from the agents that wrote the rows. It keeps a row only when a red test fails for the stated reason or a cited line shows the fault.
+   * Keep every row, including a row only one agent found. A row counts by its evidence, not by how many agents found it.
+   * Number the merged rows 1 to n.
+5. **The `verify` agent:** give it the path to `findings.md`, the subject's path or branch, the merge target, the acceptance criteria and the check command. Give it nothing from the agents that wrote the rows. It keeps a row only when a red test fails for the stated reason or a cited line shows the fault. Then delete each `attack-<n>/` directory the review agents left in the subject's tree.
 6. **Report** the rows `verify` kept, blocking first, as it wrote them.
    * **Merge request:** write them as comments by [references/pull-request.md](references/pull-request.md). Print them, and post only when the user says to.
    * **Failing check command:** report it as a blocking finding.

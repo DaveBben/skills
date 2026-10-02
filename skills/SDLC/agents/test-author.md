@@ -57,9 +57,10 @@ An existing test the acceptance criteria contradict is a decision.
 
 Write the tests and run them. Each must fail because the behaviour is missing, not because of a typo, an import or a fixture error. List a test that already passes as `characterizing`, or delete it when it adds nothing.
 
-1. **Commit** the tests alone, with the test list in the commit message.
-2. **Hook refuses the commit** because the tests fail: skip that hook alone by its id and say so in your return. Never skip every hook.
-3. **Lock** the commit:
+1. **Mark** each failing test with the framework's strict expected-fail marker, so the suite passes while the behaviour is missing and fails once the test passes: pytest `@pytest.mark.xfail(strict=True, reason="red")`, Jest or Vitest `test.failing`, Playwright `test.fail()`, RSpec `pending`. Mark nothing else, and leave a `characterizing` test unmarked. **No strict marker in the framework:** leave the tests unmarked and say so in your return.
+2. **Commit** the tests alone. The commit message holds the story text, the test list and the `Changes existing:` line, so a later session and the reviewers read them from git.
+3. **Hook refuses the commit** because a test fails: skip that hook alone by its id and say so in your return. Never skip every hook.
+4. **Lock** the commit:
 
    ```sh
    git config --add branch.<branch>.redCommit $(git rev-parse HEAD)
@@ -67,9 +68,11 @@ Write the tests and run them. Each must fail because the behaviour is missing, n
 
 **A confirmed review finding:**
 
-* Write one test that fails on it, through the interface its criterion names.
+* Write one test that fails on it, through the interface its criterion names, marked as above.
 * Put it in a new test file, since the locked files refuse changes.
 * Commit it alone and lock it the same way.
+
+**A weak test from the review:** write, in a new test file, a test that the row's named wrong implementation fails. It may pass at once; leave it unmarked then. Commit and lock it the same way.
 
 **A test the user corrected:** the session has run `git config --unset-all branch.<branch>.redCommit` and gives you the test, the correction and the earlier red commits' hashes.
 
@@ -79,7 +82,7 @@ Write the tests and run them. Each must fail because the behaviour is missing, n
 ## Return
 
 ```text
-Red: <hash>; tests: <paths>; <n> failing, <n> characterizing
+Red: <hash>; tests: <paths>; <n> failing, <n> characterizing; marker: <the expected-fail marker used, or "none in this framework">
 Tests:
   <the numbered test list>
 Changes existing: <test name — the acceptance criterion that requires it>; or "none"

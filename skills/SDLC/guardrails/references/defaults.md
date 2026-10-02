@@ -10,11 +10,10 @@ Write an executable `check` at the repository root. It runs these in order and s
 
 Choosing tools:
 
-* **Existing tools:** use the ones the repository already has.
 * **Empty slot:** name the tool to add, and add it on the user's yes.
 * **Slot with nothing to run yet,** such as end-to-end tests: leave it out and say so.
 * **Task runner:** `check` calls its targets rather than repeating their commands.
-* **Mutation tools:** `mutmut` (Python), StrykerJS (JavaScript, TypeScript), `cargo-mutants` (Rust), `go-mutesting` (Go), PIT (Java).
+* **Mutation tools:** `mutmut` (Python), StrykerJS (JavaScript, TypeScript), `cargo-mutants` (Rust), `go-mutesting` (Go), PIT (Java), each with its failure threshold set so surviving mutants fail the run (StrykerJS `thresholds.break`, PIT `mutationThreshold`).
 
 Run `./check` and `./check --full` once.
 
@@ -25,11 +24,8 @@ Run `./check` and `./check --full` once.
 
 ## When it runs
 
-* **Claude Code:** copy [../scripts/gate.py](../scripts/gate.py) to `.claude/hooks/gate.py` and merge [../scripts/settings.json](../scripts/settings.json) into `.claude/settings.json`.
-  * **Turn end:** once Claude has finished its work, the hook runs `./check` when files changed since it last passed.
-  * **First failure:** it sends Claude back to fix it once.
-  * **Second failure:** it ends the turn and tells the user.
-  * **Pull or merge request:** before Claude opens one (`gh pr create`, `glab mr create`, `tea pr create`, or a tool that creates one), the hook runs `./check --full` and refuses the request when it fails.
+* **Claude Code:** copy [../scripts/gate.py](../scripts/gate.py) to `.claude/hooks/gate.py` and merge [../scripts/settings.json](../scripts/settings.json) into `.claude/settings.json`. It runs `./check` at turn end and `./check --full` before a pull request opens.
+  * **Timeout:** `./check --full` must finish within the hook's 3600-second timeout; a timeout lets the pull request open unchecked.
 * **Another harness:** wire the same two commands to its turn-end and pre-tool events where it has them.
 
 Then run:

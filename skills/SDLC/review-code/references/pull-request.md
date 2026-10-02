@@ -5,9 +5,8 @@
 Write each kept finding as a Conventional Comment (format at conventionalcomments.org): a label, a decoration in parentheses, a one-line subject, then the discussion.
 
 * **Order:** blocking comments first.
-* **Rests on:** say what each comment rests on: read this run, inferred from something read this run, or asserted by a tool, a comment or the description.
-* **Claims in the code:** a code comment, a docstring or the description can raise a concern and never settles one.
-* **Voice:** the comments, and every reply to the author in their threads, go out under the user's name as the user's own words.
+* **Rests on:** copy each row's `proof:` field: the run, or the traced lines.
+* **Voice:** write the comments and every reply in their threads as the user's own words, using the user's writing-voice skill when one is installed.
 * **Format:** the label, the decoration, the anchor line and the `Rests on:` line keep the format below.
 
 Each comment sits on one line of code:
@@ -24,19 +23,16 @@ Each comment sits on one line of code:
 <label> (<blocking | non-blocking>[, security]): <subject: what breaks, in one line>
 
 <the concrete case: the input, sequence or caller>. Shows as: <what would show it breaking>.
-Rests on: read this run | inferred from <what was read> | asserted by <tool, comment or description>.
+Rests on: <the run> | <the traced lines>.
 <the fix, or the one test that would settle it>
 ```
 
-Use these labels and no others:
+Label each comment by the type of the kept row, and use no other label:
 
-| Label | For |
+| Row type | Label |
 |---|---|
-| `issue` | A finding with a failure behind it: a criterion with no test, behaviour against production data, a name a reader cannot map to a criterion. `blocking` or `non-blocking` as the kept row says. |
-| `question` | A claim that would change a rating and cannot be checked, or a decision the author did not own. Name who answers it and the test that would settle it. |
-| `suggestion` | Code no test asked for. Say what to delete. |
-| `todo` | A small required change with no failure of its own, such as a missing link to the ticket. Always `blocking`. |
-| `praise` | At most one, naming a specific thing to keep, such as a test that pins a hard case. Never generic. |
+| `finding` or `weak test` | `issue`, `blocking` or `non-blocking` as the row says. |
+| `question` | `question`, `non-blocking`. Name who answers it and the test that would settle it. |
 
 End the report with the verdict:
 

@@ -51,6 +51,9 @@ def self_test():
         assert ratchet(b, ["C901\ta.py"] * 2) == 0, "a fall must pass"
         assert json.load(open(b)) == {"C901\ta.py": 2}, "a fall must lower the baseline"
         assert ratchet(b, ["C901\ta.py"] * 3) == 1, "a count may not climb back"
+    import subprocess
+    r = subprocess.run([sys.executable, __file__], capture_output=True, text=True, stdin=subprocess.DEVNULL)
+    assert r.returncode == 2 and "Usage" in r.stderr, "no baseline argument prints the usage"
     print("ratchet self-test passed")
     return 0
 
@@ -58,4 +61,7 @@ def self_test():
 if __name__ == "__main__":
     if sys.argv[1:] == ["--self-test"]:
         sys.exit(self_test())
+    if len(sys.argv) != 2:
+        print(__doc__.splitlines()[0], file=sys.stderr)
+        sys.exit(2)
     sys.exit(ratchet(sys.argv[1], sys.stdin))

@@ -1,11 +1,12 @@
 # Create a story
 
+Sections: Clear up ambiguity, Write the story, When to stop, Agree it, Where stories live.
+
 * **Read first:** the request, the code it touches and that code's tests. Read a story linked on a tracker with its comments.
 * **Several stories:** make the request a feature by [split.md](split.md) first; then create one story at a time.
 
 ## Clear up ambiguity
 
-* **Ambiguous request or answer:** ask a clarifying question before writing the acceptance criteria it affects.
 * **Draft the examples first:** an example whose `then` you cannot fill with a real value from the request, the code or a tool is a question for the user, not a guess.
 * **Another outcome possible** from the givens listed: a given is missing. Look it up or ask.
 
@@ -71,6 +72,28 @@ Out of scope
 ```
 
 Criterion 3 states no balance: the outcome does not depend on it.
+
+A bug story in code with no end user:
+
+```text
+Title: Refund caller gets the partial amount back
+
+As the billing service calling refund(),
+I want a partial refund to return the amount refunded
+so that the invoice shows what the customer was paid.
+
+Context: refund() returns the order total even for a partial refund, so invoices overstate refunds. Reported in PAY-88.
+
+Acceptance criteria
+1. A partial refund returns the amount refunded.
+   changes: it returned the order total.
+   Given order 1042 totals $80.00 and nothing is refunded yet,
+   when billing calls refund(1042, amount=$30.00),
+   then it returns $30.00 and order 1042 shows $50.00 refundable.
+
+Out of scope
+* Refunds in a currency other than the order's.
+```
 
 * **Role:** whoever uses the changed interface. Use a kind of person the system has (a registered customer, a clinic admin), or, in code with no end user, the program or developer that calls it (a billing service calling `refund()`).
 * **Role, never:** "user", or the person building the change.
@@ -141,7 +164,7 @@ Then stop writing. Add no criterion for a walk item that cannot happen here, for
 ## Where stories live
 
 * **With a tracker:** a story is an issue, its description the story text; a feature is an epic whose child issues are its stories.
-* **Without one, a single story:** it lives in the chat until the red commit's message and the pull request's description hold it.
+* **Without one, a single story:** the red commit's message and the pull request's description hold it.
 * **Without one, a feature:** it lives in `docs/stories/<slug>.md`, committed on its own branch: the feature header, then each story under its title.
 
 The feature header goes at the top of the feature file or the epic's description:

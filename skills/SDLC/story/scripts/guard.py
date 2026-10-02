@@ -7,15 +7,21 @@ Denies, with a message saying what to do instead:
   * a commit, on a branch with red commits recorded in git config
     (branch.<branch>.redCommit), that changes a test file a red commit holds or
     a test that existed where the branch left main: those tests are locked,
-    whichever tool edited them.
+    whichever tool edited them. Removing an expected-fail marker is the one
+    change allowed;
+  * opening a pull request while a red commit's test still carries an
+    expected-fail marker: that test's criterion is not built;
+  * a commit whose directory the guard cannot resolve (an unset $VAR).
 
-The guard reads the hook input on stdin and prints a deny decision, or nothing. Registered by
-story's SKILL.md frontmatter and by the SDLC plugin's hooks.json, so it runs
-for the main session and for subagents. Run with --self-test to check it.
+The guard reads the hook input on stdin and prints a deny decision, or nothing.
+Registered by the SDLC plugin's hooks.json, so it runs for the main session and
+for subagents. Run with --self-test to check it.
 """
-import json, os, re, shlex, subprocess, sys
+import difflib, json, os, re, shlex, subprocess, sys
 
 MAINS = {os.environ.get("MAIN", "main"), "main", "master"}
+# Strict expected-fail markers: the run fails once the marked test passes.
+XFAIL = re.compile(os.environ.get("XFAIL", r"@pytest\.mark\.xfail\([^)]*strict=True[^)]*\)|\.failing\b|\btest\.fail\(\);?|^\s*pending\b.*$"), re.M)
 TEST = re.compile(os.environ.get("TESTS", r"(^|/)(tests?|specs?|__tests__)/|(^|/)test_[^/]*$|_test\.[^/]*$|\.(test|spec)\.[^/]*$"))
 
 
@@ -36,18 +42,23 @@ def where(cmd, cwd):
     w = words(cmd)
     for i, t in enumerate(w[:-1]):
         if (t == "cd" and i == 0) or (t == "-C" and i > 0 and w[i - 1] == "git"):
-            cwd = os.path.join(cwd, os.path.expanduser(w[i + 1]))
+            cwd = os.path.join(cwd, os.path.expandvars(os.path.expanduser(w[i + 1].rstrip(";"))))
     return cwd
+
+
+def red_files(d, branch):
+    """The test files the branch's red commits hold."""
+    files = set()
+    for red in git(d, "config", "--get-all", f"branch.{branch}.redCommit").split():
+        files |= {f for f in git(d, "diff-tree", "--no-commit-id", "--name-only", "-r", red).splitlines() if TEST.search(f)}
+    return files
 
 
 def locked_files(d, branch):
     """The test files of the branch's red commits, and the tests that existed at its base."""
-    reds = git(d, "config", "--get-all", f"branch.{branch}.redCommit").split()
-    if not reds:
+    files = red_files(d, branch)
+    if not files:
         return set()
-    files = set()
-    for red in reds:
-        files |= {f for f in git(d, "diff-tree", "--no-commit-id", "--name-only", "-r", red).splitlines() if TEST.search(f)}
     base = next((b for b in MAINS if git(d, "rev-parse", "-q", "--verify", b)), "main")
     onto = f"origin/{base}" if git(d, "rev-parse", "-q", "--verify", f"origin/{base}") else base
     mb = git(d, "merge-base", onto, "HEAD")
@@ -56,7 +67,20 @@ def locked_files(d, branch):
     return files
 
 
-GIT = r"\bgit\b[^;&|\n]*?\b"  # a git command, global options allowed, within one shell segment
+def only_unmarks(d, f):
+    """True when the file differs from HEAD only by removed expected-fail markers."""
+    try:
+        new = open(os.path.join(git(d, "rev-parse", "--show-toplevel"), f)).read().splitlines()
+    except OSError:
+        return False
+    old = git(d, "show", f"HEAD:{f}").splitlines()
+    for op, i1, i2, j1, j2 in difflib.SequenceMatcher(None, old, new, autojunk=False).get_opcodes():
+        if op != "equal" and [l for l in (XFAIL.sub("", l) for l in old[i1:i2]) if l.strip()] != new[j1:j2]:
+            return False
+    return True
+
+
+GIT = r"\bgit(?:\s+-[cC]\s+\S+|\s+--?[\w.-]+(?:=\S+)?)*\s+"  # git, its global options, then the subcommand
 
 
 def check(cmd, cwd):
@@ -64,6 +88,16 @@ def check(cmd, cwd):
     if re.search(r"\b(gh\s+pr|glab\s+mr)\s+merge\b", cmd):
         return "The user merges pull requests. Tell the user it is ready to merge."
     branch = git(d, "branch", "--show-current")
+    if branch and re.search(r"\b(gh\s+pr|glab\s+mr|tea\s+(pr|pulls))\s+create\b", cmd):
+        top = git(d, "rev-parse", "--show-toplevel")
+        marked = sorted(f for f in red_files(d, branch) if os.path.exists(os.path.join(top, f))
+                        and XFAIL.search(open(os.path.join(top, f)).read()))
+        if marked:
+            return ("These tests still carry an expected-fail marker, so their criteria are not built: "
+                    + ", ".join(marked) + ". Build them and remove the markers, or report the test and the reason to the user.")
+        return None
+    if not branch and re.search(GIT + r"commit\b", cmd) and ("$" in d or not os.path.isdir(d)):
+        return "The guard cannot tell which directory this commit runs in. Run it with a literal path: cd <path> && git commit, or git -C <path> commit."
     merging = re.search(GIT + r"merge(?![-\w])(?!\s+--ff-only\s+(origin/|@\{u\}))", cmd)
     onto_main = branch in MAINS or re.search(GIT + r"(switch|checkout)\s+(" + "|".join(MAINS) + r")\b", cmd)
     if merging and onto_main:
@@ -73,7 +107,7 @@ def check(cmd, cwd):
     locked = locked_files(d, branch)
     if not locked:
         return None
-    changed = set(git(d, "diff", "HEAD", "--name-only", "--no-renames").splitlines())
+    changed = {f for f in git(d, "diff", "HEAD", "--name-only", "--no-renames").splitlines() if not only_unmarks(d, f)}
     w = words(cmd)
     if any(t in ("mv", "rm", "cp", "tee", ">", ">>") or t.startswith("-i") for t in w):
         changed |= {f for f in locked if f in w or any(t.endswith("/" + f) for t in w)}
@@ -111,6 +145,8 @@ def self_test():
     assert check("git merge story/x", t), "git merge on main"
     assert not check("git merge-base HEAD story/x", t), "merge-base"
     assert not check("git merge --ff-only origin/main", t), "fast-forward"
+    assert not check("git commit -m 'merge the parser fix'", t), "the word merge in a message"
+    assert not check("git log --grep merge", t), "the word merge in an argument"
     run("git", "switch", "-q", "-c", "story/f/K-1-x")
     assert not check("git push -u origin story/f/K-1-x", t), "push is the agent's call"
     assert not check("gh pr create --fill", t), "so is opening the pull request"
@@ -123,6 +159,8 @@ def self_test():
     open(f"{t}/tests/test_a.py", "w").write("y\n")
     assert check("git commit -am 'weaken'", t), "commit -a of a locked test"
     assert check(f"cd {t} && git commit -a -m x", "/"), "cd then commit"
+    assert check(f"cd {t}; git commit -am x", "/"), "cd; then commit"
+    assert check("cd $NO_SUCH_VAR_X && git commit -am x", "/"), "an unresolvable directory"
     assert check("git commit -m 'only staged'", t), "a modified locked test blocks any commit"
     run("git", "add", "tests/test_a.py")
     assert check("git commit -m x", t), "staged locked test"
@@ -145,6 +183,20 @@ def self_test():
     run("git", "checkout", "-q", "--", "tests/test_a.py")
     assert check("git mv tests/test_a.py tests/test_c.py && git commit -m x", t), "mv then commit"
     assert not check("git commit -m 'fix the bug tests/test_a.py found'", t), "message naming a test path"
+    red_src = "import pytest\n\n@pytest.mark.xfail(strict=True, reason='red')\ndef test_b():\n    assert f() == 2\n"
+    open(f"{t}/tests/test_b.py", "w").write(red_src)
+    run("git", "add", "tests/test_b.py")
+    run("git", "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "red 2")
+    run("git", "config", "--add", "branch.story/f/K-1-x.redCommit", git(t, "rev-parse", "HEAD"))
+    assert check("gh pr create --fill", t), "a marker left on a red test blocks the pull request"
+    open(f"{t}/tests/test_b.py", "w").write(red_src.replace("@pytest.mark.xfail(strict=True, reason='red')\n", ""))
+    assert not check("git commit -am 'build'", t), "removing a marker is allowed"
+    assert not check("gh pr create --fill", t), "no marker left, so the pull request opens"
+    open(f"{t}/tests/test_b.py", "w").write(red_src.replace("== 2", "== 3"))
+    assert check("git commit -am x", t), "changing the assertion of a marked test"
+    open(f"{t}/tests/test_b.py", "w").write("@pytest.mark.xfail(strict=True)\n" + red_src)
+    assert check("git commit -am x", t), "adding a marker"
+    run("git", "checkout", "-q", "--", "tests/test_b.py")
     os.makedirs(f"{t}/sp ace/tests")
     assert check("git switch main && git merge story/f/K-1-x", t), "switch to main then merge"
     print("self-test passed")

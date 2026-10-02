@@ -4,16 +4,20 @@ depth, at or under 100 lines and 8 KB.
 
   * PreToolUse on Edit, Write or MultiEdit: denies a change that would leave the
     file over the cap, unless it makes an oversized file smaller.
-  * PostToolUse on Bash: a command naming one of the files that left it over
-    the cap is reported back to Claude to cut, since the shell write has happened.
+  * PostToolUse on Bash: a command naming one of the files, when the file was
+    modified in the last RECENT seconds and is over the cap, is reported back to
+    Claude to cut, since the shell write has happened. A command that only reads
+    the file passes.
 
 Reads the hook input on stdin and prints a decision, or nothing. Registered by
-orient's SKILL.md frontmatter and by the SDLC plugin's hooks.json. Run with
---self-test to check it.
+the SDLC plugin's hooks.json. Run with --self-test to check it.
 """
-import json, os, re, shlex, sys
+import json, os, re, shlex, sys, time
 
 MAX_LINES, MAX_BYTES = 100, 8192
+# ponytail: "the command wrote the file" is read as "modified in the last RECENT seconds"; a
+# PreToolUse hook recording the size before the command would be exact.
+RECENT = 10
 NAMES = {"AGENTS.md", "CLAUDE.md"}
 FIX = ("Rewrite it by the orient skill instead of adding to it: delete lines a check enforces or the "
        "repository already shows, and move one module's conventions into a nested AGENTS.md in that module.")
@@ -21,7 +25,8 @@ FIX = ("Rewrite it by the orient skill instead of adding to it: delete lines a c
 
 def too_big(text):
     data = text.encode()
-    return data.count(b"\n") > MAX_LINES or len(data) > MAX_BYTES
+    lines = data.count(b"\n") + (bool(data) and not data.endswith(b"\n"))
+    return lines > MAX_LINES or len(data) > MAX_BYTES
 
 
 def read(path):
@@ -29,6 +34,13 @@ def read(path):
         return open(path, encoding="utf-8", errors="replace").read()
     except OSError:
         return ""
+
+
+def fresh(path):
+    try:
+        return time.time() - os.path.getmtime(path) < RECENT
+    except OSError:
+        return False
 
 
 def after(tool, inp, old):
@@ -51,7 +63,7 @@ def pre(tool, inp, cwd):
         return None
     old = read(path)
     new = after(tool, inp, old)
-    if new is None or not too_big(new) or len(new) < len(old):
+    if new is None or not too_big(new) or len(new.encode()) <= len(old.encode()):
         return None
     return f"This change leaves {os.path.basename(path)} over {MAX_LINES} lines or {MAX_BYTES // 1024} KB. " + FIX
 
@@ -64,7 +76,7 @@ def post(cmd, cwd):
     if words[:1] == ["cd"] and len(words) > 1:
         cwd = os.path.join(cwd, os.path.expanduser(words[1]))
     hits = {w for w in re.split(r"[\s;&|<>()]+", " ".join(words)) if os.path.basename(w) in NAMES}
-    bad = sorted(h for h in hits if too_big(read(os.path.join(cwd, h))))
+    bad = sorted(h for h in hits if fresh(os.path.join(cwd, h)) and too_big(read(os.path.join(cwd, h))))
     if bad:
         return ", ".join(bad) + f" is now over {MAX_LINES} lines or {MAX_BYTES // 1024} KB. " + FIX
     return None
@@ -95,6 +107,7 @@ def self_test():
     full = "line\n" * MAX_LINES
     assert not pre("Write", {"file_path": f, "content": full}, t), "100 lines may be written"
     assert pre("Write", {"file_path": f, "content": full + "x\n"}, t), "101 lines may not"
+    assert pre("Write", {"file_path": f, "content": full + "x"}, t), "101 lines with no trailing newline may not"
     assert not pre("Write", {"file_path": os.path.join(t, "README.md"), "content": full * 2}, t), "other files pass"
     open(f, "w").write(full)
     assert pre("Edit", {"file_path": "AGENTS.md", "old_string": "line\n", "new_string": "line\nmore\n"}, t), "edit that grows past the cap"
@@ -103,8 +116,12 @@ def self_test():
     open(f, "w").write(full * 2)
     assert not pre("Edit", {"file_path": f, "old_string": full, "new_string": ""}, t), "shrinking an oversized file passes"
     assert not pre("Edit", {"file_path": f, "old_string": "absent", "new_string": "x"}, t), "an edit that cannot apply passes"
+    assert not pre("Edit", {"file_path": f, "old_string": "line", "new_string": "LINE"}, t), "a same-length fix to an oversized file passes"
     assert post(f"cat extra >> {f}", "/"), "shell write left it over the cap"
     assert post("cd " + t + " && echo x >> AGENTS.md", "/"), "cd then a relative path"
+    os.utime(f, (time.time() - 60, time.time() - 60))
+    assert not post(f"cat {f}", "/"), "reading an oversized file it did not change passes"
+    assert not post(f"wc -l {f}", "/"), "so does counting its lines"
     open(f, "w").write(full)
     assert not post(f"echo x >> {f}", "/"), "under the cap"
     assert not post("ls", t), "no file named"

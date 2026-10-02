@@ -6,13 +6,14 @@
         and shows Claude the output; when the next stop still fails, it lets
         the turn end and tells the user.
   pr    On PreToolUse: before a command or tool that opens a pull or merge
-        request, runs ./check --full, unless the same tree already passed it,
+        request, runs ./check --full in the repository the command runs in (a
+        leading `cd X` or `git -C X`), unless the same tree already passed it,
         and refuses the request when it fails.
 
 Fails open: no git, no executable ./check at the repository root, or unreadable
 input exits 0.
 """
-import hashlib, json, os, re, subprocess, sys
+import hashlib, json, os, re, shlex, subprocess, sys
 
 PR_COMMAND = re.compile(r"\b(gh\s+pr|glab\s+mr|tea\s+(pr|pulls))\s+create\b")
 PR_TOOL = re.compile(r"create_(pull|merge)_request|(pull|merge)_request_create")
@@ -23,9 +24,26 @@ def git(d, *args):
     return r.stdout if r.returncode == 0 else None
 
 
+def words(cmd):
+    try:
+        return shlex.split(cmd)
+    except ValueError:
+        return cmd.split()
+
+
+def where(cmd, cwd):
+    """The directory a command runs in: a leading `cd X` or `git -C X`, else cwd."""
+    w = words(cmd)
+    for i, t in enumerate(w[:-1]):
+        if (t == "cd" and i == 0) or (t == "-C" and i > 0 and w[i - 1] == "git"):
+            cwd = os.path.join(cwd, os.path.expandvars(os.path.expanduser(w[i + 1].rstrip(";"))))
+    return cwd
+
+
 def tree_state(root):
-    parts = [git(root, "rev-parse", "HEAD"), git(root, "diff", "HEAD", "--binary"),
-             git(root, "ls-files", "--others", "--exclude-standard")]
+    names = [n.decode() for n in (git(root, "ls-files", "--others", "--exclude-standard", "-z") or b"").split(b"\0") if n]
+    parts = [git(root, "rev-parse", "HEAD"), git(root, "diff", "HEAD", "--binary"), "\0".join(names).encode(),
+             git(root, "hash-object", "--", *names) if names else b""]
     return hashlib.sha1(b"\0".join(p or b"" for p in parts)).hexdigest()
 
 
@@ -47,7 +65,12 @@ def check(root, args, stamp):
 
 def gate(mode, inp):
     """Returns (exit code, stdout, stderr) for one hook call."""
-    top = git(inp.get("cwd") or os.getcwd(), "rev-parse", "--show-toplevel")
+    cwd = inp.get("cwd") or os.getcwd()
+    tool = inp.get("tool_name", "")
+    command = (inp.get("tool_input") or {}).get("command", "")
+    if mode == "pr":
+        cwd = where(command, cwd)
+    top = git(cwd, "rev-parse", "--show-toplevel")
     if not top:
         return 0, "", ""
     root = top.decode().strip()
@@ -60,8 +83,6 @@ def gate(mode, inp):
         if inp.get("stop_hook_active"):
             return 0, json.dumps({"systemMessage": "./check still fails; the turn ended anyway."}), ""
         return 2, "", "./check failed. Fix the cause; never silence a check to pass it.\n" + out
-    tool = inp.get("tool_name", "")
-    command = (inp.get("tool_input") or {}).get("command", "")
     if not ((tool == "Bash" and PR_COMMAND.search(command)) or PR_TOOL.search(tool)):
         return 0, "", ""
     out = check(root, ["--full"], "guardrails-full")
@@ -76,8 +97,9 @@ def self_test():
     run = lambda *a: subprocess.run(a, cwd=t, check=True, capture_output=True)
     run("git", "init", "-q", "-b", "main")
     assert gate("stop", {"cwd": t})[0] == 0, "no ./check passes"
-    # ./check counts its runs and fails while the file `red` exists.
-    open(f"{t}/check", "w").write('#!/bin/sh\necho run >> .git/runs\n[ ! -e red ] || { echo "lint: bad"; exit 1; }\n')
+    # ./check counts its runs and fails while the file `red` exists or new.txt says bad.
+    open(f"{t}/check", "w").write('#!/bin/sh\necho run >> .git/runs\n'
+                                  '[ ! -e red ] && ! grep -qs bad new.txt || { echo "lint: bad"; exit 1; }\n')
     os.chmod(f"{t}/check", 0o755)
     run("git", "add", "check")
     run("git", "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "x")
@@ -96,6 +118,18 @@ def self_test():
     assert pr("gh pr list") == 0, "other gh commands pass"
     os.remove(f"{t}/red")
     assert pr("gh pr create --fill") == 0, "green tree opens the pull request"
+    open(f"{t}/new.txt", "w").write("ok")
+    assert gate("stop", {"cwd": t})[0] == 0, "a new untracked file that passes"
+    open(f"{t}/new.txt", "w").write("bad")
+    assert gate("stop", {"cwd": t})[0] == 2, "an edit to an untracked file is checked again"
+    os.remove(f"{t}/new.txt")
+    o = tempfile.mkdtemp()  # a second repository whose ./check always fails
+    subprocess.run(["git", "init", "-q", o], check=True)
+    open(f"{o}/check", "w").write("#!/bin/sh\nexit 1\n")
+    os.chmod(f"{o}/check", 0o755)
+    assert pr(f"cd {o}; gh pr create --fill") == 2, "cd then gh pr create checks that directory"
+    os.environ["GATE_WT"] = o
+    assert pr("cd $GATE_WT && gh pr create --fill") == 2, "a variable in cd is expanded"
     print("self-test passed")
 
 

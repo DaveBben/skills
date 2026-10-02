@@ -1,24 +1,15 @@
 ---
 name: story
-description: "Use this skill before touching any file on a request to add, change, fix or remove behaviour in code that exists, and whenever work must become user stories or a story must be built. Use it on: 'add X', 'fix the bug where X', 'X is broken', 'refactor X', 'build story X', 'build this' with a link to an issue, 'pick up where we left off', 'write a story for X', 'write the acceptance criteria', 'break this down', 'I have an idea', 'turn this PRD into stories', 'review these stories', 'what should I pick up next'. Use it even when the change looks small. Writes each story as As a / I want / so that, its context, numbered rules each with Given/When/Then examples in concrete values, and an Out of scope list, asking wherever a result is not in the request, the code or a tool; then fixes the interface, has a fresh agent write failing tests from the acceptance criteria alone, writes the code until they pass, refactors, has fresh agents review it, and opens a pull request into main."
+description: "Use this skill before touching any file on a request to add, change, fix or remove behaviour in code that exists, and whenever work must become user stories or a story must be built. Use it on: 'add X', 'fix the bug where X', 'X is broken', 'refactor X', 'build story X', 'build this' with a link to an issue, 'pick up where we left off', 'write a story for X', 'write the acceptance criteria', 'break this down', 'I have an idea', 'turn this PRD into stories', 'review these stories', 'what should I pick up next'. Use it even when the change looks small. Writes each change as a user story with concrete acceptance criteria, agrees it with the user, then builds it test-first and opens a pull request into main."
 license: MIT
 metadata:
   version: "2.0.0"
-# Claude Code only: registered when the skill runs, for the rest of the session.
-# scripts/guard.py says what it refuses. Without python3, it exits 0.
-hooks:
-  PreToolUse:
-    - matcher: "Bash"
-      hooks:
-        - type: command
-          command: 'f="${CLAUDE_PLUGIN_ROOT}/skills/story/scripts/guard.py"; [ -f "$f" ] && command -v python3 >/dev/null 2>&1 || exit 0; python3 "$f"'
 ---
 # Story
 
 A story states what a person can do once a change ships, in acceptance criteria concrete enough to write a test from each without asking anybody.
 
 * **Build from a story:** write it, agree it with the user, then implement it.
-* **Write little up front:** one story's acceptance criteria when it starts, not a specification for the whole feature.
 
 ## Words used here
 
@@ -29,13 +20,15 @@ A story states what a person can do once a change ships, in acceptance criteria 
 * **Obvious rule:** a rule an example would only restate has no example.
 * **Feature:** several stories that share one outcome.
 * **Feature file:** holds the feature header and the stories.
-* **Tracker:** the issue tracker the request or the user names, if any; never recorded in a repository.
+* **Tracker:** the issue tracker the request or the user names, if any.
 
 ## Pick the path
 
 * **Create a story** from a request, an idea or a PRD: [references/create.md](references/create.md).
 * **Review stories** someone wrote: [references/review.md](references/review.md).
 * **Implement a story** the user agreed, or a change that needs no story: [references/implement.md](references/implement.md).
+* **Resume:** find the `story/` branch. `git config --get-all branch.<branch>.redCommit` shows whether its tests exist. Read the story from its issue, the feature file or the red commit's message, and continue at the first step of implement.md not done.
+* **Next story:** the first in the feature's `Order:` with no open pull request.
 
 ## Size first
 
@@ -56,3 +49,7 @@ A decision that costs more than a day to reverse goes to the `adr` skill before 
 * **Product intent, a reading that changes the acceptance criteria, or a choice expensive to reverse:** ask.
 * **How to ask:** one question per message, recommended option first, with the harness's multiple-choice tool where it has one (Claude Code's AskUserQuestion).
 * **The user is away:** take the recommended option, keep going, and list every choice made that way.
+
+## When to stop
+
+Stop for the user only to agree a story or a split, to answer an open question, at a test you cannot satisfy, and when the pull request is open. Do not stop to report progress after the tests are red, after green or after the review.

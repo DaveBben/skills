@@ -13,7 +13,7 @@ Split a story that covers more than one path or variation with the first pattern
 4. One kind of data first.
 5. The plainest interface first.
 6. The simplest version first, each complication its own story.
-7. A timeboxed spike when something unknown blocks every pattern: the `spike` skill runs it, and its acceptance criteria are the questions it must answer.
+7. A timeboxed spike when something unknown blocks every pattern: the `spike` skill runs it, and its one acceptance criterion is the question it must answer. A second unknown is a second spike.
 
 Rules for the stories:
 
@@ -21,7 +21,6 @@ Rules for the stories:
 * **Not stories:** a requirement on how well a story behaves, an enabler nobody perceives alone, and a task are acceptance criteria on the story that needs them.
 * **Hardening:** fold it into the story that creates the exposure.
 * **Order:** each story can be built and shipped without waiting on a later one.
-* **"And" or "or":** an `I want` joined by either is two stories.
 * **Check before showing:** no two stories share a rule, and none needs a later one to ship.
 * **Between two working splits:** prefer the one that lets the user drop a story, then the one with stories of roughly equal size.
 * **Something new:** mark as the first story the thinnest slice across all the steps that a real person can use end to end, with hard-coded data where that keeps it thin.
@@ -31,4 +30,4 @@ Then agree it:
 * **Show the user** the steps, the stories and the proposed `Order:` in one message.
 * **Write the feature file,** or the epic and its child issues, only after the user confirms.
 * **A story found while building:** add it to the feature after the stories already ordered, unless the user moves it.
-* **Feature acceptance test:** when the user wants one, they write it, marked strictly expected-to-fail. It runs as a check after each story is built; build each story from its own acceptance criteria.
+* **Feature acceptance test:** when the user wants one, they write it, marked strictly expected-to-fail. Build each story from its own acceptance criteria.
