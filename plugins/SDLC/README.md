@@ -88,6 +88,7 @@ Follow-up runs then tested each mechanism on its own:
   * **A codemap and invariants that rarely change.** matklad's [ARCHITECTURE.md](https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html), and the C4 model's context and container levels, which its author says are enough for most teams.
 
   The snapshot's first line records the commit it was traced at, so a refresh retraces only what changed since. The details load from `orient/references/architecture.md` only when a snapshot is taken.
+* **Writing rules moved out, 18.0.0.** The two hooks that printed `hooks/writing.md` into every session and subagent are gone. The rules for Markdown files now live in the `writing` plugin's `markdown-files` skill, which loads only when a Markdown file is written.
 
 A first headless run of this version passed 7 of 8 hidden tests on cli and 4 of 6 on zod, the same as the other arms, at $3.58 and $3.07 and 15 and 11 minutes; SDLC 15 took $4.72 and $9.67 and 22 and 46 minutes on the same tasks.
 
@@ -120,8 +121,7 @@ The six skills surface under their own names.
 
 The plugin also installs hooks:
 
-* **Writing rules:** two hooks print `hooks/writing.md`, the writing rules every reply and document follows. One prints them into every session. The other prints them into each general subagent, which may write a document you read, such as an ADR. They cost about 900 tokens each time.
-* **The guard:** a third hook runs story's `scripts/guard.py` before a shell command containing `git`, `merge` or `create`. It refuses a merge, a commit that changes a locked test other than by removing its expected-fail marker, and opening a pull request while a red test keeps its marker.
+* **The guard:** a hook runs story's `scripts/guard.py` before a shell command containing `git`, `merge` or `create`. It refuses a merge, a commit that changes a locked test other than by removing its expected-fail marker, and opening a pull request while a red test keeps its marker.
 
 It installs three named agents: `SDLC:test-author`, `SDLC:review` and `SDLC:verify`. Each agent file is that agent's whole prompt, at `skills/SDLC/agents/`, linked into the plugin by the `agents` symlink. `story` runs `review-code` on each story it builds, as you do on merge requests, your own code and designs, so every review is the same review.
 
@@ -131,7 +131,7 @@ It installs three named agents: `SDLC:test-author`, `SDLC:review` and `SDLC:veri
 npx skills add DaveBben/davebben-skills --skill story
 ```
 
-The `story` and `review-code` skills launch subagents whose prompts live in `skills/SDLC/agents/`, beside the skill folders rather than inside one. The `skills` CLI copies skill folders, so also copy `skills/SDLC/agents/` into the folder that holds the installed skills, as a sibling named `agents`. Other agents do not run the hooks, so they get no writing rules and no guard. Paste `plugins/SDLC/hooks/writing.md` into the agent's own instructions file to have the rules.
+The `story` and `review-code` skills launch subagents whose prompts live in `skills/SDLC/agents/`, beside the skill folders rather than inside one. The `skills` CLI copies skill folders, so also copy `skills/SDLC/agents/` into the folder that holds the installed skills, as a sibling named `agents`. Other agents do not run the hooks, so they get no guard.
 
 Install `story`, `adr`, `spike`, `orient`, `guardrails` and `review-code` together, or `--all` for every skill in the repo. The canonical `SKILL.md` files live at `skills/SDLC/` in the repo root.
 

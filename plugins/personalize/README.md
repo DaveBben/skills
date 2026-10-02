@@ -5,6 +5,16 @@ Skills that make an agent act as you.
 | Skill | Fires on |
 |---|---|
 | `sound-like-me` | "reply to this for me", "draft a text to", "answer this comment", "comment on the MR", "comment on the Confluence page", "write this doc in my voice", "write a script for my video" |
+| `setup-my-env` | "set up my environment", "set up my new Mac", "make my terminal readable", "configure VS Code for readability", "make Obsidian easier to read", "the colors look off in light mode" |
+
+## `setup-my-env`
+
+Configures your apps for readable text and records how, so a new machine or a new app gets the same result.
+`SKILL.md` holds the working rules: back up first, find where the app really stores its settings, change one app at a time, and verify by reading the value back and measuring a screenshot.
+The detail loads only when readability work starts, from `references/readability.md`: the targets with their evidence labels, the size and line-width formulas, a procedure for any app, the exact values applied to iTerm2, zsh, Claude Code, VS Code and Obsidian on 2026-10-02, and the mistakes made that day.
+`scripts/contrast.py` computes WCAG contrast and fixes a failing color by lightness while keeping its hue.
+
+The targets come from reading research: text size by visual angle (Legge and Bigelow 2011), light-mode advantage tied to screen brightness (Buchner, Mayr and Brandt 2009; Piepenbrock et al. 2014; Dobres et al. 2017), line length on screen (Dyson 2004), and contrast thresholds from WCAG 2.2.
 
 ## `sound-like-me`
 
@@ -49,9 +59,9 @@ Rules beat pasted examples in these tests. Expect a ceiling below "indistinguish
 **Any other agent** (Codex, Cursor, Windsurf, and more), via the [`skills` CLI](https://github.com/vercel-labs/skills):
 
 ```bash
-npx skills add DaveBben/davebben-skills --skill sound-like-me
+npx skills add DaveBben/davebben-skills --skill sound-like-me --skill setup-my-env
 ```
 
-The canonical `SKILL.md` lives at `skills/personalize/` in the repo root.
+The canonical `SKILL.md` files live at `skills/personalize/` in the repo root.
 
 MIT.
