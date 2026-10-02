@@ -1,206 +1,103 @@
 # build like an engineer
 
-**Well-understood engineering practice, run *with* you by an agent rather than recited at you.**
+**User stories, failing tests first, one fresh review. Every other step was measured, and cut when it did not pay.**
 
-None of this is new. Framing the problem before solving it, stating the contract before building against it, walking how a thing breaks by accident and then on purpose, knowing what you cannot undo: this is ordinary engineering discipline and most of it predates the tooling by decades. What is new is an agent that can hold all of it at once and walk it with you.
-
-The workflow is derived from two podcast episodes, and most of what is specific rather than generic in here traces back to one of them:
-
-- **[Florian Buetow on Beyond Coding](https://www.youtube.com/watch?v=W1uG25of2t0)** with Patrick Akil, 10 June 2026. Code review as the bottleneck once agents write the code, and shaping the environment so corrections become rules instead of repeat conversations.
-- **[Dex Horthy on The Pragmatic Engineer](https://www.youtube.com/watch?v=Usufn8IQJgw)** with Gergely Orosz, 15 July 2026. Context engineering, why prose specs drift out from under you, and slicing sized to what a human will actually read.
-
-The plugin is five skills. Plain Markdown, no build step, nothing to compile.
+The plugin is six skills. Plain Markdown, no build step, nothing to compile.
 
 | Skill | Fires on |
 |---|---|
-| `deliver` | any change to code that exists: "add X", "fix the bug where X", "X is broken", "refactor X", "build story X", "work through this epic", "write the acceptance criteria", "pick up where we left off", "write the PR description" |
-| `epic` | turning work into stories and managing an epic: "I have an idea", "break this epic down", "turn this PRD into stories", "review this epic", "are these the right stories", "what should I pick up next", "close out this epic" |
-| `architecture` | "let's build this" in an empty repository, "how should this be structured", "should I use X or Y", "write an adr", "snapshot the architecture", "spike this", "is X feasible", "start a project from a template" |
-| `guardrails` | "write AGENTS.md", "get this repo ready for agents", "set up guardrails", "we have no linting", "add a rule", "the agent keeps making this mistake" |
+| `story` | any change to code that exists, and turning work into user stories: "add X", "fix the bug where X", "X is broken", "build story X", "refactor X", "pick up where we left off", "write a story for X", "break this down", "I have an idea", "turn this PRD into stories", "review these stories", "what should I pick up next" |
+| `adr` | "write an adr", "record the why", "should I use X or Y", "we will accept that risk", "let's go with X instead of Y" |
+| `spike` | "let's prove this works first", "prototype this", "build a demo", "is X feasible", "try a few approaches and see", "do a spike" |
+| `orient` | "write AGENTS.md", "write a CLAUDE.md", "our CLAUDE.md is too long", "orient yourself" |
+| `guardrails` | "add a rule", "never do X", "the agent keeps making this mistake", "set up guardrails", "we have no linting", "which of our CLAUDE.md rules could be checks" |
 | `review-code` | "review PR 412", "review this merge request", "review my code", "review what you built", "security review", "give me feedback", "poke holes in this" |
 
 Session handoff lives in the separate [context](../context/) plugin. Plugins are independent, so nothing in SDLC calls it.
-
-Version 12 cut the plugin from eight skills and 2,675 lines to four skills and about 1,200. The eight skills named each other 209 times, references loaded references three levels deep, and one story ran eleven subagents, five of them for review. Now hand-offs run one way (`deliver` may call `architecture` or `guardrails`), each subagent gets one self-contained prompt file, and the steps a program can do are scripts: `story.sh verify` rebases, checks the accepted tests are unchanged and runs the check command, and a push guard holds a story on the machine until the user has confirmed its criteria.
-
-Version 13 came from one eight-hour work session on 12.1.0, 72 subagents and about $95 at list price. The main session cost twice its subagents, and 43% of its spend was a 15-minute scheduled prompt that mostly found no new comment and rewrote a 400,000-token context to the cache each time. So pull requests are watched by a background command that wakes the session only on a change, the guardrails settings keep the cache for an hour, and tracker writes go to one worker per moment. Review now follows one pattern: every candidate listed, a separate security pass, and a refuter on another model that must cite a line or a run, with severity set by whether production reaches the failure. Since 13.2.0, `deliver` runs its security pass only on a story that touches a trust boundary, personal or health data, credentials, auth, payments, cryptography or memory handled by hand; since 14.0.0 `review-code` runs the same agents, with security when the review says it is needed or the user asks. The session had a finding marked blocking that production could not reach, and a human reviewer caught a crash loop from a denied secret and a record id logged as personal data. Stories added as work goes on are normal XP; version 13 adds a release line so they rank below the committed stories, a readiness check before setup (two setups ran on stories that could not be built), and criteria changes written back to the issue and to any other story they touch. A second audit found that a token added to the main session costs about ten times what it costs in a subagent, since every later turn re-reads it, so tracker reads now go through the `lookup` agent. Four Opus agents ran 48 to 68 turns each and made 38% of all subagent cache reads, so setup, review and security now read in batches and stop at 40 turns. Research on keeping the user's own model of the system ([Anthropic's 2026 skill-formation trial](https://www.anthropic.com/research/AI-assistance-coding-skills), Endsley and Kiris 1995, and [a preregistered trial of feedback on AI use](https://arxiv.org/abs/2609.20143)) moved understanding onto moments the user already attends to, with no quiz. The user confirms a story by writing its outcome in one line. The user reads one risky hunk only when the diff touches an owned path, a trust boundary or a store write. Status traces the flow and names the step not yet built. Close-out asks which summary line the feature made wrong, and shows the user's own pattern as counts. Writing code is the one active practice that predicted understanding in [a 334-student study](https://arxiv.org/abs/2608.02541), so each story now leaves one core to the user by default: a pure function of 5 to 15 lines with a decision in it, its test already red and its file marked, the same shape as Claude Code's Learning output style. One word skips it, and close-out counts cores written against skipped, with no streak or penalty, since that kind of feedback cut offloading in a preregistered trial and a penalty did not. The review then reads the user's core for craft, such as a quadratic scan where a set lookup would do or a file left open on an error path. The refuter confirms each point, and the user gets it as an explanation with its principle, never as a rewrite. Up to two style points on the core name their principle from a fixed catalogue, and close-out names one design lesson: the structure the feature chose, its pattern, the alternative and when that alternative would win. A story of several functions can instead be the user's to sketch in pseudocode before the build, after McConnell's Pseudocode Programming Process (*Code Complete*): a reviewer critiques the sketch's design, the build follows it, and every place the code had to depart from it is shown to the user. Setup proposes core or sketch from the story's shape, and one word switches it.
-
-Version 15 cut the rules each session holds at once. A review found deliver loaded about 300 sentences of instruction on every story run and 378 on an epic run, past the roughly 80 at which no model in a 2026 test followed every rule. So the loop left `SKILL.md`: `story.sh next` prints only the current step's file from `references/steps/`, hooks in deliver's frontmatter print the rule for an agent's return at the moment it returns, the plugin's hooks refuse a merge by any SDLC agent, an unconfirmed pull request or a read of source in the main session, and the epic work became its own skill, `epic`. Architecture reads each planning step file only at that step and has subagents write ADRs, snapshots and spikes. Guardrails prints one setup stage at a time with `setup-next.sh` and installs its hooks with `install.sh`. A story run now starts at about 137 sentences including the writing rules, and an epic run at about 99. Doing a little by hand often is how the user keeps their own model of the system, so the user's turns stay in the main session; the agents take the rest, since each launch and hand-back costs a turn over the whole conversation. Pull requests are watched by a background command, never a timed prompt, because each timed run resends the whole conversation, most of them to find nothing; guardrails now denies the scheduling tools outright.
-
-## Three convictions
-
-**Most things do not need to be built.** Every feature is a permanent liability with a running cost. So framing asks what the user will do differently once this ships, and when the answer is already possible in this system or off the shelf, that is the answer. "Do not build it" is a real outcome, and it is recorded as an ADR, because no later step runs to catch it.
-
-**Most requests are not well thought through, including the ones that sound settled.** A decided-sounding one-liner is the normal shape of an unsettled ask. Requests arrive naming a mechanism instead of a need. So the first move is reading the request, not answering it.
-
-**The failing test is the unit of account.** A settled constraint becomes a complete failing test before any implementation exists, and that does not scale with the size of the change. A one-line fix still gets a test.
-
----
 
 # The workflow
 
 ```mermaid
 flowchart TD
-    REQ([a request to change something]) --> ST[start: AGENTS.md, the tracker, open work, grants and deploy check]
-    ST --> SZ{size}
-    SZ -- several stories --> EP[epic: outcome, feature header, story map, feature acceptance test]
-    EP -. expensive decision .-> ARC[architecture: spikes, numbers, map, each decision an ADR]
-    EP --> STORY
-    SZ -- one story --> STORY
-
-    subgraph STORY [each story]
-      SET[setup subagent: criteria, test table, red commit] --> SHOW([you see the product-choice criteria]) --> BLD[build subagent] --> REV[refactor subagent, then review subagent, then security when needed; refute subagent on another model keeps what holds] --> VER[story.sh verify] --> OK([you confirm the criteria and the description]) --> PR[push, pull request into main, log]
-    end
-
-    PR --> MRG([you merge]) --> NEXT[next ready story, or close out]
-    ST -. no checks .-> G[guardrails]
+    REQ([a request or a linked issue]) --> CASES[story: numbered acceptance criteria with concrete values, agreed with you]
+    CASES -. several stories .-> SP[split into a feature, then one story at a time]
+    CASES -. expensive decision .-> ARC[adr: the user's reasons]
+    CASES --> IF[this session fixes the interface: signatures and stubs]
+    IF --> RED[test-author agent, fresh: failing tests from the acceptance criteria through that interface, committed and locked]
+    RED --> BLD[the code, until the suite is green]
+    BLD --> REF[refactor inside the diff]
+    REF --> REV[review-code: three Opus review agents, fresh and blind to each other, one focused on security, check each acceptance criterion; a fresh verify agent keeps only proven findings]
+    REV --> FIX[fix once, no second round]
+    FIX --> PR[push, open a pull request into main; the full check runs first where guardrails set it up]
+    PR --> MRG([you merge])
 ```
 
-Two phases. For several stories, the first runs with you once per feature: the outcome, the feature header, the story map and the feature acceptance test, with `architecture` for each decision that costs more than a day to reverse. The second runs once per story. A setup subagent writes the story's criteria, the test table, the failing tests and the red commit; you see only the criteria that record a product choice, plus a count of the rest, and the build starts without waiting. A refactor subagent, TDD's last step, removes code no criterion asked for, cuts comments that restate the code and tidies names, function size and nesting, with every test green, never deleting a guard such as validation or an auth check. A fresh review subagent then attacks the criteria with its own tests, applies every mutation, assumes each new test is weak until it fails to show it, checks the code against the story's stated intent with values the tests never use, and checks the design against the latest snapshot. When the story touches a trust boundary, personal or health data, credentials, auth, payments, cryptography or memory handled by hand, a security subagent follows: it traces each outside input to every sink it reaches, checks memory safety, and triages any installed static analyser's alerts. The reviewers list every candidate, doubted ones included, and change no code. A refute subagent on another model then tries to disprove each one, and a finding blocks only when production can reach it. Then `story.sh verify` rebases, checks the accepted tests are unchanged and runs the check command. One message shows what changed in the criteria and the review's result, and asks you to confirm by writing in one line what a person can do once the story merges. Only then is anything pushed, and the pull request opens with your line at the top of its description. You merge. Reviewer comments are checked against the code, and replies are drafted for you to post. A refactor with no behaviour change needs no criteria. A trivial change is one criterion and one red test. A single story skips the first phase.
+1. **The story.** The agent writes the request as a story, or reads a linked issue: As a / I want / so that, a few sentences of context, numbered rules each with Given/When/Then examples in concrete values, the edge cases this change can break, and an `Out of scope` list. It asks wherever an example's result is not in the request, the code or a tool, decides and lists everything else, and builds once you say go.
+2. **Interface, then failing tests from a fresh agent.** The session writes the signatures the change needs as stubs, so the design stays with the builder. The `test-author` agent, which never sees the plan or any implementation, writes one test per example under each acceptance criterion through those stubs, confirms each fails for the stated reason, marks each with the framework's strict expected-fail marker so the check still passes, and commits them alone. Those tests, and every test that existed before, are locked: a commit that changes one other than by removing its marker is refused, whichever tool made the edit, and a pull request is refused while a marker remains. A test the code cannot satisfy is a stop, reported to you.
+3. **The code, then a refactor.** The session writes it until the suite is green, changing only what the acceptance criteria need, then tidies the diff with every test green.
+4. **One fresh review, through `review-code`.** Three `review` agents, blind to each other, each check whether each acceptance criterion still holds, backing each finding with a failing test or a cited line, searching hardest on one focus each: correctness, tests and production, or security. A fresh `verify` agent, which never sees their reasoning, keeps only the findings a red test or a cited line proves.
+5. **Fix once.** Confirmed findings become failing tests, then fixes. A finding the fix does not settle comes to you as a question; there is no second review round.
+6. **Push and open the pull request.** Where `guardrails` set it up, the full check, acceptance tests included, runs before the pull request opens and refuses it on a failure. The agent reports the result and every choice it made without you, and never merges.
 
-**The feature acceptance test.** You write one test for the outcome sentence, through the interface you use, marked strictly expected-to-fail so the suite stays green until the feature is whole. The harness denies that directory to the agent for good. When it passes, the feature is done.
+A refactor needs no new acceptance criteria. A tracker is optional: paste an issue's link and the agent reads it; without one, a story lives in the chat and the pull request, and a feature in `docs/stories/<slug>.md`.
 
-**Parking.** A story waits for you only on: its criteria before the first push; a builder question about what a person sees; a test row that turns out wrong; a product decision nothing records; a deferred architecture decision; the feature acceptance test. Every question is sorted first: facts are looked up, a fact only a colleague knows goes on the issue for that colleague, reversible technical choices are decided and listed, and you get product intent and expensive choices one question at a time. Open questions live on the tracker and are never repeated in chat.
+# Why it looks like this
 
----
+Version 16 is a rewrite from an experiment, kept in [research/sdlc-16-evidence](../../research/sdlc-16-evidence/). Five real changes merged upstream after the model's training cutoff (go-chi/chi, python-attrs/attrs, urfave/cli, colinhacks/zod and ggml-org/llama.cpp) were rebuilt as stories and given to Opus 5.5 three ways, graded by the upstream pull request's own tests and a blind judge:
+
+* **Plain prompting** passed 88% of the hidden tests on the four smaller tasks, at about $1 and 4 minutes a run.
+* **A one-paragraph "careful" prompt** (tests first, then a fresh-subagent review) passed 90% and ranked best with the judge, at about $2.50 and 10 minutes.
+* **SDLC 15** passed 86% and ranked worst, at about $10 and 50 minutes. With every test file removed from the diffs, its rank stayed the same: the judge was marking down unrequested machinery in the source, such as a shadow routing table for a fix plain prompting made in 15 lines.
+
+Follow-up runs then tested each mechanism on its own:
+
+* **Kept, because it measured well:**
+  * **One review with a verification pass:** best judge rank of four review designs. No review was clearly worst, and a second round cost more and swung between tasks.
+  * **Locked tests with a stop-and-report rule:** in three llama.cpp runs, no accepted test changed after the red commit, against up to 139 changed lines in runs without it.
+* **The stories carry what the agent cannot know.** Given only the original issue text, every arm lost hidden tests (cli 7/8 to 5/8), and an agent writing its own acceptance criteria list recovered none of them. So the `story` skill puts the user's answers into concrete acceptance criteria, and asks only where readings diverge.
+* **The interface split, after 16.0.0:** a test writer shown buggy code wrote tests that pass the bug 3.84% of the time, against 0.46% when shown fixed code (11 models, Defects4J; arXiv 2607.22883), and an agent's tests for its own repairs lowered its SWE-bench Verified score from 61.2% to 57.3% where another model's tests raised it to 65.3% (arXiv 2609.09133). No study measures who should define the interface, so the session that builds the code defines it, and the fresh `test-author` agent tests through it. The confirm step before a push was dropped.
+* **Cut, because it measured nothing or cost more:**
+  * the refute agent on another model as it stood in SDLC 15, separate setup, build and refactor agents, and the second review round;
+  * the mutation pass: no gain, about $1.50 more a run;
+  * the `story.sh` step machine and its 365-line hook script, and later `story.sh` itself;
+  * the tracker as a requirement;
+  * the epic's release line and owner parking;
+  * the user's core and sketch turns;
+  * writing rules injected into the SDLC subagents, which only the session reads.
+* **Guardrails shrank to rules and two checkpoints.** On llama.cpp, AGENTS.md alone, hooks alone and both changed no measured outcome. The hooks fired on every shell command and blocked nothing, and the edit hooks saw 10 to 12 of the writes because the model wrote most files through the shell. So guardrails now runs `./check` once when Claude ends its turn and `./check --full` before it opens a pull request, and turns each rule into a check where a program can decide it. `EVIDENCE.md` cites 2026 measurements where prose instructions were ignored and a tool-enforced check was not.
+
+* **Testing strategy checked against the research, 17.2.0 and 17.3.0.** Two auditors compared the skills with [research/testing-expertise/BRIEF.md](../../research/testing-expertise/BRIEF.md):
+  * **Mutation runs on changed lines and never gates on survivors.** 4 to 39% of mutants are equivalent and cannot be killed; Google surfaces a median of 2 survivors per change in review instead of a score gate (arXiv 2102.11378). Survivors now feed the review, and a whole-repository run moves to `./check --scheduled` with contract and real-model tests.
+  * **Real implementations over doubles.** Google found mock-heavy tests "required constant effort to maintain while rarely finding bugs", and in-memory databases diverge from production on dialect and behaviour. The test author runs real code and doubles only what a test cannot run.
+  * **The review writes attack tests before reading the diff.** Tests written from the task description alone caught 25% of faults against 14% after seeing the code (arXiv 2607.05139).
+  * **Flakes are named, not retried past.** The gate reports a check that fails then passes on the same tree, new tests run five more times, and the test author bans sleeps, shared keys and order dependence.
+  * **The lock covers Swift, end-to-end and `conftest.py` files,** and the review checks test configuration that could skip or loosen a locked test.
+  * **Swift red markers, tested on Swift 6.4:** `XCTExpectFailure` and Swift Testing's `withKnownIssue` both fail the run once the test passes, so both serve as the strict marker; a non-strict `XCTExpectFailure` does not count.
+  * **One property test per stated invariant,** only where the repository has a property-testing library: an agent writing Hypothesis tests over 100 packages filed bug reports 56% valid (arXiv 2510.09907), and the review already flags a test that pins one value of a rule over a range.
+
+* **The review, rebuilt from outside measurements after 16.0.0.** The experiment above did not test how many finders to run or whether the check should be a separate agent; these studies did:
+  * **Ask whether each acceptance criterion still holds.** Asking a model whether a stated claim about the code still holds gave 0.79 precision; asking whether the diff preserves behaviour gave 0.29 against a 0.25 base rate, from Claude Haiku to Opus 5 (arXiv 2609.25130).
+  * **Give the acceptance criteria, not the description.** Refined pull request descriptions got 32 of 33 vulnerable changes approved, and removing them restored detection in 16 (arXiv 2603.18740); framing text about a task's stakes swayed 33% of verdicts (arXiv 2606.30587).
+  * **Several finders, every finding kept for checking.** Ten review runs merged raised recall from 14% to 30% (SWR-Bench, arXiv 2509.01494); passes two to four found 12 to 20 more CVEs, then gains flattened (arXiv 2607.27030). Majority vote scored 0% where the minority was right (arXiv 2602.09341), so a finding counts by its evidence, not its votes.
+  * **Three finders, one of them on security, every review.** One security-audit run found about half of what repeated runs found (Cloudflare), and gains flattened after 3 to 5 runs (SWR-Bench; arXiv 2607.27030). Repeats of one model shared 78% of their errors against 32% across model families (arXiv 2609.36958), so each finder searches hardest on a different focus. General reviews under-cover security by 89.5% (Meta, arXiv 2607.29516), while long security-specific prompts and CWE cheatsheets lowered scores (arXiv 2607.13085, 2607.14628), so security is one focus of the shared prompt rather than its own agent. Opus is the model: it had 91.5% precision on vulnerability scans against Sonnet's 62.6%, at a lower cost per session (Snyk VulnBench, arXiv 2606.15762).
+  * **A separate checker that does not see the finder's reasoning.** Reviewing its own answers, a model rejected 35% of the correct ones, against 2% for an independent reviewer (arXiv 2609.04270); a verifier stage raised precision from 0.35 to 0.47 (arXiv 2609.15887); a correction checked by running code gained 6 to 26 points where one triggered by the model's doubt lost 3 to 10 (arXiv 2608.14659).
+
+A first headless run of this version passed 7 of 8 hidden tests on cli and 4 of 6 on zod, the same as the other arms, at $3.58 and $3.07 and 15 and 11 minutes; SDLC 15 took $4.72 and $9.67 and 22 and 46 minutes on the same tasks.
+
+`EVIDENCE.md` matches every SDLC 15 mechanism to published evidence for 2026-generation models. `FOLLOWUP.md` has each follow-up experiment's numbers. Two caveats apply throughout:
+
+* **Small samples:** two or three runs per arm.
+* **Machine judging:** an LLM judge, which a human ranking has not yet checked.
 
 # What you end up holding
 
-| Artifact | Where | Fate |
-|---|---|---|
-| Spike findings | the spike issue's resolution comment, as `Learned` lines | durable; the code is deleted |
-| Feature header and story log | the epic's description, and one comment per story | durable, kept after the last story |
-| ADR | `docs/adr/architecture/` or `docs/adr/{slug}/` | durable, committed before the code that depends on it |
-| Architecture snapshot: what changed, two diagrams, key flows, owners, then storage, failures, code map, decisions | `docs/architecture/snapshots/<date>.md`, pointed at by `AGENTS.md` | durable, never edited; a story that changes the shape writes a new one |
-| Architecture summary | `docs/architecture/summary.md` | the user's own words: purpose, ranked qualities, tradeoffs, constraints, risks |
-| feature acceptance test | the test tree's `feature-acceptance` directory | durable; written by the user, denied to the agent for the life of the repo |
-| `# owner reads:` sections | `CODEOWNERS` | durable; the paths you read on every change |
-| Failing tests, then passing | the repo's test tree | durable; the red commit message holds the criteria and the table |
-| Rules and contracts | the repo, via `guardrails` | durable, added to when a bug's `Not caught by` names a gap |
-| Pull request body | the remote | durable; the one place a stranger can read what a story did and why |
-
-There is no spec and no design document. Those paths are the defaults; tell the agent in conversation if your repo keeps things elsewhere.
-
-## Why the split exists
-
-Everything durable is written in a language that can be checked. Everything written in prose is either thrown away or kept short enough to reread.
-
-Prose and code become two sources of truth and drift apart. A rule that executes cannot drift, because a violation fails the build. So the constraints the conversation carried are promoted into tests, guardrails and architectural tests, and the conversation itself goes.
-
-The ADR is the exception, and it is one for a specific reason: it makes no claim about what the system currently does, so there is nothing for it to drift from. It says what was true at a moment and why a door was closed. What it records, the alternatives that lost and the assumptions the decision rests on, is not recoverable from the code and cannot be regenerated the way research can.
-
-The tracker is the other exception, and it is kept small on purpose: an epic description of at most 16 lines and one log comment per story. At close-out every unpinned `Learned` line is promoted to a test, an ADR or an `AGENTS.md` line, so nothing the log knows lives only in a comment.
-
-This is also why the red commit message carries the criteria and the table verbatim. The reason a number is 100 rather than 150 has to survive the conversation that settled it.
-
----
-
-# The skills around the loop
-
-**`guardrails` prepares a codebase.** It writes `AGENTS.md`, the one file every session reads, from a short interview and the repository itself. Then it sets up the checks, language agnostic: fourteen slots, what a filled slot has to do, and which of three layers it fires in (every edit, turn end, commit and CI), leaving the tool to the model. What it carries is what the model gets wrong by default: the placement rule in seconds, the settings that are decisions rather than defaults, watching each check fail once, and loop safety wired before the checks. Each rule goes to the first place that holds: a program, then a path-scoped rule file, then one line in `AGENTS.md`. On brownfield, rules land by one of three choices (new files only, a cleanup of its own, or a ratchet); adding rules and leaving them red is not one. Secrets and personal data get every layer: a scanner at commit with rules for the identifier formats the product's data holds, the same scanner in CI, push protection on the code host, one scan of the whole history, and a rule that fixtures hold made-up data only, since no scanner reliably finds a name or a free-text note.
-
-**`architecture` decides and records.** It spikes each untried crossing, drafts the numbers for you to correct, draws the process, module and flow tables, and puts each expensive decision to you one at a time, asking for your pick before its own. Each answer is an ADR written the moment it is made, with `Alternatives rejected` and `Detector`. It also stands a new repository up from a template with `scaffold.sh`, and runs spikes: one question, a timebox, findings recorded as they surface, code deleted.
-
-**`review-code` reviews code and designs already made.** A pull request or a diff someone opened, or code you wrote, through the same review agents `deliver` runs on its stories (attacks, mutations, test strength, stated intent, and a security pass when the code needs one or you ask), or a design, a plan, an ADR or a fix idea you made (every point sorted into wrong, unverified, shape or preference, with the rewrite left to you). A second agent tries to refute every finding before it is reported. Reviewing your own work is the manual-flying practice the loop no longer forces. Reviewing an existing epic or story list lives in `deliver`, beside the story-map rules it checks against.
-
-**Each pull request description has an Areas of concern view.** The diff is split into lanes by concern, not by file (business logic, data layer, network and security, error and state handling), each a collapsed block so a security engineer opens only the security lane. A lane gives its scope, one or two sentences of context the reviewer would otherwise look up, a check mark for each thing a test or a tool proved in that lane, and only the judgment questions that need context outside the diff, each with what it costs to get wrong.
-
-**Session handoff lives in the [context](../context/) plugin** as the `handing-off` skill.
-
----
-
-# Why not a prose spec
-
-This started as an attempt to address the shortcomings of spec-driven development, where planning and specification are done up front and reviewed before being handed to an agent to implement.
-
-A lot of people call that waterfall in disguise. I don't fully agree, but the pitfalls are real:
-
-- A spec does not guarantee results. Hand the same spec to different models and get different implementations. The spec becomes an aspiration, not a contract.
-- Reviewing a spec takes more cognitive effort than reviewing the code it produced. It is easier to read the diff and run the tests than to match every requirement to the code it was supposed to produce.
-- A thousand-line Markdown file gets produced for a twenty-line change.
-- Specs go stale quickly and confuse the agent. A detail that was relevant at authoring time is still there three features later, and the agent anchors on it as a constraint.
-- A hundred specs sitting in a repo have to be read manually to avoid contradicting them.
-- Most spec frameworks are heavy on ceremony, unfriendly to brownfield, and awkward to work with in an agile fashion.
-
-We already have specs. They are tests. Deterministic pass or fail, and they do not lie about the code. What they cannot carry is the **why**, and that is what the ADR is for.
-
-## Where tests stop
-
-A behavioural test binds what the system does at one moment. It cannot fail when the design decays, because decay has no wrong answer on the day it is introduced. The imports still resolve, the suite still passes, and the bill arrives three months later as a change that touches nine files instead of one.
-
-So the loop has three places for a constraint rather than one. Behaviour gets a row in the test table. Structure gets a rule that executes: dependency direction, boundary membership, ownership, a budget, wired through whatever the repo already runs by `guardrails`. And what nothing can reach is written down as exactly that, under what the pull request says is deferred or as an ADR, and observed through the story's signal once deployed.
-
-That leaves the decision itself, which neither reaches. The ADR's "What it doesn't buy" section carries it: what must stay true, and what would make this wrong. That is the trigger for revisiting. A test asserts that one hop of delegation works; only the ADR says that one hop was an assumption rather than a requirement.
-
-## What the research says, including where it disagrees
-
-Some of this is better evidenced than I expected, and some of it cuts against the idea. Both are here.
-
-**"Tests don't lie" is too strong.** Tests encode whatever the spec says, *including its errors*, and they do it invisibly. Mund et al. injected one subtly wrong requirement into a real 21-page industrial spec and asked 41 people to derive test cases from it: **zero detected the defect and zero correct test cases were produced**, even in the group given a briefing that stated the correct behaviour. Tests don't lie about the code. They will happily lie about the intent.
-
-**Deriving expected values independently is not a style preference.** It is what aviation certification requires, and DO-248A states the mechanism: "It is a natural tendency to consider outputs of the actual code as the expected results. **This bias cannot occur when expected outputs are determined by analysis of the requirements.**" Using the code as the oracle contaminates the oracle. The same document concedes that requirements-based testing cannot evidence the absence of *unintended function*, which is why the review reads the diff for what crept in rather than trusting a green suite.
-
-**The honest limit on absence.** A test refutes; it cannot confirm. Refuting a safety property ("X never happens") takes one failing execution; confirming it means quantifying over every execution there is. That is a proved result, not a budget problem, and it is why "no unauthorized path" ends up as a permanent gap checked against production rather than a test that pretends to settle it.
-
-**The biggest risk to this approach is staleness, and it has a number.** In a study of Ruby projects, executable scenarios and production code co-evolved in only **~37%** of cases, and where they did, the spec changed *after* the code. A green test suite is indistinguishable from a suite full of requirements that expired. That is what the ADR's "What it doesn't buy" section exists for: a constraint with no recorded invalidation condition dies in silence while the tests keep passing.
-
-**The closest thing to prior art mostly failed, and it is worth knowing why.** Specification by Example is the same bet, and Gojko Adzic's own ten-year retrospective (514 respondents, recruited from his advocacy channels) concluded that "the idea of specifications and tests in a single document didn't really work out." Only 12% kept text files in version control as the source of truth; 26% of business representatives "mostly do not care about the examples"; 61% of BDD practitioners in a separate survey found duplication made specs hard to extend. But read what failed: a **separate natural-language layer** maintained alongside the code for stakeholders who turned out not to read it. That layer is the thing this plugin deletes. The finding that only 12% kept the living document in version control is, if anything, evidence for the choice.
-
-**And the ceiling that applies to everyone.** Naur: "program revival, that is reestablishing the theory of a program merely from the documentation, is strictly impossible." That applies to prose specs exactly as much as to tests. So the claim here is not that tests capture what prose cannot. It is that **these two artifacts fail differently**, tests rotting loudly and prose rotting quietly, and neither one reconstitutes the theory in someone's head. The ADR is a hedge against one failure mode, not a solution to the problem.
-
-**One thing to hold this methodology to.** Every reported failure of BDD gets answered with "that isn't BDD, you did it wrong." A technique whose failures are always the practitioner's fault has no failure conditions, so no evidence can ever count against it. If this approach costs you more than it returns, that is a result about the approach.
-
-## Where the workflow itself comes from
-
-The stage structure is derived in `research/combined-development-strategy.md`, which merges the two episodes linked at the top:
-
-- Florian Buetow on **Beyond Coding**, 10 June 2026: [YouTube](https://www.youtube.com/watch?v=W1uG25of2t0), [Pocket Casts](https://pca.st/episode/ab84ca98-407b-4445-b08b-2d7e31c12a30)
-- Dex Horthy on **The Pragmatic Engineer**, 15 July 2026: [YouTube](https://www.youtube.com/watch?v=Usufn8IQJgw)
-
-Every line there states why it is in, and the two conflicts are resolved at the point they arise. Transcripts and derivations live in `research/`, which is never loaded by any skill. Neither guest had anything to do with this plugin, and any misreading of them is mine.
-
-Both arrive independently at the same structural claim, that feature work and environment work are separate projects running in parallel. That is why `guardrails` is a skill of its own rather than a step in the change loop.
-
-The two conflicts are worth naming because the resolutions shaped the skills:
-
-- **Does a human read the code?** Buetow says interrogating the agent can replace reading it. Horthy ran the lights-off version for four months and shut it down, with a specific bug and a recovery cost. Resolved toward Horthy: the interrogation stays as the way new rules get discovered, the substitution does not. This is why every story is one pull request under one screen of description, and why the review is never self-audit.
-- **Do the documents persist?** Buetow keeps specs; Horthy throws them out because prose and code become two sources of truth. Resolved toward Horthy on prose and toward Buetow on rules: the prose is deleted and the constraints it carried are promoted into things that execute.
-
-`research/example_artifacts.md` is the companion, showing what each artifact looks like and how long it lives.
-
-Neither source covers what happens when a feature is removed, what to do when a feature needs a boundary you drew wrong, or when to retire a rule that has stopped earning its slot. Those gaps are still open.
-
-## Where the hands go
-
-The split between what the user does and what the agent does follows how an airline crew works with an autopilot. The pilot hand-flies the takeoff and the landing and sets the autopilot's targets for the cruise; the autopilot never chooses the altitude. In the loop, the user confirms the outcome, the story list, the architecture tables and the first decisions up front, confirms each story's criteria before anything is pushed, answers the builder's questions about what a person will see, and merges each pull request. Between those points the agent runs the failing tests, the build subagent, the review subagent, the full suite and the pull request. The loop sorts each question before asking it: it looks up facts, parks a fact only a colleague knows on the issue for that colleague, decides reversible technical choices alone and lists them, and asks the user only about product intent and choices expensive to reverse. It asks one question per message as multiple choice, runs one story at a time unless `AGENTS.md` says otherwise, keeps open questions on the tracker instead of repeating them in chat, and shows at the criteria gate only the criteria that record a product choice.
-
-That sorting comes from field use. Sessions that asked seven questions at once, re-listed them after every subagent, and ran four stories in parallel left the user answering "you do it". Working memory holds about four items (Cowan, 2001). Repeated alerts get ignored: clinicians' acceptance fell 10% for every 5% rise in repeated alerts (Ancker et al., 2017). The amount of oversight an AI tool needs was the strongest predictor of fatigue in BCG's 2026 survey of 1,488 workers. For expensive decisions, `architecture` asks which alternative the user would pick before it gives its own view. In Anthropic's 2026 trial, developers who asked the AI conceptual questions scored 65% or higher on comprehension, and those who handed off generation scored below 40%. So the one question the user answers per decision is also what keeps their model of the system current, and no separate quiz is needed. Across three transcripts (two personal, one work), 13 criteria gates showed 105 criteria; the user edited none, and every criterion later found wrong had been approved unedited. Agile sources place edge and abuse cases with the developers and agreement on the rules and a few key examples (Jeffries; Keogh; Adzic, "Focus on key examples"). So the gate shows only criteria that record a product choice, the story builds while they wait, and confirmation comes before the first push. For the same reason the user writes `docs/architecture/summary.md` in their own words: purpose, three ranked qualities with numbers, tradeoffs and constraints. The agent settles smaller choices the ranking decides. Snapshots open with what changed, two small diagrams and three to five flows traced end to end, since programmers build a model of control flow before one of structure (Pennington, 1987), and trace visualisation cut comprehension time 22% and raised correct answers 43% (Cornelissen et al., 2009). The reference tables follow. The summary also lists the three most likely failures, and each snapshot names who owns each process, store and outside system, since an architect is expected to know the risks and the owners (Fairbanks; Reilly, *The Staff Engineer's Path*).
-
-Three findings from that field shaped specific rules:
-
-- **Bainbridge, "Ironies of Automation" (1983).** Automation takes the routine part of a task and leaves the human the hard part, with less practice at it. FAA SAFO 13002 (2013) asks airlines to schedule manual flying so the skill stays current. The practice is the user writing code, a design or a fix idea by hand and running `review-code` on it; the `deliver` loop offers a small piece of it on every story, a core to write or a sketch to draft, and one word skips it, since a forced exercise in the middle of a delivery is an interruption.
-- **Asiana 214 (NTSB, 2013).** The crew flew an approach assuming the autothrottle held speed while it sat in a mode that did not. This is why the proposal lists what it assumes before the build, for the pull request's reviewer to check.
-- **The stabilized-approach gate.** An approach that fails fixed criteria at a fixed height is abandoned without debate. This is why a builder that reports red, or touches a path outside its story, is reset to the red commit and reissued once, and the story is split after the second failure.
-
----
-
-# How it runs
-
-Say what you want in ordinary language.
-
-- **Anything that changes a system**: "add X", "fix this bug", "remove the Y feature".
-- **Half-formed**: "I'm thinking about Y", "what's the best way to Z", "should we move to A".
-- **When nobody knows yet**: "just build me a quick version", "I want to try something".
-- **Mid-flight**: "write the tests for this", "build the next story", "review my diff".
-- **After it ships**: "we shipped X, is it working".
-- **On a repo with no checks**: "set up guardrails", "we have no linting".
-- **At a session boundary**: "write a handoff", "I'm running low on context".
-
-Judgment calls go to you. The skills surface the decision, the failure mode or the coverage gap concretely, and you disposition it. The model does not decide for you, and where you ask it to choose it says what it would pick and marks that as its read rather than the answer.
-
-**Every sentence has to earn its place by one test: does it change what you do next?** That cuts the preamble announcing what is about to happen, the derivation behind a result you can take on trust, the reasons you supplied in the first place, and the second argument for a point the first already carried. The answer leads, the question closes. Several findings arrive as one line each, for you to pick which to open, rather than being worked through in order. A document or a diff that was just written is named and located rather than reproduced. The pictures are the exception to the volume rule: those go up, not down.
-
-**Each subagent's model and effort are fixed in its agent file.** Setup, review and security run on Opus at high effort, build on Opus at medium, and refactor on Sonnet at high. Refute runs on Sonnet at medium, so a finding is checked by a different model from the one that found it, at a fifth of Fable's price per token ([pricing](https://platform.claude.com/docs/en/about-claude/pricing)). Fable was also dropped because Claude Code re-runs a Fable request a safety classifier flags on a fallback model, which can be Opus, the finder's model ([automatic model fallback](https://code.claude.com/docs/en/prompt-caching#switching-models)). The pull request description, reviewer replies, fact lookups and the worker run on Sonnet at medium.
+| Artifact | Where |
+|---|---|
+| Stories | the tracker's issues, or the chat and the pull request; a feature in `docs/stories/<slug>.md` |
+| Failing tests, then passing | the repository's test tree; the red commit's message holds the test list |
+| ADRs | `docs/adr/`, by the `adr` skill |
+| Rules and checks | the repository, by the `guardrails` skill |
+| Pull request description | the remote: what changed, why, and how to verify it |
 
 # Installing
 
@@ -211,20 +108,23 @@ Judgment calls go to you. The skills surface the decision, the failure mode or t
 /plugin install SDLC@davebben-skills
 ```
 
-The five skills surface under their own names.
+The six skills surface under their own names.
 
-The plugin also installs hooks. Two print `hooks/writing.md`, the writing rules every reply and document follows, into every session and into each subagent that writes for a person, in every project where the plugin is enabled. That costs about 900 tokens per session and per such subagent. The others run deliver's `scripts/hook.py`: before a Bash command containing `merge`, to refuse a merge by any SDLC agent; on every subagent stop, to track background agents; and on a resumed session, to have it invoke deliver again when a story is open, since a skill's own hooks do not survive a resume. Each exits at once in a session that never ran deliver.
+The plugin also installs hooks:
 
-It also installs nine named agents, one per subagent step of `deliver` and `review-code`: `SDLC:lookup`, `setup`, `build`, `refactor`, `review`, `security`, `refute` and `description`, plus `worker` for any other task `deliver` delegates that changes no code. Each agent file is that step's whole prompt, at `skills/SDLC/agents/`, linked into the plugin by the `agents` symlink. The `review`, `security` and `refute` agents are one review engine: `deliver` runs it on the stories it builds and `review-code` on merge requests and the user's own code, so every code review is the same review. Other agents read the same files as prompts for general subagents. Each file's frontmatter sets that step's model, effort, the tools it may not use and, for the long-running ones, a turn limit.
+* **Writing rules:** two hooks print `hooks/writing.md`, the writing rules every reply and document follows. One prints them into every session. The other prints them into each general subagent, which may write a document you read, such as an ADR. They cost about 900 tokens each time.
+* **The guard:** a third hook runs story's `scripts/guard.py` before a shell command containing `git`, `merge` or `create`. It refuses a merge, a commit that changes a locked test other than by removing its expected-fail marker, and opening a pull request while a red test keeps its marker.
+
+It installs three named agents: `SDLC:test-author`, `SDLC:review` and `SDLC:verify`. Each agent file is that agent's whole prompt, at `skills/SDLC/agents/`, linked into the plugin by the `agents` symlink. `story` runs `review-code` on each story it builds, as you do on merge requests, your own code and designs, so every review is the same review.
 
 **Any other agent** (Codex, Cursor, Windsurf, and more), via the [`skills` CLI](https://github.com/vercel-labs/skills):
 
 ```bash
-npx skills add DaveBben/davebben-skills --skill deliver
+npx skills add DaveBben/davebben-skills --skill story
 ```
 
-The `deliver` and `review-code` skills launch subagents whose prompts live in `skills/SDLC/agents/`, beside the skill folders rather than inside one. The `skills` CLI copies skill folders, so also copy `skills/SDLC/agents/` into the folder that holds the installed skills, as a sibling named `agents`. Other agents do not run the hooks, so they get no writing rules. Paste `plugins/SDLC/hooks/writing.md` into the agent's own instructions file to have them.
+The `story` and `review-code` skills launch subagents whose prompts live in `skills/SDLC/agents/`, beside the skill folders rather than inside one. The `skills` CLI copies skill folders, so also copy `skills/SDLC/agents/` into the folder that holds the installed skills, as a sibling named `agents`. Other agents do not run the hooks, so they get no writing rules and no guard. Paste `plugins/SDLC/hooks/writing.md` into the agent's own instructions file to have the rules.
 
-Swap in `guardrails` or `architecture`, or `--all` for every skill in the repo. The canonical `SKILL.md` files live at `skills/SDLC/` in the repo root.
+Install `story`, `adr`, `spike`, `orient`, `guardrails` and `review-code` together, or `--all` for every skill in the repo. The canonical `SKILL.md` files live at `skills/SDLC/` in the repo root.
 
 MIT.

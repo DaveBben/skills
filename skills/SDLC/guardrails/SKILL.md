@@ -1,76 +1,69 @@
 ---
 name: guardrails
-description: "Use this skill when a repository's AGENTS.md or CLAUDE.md must be written, checked or rewritten, when its automated checks must be set up or repaired, or when one rule or recurring mistake must be enforced. Use it on: 'write AGENTS.md', 'set up CLAUDE.md', 'get this repo ready for agents', 'orient yourself', 'set up guardrails', 'add hooks', 'set up the commit gate', 'we have no linting', 'add a rule', 'always do X', 'never do Y', 'the agent keeps making this mistake', 'ban this pattern'. Writes AGENTS.md, one tool per check slot, the agent hooks and one check command, and puts each rule where a program can enforce it."
+description: "Use this skill when the user wants a rule their AI agent must follow in a codebase, asks what rules, checks or hooks a repository already enforces or whether anything stops a mistake from landing, wants a rule turned into a lint, semgrep or hook check, or a repository needs its default checks set up. Use it on: 'make a rule for X', 'add a rule', 'always do X', 'never do Y', 'ban this pattern', 'the agent keeps making this mistake', 'set up guardrails', 'what rules are in my repo', 'do I have guardrails in place', 'can this be a semgrep rule', 'write a lint rule for X', 'we have no linting', 'add a commit gate', 'run the tests when claude finishes', 'which of our CLAUDE.md rules could be checks', and the bare word 'guardrails'. Load it before searching the repository. Puts each rule where it is followed most: a deterministic check first, a path-scoped rule file second, a line in AGENTS.md last. Writing AGENTS.md as a whole is the `orient` skill."
 license: MIT
 metadata:
-  version: "3.3.0"
+  version: "5.0.0"
 ---
 # Guardrails
 
-A check is a program that passes or fails a change: a formatter, a linter, a type checker, a dependency contract, a test runner, a Semgrep rule. A rule a program checks is followed every time. A rule an agent reads is followed when the agent remembers it. `AGENTS.md` holds what no program can check.
-
-## Pick the path
-
-* **Write, check or rewrite `AGENTS.md`,** or orient in a repository: "AGENTS.md" below.
-* **Set up or repair the checks,** hooks, deny list, commit gate or CI: run `scripts/setup-next.sh <repository>` and do the stage it prints, then run it again; it resumes at the first stage not done. To repair one part, run `scripts/setup-next.sh <repository> <stage>`, where the stage is one of survey, slots, contracts, loop, guards, instructions, gate, secrets and ci. Decide nothing about what the system should be.
-* **Enforce one rule,** stop a recurring mistake, or audit instruction files for rules a check could hold: [references/rules.md](references/rules.md).
-
-## What never bends
-
-* **The failure message is the prompt.** Every check says what is forbidden and what to do instead, never a bare rule identifier.
-* **Watch every check fail once.** Introduce the violation, confirm the non-zero exit and the message, remove it.
-* **Silencing a check is not passing it.** Disabling a rule, loosening a config, weakening an assertion or skipping a test to reach green is not a fix. Write it under Critical Constraints verbatim: "Disabling a rule, loosening a config, weakening an assertion or skipping a test to reach green is not a fix."
-
-## Where a rule lives
-
-Put every rule as high on this ladder as it will go.
+A rule a program checks is followed every time. A rule an agent reads is followed when the agent remembers it. Put every rule as high on this ladder as it will go.
 
 | Rung | Where | Use when |
 |---|---|---|
-| 1. Deterministic | A linter setting, a Semgrep rule, a type check, a dependency contract, a test, a hook | A program can decide pass or fail from the code, the config or the command |
-| 2. Scoped agent rule | A rule file loaded only for matching paths (`.claude/rules/*.md` with `paths:`, `.cursor/rules/*.mdc` with `globs:`), or a nested `AGENTS.md` | It needs judgment and applies to some paths |
-| 3. Agent instructions | One line in `AGENTS.md` | It needs judgment and applies everywhere |
+| 1. Check | A compiler or linter setting, a Semgrep rule, a script or a test, run by `./check` | A program can decide pass or fail from the code, the config or a command |
+| 2. Path-scoped rule | `.claude/rules/<topic>.md` with `paths:` frontmatter, plus one equivalent (below) for each other agent whose instructions file or directory exists, such as `.cursor/` or `.github/copilot-instructions.md` | It needs judgment and applies to some paths |
+| 3. Agent instructions | One line under Constraints in the root `AGENTS.md` | It needs judgment and applies everywhere |
 
-## AGENTS.md
+Rung 2 equivalents for other agents:
 
-`AGENTS.md` at the repository root is the one file every session reads first. Rewrite it in place, never append. It holds no feature list, priorities or architecture tables; those live in stories, tests, ADRs and snapshots. A snapshot is the architecture skill's dated description of the system's processes, stores and flows.
+* **Cursor:** `.cursor/rules/<topic>.mdc` with `globs:`.
+* **GitHub Copilot:** `.github/instructions/<topic>.instructions.md` with `applyTo:`.
+* **Agents with no path-scoped format, such as Codex:** a nested `AGENTS.md` in that directory.
 
-**Orienting.** With neither `AGENTS.md` nor a real `CLAUDE.md`, report what the repository shows (the README's purpose, the stack, the commands) and offer to write it. With one, read it whole, run the review below, and report in one message: the purpose, the commands, the constraints and every finding. Rewrite nothing unless a finding is accepted.
+`./check` is the repository's check command, `./check --full` adds the slow tests, and `./check --scheduled` runs off the gates on CI's schedule. [references/defaults.md](references/defaults.md) sets up all three.
 
-**Interview.** Ask only what the conversation and the repository leave open, in one message of drafts to correct. Stop when every line could be proven false by a stranger. Fill the fields below from it.
+## Routing
+
+* **A request to set up checks, hooks or linting,** such as 'we have no linting' or 'run the tests when claude finishes': set them up by [references/defaults.md](references/defaults.md).
+* **'What rules or guardrails do I have':** list the steps `./check` runs, the hooks in `.claude/settings.json`, and the files under `.claude/rules/`, then offer the two choices below.
+* **'Which CLAUDE.md rules could be checks':** "Scan the instructions" below.
+* **The bare word 'guardrails':** offer two choices in one message, set up the default checks or scan the instructions,, using the harness's multiple-choice tool where it has one (Claude Code's AskUserQuestion).
+
+## Add one rule
+
+No executable `./check` at the repository root: set it up by [references/defaults.md](references/defaults.md) first.
+
+1. **Restate the rule** as something a stranger could check, with one real violation from this codebase, or say none exists today.
+2. **Pick the rung.** Try rung 1, cheapest first, and stop at the first that holds; else rung 2 when it applies to some paths; else rung 3.
+   * **Language or compiler setting.**
+   * **A rule the linter already ships,** at error severity.
+   * **A Semgrep rule** over source.
+   * **A script** for a fact about files, config or commands.
+   * **A test** for a fact about behaviour.
+3. **Agree it:** show the user the restated rule, the rung and tool chosen, and the violation it catches. Continue on their yes.
+4. **Semgrep rule:** launch a fresh subagent (in Claude Code, the Agent tool) with the absolute path of [references/semgrep.md](references/semgrep.md), the branch, the restated rule, and the violation's file and line, or, when none exists, a short snippet that would violate it.
+   * **No subagent available:** read the brief and do its task yourself.
+   * **It returns `Semgrep missing`:** ask the user to install it and wait.
+   * **It returns `Not expressible`:** go to the next rung-1 option, a script and then a test.
+5. **The failure message is the prompt:** it says what is forbidden and what to do instead, never a bare rule identifier.
+6. **Watch it fail once:** introduce the violation, confirm `./check` exits non-zero with the message, then remove the violation.
+7. **Existing violations:** the user picks one of these. Never leave `./check` failing.
+   * A cleanup first, as its own change.
+   * A ratchet, which fails only when a file gains a finding: copy [scripts/ratchet.py](scripts/ratchet.py) into the repository, commit its baseline JSON, and pipe the tool's findings to it from `./check`, one `<rule><TAB><file>` line each, such as `semgrep --config .semgrep/ --json | jq -r '.results[] | "\(.check_id)\t\(.path)"' | python3 tools/ratchet.py .ratchet.json`. Semgrep's `--baseline-commit` cannot do this job: it aborts when the tree has unstaged changes, which it always has at turn end.
+8. **Rung 2:** write one file per topic, holding the glob, one imperative sentence and the reason.
+   * **Claude Code globs:** `*` matches within one path segment and `**` across directories, so write `"**/*.py"` to match at every depth.
+9. **Rung 3:** write one line stating what happens and what breaks when the rule is broken.
+10. **Report** each file written and, for a check, the failing `./check` output from step 6.
+
+## Scan the instructions
+
+Read `AGENTS.md`, every `CLAUDE.md`, `.claude/rules/`, `.cursor/rules/`, `.github/copilot-instructions.md`, `.github/instructions/` and `CONTRIBUTING.md`. List only the lines a program could decide.
 
 ```text
-# <product name>
-
-## Project Identity
-Purpose:    <one sentence: what a person does with this that they could not before; an actor and an observable result>
-Users:      <who, and what they do with the output>
-Not doing:  <what a reader would expect it to do that it never will; one checkable statement per line>
-Nouns:      <the three to five domain terms the code, tables and tests must use; term: one-line meaning>
-
-## Tech Stack
-<package manager and any tool choice the manifest does not make obvious>
-Boundaries: <each system it reads, writes or runs inside: name, address, read, write or host; who writes the data in each store it reads>
-Backlog:    <tracker, project, access methods in order of preference (an MCP server, a CLI, an HTTP API); it must hold epics, stories and spikes, link them, and hold descriptions and comments; leave the line out when there is none, the first story that needs one connects it>
-  Types:    <issue types>   Criteria: <field>   Blocks: <link type and checked direction>   Status: <names>
-Architecture: <path of the latest snapshot under docs/architecture/snapshots/; omitted until one exists>
-
-## Operational Commands
-<the check command, which runs every check; the red-commit command, which commits failing tests before any code; only commands no task runner or README already lists>
-
-## Critical Constraints
-<what must stay true for every change, one checkable statement per line, each ending with its enforcer (a test asserting its number, a commit-gate check, an ADR) or saying no tool can see it>
-
-## Pointers to Deeper Docs
-<path — purpose, only for files that exist>
+| # | File:line | Instruction | Check that would hold it | Violations today |
 ```
 
-* **Charter from the interview, the rest from the repository:** the package manager from the lockfile, commands from the task runner. Run each safe command once before listing it. When there is no manifest or task runner, leave the line out and say what was not found.
-* **Never write** improve, better, seamless, robust, correct, properly, handled, intuitive, flexible, scalable or modern; write what is observed. Leave a section out rather than fill it with "Users: our users".
-* **Write the mechanism** in a constraint: "never hold a worker longer than one HTTP round trip; the pool has 5 and a full pool returns 502 to every user", not "keep the pool safe". Give each project-local name one sentence saying what it is.
-* **Cap it at 100 lines and 8 KB,** with the `agents-md-size` commit check the gate stage installs. A module's conventions go in a nested file; a file type's rule goes in a path-scoped rule.
-* **Symlink `CLAUDE.md` to it,** and any other conventional name the repository carries, and commit them together.
-
-**When asked to write or rewrite it and an instructions file already exists** (`AGENTS.md`, a real `CLAUDE.md`, or both): read each whole, show one table mapping each line to its section, to a check (rung 1 or 2), or to "dropped, cannot be checked", and ask once whether to adopt this format. On yes, carry every kept line over and replace a real `CLAUDE.md` with the symlink; keep a line mapped to a check until `rules.md` has landed that check. Land checks only for rows the user accepts. On no, touch nothing.
-
-**Review:** quote the line for each finding: requirements leaking in (a feature list, a priority, a schema); a statement that cannot fail; a boundary the code no longer touches, or one it touches that is missing; a constraint with no enforcer; a command that does not run.
+* **Already enforced:** introduce one violation; when `./check` fails on it, write "already enforced by <check>" and remove the violation.
+* **Selection:** the user picks rows by number.
+* **Each pick:** add it by "Add one rule", then delete the original line from the agent instruction files (`AGENTS.md`, `CLAUDE.md`, the rule directories), since the check now holds it. Leave `CONTRIBUTING.md` as it is: human contributors read it.

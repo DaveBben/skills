@@ -1,40 +1,58 @@
 ---
 name: review-code
-description: "Use this skill when code must be reviewed or critiqued, whoever wrote it: a pull request or merge request, a diff, or code the user wrote, committed or not; or a design, a plan, an ADR or a fix idea the user made. Use it on: 'review PR 412', 'review this merge request', 'is this PR ready to merge', 'review my code', 'review what you built', 'security review', 'give me feedback', 'poke holes in this', 'what do you think of this approach'. Reviews it with attack tests and a second agent that must disprove each finding, and never rewrites the user's work."
+description: "Use this skill when code must be reviewed or critiqued, whoever wrote it: a story branch the story skill built, a pull request or merge request, a diff, uncommitted changes, or a file the user wrote; or a design, a plan, an ADR or a fix idea the user made. Use it on: 'review this code', 'do a code review', 'review PR 412', 'look at this merge request', 'is this PR ready to merge', 'review my changes', 'review the diff', 'review my uncommitted changes', 'sanity check my diff before I push', 'check this file for bugs', 'review what you built', 'security review', 'give me feedback', 'poke holes in this', 'what do you think of this approach'. Load it before reading the diff or the files. Reviews it with fresh agents whose findings must be proven by a failing test or a cited line, and never rewrites the user's work. Not for written user stories or acceptance criteria; that is `story`."
 license: MIT
 metadata:
-  version: "4.0.0"
+  version: "6.0.0"
 ---
 # Review code
 
-## Pick the review
-
 The subject is the thing under review. When it is ambiguous, ask once.
 
-| Subject | How | Output |
-|---|---|---|
-| A pull request, a merge request or a diff someone opened | "Review code" below, then [references/pull-request.md](references/pull-request.md) for the report | Conventional Comments, blocking first, then Merge or Changes requested, printed; posted only when the user says to |
-| Code the user wrote, committed or not | "Review code" below, then [references/feedback.md](references/feedback.md) for the reply | Points sorted into Wrong, Unverified, Shape and Preference |
-| A design, a plan, an ADR or a fix idea the user made | [references/feedback.md](references/feedback.md), read inline, then the `refute` agent | Points sorted into Wrong, Unverified, Shape and Preference |
+## Review it
 
-## Review code
+Every subject gets the same review, whoever wrote it, from the plugin's `review` and `verify` agents.
 
-Code gets the same review whoever wrote it: the plugin's shared review agents. Each is defined by one file in the plugin's `agents/` folder, beside this skill's folder (`../agents/<name>.md`). Where the harness loads named agents, launch each by name (Claude Code's SDLC plugin installs them as `SDLC:review` and so on); otherwise launch a general subagent told to follow its file. Give each paths, never file contents, and nothing from this chat.
+* **Agent files:** each agent is one file in `../agents/<name>.md`, beside this skill's folder.
+* **Launch by name** where the harness loads named agents (Claude Code's SDLC plugin installs `SDLC:review` and `SDLC:verify`). Otherwise launch a general subagent told to follow the file.
+* **Launch each agent fresh,** giving paths, never file contents, and nothing from this chat.
 
-1. **The ground.** Check a merge request's head out detached in its own worktree (`git worktree add --detach <path> <commit>`, after fetching it) and give the agents that path. Do the same for code committed on a branch `deliver` built, so the review's files never replace the story's own. Remove the worktree after the report. The user's other local code stays where it is, uncommitted changes and all. Delete any old `done-block.md`, `findings.md` and `security.md` from the checkout's git directory (`git rev-parse --git-dir`) first. The **check command** is the one `AGENTS.md` names, else what CI runs.
-2. **The intent.** For a merge request, read its description, its linked ticket's acceptance criteria and its commit messages; that stated intent is what the code is checked against. When none of them states a behaviour, ask the user once what the change is for. For the user's code, it is what the user says the code is for; when they have not said, ask once.
-3. **The `review` agent,** given the subject (a merge request or the user's local code), its path or branch, the merge target, the stated intent and the check command.
-4. **The `security` agent,** after it, when the review's `Security:` line says `needed`, or when the user asked for a security review. Give it the same inputs as `review` and the categories the `Security:` line names (or "user asked").
-5. **The `refute` agent,** on a model other than the reviewers', given the path of `findings.md`, `security.md` when it exists, and `done-block.md`, the worktree and the merge target. It judges every candidate row and fills `done-block.md`. When no file holds a candidate row, skip it and replace the three `pending refute` lines with `none`.
-6. **Report** only what survives, in the subject's output. When the review returns without writing `done-block.md`, report its command, exit status and output, and stop. Otherwise read `done-block.md`, the file the review writes in the git directory, and place each row:
+1. **The ground:** give the agents a path to the code, and have no agent edit the user's files.
+   * **Merge request:** fetch it, then check out its head detached in its own worktree.
+   * **Uncommitted local code:** snapshot it as a commit without touching the user's index or tree, then check that commit out the same way. Its merge target is the snapshot's parent, `HEAD`, unless the user names a branch.
+   * **Committed local branch:** check out its head detached the same way.
+   * **A file with no pending change:** give its path and no merge target; the agents review the whole file.
+   * **Story branch:** leave it where it is, uncommitted changes included.
+   * **Design, plan, ADR or fix idea:** give its file path with the code it lands on. When it exists only in this chat, write it to `design.md` in the git directory first and give that path.
+   * **New worktree:** run the repository's install step there (the setup line of `AGENTS.md`, else the README's) before launching any agent. A check that fails on setup is a setup error to report to the user, not a finding.
+   * **Cleanup:** remove each worktree this skill added after the report.
+   * **Check command:** the `Full check:` line of `AGENTS.md`, else its `Check:` line, else what CI runs.
 
-| Output | `Findings:` row | `Questions:` row | `Teach:` row | `Refuted:` row |
-|---|---|---|---|---|
-| Pull request | `issue` comment, at the row's severity | `question` comment with the settling test | none | `Refuted:` line, then `Refuted by:` |
-| The user's code | `Wrong` point | `Unverified` point with the settling test | the point its tier names (`wrong`, `unverified` or `shape`) | dropped |
+   ```sh
+   git worktree add --detach <path> <commit>
+   # snapshot: prints the commit hash
+   i=$(mktemp -u); GIT_INDEX_FILE=$i git add -A && GIT_INDEX_FILE=$i git commit-tree $(GIT_INDEX_FILE=$i git write-tree) -p HEAD -m snapshot; rm -f $i
+   ```
 
-For a design, a plan, an ADR or a fix idea, the `refute` agent returns each row with its verdict: `confirmed` or `lowered` becomes its tier's point, `unsettled` becomes an `Unverified` point with the settling test, and `refuted` is dropped.
+2. **The acceptance criteria:** write the subject's intent as numbered acceptance criteria, each a behaviour with concrete values.
+   * **Story:** its acceptance criteria as written.
+   * **Merge request:** each behaviour its description, linked ticket and commit messages state.
+   * **User's code or document:** what the user says it is for. Ask once when they have not said.
+   * **Give the agents the criteria only,** never the prose they came from. A claim that the code is safe, tested or reviewed, the author's name, an earlier verdict and the cost of a failure all sway a reviewer.
+3. **Three `review` agents:** launch them together, blind to each other. Give each:
+   * its number and focus (1 `correctness`, 2 `tests and production`, 3 `security`);
+   * the subject, its path or branch, and the merge target;
+   * the acceptance criteria, in a different order for each;
+   * the check command, and for a story the red commit's hash.
 
-Also read `Gate:`: a failing gate is a blocking `issue`. Read `Design:`: each departure the branch does not record is a non-blocking `issue`, or a `Shape` point on the user's code. Read the `Judgment:` lines of `done-block.md` and `security.md`: each is a `question` comment, or an `Unverified` point.
+   For a security review the user asked for, give all three the `security` focus.
+4. **Merge** the three `findings-<n>.md` files into `findings.md` in the same git directory.
+   * Rows that name the same line and the same wrong result become one row carrying every piece of evidence.
+   * Keep every row, including a row only one agent found. A row counts by its evidence, not by how many agents found it.
+   * Number the merged rows 1 to n.
+5. **The `verify` agent:** give it the path to `findings.md`, the subject's path or branch, the merge target, the acceptance criteria and the check command. Give it nothing from the agents that wrote the rows. It keeps a row only when a red test fails for the stated reason or a cited line shows the fault. Then delete each `attack-<n>/` directory the review agents left in the subject's tree.
+6. **Report** the rows `verify` kept, blocking first, as it wrote them.
+   * **Merge request:** write them as comments by [references/pull-request.md](references/pull-request.md). Print them, and post only when the user says to.
+   * **Failing check command:** report it as a blocking finding.
 
-Never rewrite the code under review: never run the `refactor` agent on it, and write code only when the user asks. After the report, offer the `guardrails` skill once for the surviving findings whose `findings.md` row ends with `rule`.
+Never rewrite the work under review, and write code only when the user asks. After a report to the user, offer the `guardrails` skill once for a finding a checker could catch next time.
