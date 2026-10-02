@@ -32,8 +32,15 @@ Write one numbered line per test:
 <n>. <acceptance criterion number> — <test name> — <fixture: the concrete input values> — rejects: <the one wrong implementation a builder could plausibly ship that this fixture fails>
 ```
 
-* **One test per example under each rule:** a rule with no example gets one test with values you choose from its words. Volume does not catch more faults.
+* **One test per example under each rule:** a rule with no example gets one test with values you choose from its words. Add a further test only where it rejects a wrong implementation the others pass.
+* **Property test:** where an acceptance criterion states a rule over a range of inputs or an invariant (loading twice leaves the same rows, parsing then printing returns the input), and the repository already has a property-testing library such as Hypothesis or fast-check, add one property test of that rule beside its example tests.
 * **Interface:** test only through the interface you were given or one that already exists. Never invent a public name, argument or type.
+* **Level:** test each example at the lowest level whose interface shows its result. An end-to-end test covers a whole journey a person takes, and it sets up its data through the API or the database, never the UI.
+* **Real implementations:** run the real code wherever the test can, even when nearby tests mock it.
+  * Use the real collaborators, the database engine production uses (started locally or in a container), the real filesystem in a temporary directory, and a real server on localhost.
+  * Never use an in-memory substitute for the database, such as SQLite for Postgres. It passes on SQL, migrations, constraints and grants that production rejects.
+  * Double only what a test cannot run or control: a service outside the repository (a payment provider, email, a third-party API), the clock, and randomness.
+  * For those, prefer the repository's own fake, then a stub returning fixed values. Mock a call only to check a side effect on an outside service, and mock it through the repository's own adapter for that service, never the third-party library.
 * **Expected values:** take each from the criterion's words, never from what the current code does.
 * **Fixtures:** choose ones a plausible wrong implementation fails. Avoid:
   * a batch of one, or the failing item first or last;
@@ -42,8 +49,12 @@ Write one numbered line per test:
   * input already in order, or fewer rows than a page;
   * two calls in sequence for a race;
   * a fake that never fails for a retry;
-  * an error test that asserts only the raise and not the state left behind.
+  * an error test that asserts only the raise and not the state left behind;
+  * a sleep: wait by polling for the condition with a deadline;
+  * a key, row or file another test also uses: create the test's own with a unique value;
+  * a test that needs another test to run first.
 * **Assertions:** assert exact values a person or caller sees. Never assert a private function, internal call order or a log line, and never only that something is non-empty or did not raise.
+  * For text a language model generates, assert its schema and required fields, never its exact wording.
 * **Questions:** put on `Questions:` any criterion you cannot write as a test (no observable result, an undecided value) or that needs a public name you were not given. Write no test for it.
 
 ## 3. Existing tests
@@ -57,7 +68,7 @@ An existing test the acceptance criteria contradict is a decision.
 
 Write the tests and run them. Each must fail because the behaviour is missing, not because of a typo, an import or a fixture error. List a test that already passes as `characterizing`, or delete it when it adds nothing.
 
-1. **Mark** each failing test with the framework's strict expected-fail marker, so the suite passes while the behaviour is missing and fails once the test passes: pytest `@pytest.mark.xfail(strict=True, reason="red")`, Jest or Vitest `test.failing`, Playwright `test.fail()`, RSpec `pending`. Mark nothing else, and leave a `characterizing` test unmarked. **No strict marker in the framework:** leave the tests unmarked and say so in your return.
+1. **Mark** each failing test with the framework's strict expected-fail marker, so the suite passes while the behaviour is missing and fails once the test passes: pytest `@pytest.mark.xfail(strict=True, reason="red")`, Jest or Vitest `test.failing`, Playwright `test.fail()`, RSpec `pending`, XCTest `XCTExpectFailure("red")` as the test's first line, Swift Testing `withKnownIssue("red") {` on its own line with the closing brace written `} // red`. Mark nothing else, and leave a `characterizing` test unmarked. **No strict marker in the framework:** leave the tests unmarked and say so in your return.
 2. **Commit** the tests alone. The commit message holds the story text, the test list and the `Changes existing:` line, so a later session and the reviewers read them from git.
 3. **Hook refuses the commit** because a test fails: skip that hook alone by its id and say so in your return. Never skip every hook.
 4. **Lock** the commit:
@@ -87,5 +98,6 @@ Tests:
   <the numbered test list>
 Changes existing: <test name — the acceptance criterion that requires it>; or "none"
 At risk: <existing test names the change could break that the acceptance criteria do not mention>; or "none"
+Doubles: <each double used, and why the real implementation cannot run in the test>; or "none"
 Questions: <one line each: the acceptance criterion, and what must be decided>; or "none"
 ```

@@ -21,7 +21,7 @@ Rung 2 equivalents for other agents:
 * **GitHub Copilot:** `.github/instructions/<topic>.instructions.md` with `applyTo:`.
 * **Agents with no path-scoped format, such as Codex:** a nested `AGENTS.md` in that directory.
 
-`./check` is the repository's check command, and `./check --full` adds the slow tests. [references/defaults.md](references/defaults.md) sets up both.
+`./check` is the repository's check command, `./check --full` adds the slow tests, and `./check --scheduled` runs off the gates on CI's schedule. [references/defaults.md](references/defaults.md) sets up all three.
 
 ## Routing
 

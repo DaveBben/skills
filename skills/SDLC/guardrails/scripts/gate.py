@@ -10,6 +10,9 @@
         leading `cd X` or `git -C X`), unless the same tree already passed it,
         and refuses the request when it fails.
 
+A check that fails and then passes on the same tree has a flaky test: the pass
+goes through, and the user is shown the earlier failure.
+
 Fails open: no git, no executable ./check at the repository root, or unreadable
 input exits 0.
 """
@@ -47,20 +50,34 @@ def tree_state(root):
     return hashlib.sha1(b"\0".join(p or b"" for p in parts)).hexdigest()
 
 
-def check(root, args, stamp):
-    """Runs ./check with args unless this tree already passed; returns the output of a failure, else None."""
-    path = os.path.join(root, git(root, "rev-parse", "--git-path", stamp).decode().strip())
-    key = tree_state(root)
+def read(path):
     try:
-        if open(path).read() == key:
-            return None
+        return open(path).read()
     except OSError:
-        pass
+        return ""
+
+
+def check(root, args, stamp):
+    """Runs ./check with args unless this tree already passed.
+
+    Returns (the output of a failure or None, a flake message or None)."""
+    path = os.path.join(root, git(root, "rev-parse", "--git-path", stamp).decode().strip())
+    failed = path + "-failed"
+    key = tree_state(root)
+    if read(path) == key:
+        return None, None
     r = subprocess.run(["./check", *args], cwd=root, capture_output=True, text=True)
     if r.returncode == 0:
         open(path, "w").write(key)
-        return None
-    return (r.stdout + r.stderr)[-4000:]
+        earlier = read(failed)
+        if earlier.startswith(key + "\n"):
+            os.remove(failed)
+            return None, (f"./check {' '.join(args)}".strip() + " failed and then passed on the same tree, so a test "
+                          "is flaky. Earlier failure:\n" + earlier[len(key) + 1:][-1500:])
+        return None, None
+    out = (r.stdout + r.stderr)[-4000:]
+    open(failed, "w").write(key + "\n" + out)
+    return out, None
 
 
 def gate(mode, inp):
@@ -77,17 +94,17 @@ def gate(mode, inp):
     if not os.access(os.path.join(root, "check"), os.X_OK):
         return 0, "", ""
     if mode == "stop":
-        out = check(root, [], "guardrails-check")
+        out, flake = check(root, [], "guardrails-check")
         if out is None:
-            return 0, "", ""
+            return 0, json.dumps({"systemMessage": flake}) if flake else "", ""
         if inp.get("stop_hook_active"):
             return 0, json.dumps({"systemMessage": "./check still fails; the turn ended anyway."}), ""
         return 2, "", "./check failed. Fix the cause; never silence a check to pass it.\n" + out
     if not ((tool == "Bash" and PR_COMMAND.search(command)) or PR_TOOL.search(tool)):
         return 0, "", ""
-    out = check(root, ["--full"], "guardrails-full")
+    out, flake = check(root, ["--full"], "guardrails-full")
     if out is None:
-        return 0, "", ""
+        return 0, json.dumps({"systemMessage": flake}) if flake else "", ""
     return 2, "", "./check --full failed, so the pull request was not opened. Fix the cause, then open it again.\n" + out
 
 
@@ -130,6 +147,13 @@ def self_test():
     assert pr(f"cd {o}; gh pr create --fill") == 2, "cd then gh pr create checks that directory"
     os.environ["GATE_WT"] = o
     assert pr("cd $GATE_WT && gh pr create --fill") == 2, "a variable in cd is expanded"
+    f = tempfile.mkdtemp()  # a third repository whose ./check fails on its first run only
+    subprocess.run(["git", "init", "-q", f], check=True)
+    open(f"{f}/check", "w").write('#!/bin/sh\necho run >> .git/runs\n[ "$(wc -l < .git/runs)" -gt 1 ]\n')
+    os.chmod(f"{f}/check", 0o755)
+    assert gate("stop", {"cwd": f})[0] == 2, "the first run fails"
+    code, out, _ = gate("stop", {"cwd": f})
+    assert code == 0 and "flaky" in out, "a pass on the tree that failed is reported as flaky"
     print("self-test passed")
 
 

@@ -26,7 +26,7 @@ Treat each row as false until the code shows it. End each row in one of three an
 * **Keep:** give the proof, by evidence type.
   * **Red attack:** run it and read why it fails. It must fail on the assertion the row names, with an expected value taken from an acceptance criterion's words. A failure on its own setup, an import or a value no criterion states does not count.
   * **Cited line:** trace the row's input from an entry point to that line and on to the wrong result.
-  * **Weak test:** name the wrong implementation it lets pass. Where a trial edit can show it, make the edit, run the test, see it pass, and undo the edit.
+  * **Weak test:** name the wrong implementation it lets pass and an input on which that implementation breaks an acceptance criterion. Where a trial edit can show it, make the edit, run the test, see it pass, and undo the edit. With no such input, the wrong implementation is equivalent to the code: drop the row.
 * **No basis:** when neither the code nor a run settles it, drop the row and say what would settle it. Never keep a row on reasoning alone, and never approve one to break a tie.
 
 For each kept row, find a caller that exists and reaches the line.

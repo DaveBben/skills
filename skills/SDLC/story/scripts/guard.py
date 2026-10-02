@@ -21,8 +21,9 @@ import difflib, json, os, re, shlex, subprocess, sys
 
 MAINS = {os.environ.get("MAIN", "main"), "main", "master"}
 # Strict expected-fail markers: the run fails once the marked test passes.
-XFAIL = re.compile(os.environ.get("XFAIL", r"@pytest\.mark\.xfail\([^)]*strict=True[^)]*\)|\.failing\b|\btest\.fail\(\);?|^\s*pending\b.*$"), re.M)
-TEST = re.compile(os.environ.get("TESTS", r"(^|/)(tests?|specs?|__tests__)/|(^|/)test_[^/]*$|_test\.[^/]*$|\.(test|spec)\.[^/]*$"))
+XFAIL = re.compile(os.environ.get("XFAIL", r"@pytest\.mark\.xfail\([^)]*strict=True[^)]*\)|\.failing\b|\btest\.fail\(\);?|^\s*pending\b.*$|^\s*XCTExpectFailure\((?![^)]*strict:\s*false)[^)]*\)\s*$|^\s*withKnownIssue\(\x22red\x22\)\s*\{\s*$|^\s*\}\s*//\s*red\s*$"), re.M)
+# Test files: test directories (Swift `AppTests/`, Android `androidTest/`, `e2e/`), test-named files, and conftest.py.
+TEST = re.compile(os.environ.get("TESTS", r"(^|/)(tests?|specs?|__tests__|e2e|androidTest)/|(^|/)[A-Za-z]*Tests?/|(^|/)test_[^/]*$|_test\.[^/]*$|Tests?\.swift$|\.(test|spec|e2e)\.[^/]*$|(^|/)conftest\.py$"))
 
 
 def git(d, *args):
@@ -68,14 +69,18 @@ def locked_files(d, branch):
 
 
 def only_unmarks(d, f):
-    """True when the file differs from HEAD only by removed expected-fail markers."""
+    """True when the file differs from HEAD only by removed expected-fail markers.
+
+    In a Swift file, removing the two-line withKnownIssue wrapper re-indents its
+    body, so leading whitespace is ignored there."""
     try:
         new = open(os.path.join(git(d, "rev-parse", "--show-toplevel"), f)).read().splitlines()
     except OSError:
         return False
     old = git(d, "show", f"HEAD:{f}").splitlines()
+    norm = str.strip if f.endswith(".swift") else (lambda l: l)
     for op, i1, i2, j1, j2 in difflib.SequenceMatcher(None, old, new, autojunk=False).get_opcodes():
-        if op != "equal" and [l for l in (XFAIL.sub("", l) for l in old[i1:i2]) if l.strip()] != new[j1:j2]:
+        if op != "equal" and [norm(l) for l in (XFAIL.sub("", l) for l in old[i1:i2]) if l.strip()] != [norm(l) for l in new[j1:j2]]:
             return False
     return True
 
@@ -199,6 +204,26 @@ def self_test():
     run("git", "checkout", "-q", "--", "tests/test_b.py")
     os.makedirs(f"{t}/sp ace/tests")
     assert check("git switch main && git merge story/f/K-1-x", t), "switch to main then merge"
+    for f in ("Swift/AppTests/AppTests.swift", "AppUITests/LoginUITests.swift", "Sources/LoginTests.swift",
+              "e2e/login.ts", "web/login.e2e.ts", "app/src/androidTest/X.kt", "conftest.py"):
+        assert TEST.search(f), f"{f} is a test file"
+    for f in ("Sources/App/Contest.swift", "src/contests/a.py", "pyproject.toml", "Tests.md"):
+        assert not TEST.search(f), f"{f} is not a test file"
+    assert XFAIL.search('    XCTExpectFailure("red")\n'), "XCTest's strict expected-fail marker"
+    assert not XFAIL.search('    XCTExpectFailure("red", strict: false)\n'), "a non-strict XCTExpectFailure is no marker"
+    run("git", "switch", "-q", "story/f/K-1-x")
+    swift = ('@Test func total() {\n    withKnownIssue("red") {\n        #expect(f() == 2)\n    } // red\n}\n')
+    os.makedirs(f"{t}/Swift/AppTests")
+    open(f"{t}/Swift/AppTests/TotalTests.swift", "w").write(swift)
+    run("git", "add", "-A")
+    run("git", "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "red swift")
+    run("git", "config", "--add", "branch.story/f/K-1-x.redCommit", git(t, "rev-parse", "HEAD"))
+    assert check("gh pr create --fill", t), "a withKnownIssue wrapper left on a red test blocks the pull request"
+    open(f"{t}/Swift/AppTests/TotalTests.swift", "w").write('@Test func total() {\n    #expect(f() == 2)\n}\n')
+    assert not check("git commit -am build", t), "removing the withKnownIssue wrapper and re-indenting is allowed"
+    open(f"{t}/Swift/AppTests/TotalTests.swift", "w").write('@Test func total() {\n    #expect(f() == 3)\n}\n')
+    assert check("git commit -am x", t), "changing the expectation while removing the wrapper"
+    run("git", "checkout", "-q", "--", "Swift/AppTests/TotalTests.swift")
     print("self-test passed")
 
 
