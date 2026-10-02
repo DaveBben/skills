@@ -1,9 +1,9 @@
 ---
 name: orient
-description: "Use this skill when a repository's AGENTS.md or CLAUDE.md must be written, rewritten, trimmed or checked, or when an agent must orient itself in an unfamiliar repository. Use it on: 'write AGENTS.md', 'write a CLAUDE.md', 'set up CLAUDE.md', 'review my CLAUDE.md', 'our CLAUDE.md is too long', 'trim AGENTS.md', 'what should go in CLAUDE.md', 'orient yourself', 'familiarize yourself with this codebase'. Writes AGENTS.md at the repository root, with CLAUDE.md a symlink to it, holding only what an agent cannot learn by reading the repository. Not for enforcing a rule with a linter, hook or commit check; that is `guardrails`."
+description: "Use this skill when a repository's AGENTS.md or CLAUDE.md must be written, rewritten, trimmed or checked, when an agent must orient itself in an unfamiliar repository, or when the user wants to see the architecture of the code they work in. Use it on: 'write AGENTS.md', 'write a CLAUDE.md', 'set up CLAUDE.md', 'review my CLAUDE.md', 'our CLAUDE.md is too long', 'trim AGENTS.md', 'what should go in CLAUDE.md', 'orient yourself', 'familiarize yourself with this codebase', 'show me the architecture', 'what's the current architecture', 'give me an updated view of the architecture', 'what calls this service', 'write an onboarding doc'. Writes AGENTS.md at the repository root, with CLAUDE.md a symlink to it, holding only what an agent cannot learn by reading the repository, and a one-page architecture snapshot in ARCHITECTURE.md, traced from the code and every system that calls it or that it calls. Not for enforcing a rule with a linter, hook or commit check; that is `guardrails`."
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 # Orient
 
@@ -26,7 +26,7 @@ Keep a line only when deleting it would cause a mistake nothing else in the repo
   * A test that needs a running service.
   * A directory that looks unused and is loaded at runtime.
   * A test that already fails on main.
-* **Pointers:** the path of a document the agent would not find on its own and when to read it; for the system's shape (processes, stores, flows), one `Architecture:` line.
+* **Pointers:** the path of a document the agent would not find on its own and when to read it; for the system's shape, one `Architecture: ARCHITECTURE.md` line.
 * **Boundaries:** one `Boundaries:` line naming each system the product reads, writes or runs inside.
   * **Writers:** for each store the product reads, name who writes the data: this product, a person through its own screens, or something outside.
   * **Why:** the security review treats data from an outside writer as untrusted.
@@ -52,6 +52,10 @@ There is no fixed template.
 * **Module conventions:** put them in a nested `AGENTS.md` inside that module.
 * **Symlinks:** link `CLAUDE.md`, and any other instructions-file name the repository carries, to `AGENTS.md`, and commit them together.
 
+## Architecture snapshot
+
+Every run of this skill, and every request to see the architecture, writes or refreshes `ARCHITECTURE.md` at the repository root. The snapshot traces the code, every outside system that calls into it and every system it calls, and lays them out on one page a newcomer reads in five minutes. Read [references/architecture.md](references/architecture.md) before tracing. A request only to see the architecture needs only the snapshot; leave `AGENTS.md` untouched.
+
 ## Writing it
 
 1. **Read first:** the existing `AGENTS.md` and any real `CLAUDE.md`, each whole. Then run each test, lint and check command once, and keep none that fails.
@@ -65,10 +69,11 @@ There is no fixed template.
    * **Browsers and devices:** it has a web or mobile front end.
    * **Regulations such as GDPR, HIPAA, PCI or SOX:** it holds personal, health or payment data.
 4. **On yes:** write `AGENTS.md` from the kept and corrected lines, and replace a real `CLAUDE.md` with the symlink. **On no:** touch nothing.
+5. **Take the architecture snapshot,** whatever the answer.
 
 ## Orienting
 
-Report in one message:
+Take the architecture snapshot, then report in one message:
 
 * The commands.
 * The constraints and traps.

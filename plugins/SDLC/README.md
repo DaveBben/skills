@@ -9,7 +9,7 @@ The plugin is six skills. Plain Markdown, no build step, nothing to compile.
 | `story` | any change to code that exists, and turning work into user stories: "add X", "fix the bug where X", "X is broken", "build story X", "refactor X", "pick up where we left off", "write a story for X", "break this down", "I have an idea", "turn this PRD into stories", "review these stories", "what should I pick up next" |
 | `adr` | "write an adr", "record the why", "should I use X or Y", "we will accept that risk", "let's go with X instead of Y" |
 | `spike` | "let's prove this works first", "prototype this", "build a demo", "is X feasible", "try a few approaches and see", "do a spike" |
-| `orient` | "write AGENTS.md", "write a CLAUDE.md", "our CLAUDE.md is too long", "orient yourself" |
+| `orient` | "write AGENTS.md", "write a CLAUDE.md", "our CLAUDE.md is too long", "orient yourself", "show me the architecture", "give me an updated view of the architecture" |
 | `guardrails` | "add a rule", "never do X", "the agent keeps making this mistake", "set up guardrails", "we have no linting", "which of our CLAUDE.md rules could be checks" |
 | `review-code` | "review PR 412", "review this merge request", "review my code", "review what you built", "security review", "give me feedback", "poke holes in this" |
 
@@ -82,6 +82,13 @@ Follow-up runs then tested each mechanism on its own:
   * **Three finders, one of them on security, every review.** One security-audit run found about half of what repeated runs found (Cloudflare), and gains flattened after 3 to 5 runs (SWR-Bench; arXiv 2607.27030). Repeats of one model shared 78% of their errors against 32% across model families (arXiv 2609.36958), so each finder searches hardest on a different focus. General reviews under-cover security by 89.5% (Meta, arXiv 2607.29516), while long security-specific prompts and CWE cheatsheets lowered scores (arXiv 2607.13085, 2607.14628), so security is one focus of the shared prompt rather than its own agent. Opus is the model: it had 91.5% precision on vulnerability scans against Sonnet's 62.6%, at a lower cost per session (Snyk VulnBench, arXiv 2606.15762).
   * **A separate checker that does not see the finder's reasoning.** Reviewing its own answers, a model rejected 35% of the correct ones, against 2% for an independent reviewer (arXiv 2609.04270); a verifier stage raised precision from 0.35 to 0.47 (arXiv 2609.15887); a correction checked by running code gained 6 to 26 points where one triggered by the model's doubt lost 3 to 10 (arXiv 2608.14659).
 
+* **The architecture snapshot, 17.4.0.** arc42 is long enough that newcomers stop reading before they reach what they need, so `orient` writes one page that keeps the parts a newcomer uses: purpose, context and container diagrams, one request traced end to end, a codemap, the decisions and how to run it. The order and content come from three sources:
+  * **Top-down, purpose first.** In interviews with 9 people who explain architectures and 8 who receive the explanations, explanations started from business purpose and context, then components and interactions, then code on request. Structure diagrams and sequence diagrams were each used by 8 of the 9 explainers, and "the first question is always, 'Why?'" ([From Expert to Novice, 2025](https://arxiv.org/abs/2503.08628)).
+  * **Reasons and history.** In 12 observed onboarding sessions across 8 organizations, experts mostly passed on why the code is the way it is and how it has changed ([Yates, Power & Buckley, 2020](https://link.springer.com/article/10.1007/s10664-019-09741-6)). So no reason is inferred: one without an ADR, commit or comment behind it reads "reason not recorded" and becomes a question.
+  * **A codemap and invariants that rarely change.** matklad's [ARCHITECTURE.md](https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html), and the C4 model's context and container levels, which its author says are enough for most teams.
+
+  The snapshot's first line records the commit it was traced at, so a refresh retraces only what changed since. The details load from `orient/references/architecture.md` only when a snapshot is taken.
+
 A first headless run of this version passed 7 of 8 hidden tests on cli and 4 of 6 on zod, the same as the other arms, at $3.58 and $3.07 and 15 and 11 minutes; SDLC 15 took $4.72 and $9.67 and 22 and 46 minutes on the same tasks.
 
 `EVIDENCE.md` matches every SDLC 15 mechanism to published evidence for 2026-generation models. `FOLLOWUP.md` has each follow-up experiment's numbers. Two caveats apply throughout:
@@ -96,6 +103,7 @@ A first headless run of this version passed 7 of 8 hidden tests on cli and 4 of 
 | Stories | the tracker's issues, or the chat and the pull request; a feature in `docs/stories/<slug>.md` |
 | Failing tests, then passing | the repository's test tree; the red commit's message holds the test list |
 | ADRs | `docs/adr/`, by the `adr` skill |
+| Architecture snapshot | `ARCHITECTURE.md`, by the `orient` skill; the HTML page in a scratch directory on request |
 | Rules and checks | the repository, by the `guardrails` skill |
 | Pull request description | the remote: what changed, why, and how to verify it |
 

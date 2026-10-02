@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[System name] architecture</title>
+<style>
+  :root { --bg: #f7f8fa; --card: #fff; --ink: #1f2328; --muted: #656d76; --line: #d8dee4; --accent: #2f6fdd; --chip: #eef3fc; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0e1116; --card: #161b22; --ink: #e6edf3; --muted: #8d96a0; --line: #30363d; --accent: #6ea8ff; --chip: #1c2a40; }
+  }
+  * { box-sizing: border-box; }
+  body { -webkit-text-size-adjust: 100%; margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 -apple-system, "Segoe UI", system-ui, sans-serif; }
+  header { background: var(--card); border-bottom: 1px solid var(--line); padding: 28px 16px 20px; }
+  header div, main { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 1.7rem; margin: 0 0 6px; line-height: 1.25; }
+  .purpose { font-size: 1.05rem; color: var(--muted); margin: 0; }
+  .meta { font-size: .8rem; color: var(--muted); margin-top: 12px; }
+  nav { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+  nav a { background: var(--chip); color: var(--accent); text-decoration: none; font-size: .8rem; padding: 4px 10px; border-radius: 999px; }
+  main { padding: 16px; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin: 0 0 16px; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; }
+  h3 { font-size: 1rem; margin: 16px 0 4px; }
+  h3 small, h2 small { font-weight: 400; color: var(--muted); font-size: .8rem; margin-left: 6px; }
+  .diagram { overflow-x: auto; padding: 8px 0; text-align: center; }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; }
+  td:first-child { white-space: nowrap; }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .85em; background: var(--chip); padding: 1px 5px; border-radius: 4px; }
+  pre { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 12px; overflow-x: auto; }
+  pre code { background: none; padding: 0; }
+  ol, ul { padding-left: 1.3rem; margin: 0; }
+  li { margin: 6px 0; }
+  .where { color: var(--muted); font-size: .85rem; }
+  .src { font-size: .8rem; color: var(--accent); }
+  .open li::marker { content: "? "; color: var(--accent); font-weight: 700; }
+</style>
+</head>
+<body>
+<header><div>
+  <h1>[System name]</h1>
+  <p class="purpose">[Purpose: what the system does, and for whom, in two sentences.]</p>
+  <div class="meta">Snapshot of [repository] at commit <code>[short sha]</code>, traced [date]. The code may have changed since; check <code>git log [short sha]..HEAD</code> before relying on a detail.</div>
+  <nav>
+    <a href="#context">Context</a><a href="#containers">Containers</a><a href="#data">Data model</a><a href="#request">One request</a>
+    <a href="#codemap">Codemap</a><a href="#decisions">Decisions</a><a href="#run">Running it</a><a href="#open">Open questions</a>
+  </nav>
+</div></header>
+<main>
+
+<section id="context">
+  <h2>Context <small>who uses it and what it talks to</small></h2>
+  <!-- Mermaid source goes inside the pre, unescaped -->
+  <pre class="mermaid diagram">
+flowchart LR
+  user["[User role]"] -->|"[what flows, how]"| sys["[This system]"]
+  caller["[Calling system]"] -->|"[what flows, how]"| sys
+  sys -->|"[what flows, how]"| ext["[Outside system]"]
+  </pre>
+</section>
+
+<section id="containers">
+  <h2>Containers <small>the parts that run separately</small></h2>
+  <pre class="mermaid diagram">
+flowchart LR
+  web["[Web app (tech)]"] -->|"[protocol: data]"| api["[API (tech)]"]
+  api -->|"[protocol: data]"| db[("[Database (tech)]")]
+  </pre>
+</section>
+
+<section id="data">
+  <h2>Data model <small>what one row means</small></h2>
+  <!-- One block per table, file or queue the system keeps state in or reads as its main input -->
+  <h3>[table or file] <small>written by [writer]</small></h3>
+  <p>[What one row or record means.]</p>
+  <table>
+    <tr><th>Column</th><th>Meaning and values</th></tr>
+    <tr><td><code>[column]</code></td><td>[what it holds, with its values]</td></tr>
+  </table>
+</section>
+
+<section id="request">
+  <h2>One request, end to end <small>[the action traced]</small></h2>
+  <pre class="mermaid diagram">
+sequenceDiagram
+  actor U as [User]
+  participant A as [API]
+  U->>A: [request]
+  A-->>U: [response]
+  </pre>
+  <ol>
+    <!-- 5 to 8 steps -->
+    <li>[What happens in this step.] <span class="where"><code>[path/file.ext:line]</code> <code>[function]</code></span></li>
+  </ol>
+  <p>[What a repeat run does when there is nothing new, when only a little is new, and when there is less input than the system needs.]</p>
+</section>
+
+<section id="codemap">
+  <h2>Codemap <small>where the thing that does X lives</small></h2>
+  <table>
+    <tr><th>Path</th><th>What lives there</th></tr>
+    <!-- At most 15 rows -->
+    <tr><td><code>[dir/]</code></td><td>[one line]</td></tr>
+  </table>
+</section>
+
+<section id="decisions">
+  <h2>Decisions and invariants <small>why it is built this way</small></h2>
+  <ul>
+    <!-- 3 to 7 bullets; a reason with no source reads "reason not recorded" -->
+    <li><b>[Rule or choice.]</b> [Reason.] <a class="src" href="[link]">[source: ADR, commit or PR]</a></li>
+  </ul>
+</section>
+
+<section id="run">
+  <h2>Running it</h2>
+<pre><code>[install command]
+[start command]
+[test command]</code></pre>
+</section>
+
+<section id="open">
+  <h2>Open questions</h2>
+  <ul class="open">
+    <li>[Caller not found, reason not recorded, or anything the trace could not establish, with what would establish it.]</li>
+  </ul>
+</section>
+
+</main>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+  mermaid.initialize({ startOnLoad: true, theme: dark ? "dark" : "neutral" });
+</script>
+</body>
+</html>
