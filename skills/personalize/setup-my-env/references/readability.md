@@ -195,6 +195,8 @@ Settings are in `~/Library/Application Support/Code/User/settings.json`, which V
   Light Modern had 1 failure, and Alabaster had 3 plus its line numbers.
 * **Preview line length:** a local extension, `dave.markdown-readable-width`, with its source in `~/projects/vscode-markdown-readable/`.
   It contributes `markdown.previewStyles` with `body { max-width: 28.5em; margin: 0 auto; }`, about 65 characters.
+  Tables get `width: max-content; min-width: 100%; max-width: calc(100vw - 52px); margin-left: 50%; transform: translateX(-50%);`.
+  Without that rule, a table wider than the text column runs off to the right and looks off-center.
   Rebuild it with `npx @vscode/vsce package --allow-missing-repository --skip-license`.
   Install it with `code --install-extension <file>.vsix --force`.
 

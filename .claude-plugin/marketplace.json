@@ -55,7 +55,7 @@
       "name": "personalize",
       "source": "./plugins/personalize",
       "description": "Skills that make an agent act as you. sound-like-me composes texts, work replies, docs and scripts in your own voice by following private voice profiles kept outside the repo, never inventing facts and never sending without your say-so. setup-my-env configures your terminal, editor, shell and note apps to evidence-based readability targets for font size, spacing, line length, theme and contrast, and records the settings so you can repeat them.",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "license": "MIT",
       "skills": [
         "./skills/sound-like-me",
