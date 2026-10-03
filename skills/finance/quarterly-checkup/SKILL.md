@@ -15,7 +15,7 @@ Check the budget against the year: targets against prices, contributions against
 
 Personal settings live in the directory named by `FINANCE_CONFIG_DIR`, default `~/.config/finance/`. Read `config.toml`, `profile.md` and the `history/` reports since the last checkup before advising. When the directory or `config.toml` is missing, tell the user the path you checked and stop.
 
-* **`config.toml`:** `[ynab]` budget and keychain service (never print the token); `[income]` pay frequency, `base_monthly`, `bonus_months`; `[roles]` category names by role (`fixed`, `steady`, `bill_funds`, `wants`, `savings_goals`, `retirement`, `surprise_fund`, `emergency_fund`, `trial_category`, optional `paused`); `[cpi]` category name → FRED series id; `[scripts]` windows and thresholds.
+* **`config.toml`:** `[ynab]` budget and keychain service (never print the token); `[income]` pay frequency, `base_monthly`, `bonus_months`; `[roles]` category names by role (`fixed`, `steady`, `bill_funds`, `wants`, `savings_goals`, `retirement`, `surprise_fund`, `emergency_fund`, `trial_category`, optional `paused` and `medical`); `[cpi]` category name → FRED series id; `[scripts]` windows and thresholds.
 * **`profile.md`:** household context: pay dates, age, HSA coverage tier, employer contributions, filing status, a planned home purchase. Ask for any fact a check needs that neither file holds; do not assume it.
 
 Run `python3 scripts/checkup.py scan` first. It is read-only and returns the numbers used below.
@@ -24,7 +24,7 @@ Run `python3 scripts/checkup.py scan` first. It is read-only and returns the num
 
 Use the `budget-targets` skill if it is installed; it implements these rules. Otherwise apply them directly:
 
-* **Fixed bills (R10):** target = the current bill from the contract. Never average.
+* **Fixed bills (R10):** target = the current bill from the contract. Never average. When a fixed bill's own CPI series fell over the year (car insurance in 2026), re-shop the contract instead of holding the target.
 * **Everything else (R11):** target = (last 12 months' net spend ÷ 12) × (1 + the category's 12-month CPI change), from the FRED series in `[cpi]`; all-items CPI for an unmapped category. Price a recurring payee that started or stopped inside the window from its current bill.
 * **Goal type (R12):** replay 12 months from a zero balance under refill-up-to and under set-aside; pick the one with fewer months where spend exceeded the available balance. Split a category whose parts need different types (R13).
 * **Raise (R17):** each category in `covered_often_raise_target` was covered at month end in at least `cover_raise_count` of the last `cover_lookback_months`; raise it now.
@@ -37,7 +37,7 @@ Look up the current year's limits on irs.gov on every run; never use remembered 
 
 * **401(k):** the elective-deferral limit, plus the catch-up for the user's age. Employer match does not count against the elective-deferral limit.
 * **IRA:** the contribution limit across all of a person's traditional and Roth IRAs, and the Roth income phase-out for the filing status. Contributions for a year are allowed until that year's filing deadline in April.
-* **HSA:** the limit for the coverage tier (self-only or family) plus the 55+ catch-up. **Employer contributions count toward the limit.** An excess owes a 6% excise each year unless it and its earnings are withdrawn by the return's due date, including extensions (IRS Pub 969). If the tier is unknown, say both answers and ask the user to check the plan election.
+* **HSA:** the limit for the coverage tier (self-only or family) plus the 55+ catch-up. **Employer contributions count toward the limit.** An excess owes a 6% excise each year unless it and its earnings are withdrawn by the return's due date, including extensions (IRS Pub 969). If the tier is unknown, say both answers and ask the user to check the plan election. Medical spending paid from the budget rather than the HSA (`medical_spend_window`, the window total of the `[roles] medical` categories) can be reimbursed tax-free later; Pub 969 sets no deadline for expenses incurred after the HSA was opened. Report the amount and tell the user to keep the receipts.
 
 Projected year total = year-to-date (from the latest paystub; YNAB does not see payroll deductions) + per-paycheck amount × paychecks left in the calendar year. Count paychecks left from a known pay date and `pay_frequency`. Report room left and the per-paycheck change that lands on the limit. For a category in `paused`, report the unused room and its deadline only; do not push to resume it. `retirement_categories_ytd` shows contributions made through the budget.
 
@@ -71,6 +71,7 @@ List every item with a date, nearest first:
 * **IRA contributions:** the April filing deadline for last year's room.
 * **Tax balance:** April 15.
 * **Large deposits before a mortgage application (R21):** when `profile.md` describes a planned purchase, every deposit above 50% of monthly qualifying income needs a documented source (Fannie Mae B3-4.2-02). Name each such transfer in the last two statement cycles.
+* **Credit file before a mortgage application:** when profile.md describes a planned purchase, flag any card opened in the last 12 months, report each card's balance at statement close against 10% of its limit (myFICO: under 10% "can help"), and remind the user that lender pulls inside a 45-day window count as one inquiry (CFPB). Pay cards before the statement closes in the two or three months before applying.
 
 ## Report
 

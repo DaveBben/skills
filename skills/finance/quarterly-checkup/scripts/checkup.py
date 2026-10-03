@@ -156,6 +156,7 @@ def scan(cfg):
                                                    if p.get("category_id") == cats[n]["id"]))
                                       for n in names(cfg, "retirement") if n in cats},
         "covered_often_raise_target": covered,
+        "medical_spend_window": money(sum(spend[n] for n in names(cfg, "medical"))),
     }, indent=2))
 
 

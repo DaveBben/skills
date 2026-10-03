@@ -85,4 +85,5 @@ The $400, 6 payments, 25%, 0.7, 2 overruns, 70% and 3 months are household choic
 * **Write the note first.** Before the first transaction lands, write what the category includes, what it excludes, and its payees.
 * **Merging:** rename the absorbed category `Old (-> New)` and hide it, so its history folds into `New` for target derivation.
 * **Creating:** `POST /budgets/{id}/categories` needs a name and a group id. Category order and group order cannot be set through the API; the user arranges them in the app.
+* **Order groups by funding priority** in the app: contract bills, then true-expense and bill funds, then savings goals, then wants. Practitioner consensus (YNAB, Ramsey), no study; it puts obligations above the categories money is taken from first.
 * **Confirm every write with the user first**, and re-derive the targets of every category the change touched.

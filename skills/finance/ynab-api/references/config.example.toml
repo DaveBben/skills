@@ -22,6 +22,7 @@ savings_goals = ["Vacation"]                         # balance or dated goals, s
 trial_category = ""                                  # optional practice-payment category; "" when unused
 retirement = ["Roth IRA"]                            # never a source for covering overspending
 paused = []                                          # categories payday must not fund; they also stay in their role list above
+medical = ["Medical"]                                # medical spending the HSA could reimburse; also stays in its role list above
 
 [cover_order]
 steps = ["wants", "trial_category", "emergency_fund", "bill_funds"]

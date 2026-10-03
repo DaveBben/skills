@@ -108,7 +108,7 @@
       "name": "finance",
       "source": "./plugins/finance",
       "description": "Skills for running a YNAB budget by evidence-backed rules, with personal settings kept outside the repo. ynab-api reads and writes YNAB without its silent traps. budget-targets derives each category target from the current bill or the price-adjusted 12-month spend rate. category-fit decides whether spending needs its own category. monthly-close covers overspending in a fixed order, checks card payment categories, judges a practice mortgage payment and records each cover. payday assigns a paycheck by priority and routes third paychecks and bonuses to goals. quarterly-checkup re-prices targets, paces 401(k), IRA and HSA contributions against current IRS limits, estimates the April tax bill and flags deadlines.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "license": "MIT",
       "skills": [
         "./skills/ynab-api",

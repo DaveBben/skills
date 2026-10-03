@@ -43,7 +43,7 @@ def load_config(d):
 def role_map(cfg):
     out = {}
     for role, v in cfg.get("roles", {}).items():
-        if role == "paused":          # a funding flag; the category keeps its real role
+        if role in ("paused", "medical"):   # flags; the category keeps its real role
             continue
         for n in ([v] if isinstance(v, str) else v):
             if n:
@@ -127,11 +127,12 @@ def build(data):
 
 
 def monthly(lines):
-    """Net spend per category per month, positive is spending, net-inflow months clamped to 0."""
+    """Net spend per category per month, positive is spending. Not clamped: a payback
+    landing a month after its purchase makes that month negative, and the rate keeps it."""
     net = defaultdict(lambda: defaultdict(float))
     for d, n, a in lines:
         net[n][d[:7]] -= a
-    return {n: {m: max(0.0, v) for m, v in ms.items()} for n, ms in net.items()}
+    return {n: dict(ms) for n, ms in net.items()}
 
 
 def window(today, n):
@@ -207,14 +208,17 @@ def derive(name, role, ser, today, months, long_months, change):
                  type="refill-up-to" if period == 1 else "set-aside", largest=bill, miss=0.0,
                  note=f"latest bill ${bill:,.2f} in {last_m}, every {period} mo; confirm against the contract")
         return r
-    vals = [ser.get(m, 0.0) for m in window(today, months)]
-    if sum(1 for v in vals if v > 0) < 2:                 # DT-1: rare funds need a longer window
-        vals = [ser.get(m, 0.0) for m in window(today, long_months)]
-        if sum(1 for v in vals if v > 0) < 2:
+    raw = [ser.get(m, 0.0) for m in window(today, months)]
+    if sum(1 for v in raw if v > 0) < 2:                  # DT-1: rare funds need a longer window
+        raw = [ser.get(m, 0.0) for m in window(today, long_months)]
+        if sum(1 for v in raw if v > 0) < 2:
             return dict(r, kind="by hand", note=f"fewer than two spending months in {long_months}; "
                         "set from the expected bill and its date")
         r["note"] = f"{long_months}-month window (rare spending)"
-    target = to5(sum(vals) / len(vals) * (1 + change))    # R11
+    # R11: the rate sums unclamped months, so a payback in a later month offsets its purchase;
+    # the replay and largest month use months clamped at 0
+    target = to5(max(0.0, sum(raw)) / len(raw) * (1 + change))
+    vals = [max(0.0, v) for v in raw]
     first = next(i for i, v in enumerate(vals) if v > 0)
     if first >= len(vals) // 3:
         r["note"] += (f"; first spend in month {first + 1} of {len(vals)}: if the category is newer "
@@ -397,6 +401,12 @@ def selftest():
     r = derive("New", "steady", late, today, 12, 36, 0.0)
     assert r["target"] == to5(400 / 12) and "first spend" in r["note"]
 
+    # R11: a payback landing the month after its purchase offsets it in the rate
+    dining = {m: 100.0 for m in m12}
+    dining[m12[5]], dining[m12[6]] = 300.0, -100.0       # $200 paid back next month
+    r = derive("Dining", "wants", dining, today, 12, 36, 0.0)
+    assert r["target"] == 100 and r["largest"] == 300.0, r
+
     # DT-4: CPI from a FRED CSV raises the target
     fred = "observation_date,X\n2025-08-01,100.0\n2025-09-01,.\n2026-08-01,103.0\n"
     ch, last = yoy(fred)
@@ -424,7 +434,7 @@ def selftest():
         changes({"kind": "derived", "target": 100, "type": "set-aside"},
                 {"goal_type": "NEED", "goal_target": 100000, "goal_cadence": 1,
                  "goal_needs_whole_amount": True}) == []
-    print("selftest ok: DT-1 DT-2 DT-3 DT-4 DT-5 DT-6")
+    print("selftest ok: DT-1 DT-2 DT-3 DT-4 DT-5 DT-6 R11-payback")
 
 
 # ---- main ----------------------------------------------------------------

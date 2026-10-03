@@ -49,7 +49,7 @@ def load_config(d):
 def role_map(cfg):
     out = {}
     for role, v in cfg.get("roles", {}).items():
-        if role == "paused":          # a funding flag; the category keeps its real role
+        if role in ("paused", "medical"):   # flags; the category keeps its real role
             continue
         for n in ([v] if isinstance(v, str) else v):
             if n:
@@ -130,11 +130,12 @@ def window(today, n):
 
 
 def series(lines, win):
-    """Net monthly spend over the window, positive is spending, net-inflow months clamped to 0."""
+    """Net monthly spend over the window, positive is spending. Not clamped, so a payback
+    landing a month after its purchase offsets it in every rate."""
     net = defaultdict(float)
     for d, _, a, *_ in lines:
         net[d[:7]] -= a
-    return [max(0.0, net[m]) for m in win]
+    return [net[m] for m in win]
 
 
 # ---- tests ---------------------------------------------------------------
@@ -151,9 +152,10 @@ def uncovered(vals, target, set_aside):
 def goal_type(vals):
     """R12 at the spend rate: set-aside if it leaves fewer months uncovered, refill-up-to
     if refill leaves none, otherwise "undecided" (both types miss the same months)."""
-    rate = sum(vals) / len(vals) if vals else 0.0
+    rate = max(0.0, sum(vals)) / len(vals) if vals else 0.0
     if not rate:
         return None
+    vals = [max(0.0, v) for v in vals]       # the replay spends no negative month
     sa, rf = uncovered(vals, rate, True), uncovered(vals, rate, False)
     return "set-aside" if sa < rf else "refill-up-to" if rf == 0 else "undecided"
 
@@ -456,6 +458,10 @@ def selftest():
     assert series(lines, win12)[win12.index("2026-05")] == 400.0
     assert abs(sinking_test(lines, 12)[1] - 400.0) < 1e-9
 
+    # a payback landing the month after its purchase offsets it in the split rate
+    dinner = [ln(f"{win12[4]}-28", "Food", -300.0, "Group dinner"), ln(f"{win12[5]}-02", "Food", 200.0, "Group dinner")]
+    assert abs(split_test(dinner, [], win12)[2] - 100 / 12) < 1e-9
+
     # R13 split: a lumpy part inside a steady category splits; a steady part does not
     care = [ln(f"{m}-03", "Care", -60.0, "Pharmacy") for m in win12]
     clothes = [ln(f"{win12[i]}-15", "Care", -a, "Clothing Store") for i, a in ((5, 250.0), (11, 300.0))]
@@ -466,7 +472,7 @@ def selftest():
     vals = [0.0] * 12
     assert underspending({"goal_type": "NEED", "goal_target": 100000, "goal_needs_whole_amount": False}, vals)
     assert not underspending({"goal_type": "NEED", "goal_target": 100000, "goal_needs_whole_amount": True}, vals)
-    print("selftest ok: CF-1 CF-2 CF-3 CF-4 CF-5 CF-6 R13 R18")
+    print("selftest ok: CF-1 CF-2 CF-3 CF-4 CF-5 CF-6 R13 R18 payback")
 
 
 def main():
