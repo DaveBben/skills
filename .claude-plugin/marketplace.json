@@ -4,7 +4,7 @@
   "owner": {
     "name": "DaveBben"
   },
-  "description": "Dave's personal collection of Claude Code plugins, one per area of life. Install the ones you want. The SDLC plugin takes an engineering change from a vague ask to a verified production change; more areas (finance, fitness) are on the way.",
+  "description": "Dave's personal collection of Claude Code plugins, one per area of life. Install the ones you want. The SDLC plugin takes an engineering change from a vague ask to a verified production change; the finance plugin runs a YNAB budget by evidence-backed rules; more areas (fitness) are on the way.",
   "plugins": [
     {
       "name": "SDLC",
@@ -99,6 +99,24 @@
       "license": "MIT",
       "skills": [
         "./skills/markdown-files"
+      ],
+      "author": {
+        "name": "DaveBben"
+      }
+    },
+    {
+      "name": "finance",
+      "source": "./plugins/finance",
+      "description": "Skills for running a YNAB budget by evidence-backed rules, with personal settings kept outside the repo. ynab-api reads and writes YNAB without its silent traps. budget-targets derives each category target from the current bill or the price-adjusted 12-month spend rate. category-fit decides whether spending needs its own category. monthly-close covers overspending in a fixed order, checks card payment categories, judges a practice mortgage payment and records each cover. payday assigns a paycheck by priority and routes third paychecks and bonuses to goals. quarterly-checkup re-prices targets, paces 401(k), IRA and HSA contributions against current IRS limits, estimates the April tax bill and flags deadlines.",
+      "version": "0.1.0",
+      "license": "MIT",
+      "skills": [
+        "./skills/ynab-api",
+        "./skills/budget-targets",
+        "./skills/category-fit",
+        "./skills/monthly-close",
+        "./skills/payday",
+        "./skills/quarterly-checkup"
       ],
       "author": {
         "name": "DaveBben"
