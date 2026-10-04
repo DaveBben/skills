@@ -229,6 +229,30 @@ def self_test():
     open(f"{t}/Swift/AppTests/TotalTests.swift", "w").write('@Test func total() {\n    #expect(f() == 3)\n}\n')
     assert check("git commit -am x", t), "changing the expectation while removing the wrapper"
     run("git", "checkout", "-q", "--", "Swift/AppTests/TotalTests.swift")
+
+    def hook(cmd):  # the guard as Claude Code runs it: hook input on stdin, decision on stdout
+        inp = json.dumps({"hook_event_name": "PreToolUse", "tool_name": "Bash", "tool_input": {"command": cmd}, "cwd": t})
+        out = subprocess.run([sys.executable, os.path.abspath(__file__)], input=inp, cwd=t, capture_output=True, text=True).stdout
+        return json.loads(out)["hookSpecificOutput"] if out.strip() else None
+
+    def asks(reason):
+        return bool(reason) and "unlock" in reason.lower() and "accepted tests" in reason and "approve" in reason.lower() and "wrong" in reason
+
+    lock = "branch.story/f/K-1-x.redCommit"
+    open(f"{t}/tests/test_a.py", "w").write("y\n")
+    out = hook(f"git commit -am x && git config --unset-all {lock}")
+    assert out and out["permissionDecision"] == "deny", "a locked test commit that also unlocks is denied, not asked"
+    run("git", "checkout", "-q", "--", "tests/test_a.py")
+    assert hook(f"git config --add {lock} abc123") is None, "adding a lock prints nothing"
+    out = hook(f"git config --unset-all {lock}")
+    assert out and out["permissionDecision"] == "ask" and asks(out.get("permissionDecisionReason")), "unsetting the lock asks the user"
+    for cmd in (f"git config --unset-all {lock}", f"git config --unset {lock}",
+                f"git config --replace-all {lock} abc123", f"git config unset --all {lock}",
+                "git config --remove-section branch.story/f/K-1-x", f"git config {lock} abc123",
+                f"git -C /some/path config --unset-all {lock}", f"cd /tmp && git config --unset-all {lock}"):
+        assert asks(unlock(cmd)), f"{cmd} removes or replaces the lock"
+    for cmd in (f"git config --get-all {lock}", f"git config --add {lock} abc123", "git config --unset-all user.email"):
+        assert unlock(cmd) is None, f"{cmd} leaves the lock in place"
     print("self-test passed")
 
 
