@@ -33,6 +33,7 @@ Write one numbered line per test:
 ```
 
 * **One test per example under each rule:** a rule with no example gets one test with values you choose from its words. Add a further test only where it rejects a wrong implementation the others pass.
+* **A rule over a range:** test it with at least two different values, or with a property test, so code that returns the expected value for one input fails.
 * **Property test:** where an acceptance criterion states a rule over a range of inputs or an invariant (loading twice leaves the same rows, parsing then printing returns the input), and the repository already has a property-testing library such as Hypothesis or fast-check, add one property test of that rule beside its example tests.
 * **Interface:** test only through the interface you were given or one that already exists. Never invent a public name, argument or type.
 * **Level:** test each example at the lowest level whose interface shows its result. An end-to-end test covers a whole journey a person takes, and it sets up its data through the API or the database, never the UI.

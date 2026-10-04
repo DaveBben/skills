@@ -13,7 +13,10 @@ Denies, with a message saying what to do instead:
     expected-fail marker: that test's criterion is not built;
   * a commit whose directory the guard cannot resolve (an unset $VAR).
 
-The guard reads the hook input on stdin and prints a deny decision, or nothing.
+Asks the user, who approves only when they agreed a test is wrong, before a git config command
+that removes or replaces a branch's redCommit lock.
+
+The guard reads the hook input on stdin and prints a deny or ask decision, or nothing.
 Registered by the SDLC plugin's hooks.json, so it runs for the main session and
 for subagents. Run with --self-test to check it.
 """
@@ -125,8 +128,19 @@ def check(cmd, cwd):
 
 
 def unlock(cmd):
-    """The reason to ask the user before a command that removes or replaces a branch's redCommit lock, else None."""
-    raise NotImplementedError
+    """The reason to ask the user before a command that removes or replaces a branch's redCommit lock, else None.
+
+    Any git config call naming a redCommit key (any case) that only reads or --adds is allowed; every other
+    spelling (--unset, unset --all, --replace-all, set, a plain set) asks, as does removing or renaming a
+    branch section."""
+    for args in re.findall(GIT + r"config\b([^;&|]*)", cmd):
+        section = re.search(r"(^|\s)-*(remove|rename)-section\s+branch\.", args, re.I)
+        key = re.search(r"\bbranch\.\S+\.redcommit\b", args, re.I)
+        reads = re.search(r"(^|\s)(--get(-all|-regexp)?|get|--list|-l|list|--add)(\s|$)", args)
+        if section or (key and not reads):
+            return ("This command unlocks the story's accepted tests. Approve it only if you agreed a test is "
+                    "wrong; otherwise deny it, and the agent must report the test it cannot satisfy.")
+    return None
 
 
 def main():
@@ -136,10 +150,13 @@ def main():
         return
     if inp.get("tool_name") != "Bash":
         return
-    reason = check((inp.get("tool_input") or {}).get("command", ""), inp.get("cwd") or os.getcwd())
+    cmd = (inp.get("tool_input") or {}).get("command", "")
+    reason = check(cmd, inp.get("cwd") or os.getcwd())
+    decision = "deny" if reason else "ask"
+    reason = reason or unlock(cmd)
     if reason:
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse",
-                                                 "permissionDecision": "deny",
+                                                 "permissionDecision": decision,
                                                  "permissionDecisionReason": reason}}))
 
 

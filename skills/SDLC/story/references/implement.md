@@ -1,7 +1,7 @@
 # Implement a story
 
 * **Check command:** the `Full check:` line of `AGENTS.md`, else its `Check:` line, else what CI runs, else the README's test command.
-* **The guard:** [../scripts/guard.py](../scripts/guard.py), a hook on shell commands. It refuses a merge, a commit that changes a locked test other than by removing its expected-fail marker, and a pull request while a red test still carries that marker. It runs only where the SDLC plugin's hooks run; elsewhere these rules hold without it.
+* **The guard:** [../scripts/guard.py](../scripts/guard.py), a hook on shell commands. It refuses a merge, a commit that changes a locked test other than by removing its expected-fail marker, and a pull request while a red test still carries that marker. It asks the user before a command removes or replaces the tests' lock. It runs only where the SDLC plugin's hooks run; elsewhere these rules hold without it.
 * **The `test-author` agent:** `SDLC:test-author` where the harness loads named agents, otherwise a general subagent told to follow `../agents/test-author.md` beside this skill's folder. Launch it fresh each time.
 * **A fix with no story:** its reproduction is the one acceptance criterion; give `test-author` that line as the story.
 * **No behaviour change:** skip steps 2 and 3. Where no test covers the code touched, commit tests that pin its current behaviour first. Run step 7 with the one criterion "every existing test passes unchanged".
@@ -23,7 +23,7 @@
    * Remove a test's expected-fail marker once the code makes it pass; the strict marker fails the run until you do.
    * Change only what the acceptance criteria need. Add no config with one value, no interface with one implementation, and no retry, cache or flag no criterion names. The exception is an adapter around a service outside the repository, which tests double in place of that service.
    * A test you cannot satisfy for a reason that holds against the code is a stop: report the test and the reason to the user, and change nothing in it.
-   * A test the user agrees is wrong: save `git config --get-all branch.<branch>.redCommit`, run `git config --unset-all branch.<branch>.redCommit`, and give `test-author` the test, the correction and the saved hashes. It commits the corrected test and locks it and each earlier red commit again.
+   * A test the user agrees is wrong: save `git config --get-all branch.<branch>.redCommit`, run `git config --unset-all branch.<branch>.redCommit`, which the user approves where the guard asks, and give `test-author` the test, the correction and the saved hashes. It commits the corrected test and locks it and each earlier red commit again.
 5. **Green:** run the check command. The whole suite must pass, not only the new tests, and no red test may still carry a marker.
    * Run the new test files five more times. A test whose result changes is flaky: report it to the user as a test to correct, by the step 4 path for a test the user agrees is wrong.
 6. **Refactor** inside the diff with every test green, then run the check command again.

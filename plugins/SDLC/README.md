@@ -121,7 +121,7 @@ The six skills surface under their own names.
 
 The plugin also installs hooks:
 
-* **The guard:** a hook runs story's `scripts/guard.py` before a shell command containing `git`, `merge` or `create`. It refuses a merge, a commit that changes a locked test other than by removing its expected-fail marker, and opening a pull request while a red test keeps its marker.
+* **The guard:** a hook runs story's `scripts/guard.py` before a shell command containing `git`, `merge` or `create`. It refuses a merge, a commit that changes a locked test other than by removing its expected-fail marker, and opening a pull request while a red test keeps its marker. It asks you before a command removes or replaces the tests' lock, so an agent cannot unlock them alone.
 
 It installs three named agents: `SDLC:test-author`, `SDLC:review` and `SDLC:verify`. Each agent file is that agent's whole prompt, at `skills/SDLC/agents/`, linked into the plugin by the `agents` symlink. `story` runs `review-code` on each story it builds, as you do on merge requests, your own code and designs, so every review is the same review.
 
