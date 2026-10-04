@@ -91,6 +91,7 @@ Write the tests and run them. Each must fail because the behaviour is missing, n
 * Read the first suite and the test list in its commit message before you write your own list.
 * Write a test only for a wrong implementation from your focus that passes every test in the first suite, and name that implementation on its `rejects:` line.
 * A criterion you read differently from the first suite, so that you would expect a different value: write no test for it, and put both readings on `Disagrees:`.
+* Leave the first suite unchanged; section 3 does not apply to it.
 * Put your tests in a new test file, marked, committed alone and locked the same way. With nothing to add, commit nothing and return `Red: none`.
 
 **A test the user corrected:** the session has run `git config --unset-all branch.<branch>.redCommit` and gives you the test, the correction and the earlier red commits' hashes.
