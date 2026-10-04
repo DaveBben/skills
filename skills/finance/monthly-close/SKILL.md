@@ -1,10 +1,10 @@
 ---
 name: monthly-close
-description: "Use this skill at the start of each month, or whenever the user says 'close the month', 'month-end review', 'close out September', 'I overspent', 'a category went negative', 'cover my overspending', or 'did the practice payment pass this month'. Closes the previous month of a YNAB budget: covers negative categories in the user's configured order (never from the surprise fund, a card payment category or retirement), checks each card payment category against its card balance, judges the practice-payment trial, records each cover, flags sign-flipped duplicate imports, records two monthly measurements and writes a dated close report. Writes to YNAB only after the user confirms."
+description: "Use this skill on the last day or two of each month, or whenever the user says 'close the month', 'month-end review', 'close out September', or 'did the practice payment pass this month'. Closes the current month of a YNAB budget before it rolls over: covers any remaining negative categories in the user's configured order (never from the surprise fund, a card payment category or retirement), checks each card payment category against its card balance, judges the practice-payment trial, records each cover, flags sign-flipped duplicate imports, records two monthly measurements and writes a dated close report. Writes to YNAB only after the user confirms."
 license: MIT
 compatibility: Needs Python 3.11+, network access to api.ynab.com and a YNAB personal access token.
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # Monthly close
@@ -17,20 +17,22 @@ For YNAB API mechanics (milliunits, the 200-requests-per-hour limit, truncated t
 
 Personal settings live outside this skill, in the directory named by the `FINANCE_CONFIG_DIR` environment variable, default `~/.config/finance/`. Read both files before advising. When the directory or `config.toml` is missing, tell the user the path you checked and stop.
 
-* **`config.toml`:** `[ynab]` `budget_id` and `keychain_service` (the keychain entry holding the token; never print the token). `[income]` `pay_frequency`, `base_monthly` (the income the month is budgeted on), `bonus_months`. `[roles]` maps category names to roles: `fixed`, `steady`, `bill_funds`, `wants`, `savings_goals`, `retirement` (lists); `surprise_fund`, `emergency_fund`, `trial_category` (strings; `trial_category` is optional). `[cover_order] steps` is the R14 order, default `["wants", "trial_category", "emergency_fund", "bill_funds"]`. `[scripts]` holds the window (`months`) and the household-choice thresholds the rules mark as configurable.
+* **`config.toml`:** `[ynab]` `budget_id` and `keychain_service` (the keychain entry holding the token; never print the token). `[income]` `pay_frequency`, `base_monthly` (the income the month is budgeted on), `bonus_months`. `[roles]` maps category names to roles: `fixed`, `steady`, `bill_funds`, `wants`, `savings_goals`, `retirement` (lists); `surprise_fund`, `emergency_fund`, `trial_category` (strings; `trial_category` is optional); an optional `paused` list, never a cover source. `[cover_order] steps` is the R14 order, default `["wants", "trial_category", "emergency_fund", "bill_funds"]`. `[scripts]` holds the window (`months`) and the household-choice thresholds the rules mark as configurable.
 * **`profile.md`:** free-text household context. It overrides a default in this skill when the two conflict; say so.
 * **`history/`:** dated reports these skills write. Read the earlier `*-close.md` files before judging the trial.
 
 ## Close the month
 
-The month to close is the previous calendar month unless the user names one. YNAB lets you change assignments in a past month, so cover inside the month being closed.
+Close the current calendar month on its last day or two, before it rolls over. At the rollover YNAB resets every negative category to zero: uncovered cash overspending is subtracted from next month's Ready to Assign, and uncovered credit-card overspending stays on the card as debt the card payment category does not cover. YNAB's own guide advises against editing a past month to undo this.
 
-1. **Scan.** Run `python3 scripts/close.py scan --month YYYY-MM`. It is read-only and returns JSON: negative categories, a proposed cover plan, card checks, trial facts, possible duplicate imports and the R29 numbers. Run `scripts/close.py --help` for the rest.
-2. **Cover negatives (R14).** The plan draws from the `cover_order` steps in order and stops at the first source that covers each negative. The script refuses a `cover_order` step outside the four allowed roles. Check the plan against these, whatever the script proposed:
+If the user asks to close a month that has already rolled over, `close.py` prints a warning. Pass it on: YNAB advises against editing a past month, and that month's card overspending is now card debt to fund in the current month's card payment category. Still judge the trial and write the report for that month, but propose no covers inside it.
+
+1. **Scan.** Run `python3 scripts/close.py scan` (the current month; `--month YYYY-MM` for another). It is read-only and returns JSON: negative categories, a proposed cover plan, card checks, trial facts, possible duplicate imports and the R29 numbers. Run `scripts/close.py --help` for the rest.
+2. **Cover any remaining negatives (R14).** The plan draws from the `cover_order` steps in order and stops at the first source that covers each negative. The script refuses a `cover_order` step outside the four allowed roles. Check the plan against these, whatever the script proposed:
    * **Never cover from the surprise fund** for a routine overspend. A routine overspend is a category that ran over its own target on ordinary spending. The surprise fund is for charges nobody could forecast (R15).
    * **A want category overspent on group bills** (memos such as "paid for everyone", paybacks arriving later) is not a target problem. Suggest paying only your own share: in a restaurant field experiment with groups of strangers, diners ordered 36% more when the bill was split evenly than when each paid alone (Gneezy, Haruvy & Yafe 2004). Grade B; friends may differ.
    * **Never move money out of a credit-card payment category.** In YNAB that money is already owed on the card; moving it creates card debt.
-   * **Never cover from a retirement category** (R3).
+   * **Never cover from a retirement category** (R3), and skip any category in the optional `[roles] paused` list.
    * **A draw from the trial category** is step 2 and fails this month's trial (criterion c). A draw from the emergency fund needs a repayment line in next month's plan, ranked above every want (R16).
    * **Anything still uncovered** after every step: report it and ask. Do not reach for a forbidden source.
 3. **Check card payment categories.** Each `cards` row with `ok: false` is a card whose payment category holds less than the card balance. Propose assigning the gap from Ready to Assign or a step-1 want category before the statement is due. A negative `owed` is a credit on the card.
@@ -51,7 +53,7 @@ The month to close is the previous calendar month unless the user names one. YNA
 
 Show the full set of proposed writes as one table (moves, note lines, deletes, card top-ups) and get the user's approval first. Then:
 
-* **Moves and note lines:** save the approved `proposed_plan` (edited as agreed) to a file and run `python3 scripts/close.py apply plan.json`, which prints a dry run, then again with `--confirm`. It refuses a move out of the surprise fund, a retirement category or a card payment category.
+* **Moves and note lines:** save the approved `proposed_plan` (edited as agreed) to a file and run `python3 scripts/close.py apply plan.json`, which prints a dry run, then again with `--confirm`. It refuses a move out of the surprise fund, a retirement, card payment or paused category.
 * **A confirmed duplicate:** `python3 scripts/close.py delete-txn <id>`, then with `--confirm`.
 * **YNAB MCP servers:** some can only set a month's assigned amount and cannot write a category note or delete a transaction. Use them for moves if you like, and use the script for the rest. If neither path can write a note, put the R17 lines in the close report instead.
 

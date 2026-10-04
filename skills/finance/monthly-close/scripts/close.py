@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Month-end close for a YNAB budget.
 
-  close.py scan [--month YYYY-MM]          read-only report as JSON (default: last month)
+  close.py scan [--month YYYY-MM]          read-only report as JSON (default: the current month)
   close.py apply plan.json [--confirm]     move assigned money and append note lines
   close.py delete-txn <id> [--confirm]     delete one transaction (a confirmed duplicate)
   close.py --selftest                      check the cover logic offline
@@ -9,6 +9,8 @@
 Settings: $FINANCE_CONFIG_DIR/config.toml, default ~/.config/finance/config.toml.
 Token: $YNAB_ACCESS_TOKEN, else the macOS keychain service named in [ynab] keychain_service.
 Writes run only with --confirm; without it they print what they would do.
+Run on the last day or two of the month: once a month has rolled over, YNAB has already turned
+its uncovered overspending into card debt or a cut to next month's Ready to Assign.
 """
 import argparse
 import datetime as dt
@@ -85,7 +87,23 @@ def by_name(cats):
 
 
 def protected_names(cfg, card_names):
-    return set(names(cfg, "surprise_fund")) | set(names(cfg, "retirement")) | set(card_names)
+    """Categories that are never a cover source."""
+    return (set(names(cfg, "surprise_fund")) | set(names(cfg, "retirement"))
+            | set(names(cfg, "paused")) | set(card_names))
+
+
+def this_month(today=None):
+    return (today or dt.date.today()).strftime("%Y-%m")
+
+
+def rollover_warning(month, today=None):
+    """A warning when the month has already rolled over, else None."""
+    if month >= this_month(today):
+        return None
+    return (f"{month} has already rolled over. YNAB advises against editing a past month: its uncovered "
+            "cash overspending was already taken from the next month's Ready to Assign, and its uncovered "
+            "credit-card overspending is now card debt. Fund that debt in the current month's card payment "
+            "category instead of covering inside the past month.")
 
 
 def cover_plan(cats, cfg, card_names=()):
@@ -170,6 +188,9 @@ def scan(cfg, month):
     sc = cfg.get("scripts", {})
     window = sc.get("months", 12)
     lookback = sc.get("cover_lookback_months", 6)
+    warning = rollover_warning(month)
+    if warning:
+        print(f"WARNING: {warning}", file=sys.stderr)
     mdata = api(cfg, "GET", f"/months/{month}-01")["month"]
     cats = [c for c in mdata["categories"] if not c.get("deleted")]
     groups = api(cfg, "GET", "/categories")["category_groups"]
@@ -216,6 +237,7 @@ def scan(cfg, month):
 
     report = {
         "month": month,
+        "rollover_warning": warning,
         "ready_to_assign": money(mdata["to_be_budgeted"]),
         "negative_categories": [{"category": c["name"], "balance": money(c["balance"]), "hidden": c.get("hidden")}
                                 for c in cats if c["balance"] < 0],
@@ -243,13 +265,16 @@ def apply(cfg, plan, confirm):
     month = plan["month"]
     if not re.fullmatch(r"\d{4}-\d{2}", month):
         sys.exit("plan month must be YYYY-MM")
+    warning = rollover_warning(month)
+    if warning:
+        print(f"WARNING: {warning}", file=sys.stderr)
     groups = api(cfg, "GET", "/categories")["category_groups"]
     cards = {c["name"] for g in groups if g["name"] == CARD_GROUP for c in g["categories"]}
     cat = by_name([c for g in groups for c in g["categories"]])
     protected = protected_names(cfg, cards)
     for mv in plan.get("moves", []):
         if mv["from"] in protected:
-            sys.exit(f"Refusing: {mv['from']} is a surprise, retirement or card payment category.")
+            sys.exit(f"Refusing: {mv['from']} is a surprise, retirement, card payment or paused category.")
         for n in (mv["from"], mv["to"]):
             if n not in cat:
                 sys.exit(f"No category named {n!r}.")
@@ -283,9 +308,10 @@ def delete_txn(cfg, tid, confirm):
 
 
 def selftest():
-    cfg = {"roles": {"wants": ["Fun", "Food"], "trial_category": "Trial", "emergency_fund": "EF",
-                     "bill_funds": ["Bills"], "surprise_fund": "Oops", "retirement": ["IRA"]}}
+    cfg = {"roles": {"wants": ["Fun", "Food", "Gear"], "trial_category": "Trial", "emergency_fund": "EF",
+                     "bill_funds": ["Bills"], "surprise_fund": "Oops", "retirement": ["IRA"], "paused": ["Gear"]}}
     cats = [{"name": "Food", "balance": -50_000, "budgeted": 100_000},
+            {"name": "Gear", "balance": 70_000, "budgeted": 0},
             {"name": "Fun", "balance": 20_000, "budgeted": 20_000},
             {"name": "Trial", "balance": 500_000, "budgeted": 10_000},
             {"name": "EF", "balance": 900_000, "budgeted": 0},
@@ -306,22 +332,31 @@ def selftest():
     assert [[p[0]["id"], p[1]["id"]] for p in find_duplicates(tx, "2026-01-01")] == [["a", "b"]]
     assert month_list("2026-02", 3) == ["2025-12", "2026-01", "2026-02"]
     assert note_cover_count("2026-01: target $1, spent $2, covered $1 from Fun\nother", ["2026-01"]) == 1
+    today = dt.date(2026, 10, 30)
+    assert this_month(today) == "2026-10"
+    assert rollover_warning("2026-10", today) is None
+    assert "rolled over" in rollover_warning("2026-09", dt.date(2026, 10, 1))
+    assert build_parser().parse_args(["scan"]).month == this_month()
     print("selftest ok")
 
 
-def main():
+def build_parser():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--selftest", action="store_true", help="offline check, no network")
     sub = p.add_subparsers(dest="cmd")
     s = sub.add_parser("scan")
-    last = (dt.date.today().replace(day=1) - dt.timedelta(days=1)).strftime("%Y-%m")
-    s.add_argument("--month", default=last)
+    s.add_argument("--month", default=this_month(), help="month to close, default the current month")
     a = sub.add_parser("apply")
     a.add_argument("plan")
     a.add_argument("--confirm", action="store_true")
     d = sub.add_parser("delete-txn")
     d.add_argument("id")
     d.add_argument("--confirm", action="store_true")
+    return p
+
+
+def main():
+    p = build_parser()
     args = p.parse_args()
     if args.selftest:
         return selftest()

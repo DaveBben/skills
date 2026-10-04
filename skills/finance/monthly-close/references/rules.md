@@ -37,7 +37,7 @@ When a rule and a grade A source disagree, the source wins. Say so to the user.
 
 ## Overspending
 
-* **R14. Cover a routine overspend in the configured order, stopping at the first source that covers it:** The default order is:
+* **R14. Cover a routine overspend in the month it happens, in the configured order, stopping at the first source that covers it:** Cover before the month rolls over. At the rollover YNAB resets each negative category to zero: uncovered cash overspending is subtracted from next month's Ready to Assign, and uncovered credit-card overspending stays as card debt the card payment category does not cover. YNAB's guide advises against editing a past month, so a cover on the 1st is too late [OFF, YNAB]. The default order is:
   1. unspent money in want categories this month;
   2. this month's assignment to the trial category, which fails that trial month under R20;
   3. the emergency fund, with repayment scheduled under R16;
@@ -47,7 +47,7 @@ When a rule and a grade A source disagree, the source wins. Say so to the user.
   Group bills in a want category: diners ordered 36% more when a bill was split evenly than when each paid alone (Gneezy, Haruvy & Yafe 2004, restaurant field experiment with strangers) [STUDY-R]; suggest paying only your own share. Grade B.
 * **R15. Keep the surprise fund for surprises only:** Fund one surprise category. Each month, move any charge in it that recurred, or that was forecastable, to its own category. Source: Sussman & Alter 2012 on underestimating exceptional expenses [STUDY-R]; Cheema & Soman [STUDY-R]. Grade B.
 * **R16. Repay the emergency fund on a schedule:** After any draw, assign a fixed monthly repayment until the fund is back at target, and rank it above every want. The repayment period is a household choice (configurable, default 6 months). Source: [ARITH]. Grade C.
-* **R17. Record every cover; change targets only on the R11 schedule:** At month end, append a line to the covered category's note: month, target, spent, amount covered and the source category. Do not write a new target at month end. If a category was covered in 3 of the last 6 months (configurable), raise it at the next quarterly re-pricing. Source: [ARITH]. Grade C.
+* **R17. Record every cover; change targets only on the R11 schedule:** With each cover, append a line to the covered category's note: month, target, spent, amount covered and the source category. Do not write a new target when covering or closing a month. If a category was covered in 3 of the last 6 months (configurable), raise it at the next quarterly re-pricing. Source: [ARITH]. Grade C.
 * **R18. Lower a refill-up-to target that under-spends:** If a refill-up-to category spent under 70% of target for 3 straight months (both configurable), lower it to its spend rate at the next re-pricing. Do not apply this to set-aside funds. Source: [ARITH]; Zhang et al. on asymmetric adjustment [RULEBOOK]. Grade C.
 
 ## Savings goal held for a purchase, and the payment trial
@@ -83,5 +83,5 @@ When a rule and a grade A source disagree, the source wins. Say so to the user.
 
 ## Measurement
 
-* **R29. Record two numbers on the 1st of each month:** (1) trailing-3-month discretionary spend (want categories) per person, and (2) liquid emergency balance ÷ monthly essential outflow (after a home purchase: ÷ PITIA plus utilities). Source: [ARITH]. Grade C.
+* **R29. Record two numbers at each month's close:** (1) trailing-3-month discretionary spend (want categories) per person, and (2) liquid emergency balance ÷ monthly essential outflow (after a home purchase: ÷ PITIA plus utilities). Source: [ARITH]. Grade C.
 * **R30. Never apply script-derived targets unchecked:** Apply a derived target only after per-category confirmation, and refuse a refill-up-to target below the largest month in its window. Source: [ARITH]: an unchecked bulk apply once capped lumpy funds below their largest months and ignored merged-category history. Grade C.
