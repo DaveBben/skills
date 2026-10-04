@@ -13,7 +13,10 @@ Denies, with a message saying what to do instead:
     expected-fail marker: that test's criterion is not built;
   * a commit whose directory the guard cannot resolve (an unset $VAR).
 
-The guard reads the hook input on stdin and prints a deny decision, or nothing.
+Asks the user, who approves only when they agreed a test is wrong, before a git config command
+that removes or replaces a branch's redCommit lock.
+
+The guard reads the hook input on stdin and prints a deny or ask decision, or nothing.
 Registered by the SDLC plugin's hooks.json, so it runs for the main session and
 for subagents. Run with --self-test to check it.
 """
@@ -124,6 +127,77 @@ def check(cmd, cwd):
     return None
 
 
+SHELLS = {"sh", "bash", "zsh", "eval"}
+GIT_VALUED = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--super-prefix"}  # git options taking a value
+CONFIG_VALUED = {"-f", "--file", "--blob", "--type", "--default", "--value", "--comment"}
+CONFIG_READS = {"--get", "--get-all", "--get-regexp", "--get-urlmatch", "--list", "-l", "--add"}
+CONFIG_SUBS = {"get", "list", "set", "unset", "rename-section", "remove-section", "edit"}
+UNLOCK = ("This command unlocks the story's accepted tests. Approve it only if you agreed a test is "
+          "wrong; otherwise deny it, and the agent must report the test it cannot satisfy.")
+
+
+def segments(cmd):
+    """Each simple command in cmd as shell words: split at newlines and at ; & | ( ), with comments dropped."""
+    for line in cmd.splitlines():
+        lex = shlex.shlex(line, posix=True, punctuation_chars=True)
+        lex.whitespace_split = True
+        try:
+            toks = list(lex)
+        except ValueError:
+            toks = line.split()
+        seg = []
+        for t in toks + [";"]:
+            if t and set(t) <= set(";&|()"):
+                if seg:
+                    yield seg
+                seg = []
+            else:
+                seg.append(t)
+
+
+def unlock(cmd):
+    """The reason to ask the user before a command that removes or replaces a branch's redCommit lock, else None.
+
+    Reads the shell words of each git config call. It allows a read or an --add; it asks for --edit, for removing
+    or renaming a branch section, and for any other call whose key is a redCommit (any case), is built by the
+    shell ($ or a backtick), or is missing, as when xargs supplies it."""
+    for w in segments(cmd):
+        if os.path.basename(w[0]) in SHELLS and unlock(w[w.index("-c") + 1] if "-c" in w[:-1] else " ".join(w[1:])):
+            return UNLOCK
+        g = next((i for i, t in enumerate(w) if os.path.basename(t) == "git"), None)
+        if g is None:
+            continue
+        i, alias = g + 1, False
+        while i < len(w) and w[i].startswith("-"):
+            if w[i] == "-c" and re.match(r"alias\.[^=]+=.*\bconfig\b", w[i + 1] if i + 1 < len(w) else "", re.I):
+                alias = True
+            i += 2 if w[i] in GIT_VALUED else 1
+        if i >= len(w) or (w[i] != "config" and not alias):
+            continue
+        args, plain, it = set(w[i + 1:]), [], iter(w[i + 1:])
+        for a in it:
+            if a in CONFIG_VALUED:
+                next(it, None)
+            elif not a.startswith("-"):
+                plain.append(a)
+        sub = plain[0] if plain and plain[0] in CONFIG_SUBS else None
+        names = plain[1:] if sub else plain
+        if sub == "edit" or {"-e", "--edit"} & args:
+            return UNLOCK
+        if sub in ("remove-section", "rename-section") or {"--remove-section", "--rename-section"} & args:
+            if any(n.lower().startswith("branch.") or "$" in n or "`" in n for n in names[:1]):
+                return UNLOCK
+            continue
+        if sub in ("get", "list") or CONFIG_READS & args:
+            continue
+        key = names[0] if names else None
+        if key is None and (sub == "unset" or {"--unset", "--unset-all", "--replace-all"} & args):
+            return UNLOCK
+        if key and (re.fullmatch(r"branch\..+\.redcommit", key, re.I) or "$" in key or "`" in key):
+            return UNLOCK
+    return None
+
+
 def main():
     try:
         inp = json.load(sys.stdin)
@@ -131,10 +205,13 @@ def main():
         return
     if inp.get("tool_name") != "Bash":
         return
-    reason = check((inp.get("tool_input") or {}).get("command", ""), inp.get("cwd") or os.getcwd())
+    cmd = (inp.get("tool_input") or {}).get("command", "")
+    reason = check(cmd, inp.get("cwd") or os.getcwd())
+    decision = "deny" if reason else "ask"
+    reason = reason or unlock(cmd)
     if reason:
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse",
-                                                 "permissionDecision": "deny",
+                                                 "permissionDecision": decision,
                                                  "permissionDecisionReason": reason}}))
 
 
@@ -224,6 +301,30 @@ def self_test():
     open(f"{t}/Swift/AppTests/TotalTests.swift", "w").write('@Test func total() {\n    #expect(f() == 3)\n}\n')
     assert check("git commit -am x", t), "changing the expectation while removing the wrapper"
     run("git", "checkout", "-q", "--", "Swift/AppTests/TotalTests.swift")
+
+    def hook(cmd):  # the guard as Claude Code runs it: hook input on stdin, decision on stdout
+        inp = json.dumps({"hook_event_name": "PreToolUse", "tool_name": "Bash", "tool_input": {"command": cmd}, "cwd": t})
+        out = subprocess.run([sys.executable, os.path.abspath(__file__)], input=inp, cwd=t, capture_output=True, text=True).stdout
+        return json.loads(out)["hookSpecificOutput"] if out.strip() else None
+
+    def asks(reason):
+        return bool(reason) and "unlock" in reason.lower() and "accepted tests" in reason and "approve" in reason.lower() and "wrong" in reason
+
+    lock = "branch.story/f/K-1-x.redCommit"
+    open(f"{t}/tests/test_a.py", "w").write("y\n")
+    out = hook(f"git commit -am x && git config --unset-all {lock}")
+    assert out and out["permissionDecision"] == "deny", "a locked test commit that also unlocks is denied, not asked"
+    run("git", "checkout", "-q", "--", "tests/test_a.py")
+    assert hook(f"git config --add {lock} abc123") is None, "adding a lock prints nothing"
+    out = hook(f"git config --unset-all {lock}")
+    assert out and out["permissionDecision"] == "ask" and asks(out.get("permissionDecisionReason")), "unsetting the lock asks the user"
+    for cmd in (f"git config --unset-all {lock}", f"git config --unset {lock}",
+                f"git config --replace-all {lock} abc123", f"git config unset --all {lock}",
+                "git config --remove-section branch.story/f/K-1-x", f"git config {lock} abc123",
+                f"git -C /some/path config --unset-all {lock}", f"cd /tmp && git config --unset-all {lock}"):
+        assert asks(unlock(cmd)), f"{cmd} removes or replaces the lock"
+    for cmd in (f"git config --get-all {lock}", f"git config --add {lock} abc123", "git config --unset-all user.email"):
+        assert unlock(cmd) is None, f"{cmd} leaves the lock in place"
     print("self-test passed")
 
 
