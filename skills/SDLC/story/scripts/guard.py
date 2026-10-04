@@ -127,19 +127,74 @@ def check(cmd, cwd):
     return None
 
 
+SHELLS = {"sh", "bash", "zsh", "eval"}
+GIT_VALUED = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--super-prefix"}  # git options taking a value
+CONFIG_VALUED = {"-f", "--file", "--blob", "--type", "--default", "--value", "--comment"}
+CONFIG_READS = {"--get", "--get-all", "--get-regexp", "--get-urlmatch", "--list", "-l", "--add"}
+CONFIG_SUBS = {"get", "list", "set", "unset", "rename-section", "remove-section", "edit"}
+UNLOCK = ("This command unlocks the story's accepted tests. Approve it only if you agreed a test is "
+          "wrong; otherwise deny it, and the agent must report the test it cannot satisfy.")
+
+
+def segments(cmd):
+    """Each simple command in cmd as shell words: split at newlines and at ; & | ( ), with comments dropped."""
+    for line in cmd.splitlines():
+        lex = shlex.shlex(line, posix=True, punctuation_chars=True)
+        lex.whitespace_split = True
+        try:
+            toks = list(lex)
+        except ValueError:
+            toks = line.split()
+        seg = []
+        for t in toks + [";"]:
+            if t and set(t) <= set(";&|()"):
+                if seg:
+                    yield seg
+                seg = []
+            else:
+                seg.append(t)
+
+
 def unlock(cmd):
     """The reason to ask the user before a command that removes or replaces a branch's redCommit lock, else None.
 
-    Any git config call naming a redCommit key (any case) that only reads or --adds is allowed; every other
-    spelling (--unset, unset --all, --replace-all, set, a plain set) asks, as does removing or renaming a
-    branch section."""
-    for args in re.findall(GIT + r"config\b([^;&|]*)", cmd):
-        section = re.search(r"(^|\s)-*(remove|rename)-section\s+branch\.", args, re.I)
-        key = re.search(r"\bbranch\.\S+\.redcommit\b", args, re.I)
-        reads = re.search(r"(^|\s)(--get(-all|-regexp)?|get|--list|-l|list|--add)(\s|$)", args)
-        if section or (key and not reads):
-            return ("This command unlocks the story's accepted tests. Approve it only if you agreed a test is "
-                    "wrong; otherwise deny it, and the agent must report the test it cannot satisfy.")
+    Reads the shell words of each git config call. It allows a read or an --add; it asks for --edit, for removing
+    or renaming a branch section, and for any other call whose key is a redCommit (any case), is built by the
+    shell ($ or a backtick), or is missing, as when xargs supplies it."""
+    for w in segments(cmd):
+        if os.path.basename(w[0]) in SHELLS and unlock(w[w.index("-c") + 1] if "-c" in w[:-1] else " ".join(w[1:])):
+            return UNLOCK
+        g = next((i for i, t in enumerate(w) if os.path.basename(t) == "git"), None)
+        if g is None:
+            continue
+        i, alias = g + 1, False
+        while i < len(w) and w[i].startswith("-"):
+            if w[i] == "-c" and re.match(r"alias\.[^=]+=.*\bconfig\b", w[i + 1] if i + 1 < len(w) else "", re.I):
+                alias = True
+            i += 2 if w[i] in GIT_VALUED else 1
+        if i >= len(w) or (w[i] != "config" and not alias):
+            continue
+        args, plain, it = set(w[i + 1:]), [], iter(w[i + 1:])
+        for a in it:
+            if a in CONFIG_VALUED:
+                next(it, None)
+            elif not a.startswith("-"):
+                plain.append(a)
+        sub = plain[0] if plain and plain[0] in CONFIG_SUBS else None
+        names = plain[1:] if sub else plain
+        if sub == "edit" or {"-e", "--edit"} & args:
+            return UNLOCK
+        if sub in ("remove-section", "rename-section") or {"--remove-section", "--rename-section"} & args:
+            if any(n.lower().startswith("branch.") or "$" in n or "`" in n for n in names[:1]):
+                return UNLOCK
+            continue
+        if sub in ("get", "list") or CONFIG_READS & args:
+            continue
+        key = names[0] if names else None
+        if key is None and (sub == "unset" or {"--unset", "--unset-all", "--replace-all"} & args):
+            return UNLOCK
+        if key and (re.fullmatch(r"branch\..+\.redcommit", key, re.I) or "$" in key or "`" in key):
+            return UNLOCK
     return None
 
 

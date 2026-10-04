@@ -1,7 +1,7 @@
 # Implement a story
 
 * **Check command:** the `Full check:` line of `AGENTS.md`, else its `Check:` line, else what CI runs, else the README's test command.
-* **The guard:** [../scripts/guard.py](../scripts/guard.py), a hook on shell commands. It refuses a merge, a commit that changes a locked test other than by removing its expected-fail marker, and a pull request while a red test still carries that marker. It asks the user before a command removes or replaces the tests' lock. It runs only where the SDLC plugin's hooks run; elsewhere these rules hold without it.
+* **The guard:** [../scripts/guard.py](../scripts/guard.py), a hook on shell commands. It refuses a merge, a commit that changes a locked test other than by removing its expected-fail marker, and a pull request while a red test still carries that marker. It asks the user before a `git config` command removes or replaces the tests' lock. It runs only where the SDLC plugin's hooks run; elsewhere these rules hold without it.
 * **The `test-author` agent:** `SDLC:test-author` where the harness loads named agents, otherwise a general subagent told to follow `../agents/test-author.md` beside this skill's folder. Launch it fresh each time.
 * **A fix with no story:** its reproduction is the one acceptance criterion; give `test-author` that line as the story.
 * **No behaviour change:** skip steps 2 and 3. Where no test covers the code touched, commit tests that pin its current behaviour first. Run step 7 with the one criterion "every existing test passes unchanged".
