@@ -3,7 +3,7 @@ name: adr
 description: "Use this skill whenever a decision must survive the conversation: a choice that costs more than a day to reverse, whether the user or the agent made it (a library, a data shape, a trust or consistency boundary, a new repository), a hazard accepted without a test, or an alternative rejected. Use it on: 'adr', 'write an adr', 'make an adr', 'record this architecture decision', 'note this decision', 'this is an architectural decision', 'record the why', 'put it on record', 'we will accept that risk', 'let's go with X instead of Y'. Writes one Markdown decision record under docs/adr/ carrying the user's own reasons, the rejected alternatives and the test that detects the hazard."
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 # ADR
 
@@ -41,11 +41,11 @@ Before recording <decision>, correct anything wrong:
 
 ## Where it goes
 
-* **One feature's decision:** `docs/adr/<slug>/<decision-name>.md`, where the slug is the feature file's name (`docs/stories/<slug>.md`) or the tracker epic's key. A single story with neither goes under `architecture/`.
+* **One feature's decision:** `docs/adr/<slug>/<decision-name>.md`, where the slug is the feature's slug, as in its feature file (`docs/stories/<slug>.md`) and its `story/<slug>/` branches. A single story with no feature goes under `architecture/`.
 * **Whole repository:** `docs/adr/architecture/<decision-name>.md`.
 * **The name:** short and kebab-case, like `use-redis-for-rate-limiting.md`.
 * **Commit it on its own** on the current branch. On main, create a branch `adr/<decision-name>` first. Never switch the branch of a checkout with uncommitted changes; ask instead.
-* **The feature header:** add the ADR's path to its `Decided:` line, in `docs/stories/<slug>.md` or in the tracker epic's description.
+* **The story it serves:** add the ADR's path under its `Decided`, in its issue by the `using-trackers` skill or in `docs/stories/<slug>.md`.
 * **An existing ADR it contradicts:** leave the old file in place and name it on the new one's `Supersedes:` line.
 * **The old ADR:** add `Superseded by: <new path>` to it.
 

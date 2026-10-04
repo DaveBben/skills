@@ -34,9 +34,19 @@ Acceptance criteria
 Out of scope
 * <what a reader might expect that this story leaves out; one per line>
 
+Open questions
+* <one open decision per line, with what will force it; omit the section when none>
+
 Decided
-* <each choice made without the user, and why; omit the section when none>
+* <each choice made without the user, and why, and each ADR path the adr skill wrote; omit the section when none>
+
+Measure
+Outcome: <what a person does differently once the whole feature ships>
+Measure: <the number that shows it, where to read it (a query, a dashboard, a log), its value now, the value that means success, and the date to read it>
+Result:  <the value read and the date, once read>
 ```
+
+* **`Measure`:** only on a feature's owning story; omit it everywhere else. That story's `Out of scope` also holds the feature's non-goals.
 
 A finished story:
 
@@ -99,7 +109,7 @@ Out of scope
 * **Role, never:** "user", or the person building the change.
 * **`I want`:** what they can do, never a control or a design (a dropdown, a modal, a new table). The design comes after the need.
 * **Reason:** what they gain, not the feature restated. When neither the request nor the code gives one, ask; the reason decides which acceptance criteria matter.
-* **Context:** write it from the request, the tracker or the PRD, never from your plan. Whoever writes the tests reads it and nothing from this chat.
+* **Context:** write it from the request, the tracker or the PRD, never from your plan. Name each repository the story touches when it is more than one. Whoever writes the tests reads it and nothing from this chat.
 * **Acceptance criterion 1:** the outcome. For a bug, the reproduction: the starting state, the action, and what the person should see instead of what they see now.
 * **Real values:** name the input, the number, the message text, the status code.
 * **Error messages:** every error the person sees says what went wrong and what they can do next.
@@ -151,7 +161,7 @@ Walk the three lists below to find what this change can break, not to fill the s
 The story is ready when all of these hold, and no sooner:
 
 * **Each example can become a test without asking anybody:** a starting state, one action, and a result with real values.
-* **No question is open:** every reading that would change an acceptance criterion is answered by the user or recorded under `Decided`.
+* **No question is open:** every reading that would change an acceptance criterion is answered by the user or recorded under `Decided`, and `Open questions` is empty.
 * **It is one story:** a named role and reason, and every example's `when` is the same action by that role. An `I want` joined by "and" or "or" is two stories.
 
 Then stop writing. Add no criterion for a walk item that cannot happen here, for behaviour existing tests already cover, or to reach a count.
@@ -163,19 +173,6 @@ Then stop writing. Add no criterion for a walk item that cannot happen here, for
 
 ## Where stories live
 
-* **With a tracker:** a story is an issue, its description the story text; a feature is an epic whose child issues are its stories.
+* **With a tracker:** each story is one issue, and a feature is only its issues, ordered by the tracker's blocking relation. File, read and edit them by the `using-trackers` skill.
 * **Without one, a single story:** the red commit's message and the pull request's description hold it.
-* **Without one, a feature:** it lives in `docs/stories/<slug>.md`, committed on its own branch: the feature header, then each story under its title.
-
-The feature header goes at the top of the feature file or the epic's description:
-
-```text
-Outcome:      <what a person does differently once the whole feature ships>
-Measure:      <the number that shows it, where to read it (a query, a dashboard, a log), its value now, the value that means success, and the date to read it>
-Result:       <the value read and the date, once read>
-Out of scope: <one checkable non-goal per line>
-Order:        <the story titles or keys, in the order they will be built>
-Decided:      <one ADR path per line, written by the adr skill>
-Deferred:     <one open decision per line, with what will force it>
-Repositories: <one line per repository the feature touches, when more than one>
-```
+* **Without one, a feature:** it lives in `docs/stories/<slug>.md`, committed on its own branch: each story under its title, in build order.

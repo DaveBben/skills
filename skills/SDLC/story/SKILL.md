@@ -3,7 +3,7 @@ name: story
 description: "Use this skill before touching any file on a request to add, change, fix or remove behaviour in code that exists, and whenever work must become user stories or a story must be built. Use it on: 'add X', 'fix the bug where X', 'X is broken', 'refactor X', 'build story X', 'build this' with a link to an issue, 'pick up where we left off', 'write a story for X', 'write the acceptance criteria', 'break this down', 'I have an idea', 'turn this PRD into stories', 'review these stories', 'what should I pick up next'. Use it even when the change looks small. Writes each change as a user story with concrete acceptance criteria, agrees it with the user, then builds it test-first and opens a pull request into main."
 license: MIT
 metadata:
-  version: "2.1.0"
+  version: "3.0.0"
 ---
 # Story
 
@@ -19,8 +19,9 @@ A story states what a person can do once a change ships, in acceptance criteria 
 * **Example:** Given the starting state, When one action, Then what the person or caller sees, all in real values.
 * **Obvious rule:** a rule an example would only restate has no example.
 * **Feature:** several stories that share one outcome.
-* **Feature file:** holds the feature header and the stories.
-* **Tracker:** the issue tracker the request or the user names, if any.
+* **Feature file:** `docs/stories/<slug>.md`, a feature's stories in build order when there is no tracker.
+* **Owning story:** the one story of a feature that owns its outcome, usually the last; it carries the feature's `Measure` section.
+* **Tracker:** the issue tracker the request, the user or the repository names, if any. Every read or write of it goes through the `using-trackers` skill.
 
 ## Pick the path
 
@@ -28,8 +29,8 @@ A story states what a person can do once a change ships, in acceptance criteria 
 * **Review stories** someone wrote: [references/review.md](references/review.md).
 * **Implement a story** the user agreed, or a change that needs no story: [references/implement.md](references/implement.md).
 * **Resume:** find the `story/` branch. `git config --get-all branch.<branch>.redCommit` shows whether its tests exist. Read the story from its issue, the feature file or the red commit's message, and continue at the first step of implement.md not done.
-* **Next story:** the first in the feature's `Order:` with no open pull request.
-* **Check the outcome:** once every story in `Order:` is merged and the `Measure:` date has passed, or when the user asks how a feature did. Read the measure with a tool where one reaches it, else ask the user for it. Write the value and the date on the header's `Result:` line and report whether it met the target. A miss becomes new stories or a decision for the user; no merged story reopens.
+* **Next story:** the first story with no open blocker and no open pull request: on a tracker, the first such issue by `using-trackers`; without one, the first such story in the feature file.
+* **Check the outcome:** once every story of the feature is merged and the date on the owning story's `Measure:` line has passed, or when the user asks how a feature did. Read the measure with a tool where one reaches it, else ask the user for it. Write the value and the date on its `Result:` line and report whether it met the target. A miss becomes new stories or a decision for the user; no merged story reopens.
 
 ## Size first
 

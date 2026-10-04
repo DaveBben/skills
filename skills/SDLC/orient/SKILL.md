@@ -26,7 +26,7 @@ Keep a line only when deleting it would cause a mistake nothing else in the repo
   * A test that needs a running service.
   * A directory that looks unused and is loaded at runtime.
   * A test that already fails on main.
-* **Pointers:** the path of a document the agent would not find on its own and when to read it; for the system's shape, one `Architecture: ARCHITECTURE.md` line.
+* **Pointers:** the path of a document the agent would not find on its own and when to read it
 * **Boundaries:** one `Boundaries:` line naming each system the product reads, writes or runs inside.
   * **Writers:** for each store the product reads, name who writes the data: this product, a person through its own screens, or something outside.
   * **Why:** the security review treats data from an outside writer as untrusted.

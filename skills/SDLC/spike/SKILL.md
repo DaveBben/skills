@@ -3,7 +3,7 @@ name: spike
 description: "Use this skill when the user wants to find something out that throwaway code would answer, including a question about feasibility, effort or impact asked with no request to build: a spike, a prototype, a demo, a mock-up (not a test double), an experiment, a comparison of approaches, or what adopting a library, service or integration would do to this codebase. Use it on: 'let's do a spike on X', 'let's do a demo of X', 'I want to run an experiment on X', 'prototype this', 'what would X look like in my codebase', 'how would adding X affect my code', 'how hard would it be to set up X', 'is X feasible', 'would X make Y faster', 'could we reach X using Y', 'what would it take to move to X', 'try a few approaches and see'. Load it before reading code or answering from memory about this codebase. Builds the smallest thing that answers one question in a timebox, records findings and deletes the code. Not for what a tool is or how two libraries differ in general. Not for code meant to ship; that is `story`."
 license: MIT
 metadata:
-  version: "3.0.0"
+  version: "3.1.0"
 ---
 # Spike
 
@@ -24,7 +24,7 @@ Before any code, agree three things with the user in one message:
    * Propose it for the user to correct. With several approaches, it covers all of them together.
    * For a timebox in minutes, write the start time from `date` in the findings header and check it before each attempt.
 
-When the user links a spike issue on a tracker (Jira, GitHub, GitLab or another), read the three from it and ask only for what is missing or cannot fail.
+When the user links a spike issue on a tracker (Jira, GitHub, GitLab or another), read the three from it by the `using-trackers` skill and ask only for what is missing or cannot fail. A spike filed on a tracker holds the three and nothing else; `using-trackers` files it.
 
 In that message, or before building when the issue left nothing to ask, tell the user the code is throwaway: deleted once you accept the findings, never merged. A demo meant to outlive the spike is code meant to ship; that is `story`.
 
@@ -52,7 +52,7 @@ git worktree add --detach <spike-path>
 
 Write the findings from the first one. Use the first destination that applies:
 
-* **A linked tracker issue:** a comment on it.
+* **A linked tracker issue:** a comment on it, by the `using-trackers` skill.
 * **A timebox of one attempt:** a findings block in the reply, with the header line.
 * **In a git repository:** `docs/spikes/<question-slug>.md` on branch `spike-findings/<question-slug>`, in a worktree of its own, never in the throwaway worktree. Commit the file alone when the spike resolves, then offer the user a pull request of that file alone.
 * **Otherwise:** `<question-slug>.md` in the scratch directory, its path shown to the user.
@@ -93,7 +93,7 @@ The outcome is inconclusive when a difference from production could flip it.
 | Chosen | Rejected | Why | Cost to change later | record / drop / defer |
 ```
 
-3. **Update the plan:** in the feature file (`docs/stories/<slug>.md`) or the tracker epic, under the spike's story, mark its question answered and link the findings; apply the `Changes to the plan` line to `Order:`; move `defer` rows to `Deferred:`.
+3. **Update the plan:** on the spike's issue, by the `using-trackers` skill, or under the spike's story in the feature file (`docs/stories/<slug>.md`), mark its question answered and link the findings. Apply the `Changes to the plan` line to the stories and their order. Move `defer` rows to the `Open questions` of the story each blocks.
 4. **Return to the split:** when `story` started the spike while splitting a request, return to that split with the findings.
 5. **Delete the spike code** once the user accepts the verdict, and say so in the findings.
 

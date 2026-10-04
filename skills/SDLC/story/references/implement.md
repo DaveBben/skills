@@ -11,7 +11,7 @@
    * Commit the stubs alone.
    * Skip this step when every acceptance criterion goes through an interface that already exists.
 3. **Failing tests:** launch `test-author` with these inputs and nothing from this chat or your plan:
-   * The story with its context, and the feature's `Outcome:` line when it has one.
+   * The story with its context, and the owning story's `Outcome:` line when the feature has one.
    * The worktree path and branch.
    * The interface commit's hash, or "none".
 
@@ -37,7 +37,7 @@
    * Title: the story's key in brackets first when it has one, such as `[PAY-12] Refund a partial order`.
    * Body: the story, what changed and why, and how to verify it by hand.
    * When the repository runs its full check before a pull request opens (the `guardrails` skill sets that up), a refused open is a failing check. Fix the cause and open it again.
-9. **Report** to the user the pull request, the check's result, each finding and how it was settled, and each choice made without them. On a linked issue, comment the pull request's link.
+9. **Report** to the user the pull request, the check's result, each finding and how it was settled, and each choice made without them. On a linked issue, comment the pull request's link by the `using-trackers` skill.
 10. **The user merges.** Never run a pull request merge or merge into main.
     * Check each review comment's claim against the code before acting on it. A confirmed defect gets a failing test, then the fix.
 
