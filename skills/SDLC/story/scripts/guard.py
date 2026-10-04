@@ -124,6 +124,11 @@ def check(cmd, cwd):
     return None
 
 
+def unlock(cmd):
+    """The reason to ask the user before a command that removes or replaces a branch's redCommit lock, else None."""
+    raise NotImplementedError
+
+
 def main():
     try:
         inp = json.load(sys.stdin)
