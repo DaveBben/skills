@@ -17,8 +17,10 @@
 
    It writes one test per example through that interface, confirms each fails for the reason its acceptance criterion states, marks each with the framework's strict expected-fail marker so the check command still passes, commits them alone and locks them in git config.
    * After the lock, a commit may not change a locked test, or a test that existed where the branch left main, except to remove a marker. Put a new test in a new test file.
-   * Show the user the test list and any `Changes existing:` line, and continue. Answer its `Questions:` yourself where a tool can, else put them to the user and wait.
-   * **Its return says the framework has no marker:** the check command fails on the red tests until they pass. That failure is expected; say so when a turn-end check reports it.
+   * **Challenge:** launch `test-author` again, fresh, with the same inputs and the first red commit's hash. It adds tests for wrong implementations the first suite lets pass.
+   * Show the user both test lists and any `Changes existing:` line, and continue. Answer their `Questions:` yourself where a tool can, else put them to the user and wait.
+   * **A `Disagrees:` line:** put both readings of the criterion to the user and wait. When the user takes the challenger's reading, correct the first suite's test by the step 4 path for a test the user agrees is wrong.
+   * **A return that says the framework has no marker:** the check command fails on the red tests until they pass. That failure is expected; say so when a turn-end check reports it.
 4. **Implement** until every new test passes and every test on its `At risk:` line still does.
    * Remove a test's expected-fail marker once the code makes it pass; the strict marker fails the run until you do.
    * Change only what the acceptance criteria need. Add no config with one value, no interface with one implementation, and no retry, cache or flag no criterion names. The exception is an adapter around a service outside the repository, which tests double in place of that service.

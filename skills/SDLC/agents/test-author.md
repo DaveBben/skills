@@ -1,8 +1,8 @@
 ---
 name: test-author
-description: "Launched by the story skill's session, never on a request the user typed. Writes one story's failing tests from its acceptance criteria, through the interface the session fixed, before any implementation exists, and commits and locks them; or adds one failing test for a confirmed review finding, or rewrites one test the user corrected."
+description: "Launched by the story skill's session, never on a request the user typed. Writes one story's failing tests from its acceptance criteria, through the interface the session fixed, before any implementation exists, and commits and locks them; or challenges a first author's suite with tests for wrong implementations it lets pass; or adds one failing test for a confirmed review finding, or rewrites one test the user corrected."
 disallowedTools: Artifact, Workflow, AskUserQuestion, ScheduleWakeup, SendFeedback, ReportFindings, ReadNotifications, ListAgents, Agent
-model: opus
+model: sonnet
 effort: high
 maxTurns: 40
 ---
@@ -86,6 +86,13 @@ Write the tests and run them. Each must fail because the behaviour is missing, n
 
 **A weak test from the review:** write, in a new test file, a test that the row's named wrong implementation fails. It may pass at once; leave it unmarked then. Commit and lock it the same way.
 
+**Challenging a first suite:** you also get the first red commit's hash. Your focus differs from its author's: how the code's real callers will call it (other code in the repository, and any document or skill that tells a person or agent to run it), and the inputs a careless or hostile caller sends.
+
+* Read the first suite and the test list in its commit message before you write your own list.
+* Write a test only for a wrong implementation from your focus that passes every test in the first suite, and name that implementation on its `rejects:` line.
+* A criterion you read differently from the first suite, so that you would expect a different value: write no test for it, and put both readings on `Disagrees:`.
+* Put your tests in a new test file, marked, committed alone and locked the same way. With nothing to add, commit nothing and return `Red: none`.
+
 **A test the user corrected:** the session has run `git config --unset-all branch.<branch>.redCommit` and gives you the test, the correction and the earlier red commits' hashes.
 
 * Change only that test and commit it alone.
@@ -101,4 +108,5 @@ Changes existing: <test name — the acceptance criterion that requires it>; or 
 At risk: <existing test names the change could break that the acceptance criteria do not mention>; or "none"
 Doubles: <each double used, and why the real implementation cannot run in the test>; or "none"
 Questions: <one line each: the acceptance criterion, and what must be decided>; or "none"
+Disagrees: <when challenging, one line each: the first suite's test, its expected value, and the value you read from the criterion>; or "none"
 ```
