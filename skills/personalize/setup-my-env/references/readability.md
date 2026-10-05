@@ -1,6 +1,6 @@
 # Making apps readable
 
-This file holds the targets, a procedure for any app, the values applied on 2026-10-02, and the mistakes made that day.
+This file holds the targets, a procedure for any app, the values applied, and the mistakes to avoid.
 Each target is labelled **measured** (a controlled study), **standard** (WCAG or a style guide), or **convention** (designer practice, no study).
 
 ## Targets
@@ -123,7 +123,7 @@ Each target is labelled **measured** (a controlled study), **standard** (WCAG or
     Read stored values back, then ask for a screenshot.
     Measure characters per line, line pitch, and colors in it.
 
-## Values applied on 2026-10-02
+## Values applied
 
 The display is a 27-inch 5K at 2x, where 1 point is 0.233 mm, and the user sits 46 to 56 cm away.
 Backups of every original file are in `~/Backups/readability-2026-10-02/`.
@@ -140,7 +140,6 @@ Backups of every original file are in `~/Backups/readability-2026-10-02/`.
 * **Brighten bold text:** off, in both modes.
 * **Thin strokes:** Retina, dark backgrounds only (value 1).
 * **Theme:** Light (Settings, Appearance, Theme, value 0), so the profile uses its light colors while macOS stays dark.
-  It was Minimal (value 5).
 * **Minimum Contrast:** 0.34 dark, 0.54 light.
   Each sits just below the weakest palette color's brightness difference from the background (0.353 and 0.548).
   So the setting leaves the palette alone and lifts only dimmer colors that programs send directly.
@@ -195,6 +194,8 @@ Settings are in `~/Library/Application Support/Code/User/settings.json`, which V
   Light Modern had 1 failure, and Alabaster had 3 plus its line numbers.
 * **Preview line length:** a local extension, `dave.markdown-readable-width`, with its source in `~/projects/vscode-markdown-readable/`.
   It contributes `markdown.previewStyles` with `body { max-width: 28.5em; margin: 0 auto; }`, about 65 characters.
+  Tables get `width: max-content; min-width: 100%; max-width: calc(100vw - 52px); margin-left: 50%; transform: translateX(-50%);`.
+  Without that rule, a table wider than the text column runs off to the right and looks off-center.
   Rebuild it with `npx @vscode/vsce package --allow-missing-repository --skip-license`.
   Install it with `code --install-extension <file>.vsix --force`.
 
@@ -215,7 +216,7 @@ Quit Obsidian before editing these files with `osascript -e 'tell application "O
 
 ### Neovim, not configured
 
-The user chose to skip Neovim on 2026-10-02.
+The user skipped Neovim; configure it only when asked.
 Neovim runs inside iTerm2, so the font, size, and line height already apply.
 
 * **Mid-word wrapping:** `~/.config/nvim/init.lua` (kickstart.nvim) sets `breakindent` but not `linebreak`, so wrapped lines break mid-word.

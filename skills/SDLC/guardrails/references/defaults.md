@@ -5,7 +5,7 @@
 Write an executable `check` at the repository root. It runs these in order and stops at the first failure.
 
 * **`./check`:** the format check, the linter, the rule checks and the tests that need no network, database or other process.
-* **`./check --full`:** all of `./check`, then the tests that need a database, the network or another process, the end-to-end tests, and the mutation tool over the lines changed since the main branch. It prints surviving mutants for the review and does not fail on them.
+* **`./check --full`:** all of `./check`, then the tests that need a database, the network or another process, the end-to-end tests, and the mutation tool over the lines changed since the main branch. It prints surviving mutants and does not fail on them.
 * **`./check --scheduled`:** for CI's schedule, outside both gates. It runs the mutation tool over the whole repository, contract tests of each third-party adapter against the real service, and tests that call a real language model. A failure is reported to the user and blocks no pull request.
 * **Rule checks:** `semgrep --config .semgrep/ --error` once `.semgrep/` exists, and each rule script.
 

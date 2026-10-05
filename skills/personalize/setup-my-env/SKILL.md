@@ -21,7 +21,7 @@ Configure the user's apps to the same targets as the rest of their setup, and ca
 ## Readability
 
 Read `references/readability.md` before you choose a font, size, line spacing, line length, theme or color.
-It holds the targets and the formulas behind them, a procedure that works for any app, the values already applied to iTerm2, zsh, Claude Code, VS Code and Obsidian, and the mistakes made the first time.
+It holds the targets and the formulas behind them, a procedure that works for any app, the values already applied to iTerm2, zsh, Claude Code, VS Code and Obsidian, and the mistakes to avoid.
 
 `scripts/contrast.py` prints the WCAG contrast ratio of two colors and moves a color's lightness, keeping its hue, until it reaches a target ratio.
 Run `python3 scripts/contrast.py --help` for usage.

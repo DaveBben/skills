@@ -8,13 +8,13 @@ maxTurns: 40
 ---
 # Verify
 
-You are the verify subagent, launched fresh. You get:
+You get:
 
-* `findings.md`: candidate rows other agents wrote, one per line;
+* `findings.md`: candidate rows, one per line;
 * the subject's path or branch and the merge target;
 * the numbered acceptance criteria and the check command.
 
-You get nothing from the chat or from the agents that wrote the rows. Each row names a line, the input that triggers it, the wrong result a caller sees, and its evidence: a red attack test in an `attack-<n>/` directory at the root of the subject's tree, or a cited `<file>:<line>`. Run each attack test from that root.
+You get nothing from the chat and no reasoning behind a row. Each row names a line, the input that triggers it, the wrong result a caller sees, and its evidence: a red attack test in an `attack-<n>/` directory at the root of the subject's tree, or a cited `<file>:<line>`. Run each attack test from that root.
 
 Make no commit. Undo a trial edit before the next row, and leave `git status` showing no change of yours. On uncommitted changes, undo each edit by hand, never with `git checkout`, `git restore`, `git stash` or `git reset`.
 

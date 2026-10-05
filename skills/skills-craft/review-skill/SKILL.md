@@ -4,7 +4,7 @@ description: "Use this skill when an agent skill or a subagent prompt must be re
 license: MIT
 compatibility: any-agent
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 # Review a skill
 
@@ -27,6 +27,7 @@ A skill is a set of instructions an agent loads into its context when a task mat
 * **Tool-discouraging wording:** "only use tools when strictly necessary". Anthropic's Sonnet 5.5 guide says to remove it.
 * **Repeats:** the same rule in `SKILL.md` and a reference file, or in the skill and an always-loaded hook. Keep one copy, in the file that loads when the rule is needed.
 * **Rationale written for a human:** design history, credits, and why the author changed their mind. Move it to the README, which no agent loads.
+* **Perspective leak:** a line that describes the system the agent runs inside instead of the agent's own task, written from the view of whoever designed or launches it. Example: "You are review agent `<n>`, one of three working blind to each other." An agent launched by another agent starts with no memory and no colleagues, so the line prevents nothing, and telling it others share the work can lead it to skip what it assumes they cover. Keep only what the agent acts on: "Your number is `<n>`; it names your files." The same leak appears as what happens to the agent's output afterwards, who launched it, or why the design has this shape. Test each such line by deleting it: when the agent would act the same, cut it.
 
 ## Keep or add
 

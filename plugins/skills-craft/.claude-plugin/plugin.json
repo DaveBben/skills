@@ -1,6 +1,6 @@
 {
   "name": "skills-craft",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Skills for writing instructions an agent reads. review-skill reviews a SKILL.md, its reference files or a subagent prompt line by line: it cuts what the model already knows or can read, keeps the conventions it cannot infer, names failures specifically, and reports each finding with the evidence behind it.",
   "license": "MIT",
   "author": {
