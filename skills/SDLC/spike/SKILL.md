@@ -40,7 +40,7 @@ git worktree add --detach <spike-path>
 * **Throwaway style:** hardcode, inline, copy-paste. No tests, no linter, no formatter, no fixing type errors that do not block the question.
 * **The one test allowed:** the one the question can only be observed through (a performance budget, a contract, a race).
 * **Several candidate approaches:** list them to the user, build one measurement first, then run each candidate through it at its smallest: in parallel subagents and worktrees where the harness allows, else one after another in separate directories. Make the choices inside one candidate alone and log them as `Decided alone` lines.
-* **Subagent findings** return to the session that started the spike, which alone writes them. Base the recommendation on the numbers they return, not on their opinions.
+* **Subagent findings:** you alone write the findings file. Base the recommendation on the numbers subagents return, not on their opinions.
 * **A missing tool:** install it into the scratch directory only.
 * **A missing credential:** ask for it once, by its exact variable or file name. Never fake one, and never point the spike at a live system to get around it.
 * **A command that errors:** record it with its exact error before anything else is tried.

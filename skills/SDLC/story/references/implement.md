@@ -1,7 +1,7 @@
 # Implement a story
 
 * **Check command:** the `Full check:` line of `AGENTS.md`, else its `Check:` line, else what CI runs, else the README's test command.
-* **The guard:** [../scripts/guard.py](../scripts/guard.py), a hook on shell commands. It refuses a merge, a commit that changes a locked test other than by removing its expected-fail marker, and a pull request while a red test still carries that marker. It asks the user before a `git config` command removes or replaces the tests' lock. It runs only where the SDLC plugin's hooks run; elsewhere these rules hold without it.
+* **The guard:** a hook ([../scripts/guard.py](../scripts/guard.py)) denies a merge, a commit that changes a locked test other than by removing its expected-fail marker, and a pull request while a red test still carries that marker. It asks the user before a `git config` command removes or replaces the tests' lock. Where it does not run, these rules still hold.
 * **The `test-author` agent:** `SDLC:test-author` where the harness loads named agents, otherwise a general subagent told to follow `../agents/test-author.md` beside this skill's folder. Launch it fresh each time.
 * **A fix with no story:** its reproduction is the one acceptance criterion; give `test-author` that line as the story.
 * **No behaviour change:** skip steps 2 and 3. Where no test covers the code touched, commit tests that pin its current behaviour first. Run step 7 with the one criterion "every existing test passes unchanged".
@@ -38,7 +38,7 @@
 8. **Pull request:** commit and push, then open it into main once every acceptance criterion passes.
    * Title: the story's key in brackets first when it has one, such as `[PAY-12] Refund a partial order`.
    * Body: the story, what changed and why, and how to verify it by hand.
-   * When the repository runs its full check before a pull request opens (the `guardrails` skill sets that up), a refused open is a failing check. Fix the cause and open it again.
+   * When the repository runs its full check before a pull request opens, a refused open is a failing check. Fix the cause and open it again.
 9. **Report** to the user the pull request, the check's result, each finding and how it was settled, and each choice made without them. On a linked issue, comment the pull request's link.
 10. **The user merges.** Never run a pull request merge or merge into main.
     * Check each review comment's claim against the code before acting on it. A confirmed defect gets a failing test, then the fix.

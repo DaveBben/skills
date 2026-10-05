@@ -99,12 +99,12 @@ Out of scope
 * **Role, never:** "user", or the person building the change.
 * **`I want`:** what they can do, never a control or a design (a dropdown, a modal, a new table). The design comes after the need.
 * **Reason:** what they gain, not the feature restated. When neither the request nor the code gives one, ask; the reason decides which acceptance criteria matter.
-* **Context:** write it from the request, the tracker or the PRD, never from your plan. Whoever writes the tests reads it and nothing from this chat.
+* **Context:** write it from the request, the tracker or the PRD, never from your plan. A reader with nothing from this chat must be able to test from it.
 * **Acceptance criterion 1:** the outcome. For a bug, the reproduction: the starting state, the action, and what the person should see instead of what they see now.
 * **Real values:** name the input, the number, the message text, the status code.
 * **Error messages:** every error the person sees says what went wrong and what they can do next.
 * **Banned words:** improve, better, faster, robust, correct, properly, handled, seamless. Write the number or the event.
-* **Each Given:** state every fact the outcome depends on, and nothing else. An unneeded value is clutter the test copies into its fixture.
+* **Each Given:** state every fact the outcome depends on, and nothing else.
 * **Boundaries:** when a rule covers a range, give an example at the limit itself, and one past it when that is a different rule.
 * **One action per example.** Its `then` and `and` lines name what a caller or a person sees, in the names the code and its tests already use.
 * **Not a result:** a mechanism (an exception class, a lock, a log line, a call to a function).

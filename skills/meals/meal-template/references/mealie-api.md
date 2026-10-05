@@ -1,6 +1,6 @@
 # Writing templates to Mealie
 
-Mealie is a self-hosted recipe manager with a REST API. An MCP server exists but is not required; every operation below is a plain HTTP call. Adapt the endpoints if the library is something else. The conventions in "Scaling" and "Defects" apply to any recipe manager that scales by serving count.
+Mealie is a self-hosted recipe manager with a REST API. Every operation below is a plain HTTP call. Adapt the endpoints if the library is something else. The conventions in "Scaling" and "Defects" apply to any recipe manager that scales by serving count.
 
 ## Access
 
@@ -54,7 +54,7 @@ Further rules:
 | Field | Content |
 |---|---|
 | `name` | Prefix with the template number so the set sorts together |
-| `tags` | `<Meal> Template`, for example `Dinner Template` or `Breakfast Template`. The meal planner selects templates by this tag. |
+| `tags` | `<Meal> Template`, for example `Dinner Template` or `Breakfast Template`. Use this exact tag; the meal planner selects templates by it. |
 | `description` | Per-serving macros, the base recipe and its source, what the add-on closes, the targets, the low-end recompute result, known weak points such as sodium, valid swaps, and the note that instruction amounts do not scale |
 | `nutrition` | Per serving: `calories`, `proteinContent`, `fiberContent`, `fatContent`, `carbohydrateContent`, `sodiumContent`. Strings. |
 | `recipeServings`, `recipeYieldQuantity` | Both set to the native serving count. `recipeYieldQuantity` defaults to 0 and is easy to miss. |

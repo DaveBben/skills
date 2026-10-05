@@ -37,7 +37,7 @@ Build one template at a time. Each template ends with the user confirming before
 
 * **Ignore stored nutrition and compute from the ingredient list.** Library nutrition is sparse, often absent, and never reflects the user's omissions.
 * **Use USDA FoodData Central per-100 g values.** Convert every ingredient to grams first. Volume measures for solids are the largest error source.
-* **Write the calculation as a script with a food table, not as arithmetic in prose.** Ten templates reuse it. A worked example is in `references/macro-calc.py`.
+* **Write the calculation as a script with a food table, not as arithmetic in prose.** A worked example is in `references/macro-calc.py`.
 * **Divide by the recipe's own serving count.** Do not renormalize to the number of people eating; the library scales that separately.
 * **State the tolerance.** USDA entries and brand labels disagree by 10-20%. Report figures as approximate and never to more than three significant digits.
 * **Test the assumption that moves the result most.** Protein portion size and added fat dominate. Recompute at the low end of the recipe's stated range and confirm the targets still clear.

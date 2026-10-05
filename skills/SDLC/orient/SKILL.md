@@ -29,10 +29,9 @@ Keep a line only when deleting it would cause a mistake nothing else in the repo
 * **Pointers:** the path of a document the agent would not find on its own and when to read it; for the system's shape, one `Architecture: ARCHITECTURE.md` line.
 * **Boundaries:** one `Boundaries:` line naming each system the product reads, writes or runs inside.
   * **Writers:** for each store the product reads, name who writes the data: this product, a person through its own screens, or something outside.
-  * **Why:** the security review treats data from an outside writer as untrusted.
 * **Project Tracker:** If using a project management tool like Jira, GitHub Projects, etc - add link to the location.
 
-Other skills read the `Check:` and `Full check:` lines. Keep them as found and exempt them from the findings below.
+Keep the `Check:` and `Full check:` lines as found and exempt them from the findings below.
 
 ## What stays out
 

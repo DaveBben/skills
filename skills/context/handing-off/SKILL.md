@@ -33,7 +33,7 @@ Name what is unfinished plainly. A handoff that reads as though everything went 
 
 ## Writing for a reader who was not here
 
-The reader did not see this conversation. Text that reads as complete to the writer and as a list of pointers to the reader is the failure to avoid. Each rule below removes one cause of it.
+The reader did not see this conversation. Text that reads as complete to the writer and as a list of pointers to the reader is the failure to avoid.
 
 * **Resolve every pointer on the page.** No bare test ID, config key, abbreviation, or "the X" without one sentence saying what it is. Write "clinician", not "NP". Write "the browser panel that sends one request per keystroke", not "the panel". A pointer is a name local to this project or this session. Do not define industry-standard terms a working engineer knows: SQLite, fsync, Linux, HTTP.
 * **Mechanism before label.** Write what physically happens ("the worker thread sits idle until the HTTP response arrives") before any name for it ("blocking"). A name never stands alone. "Racy at the margin" is a label; "two requests can both read 2, both write 3, and the cap admits one extra call" is the mechanism.

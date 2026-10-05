@@ -2,7 +2,7 @@
 
 `ARCHITECTURE.md` at the repository root is a one-page overview that a reader with no knowledge of the codebase finishes in about five minutes. It runs from the top down: what the system is for, what surrounds it, what it is made of, how one request moves through it, where things live, and why it is built this way.
 
-Long templates such as arc42 lose this reader. People who explain architectures to newcomers start from the business purpose and context, then show structure and one flow, and answer "why" before they show code. Cut anything the reader does not need to place their first change.
+Do not use a long template such as arc42. Start from the business purpose and context, then show structure and one flow, and answer "why" before you show code. Cut anything the reader does not need to place their first change.
 
 ## Refreshing an existing snapshot
 
