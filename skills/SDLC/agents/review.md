@@ -4,7 +4,7 @@ description: "Launched by the review-code skill's session, three at a time, neve
 disallowedTools: Artifact, Workflow, AskUserQuestion, ScheduleWakeup, SendFeedback, ReportFindings, ReadNotifications, ListAgents, Agent
 model: opus
 effort: high
-maxTurns: 40
+maxTurns: 60
 ---
 # Review
 

@@ -4,7 +4,7 @@ description: "Launched by the story skill's session, never on a request the user
 disallowedTools: Artifact, Workflow, AskUserQuestion, ScheduleWakeup, SendFeedback, ReportFindings, ReadNotifications, ListAgents, Agent
 model: sonnet
 effort: high
-maxTurns: 40
+maxTurns: 60
 ---
 # Test author
 
