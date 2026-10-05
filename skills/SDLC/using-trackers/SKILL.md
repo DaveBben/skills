@@ -7,8 +7,6 @@ metadata:
 ---
 # Using trackers
 
-The `story` and `spike` skills decide what an issue says. This skill puts it on the tracker, and reads and edits it later.
-
 ## Words used here
 
 * **Tracker:** the issue tracker the repository uses, such as Gitea, GitHub, GitLab or Jira.
@@ -79,4 +77,4 @@ A board is not an issue: a new issue is not on a board until something places it
 
 ## Without a tracker
 
-The `story` skill's fallback holds: one story in the red commit's message and the pull request's description, a feature in `docs/stories/<slug>.md` with its stories in build order. No header or container.
+Write one story in the red commit's message and the pull request's description, and a feature in `docs/stories/<slug>.md`, committed on its own branch, with its stories in build order. Add no header or container.

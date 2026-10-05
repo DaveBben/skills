@@ -24,7 +24,7 @@ Before any code, agree three things with the user in one message:
    * Propose it for the user to correct. With several approaches, it covers all of them together.
    * For a timebox in minutes, write the start time from `date` in the findings header and check it before each attempt.
 
-When the user links a spike issue on a tracker (Jira, GitHub, GitLab or another), read the three from it by the `using-trackers` skill and ask only for what is missing or cannot fail. A spike filed on a tracker holds the three and nothing else; `using-trackers` files it.
+When the user links a spike issue on a tracker (Jira, GitHub, GitLab or another), read the three from it by the `using-trackers` skill and ask only for what is missing or cannot fail. To file a spike on a tracker, put the three in it and nothing else, by the `using-trackers` skill.
 
 In that message, or before building when the issue left nothing to ask, tell the user the code is throwaway: deleted once you accept the findings, never merged. A demo meant to outlive the spike is code meant to ship; that is `story`.
 
