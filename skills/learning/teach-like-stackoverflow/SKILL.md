@@ -1,6 +1,6 @@
 ---
 name: teach-like-stackoverflow
-description: "Use this skill for every programming or computer-science question of the kind asked on Stack Overflow, even one you could answer in a sentence: load it before answering, not after. That covers how to do something in a language, library or tool ('how do I read a CSV with pandas', 'how do I undo a git commit'), what an error means or why it happens ('why am I getting TypeError', 'what is a segfault'), how a concept, algorithm, data structure or protocol works ('what does yield do', 'how does TCP work', 'what is CORS'), and how two things differ ('let vs var', 'mutex vs semaphore'). Use it whenever the user says they don't understand, don't get, or want explained a technical concept. Teaches it as a mock Stack Overflow thread on one HTML page. Skip it only when the user asks to change code in their own project."
+description: "Use this skill for every programming or computer-science question of the kind asked on Stack Overflow, even one you could answer in a sentence: load it before answering, not after. That covers how to do something in a language, library or tool ('how do I read a CSV with pandas', 'how do I undo a git commit'), what an error means or why it happens ('why am I getting TypeError', 'what is a segfault'), how a concept, algorithm, data structure or protocol works ('what does yield do', 'how does TCP work', 'what is CORS'), and how two things differ ('let vs var', 'mutex vs semaphore'). Use it whenever the user says they don't understand, don't get, or want explained a technical concept. Teaches it as a mock Stack Overflow thread on one HTML page. Skip it only when the user asks to change code in their own project. Skip it when the user asks for a short or inline answer."
 license: MIT
 compatibility: Needs code execution and a writable temp directory; falls back to Markdown in chat without them.
 metadata:
@@ -33,13 +33,14 @@ The page teaches, so a wrong line is learned as a fact.
 * **Take every default and version-specific behaviour the page states** from the library's documentation or installed source, not from memory.
 * **Escape `&`, `<` and `>`** as `&amp;`, `&lt;` and `&gt;` everywhere in the page's text, including code blocks, inline code and comments, so the page renders them.
 * **Keep lines of code you write under 60 characters,** breaking long calls across lines, so blocks fit a phone screen. Leave copied errors and output unwrapped.
-* **Explain mechanisms literally.** Say what the code does to the data, with no analogies.
-* **Show a mechanism as code or a traced example,** not as a chart.
+* **Explain a mechanism literally,** as code or a traced example, with no analogies or charts.
 
 ## Delivering it
 
 * **Write the page** to a scratch directory outside the user's repository, named for the topic, such as `/tmp/so-logistic-regression/index.html`.
-* **Serve it when the user reads on another device,** over the local network with any static file server, such as `python3 -m http.server 8000 --bind 0.0.0.0`. Check the URL loads, then give the machine's LAN address, such as from `ipconfig getifaddr en0` on macOS, because localhost does not resolve on the phone.
+* **Serve it when the user reads on another device,** over the local network with any static file server, such as `python3 -m http.server 8000 --bind 0.0.0.0`. Check the URL loads, then give the machine's LAN address, such as `ipconfig getifaddr en0` on macOS, because localhost does not resolve on the phone.
 * **Reply in chat** with the path or URL and one sentence naming the technique each further answer uses. Do not repeat the thread in chat.
 * **Answer a follow-up on the page.** Add it as a new comment exchange or a new answer, and tell the user to reload.
-* **Fall back to Markdown** when the environment cannot write or serve a file: write the same thread in chat, with its parts in the same order.
+* **Fall back to Markdown** when the environment cannot write or serve a file: write the same thread in chat.
+
+Run every code block before it goes on the page.

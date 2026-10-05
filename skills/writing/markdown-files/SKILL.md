@@ -10,10 +10,19 @@ metadata:
 # Markdown files
 
 Readers scan before they read.
-In eye-tracking tests, 79% of readers scanned a page, and 16% read it word by word.
-In a log study of 45,237 page views, people read about 20% of a page's words.
-Each extra 100 words got about 18% of those words read.
 Write so that a reader who reads only the headings and the first paragraph still gets the point.
+
+## Patterns to remove
+
+These habits fill reading time without adding facts.
+Replace each one with the specific fact it stands in for.
+
+* **"Not X, but Y" and "X, not Y":** the reader must process a negation of a view they never held.
+* **Groups of three:** "fast, reliable, and scalable" when only 1 claim is true.
+* **Inflated words:** "pivotal", "delve", "tapestry", "evolving landscape", and "serves as".
+* **Comment-on-meaning phrases:** a trailing "highlighting its importance" or "ensuring consistency".
+* **Vague attributions:** "experts argue" or "studies show" with no source.
+* **Chat residue:** "In this section we will", "Let me know if", and closing summaries that repeat the opening.
 
 ## Structure
 
@@ -44,7 +53,6 @@ Write so that a reader who reads only the headings and the first paragraph still
 * **Numbers:** write numbers as numerals: "3 files", "2 levels".
 * **Links:** make link text name the destination.
   Never write "click here" or "this document".
-* **Length:** cut every sentence that carries no fact.
 
 ## Sentences and words
 
@@ -56,26 +64,18 @@ Write so that a reader who reads only the headings and the first paragraph still
 * **Positive statements:** state what is true, with no double negatives or exceptions to exceptions.
   Use a negative only to answer something the reader expects.
 * **Sentence length:** aim for an average of 15 to 20 words, and split sentences over 25.
-* **Common words:** write "use", "help", "is", and "has" over "utilize", "assist", "serves as", and "features".
-* **Verbs over nouns made from verbs:** write "decide", not "make a decision".
 * **One name per thing:** call a thing by the same name every time.
   A new word makes the reader ask whether it is a new thing.
 * **Defined terms:** define each name local to the project the first time it appears.
   Spell out each abbreviation on first use.
-* **Concrete nouns:** name the file, command, number, or error message.
-* **Active voice:** name who does the action, unless the actor does not matter.
-  The measured benefit is small, so do not bend a sentence to get it.
 * **No garden paths:** keep "that" in relative clauses.
   Do not open a sentence with a word that reads as noun or verb, such as "test", "build", "run", "log", or "cache", when the wrong reading fits.
-* **No formula targets:** do not rewrite to raise a readability score.
-  Raising scores raised comprehension in only about half of the studies that tried it.
 
 ## Punctuation
 
 * **Serial comma:** put a comma before "and" or "or" in a series of 3 or more: "tests, docs, and config".
   Without it, the last 2 items can read as a pair.
 * **Introductory comma:** put a comma after an introductory clause: "When the test fails, the hook blocks the commit."
-  In 1 study, correct readings rose from 47% to 81% with the comma.
 * **Semicolons:** do not use them.
   Split the clauses into 2 sentences, or the items into a list.
 * **Em dashes:** use a comma, a colon, or a new sentence first.
@@ -97,35 +97,18 @@ Write so that a reader who reads only the headings and the first paragraph still
 * **Bold:** bold only a term where it is defined, the lead of a rule or term in a list, or 1 key sentence.
   Never bold for tone, because bold works only when it is rare.
 * **Italics:** use them only for a new term at its definition, never for emphasis.
-  Italic text reads 3 to 5% slower than roman.
 * **Capitals:** write no all-caps prose.
-  All-caps text reads 12 to 14% slower.
 
 ## Markdown source
 
 * **One sentence per line:** a 1-sentence edit then changes 1 line in a diff.
   In a list item, put each further sentence on its own line, indented to the item's text.
-  A single line break renders as a space on GitHub pages and in most previews.
-  It renders as a line break in GitHub comments, in Obsidian with "Strict line breaks" off, and in VS Code with `markdown.preview.breaks` on.
+  A single line break renders as a space on GitHub pages and in most previews, so a one-sentence-per-line file still reads as a paragraph.
 * **Hard line breaks:** end the line with a backslash, not 2 trailing spaces.
 * **Code fences:** tag every fence with a language, such as `bash`, `json`, or `text`.
 * **Blank lines:** put a blank line before and after every heading, list, table, and code block.
 * **Nesting:** indent nested list items 2 spaces.
 * **No emoji or Nerd Font icons:** a reader whose font lacks them sees empty boxes.
 * **Lint:** when markdownlint is available, run it.
-  Its rules MD001, MD013, MD022, MD031, MD032, MD040, and MD059 check most of the rules above.
-
-## Patterns to remove
-
-These habits fill reading time without adding facts.
-Replace each one with the specific fact it stands in for.
-
-* **"Not X, but Y" and "X, not Y":** the reader must process a negation of a view they never held.
-* **Bold on every key phrase:** bold stops signalling anything.
-* **Bold-label lists for content that is not a list of rules or terms:** they drop the reasoning between points.
-* **Groups of three:** "fast, reliable, and scalable" when only 1 claim is true.
-* **Inflated words:** "pivotal", "delve", "tapestry", "evolving landscape", and "serves as".
-* **Comment-on-meaning phrases:** a trailing "highlighting its importance" or "ensuring consistency".
-* **Vague attributions:** "experts argue" or "studies show" with no source.
-* **Small tables that read better as a sentence.**
-* **Chat residue:** "In this section we will", "Let me know if", and closing summaries that repeat the opening.
+  Its rules MD001, MD022, MD031, MD032, MD040, and MD059 check most of the rules above.
+  Disable MD013, because one sentence per line exceeds its default line length.

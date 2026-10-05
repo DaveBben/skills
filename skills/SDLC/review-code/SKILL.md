@@ -11,10 +11,9 @@ The subject is the thing under review. When it is ambiguous, ask once.
 
 ## Review it
 
-Every subject gets the same review, whoever wrote it, from the plugin's `review` and `verify` agents.
+Review every subject with the `review` and `verify` agents.
 
-* **Agent files:** each agent is one file in `../agents/<name>.md`, beside this skill's folder.
-* **Launch by name** where the harness loads named agents (Claude Code's SDLC plugin installs `SDLC:review` and `SDLC:verify`). Otherwise launch a general subagent told to follow the file.
+* **Launch by name** (`SDLC:review`, `SDLC:verify`) where the harness loads named agents, else launch a general subagent told to follow `../agents/<name>.md`.
 * **Launch each agent fresh,** giving paths, never file contents, and nothing from this chat.
 
 1. **The ground:** give the agents a path to the code, and have no agent edit the user's files.
@@ -50,9 +49,11 @@ Every subject gets the same review, whoever wrote it, from the plugin's `review`
    * Rows that name the same line and the same wrong result become one row carrying every piece of evidence.
    * Keep every row, including a row only one agent found. A row counts by its evidence, not by how many agents found it.
    * Number the merged rows 1 to n.
-5. **The `verify` agent:** give it the path to `findings.md`, the subject's path or branch, the merge target, the acceptance criteria and the check command. Give it nothing from the agents that wrote the rows. It keeps a row only when a red test fails for the stated reason or a cited line shows the fault. Then delete each `attack-<n>/` directory the review agents left in the subject's tree.
+5. **The `verify` agent:** give it the path to `findings.md`, the subject's path or branch, the merge target, the acceptance criteria and the check command. It keeps a row only when a red test fails for the stated reason or a cited line shows the fault. Then delete each `attack-<n>/` directory the review agents left in the subject's tree.
+   * **One round:** review, merge, verify, report. After `verify` returns, do not launch more `review` agents or a second `verify`.
 6. **Report** the rows `verify` kept, blocking first, as it wrote them.
    * **Merge request:** write them as comments by [references/pull-request.md](references/pull-request.md). Print them, and post only when the user says to.
+   * **Other subjects:** print the kept rows, blocking first, then the verdict line from `pull-request.md`, without anchors.
    * **Failing check command:** report it as a blocking finding.
 
-Never rewrite the work under review, and write code only when the user asks. After a report to the user, offer the `guardrails` skill once for a finding a checker could catch next time.
+Write code only when the user asks. After a report to the user, offer the `guardrails` skill once for a finding a checker could catch next time.

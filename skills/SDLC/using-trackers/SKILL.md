@@ -9,16 +9,13 @@ metadata:
 
 ## Words used here
 
-* **Tracker:** the issue tracker the repository uses, such as Gitea, GitHub, GitLab or Jira.
-* **Story, spike:** the text the `story` or `spike` skill wrote; one issue each.
 * **Feature:** several stories that share one outcome. On a tracker it is only its issues and their blocking relations.
-* **Board:** a tracker's project or board view, showing issues in columns.
 
 ## Find the tracker
 
-* **From the repository:** the git remote, a tracker URL in AGENTS.md or the README, and any link the user gave. Ask only when these are empty or disagree.
+* **From the repository:** find it from the git remote, a tracker URL in AGENTS.md or the README, and any link the user gave; ask when none names one or they disagree.
 * **What the API can do:** read its version and API description (swagger, OpenAPI) before promising an operation. Tell the user what it lacks before starting.
-* **Reads and writes differ:** reads may work without auth when writes do not. A successful read proves nothing about write access.
+* **Reads and writes differ:** a successful read proves nothing about write access.
 
 ## Credentials
 
@@ -42,7 +39,7 @@ metadata:
 Blocking relations, one per tracker:
 
 * **Gitea:** issue dependencies, `POST /repos/{o}/{r}/issues/{n}/dependencies`; issue `n` is blocked by the issue in the body.
-* **GitHub:** "blocked by" relationships. Sub-issues need a parent issue, so they never carry order.
+* **GitHub:** "blocked by" relationships. Never use sub-issues; they need a parent issue, which this skill does not create.
 * **GitLab:** `blocks` issue links, on Premium and above. Free has only `relates to`: tell the user and ask.
 * **Jira:** issue links of type Blocks.
 
@@ -50,8 +47,7 @@ Blocking relations, one per tracker:
 
 A board is not an issue: a new issue is not on a board until something places it there.
 
-* **Gitea:** a separate container. Before v28.0.0 (released 2026-09-29, go-gitea/gitea#38691) it has no project API: tell the user to tick the issues in the Issues tab, then Project, then the board's name.
-* **Gitea v28 and later:** `POST /repos/{o}/{r}/projects/{id}/columns/{col}/issues/{issue_id}`, where `issue_id` is the issue's global `id`, not its `#` index.
+* **Gitea:** a separate container. Check the swagger for a projects endpoint (added in v28.0.0). Where it exists: `POST /repos/{o}/{r}/projects/{id}/columns/{col}/issues/{issue_id}`, where `issue_id` is the issue's global `id`, not its `#` index. Where it does not: tell the user to tick the issues in the Issues tab, then Project, then the board's name.
 * **GitHub:** a separate container; `gh project item-add`, or the project's auto-add workflow.
 * **GitLab:** a view over labels; the label places the issue.
 * **Jira:** the board's filter places the issue.
@@ -61,13 +57,13 @@ A board is not an issue: a new issue is not on a board until something places it
 
 * **Find a story's issue:** the link or key the user gave, the key in the `story/` branch name, else a search by title among issues labelled `story`.
 * **Read it whole:** the body, then every comment, since a comment can change what was agreed. Then its state, labels and relations.
-* **A feature's issues:** follow the blocking relations from any one of them, or list the board or milestone the user names.
+* **A feature's issues:** follow blocking relations in both directions from any one issue, or list the board or milestone the user names.
 * **Next story:** the first open issue of the feature with no open blocker and no open pull request.
 * **Edit the body** in place with the whole new text. Put findings, a pull request's link or a spike's results in a comment.
 
 ## Verify every write
 
-* **Read the issue back** after each write: title, body, labels, relations, and board placement where one was made. Fix a difference before the next write.
+* **Read the issue back** after each write, since a tracker can accept a call and drop the label or relation: title, body, labels, relations, and board placement where one was made. Fix a difference before the next write.
 * **Report** each issue's URL, and each step left for the user to do by hand.
 
 ## Destructive operations

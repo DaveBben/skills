@@ -27,10 +27,9 @@
    * A test you cannot satisfy for a reason that holds against the code is a stop: report the test and the reason to the user, and change nothing in it.
    * A test the user agrees is wrong: save `git config --get-all branch.<branch>.redCommit`, run `git config --unset-all branch.<branch>.redCommit`, which the user approves where the guard asks, and give `test-author` the test, the correction and the saved hashes. It commits the corrected test and locks it and each earlier red commit again.
 5. **Green:** run the check command. The whole suite must pass, not only the new tests, and no red test may still carry a marker.
-   * Run the new test files five more times. A test whose result changes is flaky: report it to the user as a test to correct, by the step 4 path for a test the user agrees is wrong.
+   * Run the new test files again when a test touches time, randomness, concurrency or the network. A test whose result changes is flaky: report it as a test to correct.
 6. **Refactor** inside the diff with every test green, then run the check command again.
-   * Remove code no acceptance criterion asked for and comments that restate the code.
-   * Reuse an existing helper instead of a second copy.
+   * Remove code no acceptance criterion asked for.
 7. **Review:** run the `review-code` skill on the branch, given the story's acceptance criteria, the merge target, the red commit's hash and the check command, and nothing from this chat. Run no second review. For each row it keeps:
    * **Finding,** blocking or not: `test-author` adds a failing test for it in a new test file, locked like the others; then fix it.
    * **Weak test:** `test-author` adds, in a new test file, a test the row's named wrong implementation fails; it may pass at once.

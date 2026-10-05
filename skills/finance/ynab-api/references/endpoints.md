@@ -122,11 +122,11 @@ Every write body wraps its object in a key named for the resource.
 {"category": {"goal_target": 150000, "goal_needs_whole_amount": false, "goal_frequency": "monthly"}}
 ```
 
-Fields: `name` (max 50), `note`, `category_group_id` (not an internal group), `goal_target` (`null` removes the target), `goal_target_date`, `goal_needs_whole_amount`, `goal_frequency` (`monthly`, `weekly`, `yearly`; needs `goal_target`; not with `goal_target_date`; replaces the existing target). `goal_needs_whole_amount` and `goal_frequency` do not apply to credit card payment or loan categories. There is no `hidden`, no `goal_type` and no sort order.
+Fields are those in the Writing table in SKILL.md; `goal_needs_whole_amount` and `goal_frequency` do not apply to credit card payment or loan categories.
 
 **Create a category** — `POST /budgets/{id}/categories`: `{"category": {"name": "...", "category_group_id": "..."}}`, with any of the fields above.
 
-**Create or rename a group** — `POST /budgets/{id}/category_groups` or `PATCH /budgets/{id}/category_groups/{group_id}`: `{"category_group": {"name": "..."}}`. Groups cannot be deleted, hidden or reordered.
+**Create or rename a group** — `POST /budgets/{id}/category_groups` or `PATCH /budgets/{id}/category_groups/{group_id}`: `{"category_group": {"name": "..."}}`.
 
 **Assign money for a month** — `PATCH /budgets/{id}/months/{YYYY-MM-01}/categories/{category_id}`: `{"category": {"budgeted": 250000}}`. This sets the month's total assigned amount, not an increment.
 

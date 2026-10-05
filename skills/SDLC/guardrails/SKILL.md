@@ -28,7 +28,7 @@ Rung 2 equivalents for other agents:
 * **A request to set up checks, hooks or linting,** such as 'we have no linting' or 'run the tests when claude finishes': set them up by [references/defaults.md](references/defaults.md).
 * **'What rules or guardrails do I have':** list the steps `./check` runs, the hooks in `.claude/settings.json`, and the files under `.claude/rules/`, then offer the two choices below.
 * **'Which CLAUDE.md rules could be checks':** "Scan the instructions" below.
-* **The bare word 'guardrails':** offer two choices in one message, set up the default checks or scan the instructions,, using the harness's multiple-choice tool where it has one (Claude Code's AskUserQuestion).
+* **The bare word 'guardrails':** offer two choices in one message, set up the default checks or scan the instructions, using the harness's multiple-choice tool where it has one (Claude Code's AskUserQuestion).
 
 ## Add one rule
 
@@ -48,13 +48,14 @@ No executable `./check` at the repository root: set it up by [references/default
    * **It returns `Not expressible`:** go to the next rung-1 option, a script and then a test.
 5. **The failure message is the prompt:** it says what is forbidden and what to do instead, never a bare rule identifier.
 6. **Watch it fail once:** introduce the violation, confirm `./check` exits non-zero with the message, then remove the violation.
-7. **Existing violations:** the user picks one of these. Never leave `./check` failing.
+7. **Existing violations:** the user picks one of these.
    * A cleanup first, as its own change.
    * A ratchet, which fails only when a file gains a finding: copy [scripts/ratchet.py](scripts/ratchet.py) into the repository, commit its baseline JSON, and pipe the tool's findings to it from `./check`, one `<rule><TAB><file>` line each, such as `semgrep --config .semgrep/ --json | jq -r '.results[] | "\(.check_id)\t\(.path)"' | python3 tools/ratchet.py .ratchet.json`. Semgrep's `--baseline-commit` cannot do this job: it aborts when the tree has unstaged changes, which it always has at turn end.
 8. **Rung 2:** write one file per topic, holding the glob, one imperative sentence and the reason.
    * **Claude Code globs:** `*` matches within one path segment and `**` across directories, so write `"**/*.py"` to match at every depth.
 9. **Rung 3:** write one line stating what happens and what breaks when the rule is broken.
-10. **Report** each file written and, for a check, the failing `./check` output from step 6.
+10. **Report** the step 6 failing output.
+11. Never leave `./check` failing.
 
 ## Scan the instructions
 

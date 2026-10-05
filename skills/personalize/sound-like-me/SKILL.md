@@ -7,7 +7,7 @@ metadata:
 ---
 # Sound like me
 
-The user's voice is described in private profile files that live outside this skill. Pick the profile that fits the message, read the whole file, and compose the text by following it. The profile is the style authority for this text, and it overrides your default prose habits and any general writing rules loaded in the session. A format the user or another skill requires for the message, such as a comment label or a required line, stays as required; the profile governs the words inside it. It applies only to the text written as the user. Your own replies to the user keep your normal voice.
+The user's voice is described in private profile files that live outside this skill. Pick the profile that fits the message, read the whole file, and compose the text by following it. The profile overrides your default prose habits and any other loaded writing skill for the words inside the message. A format the user or another skill requires for the message, such as a comment label or a required line, stays as required; the profile governs the words inside it.
 
 ## Where the profiles are
 
@@ -22,13 +22,13 @@ The expected files are:
 | `writing.md` | Informational writing: documentation, READMEs, design docs, wiki pages, how-tos, blog posts and essays |
 | `speaking.md` | Words the user will say aloud: video scripts, voiceovers, talks, presentation narration |
 
-When the directory or the fitting file is missing, tell the user the path you checked and ask them to point you at a profile. Do not improvise their voice without one.
+When the directory or the fitting file is missing, tell the user the path you checked and ask them to point you at a profile. Do not draft in a guessed voice or a generic friendly voice.
 
 ## Choosing a profile
 
 Choose by audience and medium, not by topic. A technical question from a friend in a text thread is `casual.md`. A joke in a merge-request thread is `professional-chat.md`.
 
-When the medium is not in the table above, such as email, pick the nearest profile and tell the user which one you used:
+When the medium is not in the table above, such as email, pick the nearest profile:
 - A short work email → `professional-chat.md`.
 - A long explanatory work email → `writing.md`.
 - A personal email → `casual.md`.
@@ -37,10 +37,16 @@ When a message mixes registers, such as a coworker who is also a close friend, p
 
 ## Composing
 
-- **Mirror the thread.** When replying, read the whole thread or document you are replying into, and match its energy, length and register as the profile directs.
-- **Content comes from the user.** Never invent facts, plans, times, commitments, opinions or personal details that the user, the thread, or the work done in this session (such as code you read or a review's findings) does not establish. When the message needs a fact you lack, ask for it, or leave a clearly marked placeholder such as `[time?]` and point it out.
 - **No misspellings or grammar mistakes**, even when the profile describes the user making them. Follow the capitalization, missing final periods and sentence fragments the profile describes; those are style, not mistakes.
-- **Show the message by itself.** Put the message in its own block, with nothing inside the block but the words the user would send or say: no preamble, alternatives or commentary. Put any note, such as which profile you used or a placeholder to fill, outside the block. When a reply is several separate texts, show each one on its own line and say that they are separate messages.
+- **Content comes from the user.** Never invent facts, plans, times, commitments, opinions or personal details that the user, the thread, or the work done in this session (such as code you read or a review's findings) does not establish. When the message needs a fact you lack, ask for it, or leave a clearly marked placeholder such as `[time?]` and point it out.
+- **Mirror the thread.** When replying, read the whole thread or document you are replying into, and match its energy, length and register as the profile directs.
+- **Show the message by itself.** Put the message in its own block, with nothing inside the block but the words the user would send or say: no preamble, alternatives or commentary. Put any note, such as the profile you used (always for email) or a placeholder, outside the block. When a reply is several separate texts, show each one on its own line and say that they are separate messages.
+
+```
+sounds good, I'll take a look this afternoon and leave comments on the MR
+```
+
+Profile: professional-chat.md
 
 ## Sending
 

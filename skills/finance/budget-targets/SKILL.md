@@ -29,21 +29,16 @@ A category with no role is derived from its spending.
 
 ## Run it
 
-```bash
-python3 scripts/derive_targets.py            # report to <config dir>/history/<date>-targets.md
-python3 scripts/derive_targets.py --fresh    # re-fetch YNAB and FRED first
-python3 scripts/derive_targets.py --apply --only "Dining Out" --only "Groceries"
-python3 scripts/derive_targets.py --selftest # checks the rules on synthetic data, no network
-```
+Run the script with `--apply --only "<name>"` to write, and `--fresh` to re-fetch YNAB and FRED. `--help` lists the rest.
 
-Three YNAB GETs and one FRED CSV per CPI series, cached in `<config dir>/cache/`. `--no-cpi` skips FRED. `--apply` always re-fetches, and writes `goal_target`, `goal_needs_whole_amount` and `goal_frequency: monthly` only for the categories named with `--only` (or confirmed one by one when run in a terminal). It snapshots each category before and after to `history/` and appends one line per change to `history/<date>-budget-targets.md`.
+`--apply` re-fetches, then writes `goal_target`, `goal_needs_whole_amount` and `goal_frequency: monthly` only for categories named with `--only`. Name a category in `--only` only after the user confirms it. The change log goes to `history/<date>-budget-targets.md`, with before/after snapshots in `history/`.
 
 ## The rules the script applies
 
 * **Fixed bills (roles.fixed): the current bill.** The target is the latest bill divided by its billing period in months, read from the gaps between bills. Do not average a contract. A monthly bill gets refill-up-to; a bill spread over several months gets set-aside. Confirm each amount against the contract, and sum the bills when one category holds several.
-* **Everything else: the price-adjusted spend rate.** Target = (last 12 complete months of net spend ÷ 12) × (1 + the category's 12-month CPI change), rounded to $5. A 12-month mean is centred about six months back and the target applies about six months forward, so the gap is about a year of price change. Net spend subtracts reimbursements. History under an archived name of the form `Old (-> New)` counts toward `New`.
+* **Everything else: the price-adjusted spend rate.** Target = (last 12 complete months of net spend ÷ 12) × (1 + the category's 12-month CPI change), rounded to $5. The CPI factor covers the gap between the 12-month mean (centred six months back) and the target's use six months ahead. Net spend subtracts reimbursements. History under an archived name of the form `Old (-> New)` counts toward `New`.
 * **Rare funds: a longer window.** When a category spent in fewer than two of the last 12 months, the rate is taken over `long_months`. Fewer than two spending months in that window is reported "by hand": set it from the expected bill and its date.
-* **Goal type: replay the year.** Starting from a $0 balance, the script replays the window twice at the target, once as refill-up-to ("Refill up to", tops the balance back to the target) and once as set-aside ("Set aside another", adds the target every month). A month is uncovered when its spend exceeds the available balance. Set-aside is chosen only when it leaves fewer uncovered months. Set-aside never leaves more, so refill-up-to results only when the two tie.
+* **Goal type:** the script replays the past year at the target as refill-up-to and as set-aside. It picks set-aside only when that leaves fewer uncovered months, so refill-up-to results when the two tie.
 * **No cap on a lumpy fund.** A refill-up-to recommendation below the window's largest month is marked REFUSED and cannot be applied. Decide it with the user: usually set-aside, or split the category (below).
 * **Purchase-decision threshold.** Over `steady` and `wants` categories only, the smallest of the largest purchases that together carry half the money. Fixed bills are excluded because they are not purchase decisions.
 
@@ -51,8 +46,7 @@ Three YNAB GETs and one FRED CSV per CPI series, cached in `<config dir>/cache/`
 
 1. **Spending in archived or uncategorized categories.** Fix routing first: this money counts toward no target. Rename an archived category `Old (-> New)` to fold its history into `New`, then re-run.
 2. **"first spend in month k" notes.** The script cannot see when a category was created. If it is newer than the window, the rate is too low; ask the user and set it by hand.
-3. **REFUSED rows and "by hand" rows.** Decide each with the user.
-4. **The Change column.** `amount`, `type`, `cadence` or `new target` is what differs from today. A row whose current type is `TB`, `TBD`, `MF` or `DEBT` must be changed to a NEED target in the YNAB app before the script can patch it; the API cannot change goal type.
+3. **The Change column.** `amount`, `type`, `cadence` or `new target` is what differs from today. A row whose current type is `TB`, `TBD`, `MF` or `DEBT` must be changed to a NEED target in the YNAB app before the script can patch it; the API cannot change goal type.
 
 ## Split when the parts need different goal types
 
@@ -68,8 +62,8 @@ Also split out a recurring payee that started or stopped inside the window: set 
 
 ## When to run it
 
-* **Re-derive targets once a quarter**, and only then. Between re-derivations, record covers but leave targets alone.
-* **Raise a target at the next re-derivation** when the category was covered from elsewhere in 3 of the last 6 months.
+* **Re-derive targets once a quarter, and not between.** Do not lower or raise a target mid-quarter after an overspend.
+* **At the quarterly re-derivation, raise a target** when the category notes show it was covered from another category in 3 of the last 6 months. Cover lines read `YYYY-MM: target X, spent Y, covered Z from <source>`.
 * **Lower a refill-up-to target** that spent under 70% of it for 3 straight months, to its spend rate at the next re-derivation. Never apply this to set-aside funds: a set-aside fund spending nothing is the fund working.
 
 Read the 3-of-6 and 70%-for-3 thresholds from `[scripts] cover_raise_count`, `cover_lookback_months`, `underspend_ratio` and `underspend_months` when set.

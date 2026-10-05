@@ -13,9 +13,5 @@
 
 * **Scaling:** `recipeIncrementQuantity` multiplies every row. Scale 4 on a 1-serving recipe turned 2 eggs into 8. Fractions work: 2/12 turned 8 cups of yogurt into 1.33 cups.
 * **Row subsets:** `recipeIngredients` limits the add to the rows passed, exactly as read from `GET /api/recipes/<slug>`. Two array items with the same `recipeId` add different row subsets at different scales.
-* **Merging:** items that share a food and unit merge into one line. Checking it off hides every recipe's need on that line.
+* **Merging:** items that share a food and unit merge into one line.
 * **Updating an item** takes the full item object from the list read, with the changed fields edited.
-
-## Server
-
-The server is slow and stalls under concurrent requests. Fetching every candidate recipe in full takes minutes.

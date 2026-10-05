@@ -1,6 +1,6 @@
 ---
 name: review-skill
-description: "Use this skill when an agent skill or a subagent prompt must be reviewed, trimmed or tightened: a SKILL.md, its reference files, or an agent prompt file. Use it on: 'review this skill', 'review my SKILL.md', 'is this skill too long', 'tighten this skill', 'cut this skill down', 'make this skill shorter', 'why does the agent ignore this rule in my skill', 'will this skill work on Opus 5.5', 'audit the skills in this repo'. Checks every line against what measurably helps a model follow written instructions: cut what the model already knows or can read, keep what it cannot infer, and name failures specifically. Reports findings ranked by effect and edits only when asked."
+description: "Use this skill when an agent skill or a subagent prompt must be reviewed, trimmed or tightened: a SKILL.md, its reference files, or an agent prompt file. Use it on: 'review this skill', 'review my SKILL.md', 'is this skill too long', 'tighten this skill', 'cut this skill down', 'make this skill shorter', 'why does the agent ignore this rule in my skill', 'will this skill work on Opus 5.5', 'audit the skills in this repo'. Reviews a skill and reports what to cut, change or add; edits only when asked."
 license: MIT
 compatibility: any-agent
 metadata:
@@ -12,7 +12,7 @@ A skill is a set of instructions an agent loads into its context when a task mat
 
 ## Read first
 
-* **Read everything that loads together.** Read `SKILL.md`, each file it links, and any hook that injects text into the same session. A hook is a script the agent's harness runs to insert text into every session. Rules from all of these compete for the same attention.
+* **Read everything that loads together.** Read `SKILL.md`, each file it links, and any hook that injects text into the same session. Rules from all of these compete for the same attention.
 * **Find what the skill prevents.** Name the task and the mistakes a capable model makes on it without the skill. When the skill does not say and the user cannot, ask. A line cannot be judged without knowing which mistake it prevents.
 * **Check the format contract.** `name` is 1 to 64 lowercase letters, digits and hyphens, and matches its directory. `description` is at most 1,024 characters. `SKILL.md` is under 500 lines. Reference files sit one level deep, and a reference file over 100 lines opens with a table of contents.
 
@@ -22,9 +22,8 @@ A skill is a set of instructions an agent loads into its context when a task mat
 * **Anything the agent can read:** file trees, architecture overviews, and command lists that already sit in the repository. Measured: repository overviews in context files did not raise task success, and the files raised cost by more than 20%.
 * **Generic rules:** "be careful", "write clean code", "avoid a generic look". A generic rule swaps one default for another. Replace it with the specific patterns it means, or delete it.
 * **Checklists run on every task:** an agent treats a checklist as mandatory steps, including on tasks where a step does not apply. Excessive verification was the most common skill-caused failure in a study of 307. Keep a step only when skipping it caused a real failure, and state the case it applies to.
-* **Effort and verification prompts:** "think carefully", "think step by step", "double-check your work", "think less". Current Claude models check their own work, and the effort setting (the API or CLI parameter for how much the model reasons) controls thinking more reliably than prompt text. Removing these lines measured no loss in quality.
+* **Effort and verification prompts:** "think carefully", "think step by step", "double-check your work", "think less" and "only use tools when strictly necessary" (Anthropic's Sonnet 5.5 guide says to remove that one). Current Claude models check their own work, and the effort setting controls thinking more reliably than prompt text. Removing these lines measured no loss in quality.
 * **Emphasis:** ALL CAPS, CRITICAL, IMPORTANT, MUST, and stacked bold. Current models follow a plain instruction, and emphasis makes them apply the rule to cases it was not meant for. Write "Use X when Y." Keep one strong word only on a rule that testing shows is still missed.
-* **Tool-discouraging wording:** "only use tools when strictly necessary". Anthropic's Sonnet 5.5 guide says to remove it.
 * **Repeats:** the same rule in `SKILL.md` and a reference file, or in the skill and an always-loaded hook. Keep one copy, in the file that loads when the rule is needed.
 * **Rationale written for a human:** design history, credits, and why the author changed their mind. Move it to the README, which no agent loads.
 * **Perspective leak:** a line that describes the system the agent runs inside instead of the agent's own task, written from the view of whoever designed or launches it. Example: "You are review agent `<n>`, one of three working blind to each other." An agent launched by another agent starts with no memory and no colleagues, so the line prevents nothing, and telling it others share the work can lead it to skip what it assumes they cover. Keep only what the agent acts on: "Your number is `<n>`; it names your files." The same leak appears as what happens to the agent's output afterwards, who launched it, or why the design has this shape. Test each such line by deleting it: when the agent would act the same, cut it.
@@ -43,16 +42,15 @@ A skill is a set of instructions an agent loads into its context when a task mat
 * **Count the rules:** add up the rules that load together across the skill, its references and any hooks. Adherence falls as the count rises. In a 2026 test, no model followed every rule once there were 80. Models also favour earlier rules, so put the rules most often broken first. Anthropic also suggests repeating one key constraint at the end of a long prompt.
 * **Split by when it is needed:** `SKILL.md` holds what every run needs. Material only some runs need goes in a reference file that `SKILL.md` names, with the condition for reading it. Measured: focused skills with at most three modules beat larger bundles.
 * **Write the description for triggering:** it is the only part loaded before the skill fires. Lead with the condition and the user's own phrases, then state what the skill does in one sentence. Leave the procedure out of it.
-* **Leave the markup alone:** no format (markdown, plain text, prose, tables) measurably wins on current models. Use XML tags only to separate instructions from pasted data or examples.
 * **Distrust model-drafted lines:** skills a model wrote for itself scored at or below no skill in a 2026 benchmark. Check each line a model drafted against a failure the user actually saw.
 
 ## Model notes, September 2026
 
-* **Opus 5.5:** Opus 5 prompts work without changes. Effort defaults to medium and controls thinking. It responds to a paragraph naming the kinds of early stop to avoid and the stops to make, placed at the end of the system prompt.
-* **Sonnet 5.5:** a prompt asking it to think less does not reliably reduce thinking, so use effort. One paragraph telling it not to start extra review rounds cut session cost by about a third with no change in quality.
+* **Opus 5.5:** effort defaults to medium and controls thinking. A paragraph at the end of the system prompt naming the early stops to avoid and the stops to make is followed.
+* **Sonnet 5.5:** one paragraph telling it not to start extra review rounds cut session cost by about a third with no change in quality.
 
 ## Report
 
-List findings ranked by expected effect on behaviour, then by tokens saved. Give each finding its location as `file:line`, the line, the action (cut, change or add), the replacement text for a change, and a one-sentence reason. Say when the reason rests on vendor guidance instead of a measurement. End with the rule count and line count before and after the proposed changes.
+List findings ranked by expected effect on behaviour, then by tokens saved. Give each finding its location as `file:line`, the line, the action (cut, change or add), the replacement text for a change, and a one-sentence reason. Say when the reason rests on vendor guidance instead of a measurement. Example: `SKILL.md:26 — "Emphasis: ALL CAPS, CRITICAL..." — change — "Use X when Y." — current models over-apply emphasis. Vendor guidance.` End with the rule count and line count before and after the proposed changes.
 
-Edit the skill only when the user asks. A review predicts an effect. Only running the skill on real tasks with and without the change shows one.
+Edit the skill only when the user asks. Only running the skill on real tasks with and without the change shows its effect.

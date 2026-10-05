@@ -9,15 +9,10 @@ metadata:
 
 An ADR (architecture decision record) is one Markdown file under `docs/adr/` saying what was decided, why, and what it gave up.
 
-Write it when the decision is made, not at the end of the feature. Write one for:
-
-* An expensive or irreversible choice.
-* An accepted hazard.
-* A rejected alternative.
-
+Write it when the decision is made, not at the end of the feature.
 ## Get the reasons
 
-The reasons are the user's. Never record a reason the user has not given or confirmed. Add no alternative, mechanism or measurement that neither the user nor your feedback message named.
+The reasons are the user's. Never record a reason the user has not given or confirmed. Record only alternatives, mechanisms and measurements that the user or your feedback message named.
 
 ```text
 Before recording <decision>, correct anything wrong:
@@ -31,12 +26,7 @@ Before recording <decision>, correct anything wrong:
 * **An open decision:** send the block with the alternatives and the tradeoff they turn on in place of the drafts. The user's answer is the reasons.
 * **The agent's own choice:** state the agent's reason, the obvious alternative and the tradeoff. Ask the user to confirm, change or replace the reason.
 * **The user defers:** record the agent's reason, marked as the agent's, with the line "The user deferred to the agent's recommendation."
-* **Feedback, only when there is some:** send it in one message before writing, giving each point its mechanism. It covers:
-  * a tradeoff the answer did not name;
-  * an alternative nobody considered;
-  * a hazard accepted without a test;
-  * a reason that does not hold against the code.
-* **Where feedback goes:** after the user answers it, put it under "Alternatives rejected" or "What it gives up", marked as the agent's.
+* **Feedback, only when there is some:** send one message before writing, each point with its mechanism: a tradeoff the answer did not name, an alternative nobody considered, a hazard accepted without a test, or a reason that does not hold against the code. After the user answers, record it under "Alternatives rejected" or "What it gives up", marked as the agent's.
 * **No reasons given:** write no file. Say the decision is unrecorded, and carry on with the work.
 
 ## Where it goes
@@ -77,3 +67,5 @@ the over-limit call is refused. It does not assert the cap number, which is not 
 
 **Supersedes:** none.
 ```
+
+Reasons come from the user; with none given, write no file.

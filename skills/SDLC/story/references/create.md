@@ -105,8 +105,7 @@ Out of scope
 * Refunds in a currency other than the order's.
 ```
 
-* **Role:** whoever uses the changed interface. Use a kind of person the system has (a registered customer, a clinic admin), or, in code with no end user, the program or developer that calls it (a billing service calling `refund()`).
-* **Role, never:** "user", or the person building the change.
+* **Role:** whoever uses the changed interface (a registered customer, or in code with no end user the calling program); never "user" or the builder.
 * **`I want`:** what they can do, never a control or a design (a dropdown, a modal, a new table). The design comes after the need.
 * **Reason:** what they gain, not the feature restated. When neither the request nor the code gives one, ask; the reason decides which acceptance criteria matter.
 * **Context:** write it from the request, the tracker or the PRD, never from your plan. Name each repository the story touches when it is more than one. A reader with nothing from this chat must be able to test from it.
@@ -119,42 +118,14 @@ Out of scope
 * **One action per example.** Its `then` and `and` lines name what a caller or a person sees, in the names the code and its tests already use.
 * **Not a result:** a mechanism (an exception class, a lock, a log line, a call to a function).
 * **Past about 8 criteria:** check whether they are separate variations of one action (each kind of code, each file type), and split by variation when they are.
-* **A rule with many examples** may be several rules.
+* **More than three examples under one criterion:** check whether it is several rules, and split them.
 * **Existing behaviour:** leave out acceptance criteria it already covers, unless this story changes them.
 * **A changed behaviour:** mark the criterion `changes: <the old behaviour>`.
 
-Walk the three lists below to find what this change can break, not to fill the story:
+Check only the paths this change can break. Name a failure or abuse path only where its outcome is unknown in the code or the user might choose differently.
 
-* **Write a criterion** only where the right outcome is wrong or unknown in the code today, or where the user might choose differently.
 * **Write an `Out of scope` line** only for what a reader would expect this story to do.
-* **For a bug,** walk only the paths the fix touches.
-
-**Failure paths:**
-
-* **Input:** empty or malformed; the maximum, one past it, very long text and unicode.
-* **Repetition:** the same action twice; two at the same moment.
-* **Interruption:** an action stopped halfway, including a session that expires or a network that drops. Does the person's work get lost?
-* **Dependencies:** down, slow or partly succeeded.
-* **Equivalent inputs:** inputs that differ in case, whitespace or format but must give the same result.
-* **Existing data:** each state it can be in (disabled, deleted, unverified, empty), and data created before this change, with any migration it needs.
-* **Time:** when the story has a date, an expiry or a schedule, midnight, a daylight-saving change and month end.
-
-**Abuse paths,** when the story takes input from outside the system:
-
-* **Ownership:** another person's data.
-* **Volume:** bulk repetition.
-* **Disclosure:** a response that reveals a third party, and a difference in timing or error that reveals what the system holds.
-* **Hidden input:** input that arrives outside the visible field (a header, a query parameter, a file name).
-
-**What the result reaches:**
-
-* **Accessibility:** someone using a screen reader or only a keyboard, where the story shows them anything.
-* **Roles:** a role that may not do this, and what it sees instead.
-* **Other viewers:** another person who must see the result (a support agent, an operator, an auditor) gets their own story.
-* **Messages:** each email, notification or webhook fires exactly once.
-* **Readers of a changed API, file or message:** each program that reads it.
-* **Caches:** a cached result, and how soon it shows the change.
-* **Data changes:** an action that changes or deletes data, and whether it can be undone.
+* **House cases:** existing data created before this change, another viewer who needs their own story, each reader of a changed API, a response that reveals a third party, an action stopped halfway that loses the person's work, each email, notification or webhook firing exactly once.
 
 ## When to stop
 
@@ -164,7 +135,7 @@ The story is ready when all of these hold, and no sooner:
 * **No question is open:** every reading that would change an acceptance criterion is answered by the user or recorded under `Decided`, and `Open questions` is empty.
 * **It is one story:** a named role and reason, and every example's `when` is the same action by that role. An `I want` joined by "and" or "or" is two stories.
 
-Then stop writing. Add no criterion for a walk item that cannot happen here, for behaviour existing tests already cover, or to reach a count.
+Then stop writing.
 
 ## Agree it
 

@@ -36,7 +36,6 @@ rules:
 
 * **Fixture:** same basename as the rule, with `// ruleid: <id>` above each line that must fire and `// ok: <id>` above each near miss.
 * **Run:** the two commands below.
-* **Break the fixture once** and confirm the test fails.
 
 ```sh
 semgrep --test --config .semgrep/
@@ -47,7 +46,6 @@ semgrep --validate --config .semgrep/
 
 * **Into `./check`** at the repository root: `semgrep --config .semgrep/ --error`.
 * **Existing code already breaks the rule:** do not add it to `./check`; return the count and the files.
-* **Silencing a line:** `nosemgrep: <rule-id>` and the reason.
 
 ## Return
 

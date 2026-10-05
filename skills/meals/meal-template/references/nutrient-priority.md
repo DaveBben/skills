@@ -2,15 +2,15 @@
 
 When choosing the add-on, read the section for the nutrient the template is short on.
 
-Contents: Fiber, Protein, Fat quality, Micronutrient density.
+Contents: Fiber, Protein, Fat quality.
 
 Foods ranked per 100 kcal, so a template can be built under a calorie ceiling. Values are USDA FoodData Central, approximate to +/-10-20%.
 
-**The denominator distortion:** ranking per calorie rewards water content. A food at the top of the fiber or micronutrient list may require a portion nobody will eat. Check the gram weight of 100 kcal before selecting an add-on.
+**The denominator distortion:** ranking per calorie rewards water content. A food at the top of the fiber list may require a portion nobody will eat. Check the gram weight of 100 kcal before selecting an add-on.
 
 ## Fiber
 
-**Practical add-ons:** cooked legumes rank lower per calorie (lentils 6.8, black beans 6.6, split peas 7.0) but deliver fiber and protein in one portion a person will actually eat. Prefer them when both targets are short. Endive and sauerkraut rank high only through water content (500+ g per 100 kcal). Wheat bran and cocoa powder reach their rank in gram-scale amounts that do not fit a dish (see the g = 100 kcal column).
+**Practical add-ons:** Cooked legumes (lentils 6.8, black beans 6.6, split peas 7.0) deliver fiber and protein together; prefer them when both targets are short.
 
 Whole foods only. Supplements and dried spices excluded; they outrank everything and are eaten in gram-scale amounts.
 
@@ -58,9 +58,7 @@ Cooked unless noted. Isolates excluded: soy protein isolate 26.4, gelatin 25.6, 
 
 Near misses: halibut 20.3, whiting 20.3, bison lean 19.9, blue crab 19.8, spirulina 19.8, chicken breast 18.8.
 
-**Why dairy misses:** residual lactose costs roughly 15% of calories with no protein return. Cottage cheese 1% is 17.2, nonfat Greek yogurt 17.3, dry-curd cottage cheese 20.4. They remain strong on protein per dollar and need no cooking.
-
-**Why salmon misses:** fat. Farmed Atlantic is 10.7, wild coho 16.9. Rank salmon on omega-3 instead.
+Dairy ranks lower because residual lactose costs calories with no protein return.
 
 ## Fat quality
 
@@ -84,34 +82,8 @@ Ranked by EPA+DHA per 100 g, the diet-limiting fatty acids. ALA and monounsatura
 | 14 | Tuna, light, canned | 0.3 | 0.8 | |
 | 15 | Cod | 0.2 | 0.9 | Top-5 protein, near zero here |
 
-**ALA tier (no EPA+DHA):** flaxseed 22.8 g ALA, chia 17.8, walnuts 9.1, hemp hearts 8.7. ALA converts at roughly 5% to EPA and under 0.5% to DHA. It does not replace the marine tier.
+**ALA tier (no EPA+DHA):** flaxseed 22.8 g ALA, chia 17.8, walnuts 9.1, hemp hearts 8.7.
 
-**MUFA tier:** macadamia 79% MUFA, olive oil 73%, avocado 71%. Their value is displacing soybean, corn, sunflower, and cottonseed oil, not adding omega-3.
+**MUFA tier:** macadamia 79% MUFA, olive oil 73%, avocado 71%.
 
 **Exclude on mercury regardless of fat profile:** king mackerel, swordfish, shark, tilefish, bigeye tuna, marlin.
-
-## Micronutrient density
-
-Ranked by count of essential micronutrients reaching 10% DV or more per 100 kcal. Counts shift by +/-2 depending on the USDA entry and DV reference used.
-
-| # | Food | g = 100 kcal | Micros | Standouts per 100 kcal | Eatable at that portion |
-|---|---|---|---|---|---|
-| 1 | Beef liver, cooked | 52 | ~15 | B12 1800%, copper 700%, vit A 450% | Yes |
-| 2 | Chicken liver, cooked | 58 | ~14 | B12 950%, vit A 200%, folate 85% | Yes |
-| 3 | Spinach, raw | 435 | ~13 | K 4000%, folate 200%, Mg 100% | No |
-| 4 | Oysters, Pacific | 61 | ~11 | Zinc 350%, B12 700%, copper 250% | Yes |
-| 5 | Kale, raw | 286 | ~11 | K 1400%, vit C 400%, vit A 300% | Marginal |
-| 6 | Swiss chard, raw | 526 | ~10 | K 3800%, vit A 300% | No |
-| 7 | Clams, cooked | 68 | ~10 | B12 1000%, iron 80%, selenium 70% | Yes |
-| 8 | Turnip greens, boiled | 500 | ~10 | K 2500%, vit A 400%, Ca 100% | No |
-| 9 | Sardines, canned w/ bone | 48 | ~9 | B12 350%, selenium 80%, vit D 40% | Yes |
-| 10 | Mussels, cooked | 58 | ~9 | B12 350%, Mn 90%, selenium 60% | Yes |
-| 11 | Broccoli, raw | 294 | ~9 | Vit C 300%, K 250%, folate 50% | Marginal |
-| 12 | Egg yolk | 31 | ~9 | Choline 45%, B12 30%, vit D 20% | Yes |
-| 13 | Brussels sprouts, raw | 233 | ~8 | Vit C 250%, K 400% | Marginal |
-| 14 | Bell pepper, red, raw | 323 | ~8 | Vit C 450%, vit A 100%, B6 60% | Marginal |
-| 15 | Nori, dried | 28 | ~8 | Iodine 1000%+, folate 60% | Yes |
-
-**Cap liver at 100 g per week.** Preformed retinol accumulates; 100 g of beef liver is roughly 9000 ug RAE against a 3000 ug daily upper limit.
-
-**Organ meats, shellfish and small oily fish rank high and eat in one sitting.** Rows 3, 6, and 8 win the ratio and lose the meal.

@@ -5,9 +5,7 @@
 Write each kept finding as a Conventional Comment (format at conventionalcomments.org): a label, a decoration in parentheses, a one-line subject, then the discussion.
 
 * **Order:** blocking comments first.
-* **Rests on:** copy each row's `proof:` field: the run, or the traced lines.
-* **Voice:** write the comments and every reply in their threads as the user's own words, using the user's writing-voice skill when one is installed.
-* **Format:** the label, the decoration, the anchor line and the `Rests on:` line keep the format below.
+* **Voice:** write the comments and every reply in their threads as the user's own words.
 
 Each comment sits on one line of code:
 
@@ -16,7 +14,7 @@ Each comment sits on one line of code:
 * **A finding about something missing:** anchor it to the changed line whose behaviour lacks the thing, such as a criterion with no test or a query with no limit.
 * **Line number:** take it from the file at the pull request's head commit, on the new side of the diff, and read that line before posting.
 * **Line outside the diff:** a code host accepts an inline comment only inside the diff. Anchor to the changed line that causes it, and name the other line in the discussion.
-* **GitHub:** post a review comment with `line` and `side: RIGHT` and no `start_line`.
+* **GitHub:** post a review comment with `line` and `side: RIGHT`.
 
 ```
 <file>:<line>

@@ -7,7 +7,7 @@ metadata:
 ---
 # Orient
 
-`AGENTS.md` at the repository root loads into every session before its first message. Every line costs every session. The agent reads the README, the manifest and the code on its own.
+`AGENTS.md` at the repository root loads into every session before its first message. Every line costs every session.
 
 Keep a line only when deleting it would cause a mistake nothing else in the repository prevents.
 
@@ -29,7 +29,7 @@ Keep a line only when deleting it would cause a mistake nothing else in the repo
 * **Pointers:** the path of a document the agent would not find on its own and when to read it
 * **Boundaries:** one `Boundaries:` line naming each system the product reads, writes or runs inside.
   * **Writers:** for each store the product reads, name who writes the data: this product, a person through its own screens, or something outside.
-* **Project Tracker:** If using a project management tool like Jira, GitHub Projects, etc - add link to the location.
+* **Project tracker:** the link to the Jira or GitHub Projects board, when the team uses one.
 
 Keep the `Check:` and `Full check:` lines as found and exempt them from the findings below.
 
@@ -37,15 +37,13 @@ Keep the `Check:` and `Full check:` lines as found and exempt them from the find
 
 * **What a check enforces:** formatter settings, lint rules, type rules. A rule a program could check but none does yet goes to the `guardrails` skill.
 * **What the repository already says:** the purpose and stack the README and manifest give, a directory map, a feature list, an architecture description.
-* **Advice the agent follows unprompted:** write tests, handle errors, keep functions small.
 * **Words that cannot fail:** improve, better, seamless, robust, correct, properly, handled, intuitive, flexible, scalable, modern.
 
 ## Shape
 
 There is no fixed template.
 
-* **First:** the `Boundaries:` and `Architecture:` lines.
-* **Then:** only the headings that have content, in this order: Commands, Constraints, Traps, Pointers.
+* **Order:** `Boundaries:` and `Architecture:` first, then only the headings that have content: Commands, Constraints, Traps, Pointers.
 * **Size:** most repositories need under 40 lines. Cap the file at 100 lines and 8 KB.
 * **Adding a line:** rewrite the file by these rules rather than appending.
 * **Module conventions:** put them in a nested `AGENTS.md` inside that module.
@@ -68,11 +66,10 @@ Every run of this skill, and every request to see the architecture, writes or re
    * **Browsers and devices:** it has a web or mobile front end.
    * **Regulations such as GDPR, HIPAA, PCI or SOX:** it holds personal, health or payment data.
 4. **On yes:** write `AGENTS.md` from the kept and corrected lines, and replace a real `CLAUDE.md` with the symlink. **On no:** touch nothing.
-5. **Take the architecture snapshot,** whatever the answer.
 
 ## Orienting
 
-Take the architecture snapshot, then report in one message:
+Report in one message:
 
 * The commands.
 * The constraints and traps.
@@ -80,12 +77,6 @@ Take the architecture snapshot, then report in one message:
 
 Rewrite nothing unless the user accepts a finding. With no `AGENTS.md`, offer to write one.
 
-**Findings,** each quoting its line:
-
-* A line a check enforces or the repository already shows.
-* A line that cannot fail.
-* A command that does not run.
-* A constraint with no mechanism.
-* A file over 100 lines or 8 KB.
+**Findings,** each quoting its line: any line that fits 'What stays out', a command that does not run, a constraint with no mechanism, a file over 100 lines or 8 KB.
 
 With no check command, offer the `guardrails` skill once.

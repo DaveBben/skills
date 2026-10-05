@@ -1,6 +1,6 @@
 ---
 name: meal-template
-description: "Use this skill whenever a meal must be built or rebuilt to hit numeric nutrition targets drawn from a personal recipe library: a calorie ceiling, a protein floor, a fiber floor. Use it on: 'build a dinner template', 'create breakfast templates', 'make reusable meal templates', 'make this recipe hit 40g protein', 'fit my recipes into my macros', 'I want 10 dinners I can repeat'. Use it when the user names a recipe they already like and wants it adjusted rather than replaced. Pair a base recipe the user chooses with a fixed add-on that closes the macro gap, prove the pairing is an established dish rather than a macro graft, then write the result back to the recipe manager with ingredients that scale. Do not use it to invent recipes from nothing, and do not use it to schedule a week of meals from templates that already exist."
+description: "Use this skill whenever a meal must be built or rebuilt to hit numeric nutrition targets drawn from a personal recipe library: a calorie ceiling, a protein floor, a fiber floor. Use it on: 'build a dinner template', 'create breakfast templates', 'make reusable meal templates', 'make this recipe hit 40g protein', 'fit my recipes into my macros', 'I want 10 dinners I can repeat'. Use it when the user names a recipe they already like and wants it adjusted rather than replaced. Builds each template from a base recipe the user chooses plus a fixed add-on, verifies it, and writes it back to the recipe manager. Do not use it to invent recipes from nothing, and do not use it to schedule a week of meals from templates that already exist."
 license: MIT
 compatibility: Needs HTTP access to a recipe manager API (Mealie by default) and Python 3.
 metadata:
@@ -25,13 +25,13 @@ Build one template at a time. Each template ends with the user confirming before
 
 1. **Let the user name the base recipe.** They know which meals they actually cook. Offer candidates only when asked.
 2. **Record their deviations from the written recipe.** Users routinely omit ingredients. An omission changes the macros and must be computed against the version they cook, not the version on file.
-3. **Compute the base macros.** See below.
+3. **Compute the base macros.**
 4. **State the gap and the headroom.** Report the shortfall on each target and the calories remaining under the ceiling. The headroom sets the add-on budget.
-5. **Choose the add-on.** See below.
-6. **Recompute with the add-on.** Confirm every target clears, then run the low-end recompute in Computing macros.
-7. **Write it to the library.** Create the template as a new recipe. Leave the base recipe unchanged; the verifier compares against it. See `references/mealie-api.md`.
+5. **Choose the add-on.**
+6. **Recompute with the add-on.** Confirm every target clears.
+7. **Write it to the library.** Create the template as a new recipe. Leave the base recipe unchanged; the verifier compares against it, and pass its identifier to the verification subagent. See `references/mealie-api.md`.
 8. **Verify it.** Dispatch the verification subagent and the realism subagent. See below.
-9. **Apply the fixes, rewrite `nutrition` and the macros in `description` from the recomputed figures, then ask for the next base recipe.**
+9. Apply the fixes, rewrite `nutrition` and the macros in `description` from the recomputed figures, then ask for the next base recipe.
 
 ## Computing macros
 
@@ -50,7 +50,7 @@ The add-on must close the macro gap and belong on the plate. A macro-correct mea
 * **Match the flavor base of the dish.** Take the fat, acid, and aromatics already in the recipe as the constraint.
 * **Prove the pairing exists.** Search for the base plus the add-on as an established dish. Two independent published recipes or one from a tested source is sufficient. Cite the URLs.
 * **Reject the pairing if the search returns nothing.** Choose a different add-on rather than arguing the macros justify it.
-* **Draw from the priority foods.** `references/nutrient-priority.md` ranks foods by protein, fiber, fat quality, and micronutrient density per 100 kcal. Prefer an add-on that appears on the list the template is short on.
+* **Draw from the priority foods.** `references/nutrient-priority.md` ranks foods by protein, fiber, and fat quality per 100 kcal. Prefer an add-on that appears on the list the template is short on.
 * **Size the add-on to a published portion.** A proven pairing still fails at the wrong amount. Convert the add-on to grams per serving and keep it inside the range published recipes of that dish serve. An amount above that range is a macro graft, whatever the pairing evidence says.
 * **Prefer one add-on that closes both gaps.** Cooked legumes carry protein and fiber together. Two separate add-ons double the prep.
 * **Fold the add-on into the existing cooking step.** An add-on needing its own pan is a second recipe, not a template.
@@ -65,8 +65,6 @@ Give it three tasks and require a one-line verdict on each:
 * **Parsing.** Every ingredient row has a correct quantity, unit, and food, and the list scales sensibly to half and double the servings.
 * **Macro math.** An independent recompute from USDA values, per ingredient, against the stored figures. Require it to audit the per-100 g assumptions used and name any that are off.
 * **Instructions.** The method is sound and complete: temperatures, sequence, doneness, and what will burn, overcook, or go watery. Then low-effort technique upgrades, using only ingredients already listed, and give the calorie cost per serving of each upgrade.
-
-**Pass the subagent the base recipe's identifier too.** It must be able to compare the template against what it was derived from.
 
 ### Realism pass
 
@@ -85,10 +83,7 @@ A template is not finished until it passes this review.
 
 ## Recurring defects
 
-These appear in nearly every template and are worth checking before verification runs.
+A template that adds bulk to a hot pan fails in these ways. Apply each when the add-on adds that bulk.
 
 * **Volume added without a plan for its water.** Leafy greens are over 90% water and 8-10 qt loose per pound. They will not fit the pan and will not wilt off-heat. Wilt them in the cooking vessel, in batches, before the protein goes in.
 * **Reallocated fat.** Moving oil from the protein to the vegetables leaves lean protein dry and pale. Keep the protein's share.
-* **Unadjusted cooking time.** Adding cold bulk to a hot pan crashes the temperature. Extend the time and make it thermometer-driven.
-* **Unadjusted seasoning.** Bulk added without salt tastes flat. When sodium is already high, add acid and finishing aromatics instead of salt.
-* **Aromatics left on the surface.** Minced garlic exposed at high heat scorches bitter. Bury it.

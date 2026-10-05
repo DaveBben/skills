@@ -26,7 +26,7 @@ Every box, arrow and step on the page comes from a file and line you read, or a 
 
 ## The page
 
-Write the sections in this order. Keep only what will still be true in six months; drop what changes every sprint.
+Write the sections in this order. Keep only what will still be true in six months; drop what changes every sprint, such as row or vote counts, test results, solver parameters and IP addresses.
 
 1. **Purpose:** two sentences. Say what the system does, and for whom, in the business's terms.
 2. **Context diagram:** one box for this system. Around it, the people who use it and every outside system from the trace. Label each arrow with what flows and how, such as "order events, Kafka". Use at most 12 boxes, and group minor callers into one box when there are more.
@@ -37,8 +37,8 @@ Write the sections in this order. Keep only what will still be true in six month
 7. **Decisions and invariants:** 3 to 7 bullets. Each states a rule or a choice and the reason behind it in one clause. Leave measurements, counts and parameters behind the link to the source. An invariant is often an absence, such as "the API never writes to the database directly; every write goes through the worker".
    * Take reasons from ADRs, commit messages (`git log -S`), pull request descriptions and code comments. Link to the source.
    * Never infer a reason. Where none is recorded, write "reason not recorded" and ask the user.
-8. **Running it:** the exact commands to install, start, test and deploy it, and where its logs go, taken from the README, the manifest or the CI configuration. Run them when the environment allows. Report the results in chat, not on the page; they go stale with the next commit.
-9. **Open questions:** callers not found, reasons not recorded, and behaviour the trace could not establish. A broken link, a failing check or the extent of a search goes in the chat reply, not on the page.
+8. **Running it:** the exact commands to install, start, test and deploy it, and where its logs go, taken from the README, the manifest or the CI configuration. Run them when the environment allows.
+9. **Open questions:** callers not found, reasons not recorded, and behaviour the trace could not establish.
 
 Link to any longer architecture document the repository already has, such as an arc42 file or an ADR folder, instead of repeating it.
 
@@ -48,13 +48,11 @@ Link to any longer architecture document the repository already has, such as an 
 * **Describe the code literally:** say what each part does to the data and when. Use no analogies.
 * **Define every name local to the project at first use** in one clause: a database role, an account, a pipeline ID, a story number, an adjective such as "frozen". Cut a reference that needs more than a sentence to explain, such as a file name's history.
 * **Name where each number lives:** for each number the page states that the user might change, such as how many items a run picks, give the constant or setting and its location, such as `TOP = 30` at `run.py:49`.
-* **Leave out what drifts:** counts of rows or votes, test results, solver parameters and IP addresses repeated across sections.
 * **Use the reader's words:** name a component by what it does, then give its name in the code, such as "the worker that charges cards (`billing-worker`)".
-* **Keep prose short:** answer each section in the fewest sentences that hold its facts. The diagrams and the codemap carry most of the page.
 
 ## Delivering it
 
 * **Markdown, always:** write `ARCHITECTURE.md` at the repository root, marker line first.
-* **HTML, when the user asks** for a page, an HTML file, something pretty, or something to share: copy `assets/architecture.html` from this skill's folder, replace the bracketed content with the same sections, and write it to a scratch directory outside the repository, such as `/tmp/<repo>-architecture/index.html`. Escape `&`, `<` and `>` in text outside the Mermaid blocks. When the user reads on another device, serve the directory on the local network, such as with `python3 -m http.server 8000 --bind 0.0.0.0`, and give the machine's LAN address, such as from `ipconfig getifaddr en0` on macOS.
+* **HTML, when the user asks** for a page, an HTML file, something pretty, or something to share: copy `assets/architecture.html` from this skill's folder, replace the bracketed content with the same sections, and write it to a scratch directory outside the repository, such as `/tmp/<repo>-architecture/index.html`. Escape `&`, `<` and `>` in text outside the Mermaid blocks. When the user reads on another device, serve the directory on the local network only on the user's request, and give the machine's LAN address.
 * **Reply in chat** with the file path or URL, the number of inbound callers and outbound systems found, what changed since the last snapshot, the open questions, the results of the commands run, and any broken link or failing check the trace found. Do not repeat the page in chat.
 * **Answer a follow-up on the page:** add the answer to the section it belongs to and tell the user to reload.

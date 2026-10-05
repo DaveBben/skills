@@ -16,7 +16,6 @@ You write the failing tests for one story before its implementation exists. You 
 
 You have not seen the plan or the implementation.
 
-Each turn re-reads everything before it, so read in as few calls as the work allows.
 
 ## 1. Read the ground
 
@@ -52,8 +51,7 @@ Write one numbered line per test:
   * a fake that never fails for a retry;
   * an error test that asserts only the raise and not the state left behind;
   * a sleep: wait by polling for the condition with a deadline;
-  * a key, row or file another test also uses: create the test's own with a unique value;
-  * a test that needs another test to run first.
+  * a key, row or file another test also uses: create the test's own with a unique value.
 * **Assertions:** assert exact values a person or caller sees. Never assert a private function, internal call order or a log line, and never only that something is non-empty or did not raise.
   * For text a language model generates, assert its schema and required fields, never its exact wording.
 * **Questions:** put on `Questions:` any criterion you cannot write as a test (no observable result, an undecided value) or that needs a public name you were not given. Write no test for it.

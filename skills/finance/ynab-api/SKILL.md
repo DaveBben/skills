@@ -33,7 +33,7 @@ tok = subprocess.run(["security", "find-generic-password", "-s", service, "-w"],
                      capture_output=True, text=True).stdout.strip()
 ```
 
-* **Never print the token.** Do not echo it, log it, put it in a URL or paste it into a message.
+* **Never print the token.**
 * **A call that hangs** is usually the keychain waiting for the user to approve access in a dialog.
 
 Base URL is `https://api.ynab.com/v1`. `/budgets/{id}` and `/plans/{id}` are the same resource; YNAB renamed budgets to plans and kept both paths. Pass the budget id from config; `default_budget` is often null.
@@ -44,17 +44,19 @@ Base URL is `https://api.ynab.com/v1`. `/budgets/{id}` and `/plans/{id}` are the
 * **The rate limit is 200 requests per hour per token, with no remaining-count header.** Count your own calls. `GET /months` returns every month summary in one call, and `GET /categories` already carries the current month's `budgeted`, `activity` and `balance`, so do not loop.
 * **Amounts are milliunits.** Divide by 1000: `-263110` is −263.11.
 * **A month path segment needs a full date.** `/months/2026-02-01/...` works; `/months/2026-02/...` returns 400. `current` also works.
-* **Income is `month.income`,** not the sum of inflows to Ready to Assign. The sum also picks up transfers, reconciliation adjustments and refunds. `month.income` counts paychecks received that month, so a month with three biweekly paychecks shows half again the usual figure.
+* **Income is `month.income`,** not the sum of inflows to Ready to Assign. The sum also picks up transfers, reconciliation adjustments and refunds. `month.income` counts paychecks received that month, so a month with three biweekly paychecks shows half again the usual figure and a bonus month shows the bonus. Classify a month by which paychecks arrived, not by its distance from the average. If income must come from transactions, drop transfers and reconciliation adjustments, then reconcile the result with `month.income`.
 * **Transfers have `transfer_account_id` set.** Exclude them from spending. A transfer to a tracking account is saving, not spending.
 * **Splits hide their categories.** A transaction with a non-empty `subtransactions` array has a null top-level category; read the children.
-* **Reimbursements are inflows to a spending category.** Sum signed amounts per category per month to get net spend. A reimbursement that lands a month later makes that month net negative; aggregate over the window rather than reading one month.
-* **Tracking accounts (`on_budget: false`) are not the budget.** Their reconciliation adjustments are market movement; drop transactions whose account is off budget.
+* **Reimbursements are inflows to a spending category.** Sum signed amounts per category per month to get net spend. A reimbursement that lands a month later makes that month net negative; aggregate over the window rather than reading one month; clamp a single month at zero only for display.
+* **Tracking accounts (`on_budget: false`) are not the budget.** Their reconciliation adjustments are market movement; drop transactions whose account is off budget. Checking, savings and credit cards are on budget; retirement, brokerage, HSA, loans and property are usually tracking.
 * **Overspending does not carry forward in the category.** A negative cash balance at month end resets the category to zero next month and is taken from next month's Ready to Assign; overspending on a credit card becomes card debt instead. A category's balance never shows last month's overspend, so read each month's `activity` and `balance` to find it.
+* **Exclude the `Credit Card Payments` and `Internal Master Category` groups from spending.** Their activity is payments, not purchases.
+* **Filter `deleted` and `hidden` categories.**
 * **A funded category can look dead.** Money that leaves by transfer, such as a retirement contribution, shows `budgeted` every month and no spending. Check `budgeted` before calling a category unused.
 * **Goals need three fields to read.** `goal_target` is per `goal_cadence` period (`1` monthly, `2` weekly, `13` yearly); cross-check with `goal_under_funded`.
 * **Delta requests save calls.** Pass the last `server_knowledge` as `last_knowledge_of_server` to get only changes; deleted entities come back with `deleted: true`.
 
-[references/data-model.md](references/data-model.md) explains each field and gives the analysis checklist. [references/endpoints.md](references/endpoints.md) lists every read and write endpoint with its fields.
+[references/data-model.md](references/data-model.md) explains the balance formula, sinking funds, goal types and credit card payment categories. [references/endpoints.md](references/endpoints.md) lists every read and write endpoint with its fields.
 
 ## Duplicate imports with the sign flipped
 
@@ -84,9 +86,11 @@ The API can change less than the YNAB app can. Check that the change is possible
 
 ### How to write
 
-1. **Show the change and get a yes.** List each category, field, current value and new value, and ask the user to confirm each change before writing. A yes to one change is not a yes to the next.
+1. **Show the change and get a yes.** List each category, field, current value and new value, and ask the user to confirm each change before writing.
 2. **Write from a script, never an import.** Put every write call under `if __name__ == "__main__":` (directly or in a function only that block calls), so a tool that imports the file to inspect it cannot write.
 3. **Snapshot before and after.** Save the GET of each object you change to `history/<date>-<task>-before.json` and the response to `-after.json`, and append one line per change to `history/<date>-<task>.md`.
 4. **Read the response.** Compare the returned object with what you sent; a 200 with an unchanged field means the field was ignored.
 
 [references/endpoints.md](references/endpoints.md) has the request bodies.
+
+A yes to one change is not a yes to the next.
