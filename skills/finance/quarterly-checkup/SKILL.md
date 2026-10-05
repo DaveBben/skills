@@ -22,14 +22,14 @@ Run `python3 scripts/checkup.py scan` first. It is read-only and returns the num
 
 ## 1. Re-price targets
 
-Use the `budget-targets` skill if it is installed; it implements these rules. Otherwise apply them directly:
+Use the `budget-targets` skill if it is installed. Otherwise apply these rules directly:
 
-* **Fixed bills (R10):** target = the current bill from the contract. Never average. When a fixed bill's own CPI series fell over the year (car insurance in 2026), re-shop the contract instead of holding the target.
-* **Everything else (R11):** target = (last 12 months' net spend ÷ 12) × (1 + the category's 12-month CPI change), from the FRED series in `[cpi]`; all-items CPI for an unmapped category. Price a recurring payee that started or stopped inside the window from its current bill.
-* **Goal type (R12):** replay 12 months from a zero balance under refill-up-to and under set-aside; pick the one with fewer months where spend exceeded the available balance. Split a category whose parts need different types (R13).
-* **Raise (R17):** each category in `covered_often_raise_target` was covered at month end in at least `cover_raise_count` of the last `cover_lookback_months`; raise it now.
-* **Lower (R18):** a refill-up-to category under `underspend_ratio` of target for `underspend_months` straight months drops to its spend rate. Never lower a set-aside fund this way.
-* **Check before applying (R30):** show each change with its reason, apply only the ones the user confirms, and refuse a refill-up-to target below the largest month in its window.
+* **Fixed bills:** target = the current bill from the contract. Never average. When a fixed bill's own CPI series fell over the year (car insurance in 2026), re-shop the contract instead of holding the target.
+* **Everything else:** target = (last 12 months' net spend ÷ 12) × (1 + the category's 12-month CPI change), from the FRED series in `[cpi]`; all-items CPI for an unmapped category. Price a recurring payee that started or stopped inside the window from its current bill.
+* **Goal type:** replay 12 months from a zero balance under refill-up-to and under set-aside; pick the one with fewer months where spend exceeded the available balance. Split a category whose parts need different types.
+* **Raise:** each category in `covered_often_raise_target` was covered at month end in at least `cover_raise_count` of the last `cover_lookback_months`; raise it now.
+* **Lower:** a refill-up-to category under `underspend_ratio` of target for `underspend_months` straight months drops to its spend rate. Never lower a set-aside fund this way.
+* **Check before applying:** show each change with its reason, apply only the ones the user confirms, and refuse a refill-up-to target below the largest month in its window.
 
 ## 2. Contribution pace
 
@@ -43,7 +43,7 @@ Projected year total = year-to-date (from the latest paystub; YNAB does not see 
 
 ## 3. April tax balance
 
-Estimate what will be owed beyond withholding, to set the tax sinking fund (R27):
+Estimate what will be owed beyond withholding, to set the tax sinking fund:
 
 1. Wages: year-to-date taxable wages + per-paycheck taxable wages × paychecks left (pre-tax 401(k), HSA and premiums excluded).
 2. Add income with no withholding: interest and money-market dividends, realized gains, side or self-employment income (with self-employment tax, and half of it deducted).
@@ -55,22 +55,22 @@ State the inputs that are estimates. Check the underpayment safe harbor in IRS P
 
 ## 4. Subscription audit
 
-From `recurring_payees`, keep the ones that look like subscriptions: a similar amount most months, a service or digital payee. For each, show the yearly cost, last charge and categories, and ask the user whether they used it in the last month. In a field experiment with 2 million newspaper readers, about half of auto-renew subscribers kept paying without using the subscription (Miller, Sahni & Strulov-Shlain). Flag a payee filed in two categories, and any recurring charge in the surprise fund, which belongs in its own category (R15).
+From `recurring_payees`, keep the ones that look like subscriptions: a similar amount most months, a service or digital payee. For each, show the yearly cost, last charge and categories, and ask the user whether they used it in the last month. In a field experiment with 2 million newspaper readers, about half of auto-renew subscribers kept paying without using the subscription (Miller, Sahni & Strulov-Shlain). Flag a payee filed in two categories, and any recurring charge in the surprise fund, which belongs in its own category.
 
 ## 5. Emergency fund
 
-Report `emergency_months`: emergency balance ÷ mean monthly essential spending over the window (fixed, steady and bill-fund categories that are not also wants). Compare it with the number of months in `profile.md`; the count is a household choice. After a home purchase, measure it in months of PITIA (principal, interest, taxes, insurance, association dues) plus the largest single expense of the last 24 months (R22).
+Report `emergency_months`: emergency balance ÷ mean monthly essential spending over the window (fixed, steady and bill-fund categories that are not also wants). Compare it with the number of months in `profile.md`; the count is a household choice. After a home purchase, measure it in months of PITIA (principal, interest, taxes, insurance, association dues) plus the largest single expense of the last 24 months.
 
 ## 6. Time-sensitive items
 
 List every item with a date, nearest first:
 
-* **IRA rollover window (R4):** each IRA or Roth withdrawal in `tracking_account_outflows_last_60_days` can be redeposited tax-free within 60 days of receipt (`day_60` assumes receipt on the transaction date; confirm with the custodian). Only one IRA-to-IRA rollover is allowed per 12 months across all of a person's IRAs (IRS Pub 590-A).
+* **IRA rollover window:** each IRA or Roth withdrawal in `tracking_account_outflows_last_60_days` can be redeposited tax-free within 60 days of receipt (`day_60` assumes receipt on the transaction date; confirm with the custodian). Only one IRA-to-IRA rollover is allowed per 12 months across all of a person's IRAs (IRS Pub 590-A).
 * **HSA excess:** the payroll cutoff for the next paycheck, if the year is on track to exceed the limit.
 * **401(k) top-up:** the last payroll of the year, if room remains and the user wants it.
 * **IRA contributions:** the April filing deadline for last year's room.
 * **Tax balance:** April 15.
-* **Large deposits before a mortgage application (R21):** when `profile.md` describes a planned purchase, every deposit above 50% of monthly qualifying income needs a documented source (Fannie Mae B3-4.2-02). Name each such transfer in the last two statement cycles.
+* **Large deposits before a mortgage application:** when `profile.md` describes a planned purchase, every deposit above 50% of monthly qualifying income needs a documented source (Fannie Mae B3-4.2-02). Name each such transfer in the last two statement cycles.
 * **Credit file before a mortgage application:** when profile.md describes a planned purchase, flag any card opened in the last 12 months, report each card's balance at statement close against 10% of its limit (myFICO: under 10% "can help"), and remind the user that lender pulls inside a 45-day window count as one inquiry (CFPB). Pay cards before the statement closes in the two or three months before applying.
 
 ## Report

@@ -32,7 +32,7 @@ Nothing personal ships in this plugin. Every skill reads the directory named by 
 
 ## Why the rules look like this
 
-The rules (R1–R30, in `skills/monthly-close/references/rules.md`) came out of an audit that held each budgeting rule to one standard: an official source, a study read in full or in abstract, or arithmetic on the budget's own data. Each rule carries its source tag and an evidence grade, and every number no source sets is marked as a household choice and read from the settings file.
+The rules (R1–R30, in [`research/finance-rules.md`](../../research/finance-rules.md), which no agent loads; each skill states the rules it applies in its own words) came out of an audit that held each budgeting rule to one standard: an official source, a study read in full or in abstract, or arithmetic on the budget's own data. Each rule carries its source tag and an evidence grade, and every number no source sets is marked as a household choice and read from the settings file.
 
 What the skills insist on:
 

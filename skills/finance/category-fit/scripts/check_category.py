@@ -390,7 +390,7 @@ def do_sweep(cats, by_cat, win, roles):
     L += ["", "## Merge candidates (same goal type, moving together)", ""]
     L += [f"- {a} + {b}: r = {r:.2f}, both {k}" for a, b, r, k in sorted(pairs, key=lambda x: -x[2])] or ["None."]
     under = [n for n, c in cats.items() if underspending(c, vals[n])]
-    L += ["", f"## Refill-up-to targets under-spent {UNDER_MONTHS} months running (R18)", ""]
+    L += ["", f"## Refill-up-to targets under-spent {UNDER_MONTHS} months running", ""]
     L += [f"- {n}: target ${monthly_target(cats[n]):,.0f}, spend rate ${sum(vals[n]) / len(win):,.0f}/mo"
           for n in under] or ["None."]
     surprise = next((n for n, r in roles.items() if r == "surprise_fund"), None)
@@ -472,7 +472,7 @@ def selftest():
     vals = [0.0] * 12
     assert underspending({"goal_type": "NEED", "goal_target": 100000, "goal_needs_whole_amount": False}, vals)
     assert not underspending({"goal_type": "NEED", "goal_target": 100000, "goal_needs_whole_amount": True}, vals)
-    print("selftest ok: CF-1 CF-2 CF-3 CF-4 CF-5 CF-6 R13 R18 payback")
+    print("selftest ok: CF-1 CF-2 CF-3 CF-4 CF-5 CF-6 merge-goal-type split-goal-type underspend payback")
 
 
 def main():

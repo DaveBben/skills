@@ -29,8 +29,8 @@ from pathlib import Path
 API = "https://api.ynab.com/v1"
 DEFAULT_ORDER = ["wants", "trial_category", "emergency_fund", "bill_funds"]
 CARD_GROUP = "Credit Card Payments"
-WARN = {"trial_category": "Draw from the trial category: this month fails practice-payment criterion c (R20).",
-        "emergency_fund": "Draw from the emergency fund: schedule a repayment from next month, ranked above every want (R16)."}
+WARN = {"trial_category": "Draw from the trial category: this month fails practice-payment criterion c (every overspend covered from the first source).",
+        "emergency_fund": "Draw from the emergency fund: schedule a repayment from next month, ranked above every want."}
 
 
 def config_dir():

@@ -7,7 +7,7 @@ metadata:
 ---
 # Budget targets
 
-Set every category's monthly target from what it actually costs, choose the goal type by replaying the past year, and write only what the user approves. Run [scripts/derive_targets.py](scripts/derive_targets.py); it does the arithmetic and refuses the unsafe writes. Your job is to read the report with the user and decide the cases it flags.
+Set every category's monthly target from what it actually costs, choose the goal type by replaying the past year, and write only what the user approves. Run [scripts/derive_targets.py](scripts/derive_targets.py). Read its report with the user and decide the cases it flags.
 
 For API traps (milliunits, splits, transfers, carry-forward of overspending) and what the write endpoints can do, use a YNAB API reference such as the `ynab-api` skill in this plugin if it is installed.
 
@@ -72,4 +72,4 @@ Also split out a recurring payee that started or stopped inside the window: set 
 * **Raise a target at the next re-derivation** when the category was covered from elsewhere in 3 of the last 6 months.
 * **Lower a refill-up-to target** that spent under 70% of it for 3 straight months, to its spend rate at the next re-derivation. Never apply this to set-aside funds: a set-aside fund spending nothing is the fund working.
 
-The 3-of-6 and 70%-for-3 thresholds are household choices with no study behind them; read them from `[scripts] cover_raise_count`, `cover_lookback_months`, `underspend_ratio` and `underspend_months` when set.
+Read the 3-of-6 and 70%-for-3 thresholds from `[scripts] cover_raise_count`, `cover_lookback_months`, `underspend_ratio` and `underspend_months` when set.

@@ -228,7 +228,7 @@ def derive(name, role, ser, today, months, long_months, change):
              miss=sum(abs(v - target) for v in vals) / len(vals), cpi=change)
     if kind == "refill-up-to" and target < max(vals):      # DT-6: never cap a lumpy fund
         r["refuse"] = (f"refill-up-to ${target:,.0f} is below the largest month ${max(vals):,.0f}; "
-                       "choose the type by hand, or split off the lumpy part (R13)")
+                       "choose the type by hand, or split off the lumpy part")
     return r
 
 
@@ -434,7 +434,7 @@ def selftest():
         changes({"kind": "derived", "target": 100, "type": "set-aside"},
                 {"goal_type": "NEED", "goal_target": 100000, "goal_cadence": 1,
                  "goal_needs_whole_amount": True}) == []
-    print("selftest ok: DT-1 DT-2 DT-3 DT-4 DT-5 DT-6 R11-payback")
+    print("selftest ok: DT-1 DT-2 DT-3 DT-4 DT-5 DT-6 payback-offset")
 
 
 # ---- main ----------------------------------------------------------------

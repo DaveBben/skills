@@ -70,9 +70,9 @@ The surprise fund takes only charges nobody could foresee. A charge that recurs 
 | 4 | Refill-up-to target spent under 70% for 3 straight months | Lower the target to the spend rate at the next re-derivation; never for set-aside funds |
 | 5 | None of the above | Keep |
 
-Never merge two categories that need different goal types. The sweep runs tests 2 to 4 over every category and reports category counts for information only; no count limit decides a verdict.
+Never merge two categories that need different goal types. The sweep runs tests 2 to 4 over every category and reports category counts; never base a verdict on a count.
 
-The $400, 6 payments, 25%, 0.7, 2 overruns, 70% and 3 months are household choices with no study behind them. The 70% and 3 months come from the settings above; the rest are constants at the top of the script.
+Change the 70% and 3 months in the settings above; change the $400, 6 payments, 25%, 0.7 and 2 overruns in the constants at the top of the script.
 
 ## The judgments the script leaves to you
 
@@ -85,5 +85,5 @@ The $400, 6 payments, 25%, 0.7, 2 overruns, 70% and 3 months are household choic
 * **Write the note first.** Before the first transaction lands, write what the category includes, what it excludes, and its payees.
 * **Merging:** rename the absorbed category `Old (-> New)` and hide it, so its history folds into `New` for target derivation.
 * **Creating:** `POST /budgets/{id}/categories` needs a name and a group id. Category order and group order cannot be set through the API; the user arranges them in the app.
-* **Order groups by funding priority** in the app: contract bills, then true-expense and bill funds, then savings goals, then wants. Practitioner consensus (YNAB, Ramsey), no study; it puts obligations above the categories money is taken from first.
+* **Order groups by funding priority** in the app: contract bills, then true-expense and bill funds, then savings goals, then wants.
 * **Confirm every write with the user first**, and re-derive the targets of every category the change touched.

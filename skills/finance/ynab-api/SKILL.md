@@ -1,20 +1,20 @@
 ---
 name: ynab-api
-description: "Use this skill before reading from or writing to a YNAB (You Need A Budget) budget through api.ynab.com or a YNAB MCP server: fetching categories, transactions, accounts, months or scheduled transactions; analysing spending; or changing a category's target, note, name or group, a month's assigned amount, or a transaction. Use it on: 'how much did I spend on X', 'pull my YNAB data', 'what is in my budget', 'set this target', 'fix this category note', 'move money between categories', 'create a category', 'delete this duplicate transaction', 'why is my income wrong', or any script that calls the YNAB API. Several API behaviours return plausible wrong numbers instead of errors, and several writes the user expects are impossible; this skill lists both."
+description: "Use this skill before reading from or writing to a YNAB (You Need A Budget) budget through api.ynab.com or a YNAB MCP server: fetching categories, transactions, accounts, months or scheduled transactions; analysing spending; or changing a category's target, note, name or group, a month's assigned amount, or a transaction. Use it on: 'how much did I spend on X', 'pull my YNAB data', 'what is in my budget', 'set this target', 'fix this category note', 'move money between categories', 'create a category', 'delete this duplicate transaction', 'why is my income wrong', or any script that calls the YNAB API."
 license: MIT
 metadata:
   version: "0.1.0"
 ---
 # YNAB API
 
-Read a YNAB budget correctly and change it safely. Most of this skill is the behaviours that return a believable wrong answer, and the writes the API cannot do.
+Read a YNAB budget correctly and change it safely.
 
 ## Settings
 
 The user's settings live outside this skill, in the directory named by the `FINANCE_CONFIG_DIR` environment variable, or `~/.config/finance/` when it is unset:
 
 * **`config.toml`:** read with Python's `tomllib`. `[ynab] budget_id` is the budget to use; `[ynab] keychain_service` is the macOS keychain service that holds the YNAB personal access token. [references/config.example.toml](references/config.example.toml) shows every key.
-* **`profile.md`:** free-text household context. Read it before advising.
+* **`profile.md`:** free-text household context. Read it before interpreting spending or changing a category.
 * **`history/`:** dated change logs and the before/after snapshots of every write.
 
 When `config.toml` is missing, tell the user the path you checked and offer to create it from the example. Never put a budget id, a name or an amount from these files into a repository.

@@ -1,7 +1,5 @@
 # Interpreting YNAB data
 
-Each section is a mistake that produces a believable wrong number rather than an error, ordered by how much damage it does.
-
 ## Contents
 
 - [Income is `month.income`](#income-is-monthincome)
