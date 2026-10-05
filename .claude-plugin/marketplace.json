@@ -4,18 +4,19 @@
   "owner": {
     "name": "DaveBben"
   },
-  "description": "Dave's personal collection of Claude Code plugins, one per area of life. Install the ones you want. The SDLC plugin takes an engineering change from a vague ask to a verified production change; more areas (finance, fitness) are on the way.",
+  "description": "Dave's personal collection of Claude Code plugins, one per area of life. Install the ones you want. The SDLC plugin takes an engineering change from a vague ask to a verified production change; the finance plugin runs a YNAB budget by evidence-backed rules; more areas (fitness) are on the way.",
   "plugins": [
     {
       "name": "SDLC",
       "source": "./plugins/SDLC",
-      "description": "Story-first engineering with the evidence behind each step, in six skills. story writes each change as As a / I want / so that, its context, numbered rules each with Given/When/Then examples in concrete values, and an Out of scope list, asking wherever a result is not in the request, the code or a tool, splits or reviews stories, then builds each one: the session fixes the interface, a fresh agent writes failing tests through it from the acceptance criteria alone and they are locked, then the code, a refactor, a review by three fresh agents that a fourth checks, then a push and a pull request into main. adr records each expensive decision with the user's reasons. spike answers one question with throwaway code inside a timebox and keeps only the findings. orient writes AGENTS.md with only what an agent cannot learn by reading the repository, and a one-page architecture snapshot in ARCHITECTURE.md, traced from the code, its outside callers and the systems it calls. guardrails turns each rule into a check, a path-scoped rule or an AGENTS.md line, and runs the checks when Claude ends its turn and before it opens a pull request. review-code reviews stories, pull requests, the user's own code and designs the same way: three fresh agents check each stated acceptance criterion blind to each other, one searching hardest for security, and a fourth keeps only the findings a red test or a cited line proves.",
-      "version": "18.2.1",
+      "description": "Story-first engineering with the evidence behind each step, in seven skills. story writes each change as As a / I want / so that, its context, numbered rules each with Given/When/Then examples in concrete values, and an Out of scope list, asking wherever a result is not in the request, the code or a tool, splits or reviews stories, then builds each one: the session fixes the interface, a fresh agent writes failing tests through it from the acceptance criteria alone and they are locked, then the code, a refactor, a review by three fresh agents that a fourth checks, then a push and a pull request into main. using-trackers files each story or spike as one labelled issue on Gitea, GitHub, GitLab or Jira, orders the issues by the tracker's own blocking relation with no epic, and reads every write back. adr records each expensive decision with the user's reasons. spike answers one question with throwaway code inside a timebox and keeps only the findings. orient writes AGENTS.md with only what an agent cannot learn by reading the repository, and a one-page architecture snapshot in ARCHITECTURE.md, traced from the code, its outside callers and the systems it calls. guardrails turns each rule into a check, a path-scoped rule or an AGENTS.md line, and runs the checks when Claude ends its turn and before it opens a pull request. review-code reviews stories, pull requests, the user's own code and designs the same way: three fresh agents check each stated acceptance criterion blind to each other, one searching hardest for security, and a fourth keeps only the findings a red test or a cited line proves.",
+      "version": "19.2.0",
       "license": "MIT",
       "skills": [
         "./skills/story",
         "./skills/adr",
         "./skills/spike",
+        "./skills/using-trackers",
         "./skills/orient",
         "./skills/guardrails",
         "./skills/review-code"
@@ -28,7 +29,7 @@
       "name": "context",
       "source": "./plugins/context",
       "description": "Skills for managing an agent session's context across boundaries. Today it hands a session over when context fills or work stops partway, recording the dead ends a fresh session would otherwise rediscover.",
-      "version": "0.3.2",
+      "version": "0.4.0",
       "license": "MIT",
       "skills": [
         "./skills/handing-off"
@@ -41,7 +42,7 @@
       "name": "meals",
       "source": "./plugins/meals",
       "description": "Skills for eating to numbers without cooking from a spreadsheet. It builds reusable meal templates: a recipe the user already makes, paired with a fixed add-on that closes the gap to a calorie ceiling and protein and fiber floors, proven as a real dish before it is proven as macros, then written back to the recipe manager with ingredients that scale. It then plans days of meals from those templates, stretching batch dinners across days, checking daily averages against targets, and writing the meal plan and a shopping list to the recipe manager.",
-      "version": "0.4.1",
+      "version": "0.5.0",
       "license": "MIT",
       "skills": [
         "./skills/meal-template",
@@ -55,7 +56,7 @@
       "name": "personalize",
       "source": "./plugins/personalize",
       "description": "Skills that make an agent act as you. sound-like-me composes texts, work replies, docs and scripts in your own voice by following private voice profiles kept outside the repo, never inventing facts and never sending without your say-so. setup-my-env configures your terminal, editor, shell and note apps to evidence-based readability targets for font size, spacing, line length, theme and contrast, and records the settings so you can repeat them.",
-      "version": "0.3.2",
+      "version": "0.4.0",
       "license": "MIT",
       "skills": [
         "./skills/sound-like-me",
@@ -69,7 +70,7 @@
       "name": "learning",
       "source": "./plugins/learning",
       "description": "Skills for learning a topic in a format the reader absorbs. teach-like-stackoverflow answers a programming or computer-science question as a mock Stack Overflow thread on one HTML page: an asker's real error, an accepted answer with short working code and a traced example, follow-up comments, and further answers that each solve it a different way. Every code block is run before it goes on the page.",
-      "version": "0.1.1",
+      "version": "0.2.0",
       "license": "MIT",
       "skills": [
         "./skills/teach-like-stackoverflow"
@@ -82,7 +83,7 @@
       "name": "skills-craft",
       "source": "./plugins/skills-craft",
       "description": "Skills for writing instructions an agent reads. review-skill reviews a SKILL.md, its reference files or a subagent prompt line by line: it cuts what the model already knows or can read, keeps the conventions it cannot infer, names failures specifically, and reports each finding with the evidence behind it.",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "license": "MIT",
       "skills": [
         "./skills/review-skill"
@@ -95,10 +96,29 @@
       "name": "writing",
       "source": "./plugins/writing",
       "description": "Skills for writing text people read on a screen. markdown-files sets the structure, sentence, punctuation, emphasis and Markdown-source rules that make a .md file easy to scan in a terminal, an editor preview, GitHub and Obsidian.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "license": "MIT",
       "skills": [
         "./skills/markdown-files"
+      ],
+      "author": {
+        "name": "DaveBben"
+      }
+    },
+    {
+      "name": "finance",
+      "source": "./plugins/finance",
+      "description": "Skills for running a YNAB budget by evidence-backed rules, with personal settings kept outside the repo. ynab-api reads and writes YNAB without its silent traps. budget-targets derives each category target from the current bill or the price-adjusted 12-month spend rate. category-fit decides whether spending needs its own category. cover-overspend covers a negative category in a fixed order the day it happens, before the month rolls over. monthly-close closes the month on its last day or two: covers what remains, checks card payment categories, judges a practice mortgage payment and records each cover. payday assigns a paycheck by priority and routes third paychecks and bonuses to goals. quarterly-checkup re-prices targets, paces 401(k), IRA and HSA contributions against current IRS limits, estimates the April tax bill and flags deadlines.",
+      "version": "0.4.0",
+      "license": "MIT",
+      "skills": [
+        "./skills/ynab-api",
+        "./skills/budget-targets",
+        "./skills/category-fit",
+        "./skills/cover-overspend",
+        "./skills/monthly-close",
+        "./skills/payday",
+        "./skills/quarterly-checkup"
       ],
       "author": {
         "name": "DaveBben"

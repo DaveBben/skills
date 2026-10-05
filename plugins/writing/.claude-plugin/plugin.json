@@ -1,6 +1,6 @@
 {
   "name": "writing",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Skills for writing text people read on a screen. markdown-files sets the structure, sentence, punctuation, emphasis and Markdown-source rules that make a .md file easy to scan in a terminal, an editor preview, GitHub and Obsidian.",
   "license": "MIT",
   "author": {

@@ -14,7 +14,7 @@ Choosing tools:
 * **Empty slot:** name the tool to add, and add it on the user's yes.
 * **Slot with nothing to run yet,** such as end-to-end tests: leave it out and say so.
 * **Task runner:** `check` calls its targets rather than repeating their commands.
-* **Mutation tools,** restricted to changed, covered lines: `mutmut` (Python; `only_mutate` from `git diff --name-only`, `mutate_only_covered_lines`), StrykerJS (JavaScript, TypeScript; `--incremental`, `mutate` from the diff), `cargo-mutants` (Rust; `--in-diff`), Muter (Swift; `--files-to-mutate`), PIT (Java; Arcmutate for changed lines), Gremlins (Go; small modules only).
+* **Mutation tools,** restricted to changed, covered lines, using the stack's own incremental or diff option.
   * **No gate on survivors:** about 4 to 39% of mutants are equivalent, meaning no input tells them from the original, so no test can kill them.
   * **A score gate the user asks for:** set it just under the score measured today (StrykerJS `thresholds.break`, PIT `mutationThreshold`) and raise it as the score rises.
 * **Flaky tests:** a test that fails and then passes on an unchanged tree is flaky. The gate shows the user both runs. Never run a check again to get past a failure. Quarantine a flaky test only on the user's yes, with an expiry date in the skip reason.
@@ -24,7 +24,6 @@ Run `./check` and `./check --full` once.
 * **Failure on existing code:** the user picks one of these.
   * Fix it first, as its own change.
   * Leave the failing part out of `check` until it is fixed.
-* **Never** commit `check` failing.
 
 ## When it runs
 

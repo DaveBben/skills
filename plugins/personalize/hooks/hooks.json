@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo \"Text you write that goes out as the user's own words, such as a merge request or pull request comment, a reply in its thread, or a comment on a Confluence, wiki or Google Docs page: load the sound-like-me skill before drafting it.\""
+            "command": "echo \"Text you write that goes out as the user's own words, such as a merge request or pull request comment, a reply in its thread, a comment on a Confluence, wiki or Google Docs page, a text or DM, a doc, or a script: load the sound-like-me skill before drafting it.\""
           }
         ]
       }
@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "printf '%s\\n' '{\"hookSpecificOutput\":{\"hookEventName\":\"SubagentStart\",\"additionalContext\":\"Text you write that goes out as the user'\\''s own words, such as a merge request or pull request comment, a reply in its thread, or a comment on a Confluence, wiki or Google Docs page: load the sound-like-me skill before drafting it.\"}}'"
+            "command": "printf '%s\\n' '{\"hookSpecificOutput\":{\"hookEventName\":\"SubagentStart\",\"additionalContext\":\"Text you write that goes out as the user'\\''s own words, such as a merge request or pull request comment, a reply in its thread, a comment on a Confluence, wiki or Google Docs page, a text or DM, a doc, or a script: load the sound-like-me skill before drafting it.\"}}'"
           }
         ]
       }

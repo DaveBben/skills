@@ -1,0 +1,49 @@
+# Copy to $FINANCE_CONFIG_DIR/config.toml (default ~/.config/finance/config.toml)
+# and replace every placeholder. This file never goes in a repository.
+
+[ynab]
+budget_id = "00000000-0000-0000-0000-000000000000"   # from GET /budgets
+keychain_service = "ynab_api_key"                    # macOS keychain service holding the YNAB personal access token
+
+[income]
+pay_frequency = "biweekly"     # "biweekly" | "semimonthly" | "monthly"
+base_monthly = 5000.00         # the amount to budget on: two biweekly paychecks, two semimonthly ones, or one monthly
+bonus_months = [12]            # month numbers a bonus usually lands in; [] for none
+
+[roles]
+# Category names exactly as they appear in YNAB, grouped by the job each does.
+fixed = ["Rent", "Phone", "Car Insurance"]           # contract bills: target = current bill
+steady = ["Groceries", "Gas"]                        # spends most months
+bill_funds = ["Car Repairs", "Annual Fees"]          # true-expense sinking funds for known lumpy bills
+wants = ["Dining Out", "Hobbies"]                    # discretionary; first source to cover an overspend
+surprise_fund = "Surprises"                          # the one category for unforeseeable costs
+emergency_fund = "Emergency Fund"
+savings_goals = ["Vacation"]                         # balance or dated goals, set by hand
+trial_category = ""                                  # optional practice-payment category; "" when unused
+retirement = ["Roth IRA"]                            # never a source for covering overspending
+paused = []                                          # categories payday must not fund; they also stay in their role list above
+medical = ["Medical"]                                # medical spending the HSA could reimburse; also stays in its role list above
+
+[cover_order]
+steps = ["wants", "trial_category", "emergency_fund", "bill_funds"]
+
+[cpi]
+# Category name -> FRED series id for that category's consumer price index.
+# Find ids at https://fred.stlouisfed.org (search "CPI <item>"). Unmapped categories use [scripts] cpi_default.
+"Dining Out" = "CUSR0000SEFV"      # food away from home
+"Groceries" = "CUSR0000SAF11"      # food at home
+"Gas" = "CUSR0000SETB01"           # gasoline
+
+[scripts]
+months = 12              # spend-rate window in complete months
+long_months = 36         # longer window for funds that spend less than twice in `months`
+cpi_default = "CPIAUCSL" # all-items CPI for unmapped categories; "" to apply no price change
+cover_lookback_months = 6  # months of cover history checked when deciding to raise a target
+cover_raise_count = 3      # covers within that lookback that trigger a raise at the next re-derivation
+recurring_min_months = 3   # months a payee must repeat before it counts as recurring
+underspend_ratio = 0.70    # a refill-up-to target spent under this share of target...
+underspend_months = 3      # ...for this many straight months is lowered at the next re-derivation
+ef_repay_months = 6        # months to repay an emergency-fund draw; repaid monthly, ranked above every want
+trial_min_months = 6       # passed months before the practice-payment trial is done; each month is judged against fixed criteria
+trial_min_base_months = 4  # of which at least this many funded from base income
+trial_fail_streak = 2      # failed months in a row before lowering the planned payment

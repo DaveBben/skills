@@ -3,7 +3,7 @@ name: spike
 description: "Use this skill when the user wants to find something out that throwaway code would answer, including a question about feasibility, effort or impact asked with no request to build: a spike, a prototype, a demo, a mock-up (not a test double), an experiment, a comparison of approaches, or what adopting a library, service or integration would do to this codebase. Use it on: 'let's do a spike on X', 'let's do a demo of X', 'I want to run an experiment on X', 'prototype this', 'what would X look like in my codebase', 'how would adding X affect my code', 'how hard would it be to set up X', 'is X feasible', 'would X make Y faster', 'could we reach X using Y', 'what would it take to move to X', 'try a few approaches and see'. Load it before reading code or answering from memory about this codebase. Builds the smallest thing that answers one question in a timebox, records findings and deletes the code. Not for what a tool is or how two libraries differ in general. Not for code meant to ship; that is `story`."
 license: MIT
 metadata:
-  version: "3.0.0"
+  version: "3.1.0"
 ---
 # Spike
 
@@ -13,10 +13,10 @@ First, when a doc, the source, a changelog or one command answers the question, 
 
 Before any code, agree three things with the user in one message:
 
-1. **The question:** an outcome that can fail, like "the library streams partial results under 200 ms at 1,000 rows on the staging database", not "look into the library".
+1. **The question:** refuse a spike with no failing condition. It is an outcome that can fail, like "the library streams partial results under 200 ms at 1,000 rows on the staging database", not "look into the library".
    * Name the data size, load and environment each threshold is measured under.
    * Turn an open ask into a closed one: "what would it take to move to X" becomes "X runs with changes only to Y, and here is the list".
-   * With no crisp question, ask one question to get it. Refuse a spike with no failing condition.
+   * With no crisp question, ask one question to get it.
 2. **The finish line:** the observable signal that answers the question.
    * For a judgement only the user can make (a mock-up, a layout, a demo), the signal is their choice or reaction. Keep the code until they have seen it.
    * Write such a question as the user's choice, such as "the user picks layout A or B, or rejects both"; rejecting both is its failing condition.
@@ -24,9 +24,9 @@ Before any code, agree three things with the user in one message:
    * Propose it for the user to correct. With several approaches, it covers all of them together.
    * For a timebox in minutes, write the start time from `date` in the findings header and check it before each attempt.
 
-When the user links a spike issue on a tracker (Jira, GitHub, GitLab or another), read the three from it and ask only for what is missing or cannot fail.
+When the user links a spike issue on a tracker (Jira, GitHub, GitLab or another), read the three from it by the `using-trackers` skill and ask only for what is missing or cannot fail. To file a spike on a tracker, put the three in it and nothing else, by the `using-trackers` skill.
 
-In that message, or before building when the issue left nothing to ask, tell the user the code is throwaway: deleted once you accept the findings, never merged. A demo meant to outlive the spike is code meant to ship; that is `story`.
+In that message, or before building when the issue left nothing to ask, tell the user the code is throwaway: deleted once they accept the findings. A demo meant to outlive the spike is code meant to ship; that is `story`.
 
 ## Build it
 
@@ -45,6 +45,7 @@ git worktree add --detach <spike-path>
 * **A missing credential:** ask for it once, by its exact variable or file name. Never fake one, and never point the spike at a live system to get around it.
 * **A command that errors:** record it with its exact error before anything else is tried.
 * **A wall the spike cannot pass:** go to the user with the finding that shows it and what would clear it.
+* **A failed first attempt:** do not widen the question; record the dead end and stay inside the timebox.
 * **One question per spike:** a second unknown goes to the open questions. It becomes a spike of its own only on the user's go-ahead.
 * **Work that outgrows the smallest thing that answers the question:** stop and say the question is larger than a spike.
 
@@ -52,7 +53,7 @@ git worktree add --detach <spike-path>
 
 Write the findings from the first one. Use the first destination that applies:
 
-* **A linked tracker issue:** a comment on it.
+* **A linked tracker issue:** a comment on it, by the `using-trackers` skill.
 * **A timebox of one attempt:** a findings block in the reply, with the header line.
 * **In a git repository:** `docs/spikes/<question-slug>.md` on branch `spike-findings/<question-slug>`, in a worktree of its own, never in the throwaway worktree. Commit the file alone when the spike resolves, then offer the user a pull request of that file alone.
 * **Otherwise:** `<question-slug>.md` in the scratch directory, its path shown to the user.
@@ -61,7 +62,7 @@ Write the findings from the first one. Use the first destination that applies:
 git worktree add -b spike-findings/<question-slug> <findings-path> <default branch>
 ```
 
-Add each line the moment it surfaces, and repeat a line for each finding of its kind. Write the approach in prose and API names, never code blocks, so no spike code reaches the real build.
+Add each line the moment it surfaces, and repeat a line for each finding of its kind. Write the approach in prose and API names, never code blocks, so no spike code reaches the real build. The outcome is inconclusive when a difference from production could flip it.
 
 ```text
 ## <date> — spike: <the question> — timebox: <limit>, started <time>
@@ -75,11 +76,9 @@ Add each line the moment it surfaces, and repeat a line for each finding of its 
 * **Changes to the plan:** <stories added, dropped, reordered or re-sized, and how cost or risk moved>; only when a feature file or tracker issue lists the stories
 ```
 
-The outcome is inconclusive when a difference from production could flip it.
-
 ## When it resolves
 
-* **Finish line reached:** do steps 1–5.
+* **Finish line reached:** do the numbered steps below, in order.
 * **Timebox runs out first:** stop and mark the outcome inconclusive. Ask the user to extend, drop or defer, recommend one, and say what the next attempt would try. On extend, keep the code and continue; on drop or defer, do steps 1–5.
 * **Second inconclusive spike on the same question** (an earlier findings file or issue comment exists): ask whether to build, drop or re-scope.
 
@@ -93,7 +92,7 @@ The outcome is inconclusive when a difference from production could flip it.
 | Chosen | Rejected | Why | Cost to change later | record / drop / defer |
 ```
 
-3. **Update the plan:** in the feature file (`docs/stories/<slug>.md`) or the tracker epic, under the spike's story, mark its question answered and link the findings; apply the `Changes to the plan` line to `Order:`; move `defer` rows to `Deferred:`.
+3. **Update the plan:** on the spike's issue, by the `using-trackers` skill, or under the spike's story in the feature file (`docs/stories/<slug>.md`), mark its question answered and link the findings. Apply the `Changes to the plan` line to the stories and their order. Move `defer` rows to the `Open questions` of the story each blocks.
 4. **Return to the split:** when `story` started the spike while splitting a request, return to that split with the findings.
 5. **Delete the spike code** once the user accepts the verdict, and say so in the findings.
 
@@ -101,4 +100,4 @@ The outcome is inconclusive when a difference from production could flip it.
 git worktree remove --force <spike-path>
 ```
 
-Or remove the scratch directory. Remove the findings worktree once its branch is pushed. Never open a pull request of spike code or evolve it into the real build. The real build starts fresh from the findings, by the `story` skill.
+For a scratch directory, remove it instead. Remove the findings worktree once its branch is pushed. The real build starts fresh from the findings, by the `story` skill.

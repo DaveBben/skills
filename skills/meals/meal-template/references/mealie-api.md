@@ -24,8 +24,6 @@ curl -s -H "Authorization: Bearer $MEALIE_API_KEY" "$MEALIE_BASE_URL/api/recipes
 
 **Create then update.** `POST /api/recipes` accepts only a name. Everything else requires a follow-up `PUT` with the object fetched back.
 
-**Cache the catalog.** The summary list carries no nutrition, so a full survey needs one `GET` per recipe. Fetch concurrently, write to a local JSON file, and query the file.
-
 ## Ingredient parsing
 
 Structured `quantity`, `unit`, and `food` fields are what the serving slider scales. An unparsed ingredient has free text only and will not scale.
@@ -38,7 +36,7 @@ Structured `quantity`, `unit`, and `food` fields are what the serving slider sca
 
 The serving slider scales structured amounts only. Three things it never touches:
 
-* **The ingredient `note`.** Write prep instructions only, and express any gram figure per unit: `about 200 g each`, `about 250 g drained per can`. An absolute total in a note contradicts the scaled amount above it and is the single most confusing defect a user will report.
+* **The ingredient `note`.** Write prep instructions only, and express any gram figure per unit: `about 200 g each`, `about 250 g drained per can`. An absolute total in a note contradicts the scaled amount above it and contradicts the scaled amount above it.
 * **Instruction prose.** Amounts written into steps stay fixed. Where a recipe divides an ingredient across steps, the split is only correct at the native serving count. State that in the description.
 * **Stored nutrition.** It is a flat per-serving string and does not recompute when quantities change. Correct by construction, stale after a hand edit.
 

@@ -34,9 +34,19 @@ Acceptance criteria
 Out of scope
 * <what a reader might expect that this story leaves out; one per line>
 
+Open questions
+* <one open decision per line, with what will force it; omit the section when none>
+
 Decided
-* <each choice made without the user, and why; omit the section when none>
+* <each choice made without the user, and why, and each ADR path the adr skill wrote; omit the section when none>
+
+Measure
+Outcome: <what a person does differently once the whole feature ships>
+Measure: <the number that shows it, where to read it (a query, a dashboard, a log), its value now, the value that means success, and the date to read it>
+Result:  <the value read and the date, once read>
 ```
+
+* **`Measure`:** only on a feature's owning story; omit it everywhere else. That story's `Out of scope` also holds the feature's non-goals.
 
 A finished story:
 
@@ -95,11 +105,10 @@ Out of scope
 * Refunds in a currency other than the order's.
 ```
 
-* **Role:** whoever uses the changed interface. Use a kind of person the system has (a registered customer, a clinic admin), or, in code with no end user, the program or developer that calls it (a billing service calling `refund()`).
-* **Role, never:** "user", or the person building the change.
+* **Role:** whoever uses the changed interface (a registered customer, or in code with no end user the calling program); never "user" or the builder.
 * **`I want`:** what they can do, never a control or a design (a dropdown, a modal, a new table). The design comes after the need.
 * **Reason:** what they gain, not the feature restated. When neither the request nor the code gives one, ask; the reason decides which acceptance criteria matter.
-* **Context:** write it from the request, the tracker or the PRD, never from your plan. A reader with nothing from this chat must be able to test from it.
+* **Context:** write it from the request, the tracker or the PRD, never from your plan. Name each repository the story touches when it is more than one. A reader with nothing from this chat must be able to test from it.
 * **Acceptance criterion 1:** the outcome. For a bug, the reproduction: the starting state, the action, and what the person should see instead of what they see now.
 * **Real values:** name the input, the number, the message text, the status code.
 * **Error messages:** every error the person sees says what went wrong and what they can do next.
@@ -109,52 +118,24 @@ Out of scope
 * **One action per example.** Its `then` and `and` lines name what a caller or a person sees, in the names the code and its tests already use.
 * **Not a result:** a mechanism (an exception class, a lock, a log line, a call to a function).
 * **Past about 8 criteria:** check whether they are separate variations of one action (each kind of code, each file type), and split by variation when they are.
-* **A rule with many examples** may be several rules.
+* **More than three examples under one criterion:** check whether it is several rules, and split them.
 * **Existing behaviour:** leave out acceptance criteria it already covers, unless this story changes them.
 * **A changed behaviour:** mark the criterion `changes: <the old behaviour>`.
 
-Walk the three lists below to find what this change can break, not to fill the story:
+Check only the paths this change can break. Name a failure or abuse path only where its outcome is unknown in the code or the user might choose differently.
 
-* **Write a criterion** only where the right outcome is wrong or unknown in the code today, or where the user might choose differently.
 * **Write an `Out of scope` line** only for what a reader would expect this story to do.
-* **For a bug,** walk only the paths the fix touches.
-
-**Failure paths:**
-
-* **Input:** empty or malformed; the maximum, one past it, very long text and unicode.
-* **Repetition:** the same action twice; two at the same moment.
-* **Interruption:** an action stopped halfway, including a session that expires or a network that drops. Does the person's work get lost?
-* **Dependencies:** down, slow or partly succeeded.
-* **Equivalent inputs:** inputs that differ in case, whitespace or format but must give the same result.
-* **Existing data:** each state it can be in (disabled, deleted, unverified, empty), and data created before this change, with any migration it needs.
-* **Time:** when the story has a date, an expiry or a schedule, midnight, a daylight-saving change and month end.
-
-**Abuse paths,** when the story takes input from outside the system:
-
-* **Ownership:** another person's data.
-* **Volume:** bulk repetition.
-* **Disclosure:** a response that reveals a third party, and a difference in timing or error that reveals what the system holds.
-* **Hidden input:** input that arrives outside the visible field (a header, a query parameter, a file name).
-
-**What the result reaches:**
-
-* **Accessibility:** someone using a screen reader or only a keyboard, where the story shows them anything.
-* **Roles:** a role that may not do this, and what it sees instead.
-* **Other viewers:** another person who must see the result (a support agent, an operator, an auditor) gets their own story.
-* **Messages:** each email, notification or webhook fires exactly once.
-* **Readers of a changed API, file or message:** each program that reads it.
-* **Caches:** a cached result, and how soon it shows the change.
-* **Data changes:** an action that changes or deletes data, and whether it can be undone.
+* **House cases:** existing data created before this change, another viewer who needs their own story, each reader of a changed API, a response that reveals a third party, an action stopped halfway that loses the person's work, each email, notification or webhook firing exactly once.
 
 ## When to stop
 
 The story is ready when all of these hold, and no sooner:
 
 * **Each example can become a test without asking anybody:** a starting state, one action, and a result with real values.
-* **No question is open:** every reading that would change an acceptance criterion is answered by the user or recorded under `Decided`.
+* **No question is open:** every reading that would change an acceptance criterion is answered by the user or recorded under `Decided`, and `Open questions` is empty.
 * **It is one story:** a named role and reason, and every example's `when` is the same action by that role. An `I want` joined by "and" or "or" is two stories.
 
-Then stop writing. Add no criterion for a walk item that cannot happen here, for behaviour existing tests already cover, or to reach a count.
+Then stop writing.
 
 ## Agree it
 
@@ -163,19 +144,6 @@ Then stop writing. Add no criterion for a walk item that cannot happen here, for
 
 ## Where stories live
 
-* **With a tracker:** a story is an issue, its description the story text; a feature is an epic whose child issues are its stories.
+* **With a tracker:** each story is one issue, and a feature is only its issues, ordered by the tracker's blocking relation. File, read and edit them by the `using-trackers` skill.
 * **Without one, a single story:** the red commit's message and the pull request's description hold it.
-* **Without one, a feature:** it lives in `docs/stories/<slug>.md`, committed on its own branch: the feature header, then each story under its title.
-
-The feature header goes at the top of the feature file or the epic's description:
-
-```text
-Outcome:      <what a person does differently once the whole feature ships>
-Measure:      <the number that shows it, where to read it (a query, a dashboard, a log), its value now, the value that means success, and the date to read it>
-Result:       <the value read and the date, once read>
-Out of scope: <one checkable non-goal per line>
-Order:        <the story titles or keys, in the order they will be built>
-Decided:      <one ADR path per line, written by the adr skill>
-Deferred:     <one open decision per line, with what will force it>
-Repositories: <one line per repository the feature touches, when more than one>
-```
+* **Without one, a feature:** it lives in `docs/stories/<slug>.md`, committed on its own branch: each story under its title, in build order.

@@ -11,7 +11,7 @@
    * Commit the stubs alone.
    * Skip this step when every acceptance criterion goes through an interface that already exists.
 3. **Failing tests:** launch `test-author` with these inputs and nothing from this chat or your plan:
-   * The story with its context, and the feature's `Outcome:` line when it has one.
+   * The story with its context, and the owning story's `Outcome:` line when the feature has one.
    * The worktree path and branch.
    * The interface commit's hash, or "none".
 
@@ -27,10 +27,9 @@
    * A test you cannot satisfy for a reason that holds against the code is a stop: report the test and the reason to the user, and change nothing in it.
    * A test the user agrees is wrong: save `git config --get-all branch.<branch>.redCommit`, run `git config --unset-all branch.<branch>.redCommit`, which the user approves where the guard asks, and give `test-author` the test, the correction and the saved hashes. It commits the corrected test and locks it and each earlier red commit again.
 5. **Green:** run the check command. The whole suite must pass, not only the new tests, and no red test may still carry a marker.
-   * Run the new test files five more times. A test whose result changes is flaky: report it to the user as a test to correct, by the step 4 path for a test the user agrees is wrong.
+   * Run the new test files again when a test touches time, randomness, concurrency or the network. A test whose result changes is flaky: report it as a test to correct.
 6. **Refactor** inside the diff with every test green, then run the check command again.
-   * Remove code no acceptance criterion asked for and comments that restate the code.
-   * Reuse an existing helper instead of a second copy.
+   * Remove code no acceptance criterion asked for.
 7. **Review:** run the `review-code` skill on the branch, given the story's acceptance criteria, the merge target, the red commit's hash and the check command, and nothing from this chat. Run no second review. For each row it keeps:
    * **Finding,** blocking or not: `test-author` adds a failing test for it in a new test file, locked like the others; then fix it.
    * **Weak test:** `test-author` adds, in a new test file, a test the row's named wrong implementation fails; it may pass at once.
@@ -39,7 +38,7 @@
    * Title: the story's key in brackets first when it has one, such as `[PAY-12] Refund a partial order`.
    * Body: the story, what changed and why, and how to verify it by hand.
    * When the repository runs its full check before a pull request opens, a refused open is a failing check. Fix the cause and open it again.
-9. **Report** to the user the pull request, the check's result, each finding and how it was settled, and each choice made without them. On a linked issue, comment the pull request's link.
+9. **Report** to the user the pull request, the check's result, each finding and how it was settled, and each choice made without them. On a linked issue, comment the pull request's link by the `using-trackers` skill.
 10. **The user merges.** Never run a pull request merge or merge into main.
     * Check each review comment's claim against the code before acting on it. A confirmed defect gets a failing test, then the fix.
 

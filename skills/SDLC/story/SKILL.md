@@ -3,7 +3,7 @@ name: story
 description: "Use this skill before touching any file on a request to add, change, fix or remove behaviour in code that exists, and whenever work must become user stories or a story must be built. Use it on: 'add X', 'fix the bug where X', 'X is broken', 'refactor X', 'build story X', 'build this' with a link to an issue, 'pick up where we left off', 'write a story for X', 'write the acceptance criteria', 'break this down', 'I have an idea', 'turn this PRD into stories', 'review these stories', 'what should I pick up next'. Use it even when the change looks small. Writes each change as a user story with concrete acceptance criteria, agrees it with the user, then builds it test-first and opens a pull request into main."
 license: MIT
 metadata:
-  version: "2.1.0"
+  version: "3.0.0"
 ---
 # Story
 
@@ -16,20 +16,22 @@ A story states what a person can do once a change ships, in acceptance criteria 
 * **Story:** a change someone outside it can observe (a person, or a program that calls the changed code), along one path through the workflow end to end, in one variation.
 * **Variation:** one business rule, kind of data or way of entering it that changes the main outcome.
 * **Acceptance criterion:** one numbered rule of a story in one line, with one to three examples under it.
-* **Example:** Given the starting state, When one action, Then what the person or caller sees, all in real values.
-* **Obvious rule:** a rule an example would only restate has no example.
+* **Example:** Given/When/Then in real values.
 * **Feature:** several stories that share one outcome.
-* **Feature file:** holds the feature header and the stories.
-* **Tracker:** the issue tracker the request or the user names, if any.
+* **Owning story:** the one story of a feature that owns its outcome, usually the last; it carries the feature's `Measure` section.
+
+## When to stop
+
+Stop for the user only to agree a story or a split, to answer an open question, at a test you cannot satisfy, and when the pull request is open. Do not stop to report progress after the tests are red, after green or after the review.
 
 ## Pick the path
 
 * **Create a story** from a request, an idea or a PRD: [references/create.md](references/create.md).
 * **Review stories** someone wrote: [references/review.md](references/review.md).
 * **Implement a story** the user agreed, or a change that needs no story: [references/implement.md](references/implement.md).
-* **Resume:** find the `story/` branch. `git config --get-all branch.<branch>.redCommit` shows whether its tests exist. Read the story from its issue, the feature file or the red commit's message, and continue at the first step of implement.md not done.
-* **Next story:** the first in the feature's `Order:` with no open pull request.
-* **Check the outcome:** once every story in `Order:` is merged and the `Measure:` date has passed, or when the user asks how a feature did. Read the measure with a tool where one reaches it, else ask the user for it. Write the value and the date on the header's `Result:` line and report whether it met the target. A miss becomes new stories or a decision for the user; no merged story reopens.
+* **Resume:** find the `story/` branch. `git config --get-all branch.<branch>.redCommit` shows whether its tests exist. Read the story from its issue, `docs/stories/<slug>.md` or the red commit's message, and continue at the first step of implement.md not done.
+* **Next story:** the first story with no open blocker and no open pull request: on a tracker (the one the request, the user or the repository names), the first such issue; without one, the first such story in `docs/stories/<slug>.md`. Every read or write of a tracker goes through the `using-trackers` skill.
+* **Check the outcome:** once every story of the feature is merged and the date on the owning story's `Measure:` line has passed, or when the user asks how a feature did. Read the measure with a tool where one reaches it, else ask the user for it. Write the value and the date on its `Result:` line and report whether it met the target. A miss becomes new stories or a decision for the user; no merged story reopens.
 
 ## Size first
 
@@ -51,6 +53,4 @@ A decision that costs more than a day to reverse goes to the `adr` skill before 
 * **How to ask:** one question per message, recommended option first, with the harness's multiple-choice tool where it has one (Claude Code's AskUserQuestion).
 * **The user is away:** take the recommended option, keep going, and list every choice made that way.
 
-## When to stop
-
-Stop for the user only to agree a story or a split, to answer an open question, at a test you cannot satisfy, and when the pull request is open. Do not stop to report progress after the tests are red, after green or after the review.
+Never stop to report progress; stop only at the cases in When to stop.
