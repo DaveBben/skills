@@ -1,11 +1,12 @@
 # learning
 
-Skills for learning a topic in a format the reader absorbs, and for practicing code by hand.
+Skills for learning a topic in a format the reader absorbs, for practicing code by hand, and for designing experiments whose results can be trusted.
 
 | Skill | Fires on |
 |---|---|
 | `teach-like-stackoverflow` | "how do I X in Python", "why am I getting this error", "how does X work", "explain X", "what's the difference between X and Y", "teach me X" |
 | `code-practice` | "I want to practice coding", "let me re-implement PR 9 myself", "give me a coding drill", "what should I practice next" |
+| `experiment` | "design an experiment to test X", "how many runs do I need", "review my EXPERIMENT.md", "check this against the SIGSOFT empirical standards" |
 
 ## `teach-like-stackoverflow`
 
@@ -63,6 +64,33 @@ The agent writes the tests, because in a story the design lives in the interface
 The tests mostly turn those into examples, so writing them by hand is setup work more than design practice.
 Listing the cases keeps the part that is practice.
 
+## `experiment`
+
+Designs a controlled experiment as one design document, `EXPERIMENT.md`, reviews an existing design and lists each gap with its fix, or implements a committed design.
+It was built from one session that researched experiment design, then designed and repeatedly audited an experiment on whether a fresh agent writes stronger failing tests than the agent that designed the interface.
+
+The skill uses progressive disclosure.
+`SKILL.md` holds the core rules and routes to 1 reference file per job:
+
+* **`references/create.md`:** 17 design steps and the document outline.
+* **`references/review.md`:** a checklist condensed from the ACM SIGSOFT Empirical Standards and the gaps that recur.
+  It uses the General, Experiments, Benchmarking, and Engineering Research standards.
+* **`references/implement.md`:** testing the measuring instrument, flaky checks, writing the analysis before the data, no peeking, completeness checks, provenance, and freezing the harness after the pilot.
+* **`references/statistics.md`:** sample size for a paired design, test choice, and decision-rule traps.
+* **`references/llm-experiments.md`:** pinning, isolation, contamination, and drift for experiments on models and agents.
+
+The sources:
+
+* **Classical design of experiments:** randomization, replication, and blocking.
+* **Preregistration practice:** hypotheses, the smallest effect size of interest, and an analysis plan fixed before data.
+* **Kohavi, Tang, and Xu's _Trustworthy Online Controlled Experiments_:** guardrail metrics and sample ratio mismatch.
+* **The [ACM SIGSOFT Empirical Standards](https://github.com/acmsigsoft/EmpiricalStandards):** the review checklist.
+* **The [2025 guidelines for empirical studies involving LLMs](https://arxiv.org/abs/2508.15503):** the LLM-specific rules.
+
+The list of recurring gaps comes from the audits in that session.
+It includes a one-sided null hypothesis under a two-sided test, and a decision rule with only 50% power at its own threshold.
+It also includes a size covariate that inflates the primary measure, a treatment that bundles 2 differences, and a leak path between arms.
+
 ## Installing
 
 **Claude Code:**
@@ -77,6 +105,7 @@ Listing the cases keeps the part that is practice.
 ```bash
 npx skills add DaveBben/davebben-skills --skill teach-like-stackoverflow
 npx skills add DaveBben/davebben-skills --skill code-practice
+npx skills add DaveBben/davebben-skills --skill experiment
 ```
 
 The canonical `SKILL.md` lives at `skills/learning/` in the repo root.
