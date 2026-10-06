@@ -69,11 +69,12 @@
     {
       "name": "learning",
       "source": "./plugins/learning",
-      "description": "Skills for learning a topic in a format the reader absorbs. teach-like-stackoverflow answers a programming or computer-science question as a mock Stack Overflow thread on one HTML page: an asker's real error, an accepted answer with short working code and a traced example, follow-up comments, and further answers that each solve it a different way. Every code block is run before it goes on the page.",
-      "version": "0.2.0",
+      "description": "Skills for learning a topic in a format the reader absorbs, and for practicing code by hand. teach-like-stackoverflow answers a programming or computer-science question as a mock Stack Overflow thread on one HTML page: an asker's real error, an accepted answer with short working code and a traced example, follow-up comments, and further answers that each solve it a different way. Every code block is run before it goes on the page. code-practice has the user re-implement one slice of a merged change on a practice branch, with failing tests and graded hints but no implementation code from the agent, then critiques their design, data structures, time and memory complexity against the merged version.",
+      "version": "0.3.0",
       "license": "MIT",
       "skills": [
-        "./skills/teach-like-stackoverflow"
+        "./skills/teach-like-stackoverflow",
+        "./skills/code-practice"
       ],
       "author": {
         "name": "DaveBben"
