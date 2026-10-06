@@ -45,3 +45,18 @@ All 3 rest on the same rules, so read the core rules below, then load the refere
 The design lives in 1 Markdown file, `EXPERIMENT.md` at the repository root unless the user names another path.
 [references/create.md](references/create.md) gives its section outline.
 A review reads that file, or whatever design the user supplies, in full before judging it.
+
+## Checks
+
+3 scripts in this skill's `scripts/` directory turn gates into commands.
+Run each with Python 3 from the experiment's repository: they need no packages.
+Each prints every failure and exits 1, and `--self-test` checks the script itself.
+A failure blocks the gate it guards.
+A pass proves structure, order, and counts only: whether the design is sound stays a judgement.
+
+* **[scripts/check_design.py](scripts/check_design.py):** run on the design after every draft.
+  With `--ready`, it is the gate for the pilot.
+* **[scripts/check_order.py](scripts/check_order.py):** run before reporting.
+  It proves from git history that the design tag, each seed, the analysis script, and the harness tag came before the data.
+* **[scripts/check_run.py](scripts/check_run.py):** run after the main run.
+  It proves every planned run has its output and manifest, and that no raw output changed since its hash was recorded.

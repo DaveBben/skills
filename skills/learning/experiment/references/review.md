@@ -5,6 +5,7 @@ Contents: choosing the standards, checklist, gaps that recur, and reporting.
 Read the whole design before judging any part, because a gap in one section is often closed in another.
 Report findings and do not edit the design until the user asks.
 The exception is reviewing your own draft while creating one: fix each gap that needs no choice from the user.
+When the design uses this skill's outline, run `scripts/check_design.py` on it first and report each failure as an essential gap.
 When a fix needs the user's choice, such as adding an arm or accepting a confound, ask with the options instead of picking one.
 
 ## Choosing the standards

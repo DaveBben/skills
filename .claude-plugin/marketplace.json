@@ -70,7 +70,7 @@
       "name": "learning",
       "source": "./plugins/learning",
       "description": "Skills for learning a topic in a format the reader absorbs, for practicing code by hand, and for designing experiments whose results can be trusted. teach-like-stackoverflow answers a programming or computer-science question as a mock Stack Overflow thread on one HTML page: an asker's real error, an accepted answer with short working code and a traced example, follow-up comments, and further answers that each solve it a different way. Every code block is run before it goes on the page. code-practice has the user re-implement one slice of a merged change on a practice branch, with failing tests and graded hints but no implementation code from the agent, then critiques their design, data structures, time and memory complexity against the merged version. experiment designs a controlled experiment as one design document that fixes every decision before data exists, reviews a design against the ACM SIGSOFT Empirical Standards and lists each gap with its fix, or implements a design with a tested instrument and no peeking at results.",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "license": "MIT",
       "skills": [
         "./skills/teach-like-stackoverflow",

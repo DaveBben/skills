@@ -53,6 +53,7 @@ Put any choice still unmade in the open-decisions section rather than stalling o
 10. **Set the sample size.** Follow [statistics.md](statistics.md).
     Use the larger of the pilot's estimate of spread and a conservative planning value, set a budget cap, and say that a capped null result is inconclusive.
     Justify the number of repeated runs per unit with a pre-set rule that uses the pilot's run-to-run variance.
+    Write the inputs and the result on 1 line, such as `sample-size: alpha=0.05 power=0.80 delta=5 sigma=10 are=0.864 n=37`, adding `cap=30` when the budget caps n.
 11. **Write the procedure.** List numbered steps for 1 run of 1 unit, including where each check runs.
     Record the start time of each session so drift can be plotted.
     When the primary measure is time, throughput, or resource use, write the warm-up rule, machine settings, arm interleaving, load model, and primary percentile from the performance-benchmarks section of [implement.md](implement.md).
@@ -78,24 +79,25 @@ Put any choice still unmade in the open-decisions section rather than stalling o
 
 ## Document outline
 
-Use these sections in this order, and omit a section only when it cannot apply:
+Use these sections in this order, with each `##` heading worded exactly as given in bold.
+Keep a section that cannot apply, with the line `Not applicable:` and the reason.
 
-1. Title as a question, then 3 to 5 sentences giving the question, the arms, the primary measure, and the method.
-2. Status: design only, piloted, running, or done, and what must happen before the next stage.
-3. Why this question is open: the nearest studies with their numbers, the gap, and the theory.
-4. Hypotheses: H1, H0, sidedness, and a pointer to the decision rule.
-5. Arms: the arm table, the manipulation, the design and arm order, and alternatives not compared with the reason.
-6. Controlled variables.
-7. Measures: primary, guard, secondary, reference, covariate, and manipulation check.
-8. Task set or objects: source and pin, justification, filters and draws, fresh objects, and sample size.
-9. Procedure: run order, per-run steps, and the pilot.
-10. Analysis: primary, test choice, exploratory, and the decision rule.
-11. Assumptions.
-12. Threats to validity, in 4 groups.
-13. Reproducibility and audit.
-14. Open decisions.
+1. Title as a `#` question, then 3 to 5 sentences giving the question, the arms, the primary measure, and the method.
+2. **Status:** design only, piloted, running, or done, as its first words, and what must happen before the next stage.
+3. **Why this question is open:** the nearest studies with their numbers, the gap, and the theory.
+4. **Hypotheses:** H1, H0, sidedness, and a pointer to the decision rule.
+5. **Arms:** the arm table, the manipulation, the design and arm order, and alternatives not compared with the reason.
+6. **Controlled variables.**
+7. **Measures:** primary, guard, secondary, reference, covariate, and manipulation check.
+8. **Objects:** source and pin, justification, filters and draws, fresh objects, and the sample-size line.
+9. **Procedure:** run order, per-run steps, and the pilot.
+10. **Analysis:** primary, test choice, exploratory, and the decision rule.
+11. **Assumptions.**
+12. **Threats to validity:** in 4 groups.
+13. **Reproducibility and audit.**
+14. **Open decisions:** 1 bullet per decision, or `None`.
 
 ## Checking the draft
 
 Before handing the draft over, review it with [review.md](review.md) and fix every essential gap you can fix without the user's choice.
-Confirm that every internal link resolves and that every number in the sample-size section recomputes from its formula.
+Run `scripts/check_design.py` on it, as the Checks section of SKILL.md describes, and fix every failure.

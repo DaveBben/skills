@@ -11,6 +11,7 @@ When the harness and the design disagree, change the design in its own commit wi
 
 * **Freeze the design:** commit the design document and tag it, such as `design-v1`, before writing the harness.
 * **Settle open decisions:** the pilot cannot start while the design's open-decisions list has entries.
+  `scripts/check_design.py --ready` must pass before the pilot.
 * **Draw by script:** every random draw runs from a committed script with a seed committed before it runs.
   The script prints its selection, and the selection is committed too.
 
@@ -39,6 +40,9 @@ Test it on inputs whose answers are known before trusting any score it gives.
 
 Write the analysis script before experiment data exists, and test it on pilot or synthetic data.
 Lock it with a commit.
+It ends by printing 1 JSON line holding the estimate, the confidence interval, the guard result, and a verdict.
+The verdict is 1 of `supported`, `opposite`, `equivalent`, `guard failed`, or `inconclusive`, computed by the decision rule in [statistics.md](statistics.md).
+Report the verdict as printed: when prose and the verdict disagree, the prose is wrong.
 Where practical, have it label the arms with neutral codes, such as X and Y, until the results are final, so no one tunes the analysis toward an arm.
 
 ## Running
@@ -46,7 +50,7 @@ Where practical, have it label the arms with neutral codes, such as X and Y, unt
 * **No peeking:** do not look at the primary result until the run is complete.
   Stopping early, or adjusting, once a result looks good inflates false positives.
 * **Monitor only operations:** watch failures, cost, throughput, and completeness during the run.
-* **Completeness:** check that every planned unit has every arm for every run.
+* **Completeness:** check that every planned unit has every arm for every run, with `scripts/check_run.py`.
   A gap or an imbalance between arms means the harness or the logging is broken, and the result is not trusted until it is explained.
   This is the equivalent of the sample ratio check in an A/B test.
 * **Failure types:** decide in advance how each failure is handled.
@@ -75,9 +79,11 @@ These apply when the primary measure is time, throughput, or resource use:
 
 ## Provenance
 
-* **Manifest per run:** each run writes the harness commit, the image digest, the model ID or weights revision, the seed, timestamps, and token counts.
+* **Layout:** each run's raw outputs go in `runs/<unit>/<arm>/<run>/`, with runs numbered from 1, so `scripts/check_run.py` can count them.
+* **Manifest per run:** each run writes a `manifest.json` with `harness_commit`, `seed`, `started_at`, and `finished_at`, plus the image digest, the model ID or weights revision, and token counts where they apply.
+  A rerun sets `attempt` above 1 and gives a `rerun_reason`.
 * **Append-only outputs:** raw outputs are never overwritten.
-  Record a content hash for each one.
+  Record a content hash for each one in a ledger, `runs.sha256` in `sha256sum` format, and commit the ledger, because its first commit dates the data.
 * **Rerunnable results:** 1 command recomputes every reported number from the raw outputs.
   Run that command inside a pinned environment too.
 
@@ -103,6 +109,7 @@ Log what you find, and report it.
 
 * **Surprises checked first:** treat an effect far outside what prior work or the A/A run makes plausible, in either direction, as a harness bug until a check rules that out.
   Read the transcripts or raw outputs behind the largest wins and the largest losses before reporting, and log every check and its result.
+* **Checks pass:** run `scripts/check_order.py` and `scripts/check_run.py`, and report their output with the deviation log.
 * **Everything pre-specified:** report every pre-specified analysis, including null and inconclusive results.
 * **Results separate from interpretation:** keep the results section free of speculation.
 * **Deviations:** include the deviation log, with the effect of each deviation on the result.

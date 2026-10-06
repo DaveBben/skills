@@ -78,6 +78,9 @@ The skill uses progressive disclosure.
 * **`references/implement.md`:** testing the measuring instrument, flaky checks, writing the analysis before the data, no peeking, completeness checks, provenance, and freezing the harness after the pilot.
 * **`references/statistics.md`:** sample size for a paired design, test choice, and decision-rule traps.
 * **`references/llm-experiments.md`:** pinning, isolation, contamination, and drift for experiments on models and agents.
+* **`scripts/`:** 3 standard-library Python checks that replace judgement at the gates.
+  `check_design.py` checks the outline, open decisions, links, and sample size before the pilot, `check_order.py` proves from git history that decisions came before data, and `check_run.py` proves the run is complete and its raw outputs unchanged.
+  Each has a `--self-test`.
 
 The sources:
 
