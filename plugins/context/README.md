@@ -10,7 +10,7 @@ One skill today. More will follow as the ways a session runs out of context, or 
 
 ## `handing-off`
 
-Writes `docs/agents/handoff/YYYY-MM-DD-NNN-slug.md`, proposing the filename and waiting for confirmation before writing anything. It records what was accomplished, the key decisions, **the dead ends and what went wrong with each**, where things stand as one concrete next step, and the context a fresh agent would otherwise re-derive.
+Writes `.claude/agents/handoff/YYYY-MM-DD-HHMMSS-mmm.md` when the project already has a `.claude/` folder, otherwise `.agents/handoff/YYYY-MM-DD-HHMMSS-mmm.md`, without asking first. It records what was accomplished, the key decisions, **the dead ends and what went wrong with each**, where things stand as one concrete next step, and the context a fresh agent would otherwise re-derive.
 
 The dead ends are the reason it beats built-in compaction: a fresh session with no record of the failed approaches will find them again. A handoff that reads as though everything went well is worse than none, because the next session trusts it.
 

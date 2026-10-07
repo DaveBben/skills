@@ -29,7 +29,7 @@
       "name": "context",
       "source": "./plugins/context",
       "description": "Skills for managing an agent session's context across boundaries. Today it hands a session over when context fills or work stops partway, recording the dead ends a fresh session would otherwise rediscover.",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "license": "MIT",
       "skills": [
         "./skills/handing-off"

@@ -1,8 +1,8 @@
 ---
 name: handing-off
 metadata:
-  version: "0.5.0"
-description: "Use this skill whenever this session's work has to survive into another one, or the user says the context window is filling, full, running out, running low or rotting. Use it on: 'create a handoff', 'make a handoff', 'write a handoff document', 'your context is getting full', 'you are running out of context', 'you are running low on context', 'there's context rot', 'I want to pick this up later', 'summarise this for next time'. A remark about your context is a request for a handoff, not an observation to agree with: write the handoff. Writes one handoff document under `docs/agents/handoff/`."
+  version: "0.6.0"
+description: "Use this skill whenever this session's work has to survive into another one, or the user says the context window is filling, full, running out, running low or rotting. Use it on: 'create a handoff', 'make a handoff', 'write a handoff document', 'your context is getting full', 'you are running out of context', 'you are running low on context', 'there's context rot', 'I want to pick this up later', 'summarise this for next time'. A remark about your context is a request for a handoff, not an observation to agree with: write the handoff. Writes one handoff document under `.claude/agents/handoff/` or `.agents/handoff/`."
 license: MIT
 ---
 # Handing off
@@ -11,12 +11,10 @@ Write a handoff document summarizing this session so a fresh agent or human can 
 
 ## File Naming and Creation
 
-* **Format:** `docs/agents/handoff/YYYY-MM-DD-NNN-<slug>.md`
-* **Date:** Use the current system date.
-* **Increment:** `NNN` is zero-padded to three digits and restarts at `001` each day. List the directory and increment the highest number already used today.
-* **Slug:** A short kebab-case name derived from the main subject of the session (e.g., `eth-brownie-optimization`, `video-script-draft`, `enclosure-prototype`).
-* **Never committed:** a handoff is private working state. Before writing one inside a git repository, run `git check-ignore -q docs/agents/handoff/x.md`; when that fails, add the line `docs/agents/handoff/` to the file `git rev-parse --git-path info/exclude` prints. Git reads that file but never commits it. Run both commands from the repository root.
-* **Interaction:** Propose the exact file path and wait. Say: `"Proposed filename: <path>. Is that correct? If not, provide the filename to use instead."` Do not write the file until the user confirms or overrides.
+* **Directory:** `.claude/agents/handoff/` when the project root (the repository root inside git, otherwise the working directory) already holds a `.claude/` folder, otherwise `.agents/handoff/`. Choose it without asking, and create it when missing.
+* **Format:** `<directory>/YYYY-MM-DD-HHMMSS-mmm.md`, the current local date and time to the millisecond, e.g. `.agents/handoff/2026-10-07-080714-995.md`. macOS `date` has no milliseconds; `python3 -c 'from datetime import datetime; print(datetime.now().strftime("%Y-%m-%d-%H%M%S-%f")[:-3])'` works everywhere Python does.
+* **Never committed:** a handoff is private working state. Before writing one inside a git repository, run `git check-ignore -q <directory>/x.md`; when that fails, add the line `<directory>/` to the file `git rev-parse --git-path info/exclude` prints. Git reads that file but never commits it. Run both commands from the repository root.
+* **Interaction:** Write the file without asking, then tell the user its path.
 
 ## Writing for a reader who was not here
 

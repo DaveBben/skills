@@ -11,4 +11,6 @@ __pycache__/
 
 # handing-off: session handoffs are private working state, never committed
 docs/agents/handoff/
+.claude/agents/handoff/
+.agents/handoff/
 docs/handoffs/
