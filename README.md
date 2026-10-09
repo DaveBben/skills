@@ -8,7 +8,7 @@ The skills are plain Markdown (`SKILL.md`) and work with any skills-compatible a
 
 | Plugin | What it does | Status |
 |---|---|---|
-| [SDLC](plugins/SDLC/) | Turn a request into user stories with concrete acceptance criteria, then build each one: failing tests that stay locked, the code, a refactor, a fresh review, and a pull request into main. Works with or without a project tracker. Seven skills. | live |
+| [SDLC](plugins/SDLC/) | Turn a request into user stories with concrete acceptance criteria, then build each one: failing tests that stay locked, the code, a refactor, a fresh review, and a pull request into main. Works with or without a project tracker. Eight skills. | live |
 | [context](plugins/context/) | Manage an agent session's context across boundaries. Hands a session over when context fills or work stops partway, recording the dead ends. One skill. | live |
 | [finance](plugins/finance/) | Run a YNAB budget by rules that rest on evidence. Sets targets from bills and price-adjusted spend rates, covers overspending in a fixed order in the month it happens, closes each month before it rolls over, assigns each paycheck by priority, judges a practice mortgage payment, and checks 401(k), IRA and HSA pace and the April tax bill each quarter. Personal settings stay outside the repo. Seven skills. | live |
 | [meals](plugins/meals/) | Eat to numbers without cooking from a spreadsheet. Turns a recipe you already make into a reusable meal template that hits a calorie ceiling and protein and fiber floors, verified against USDA values, then plans days of meals from those templates into the meal planner with a shopping list. Two skills. | live |
@@ -40,7 +40,7 @@ Use the [`skills` CLI](https://github.com/vercel-labs/skills), which installs pl
 # see everything on offer, grouped by area
 npx skills add DaveBben/davebben-skills --list
 
-# install one skill (story calls adr, spike, using-trackers, guardrails and review-code by name, so install all seven SDLC skills together,
+# install one skill (story calls failing-tests, adr, spike, using-trackers, guardrails and review-code by name, so install all eight SDLC skills together,
 # and copy skills/SDLC/agents/ beside them, since story and review-code launch the subagents defined there)
 npx skills add DaveBben/davebben-skills --skill story
 

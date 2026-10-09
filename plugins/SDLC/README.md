@@ -2,11 +2,12 @@
 
 **User stories, failing tests first, one fresh review. Every other step was measured, and cut when it did not pay.**
 
-The plugin is seven skills. Plain Markdown, no build step, nothing to compile.
+The plugin is eight skills. Plain Markdown, no build step, nothing to compile.
 
 | Skill | Fires on |
 |---|---|
 | `story` | any change to code that exists, and turning work into user stories: "add X", "fix the bug where X", "X is broken", "build story X", "refactor X", "pick up where we left off", "write a story for X", "break this down", "I have an idea", "turn this PRD into stories", "review these stories", "what should I pick up next" |
+| `failing-tests` | "write the failing tests", "write the tests first", "TDD this", "add a regression test for this bug"; and every test the `story` skill writes |
 | `adr` | "write an adr", "record the why", "should I use X or Y", "we will accept that risk", "let's go with X instead of Y" |
 | `spike` | "let's prove this works first", "prototype this", "build a demo", "is X feasible", "try a few approaches and see", "do a spike" |
 | `using-trackers` | "create the issues", "put this on the board", "read issue 12", "update the issue", "which issue is next"; and every tracker read or write the `story` and `spike` skills make |
@@ -24,7 +25,7 @@ flowchart TD
     CASES -. several stories .-> SP[split into a feature, then one story at a time]
     CASES -. expensive decision .-> ARC[adr: the user's reasons]
     CASES --> IF[this session fixes the interface: signatures and stubs]
-    IF --> RED[test-author agent, fresh: failing tests from the acceptance criteria through that interface, committed and locked; a second fresh test-author adds tests for wrong implementations that suite lets pass]
+    IF --> RED[this session, by failing-tests: failing tests from the acceptance criteria through that interface, committed and locked; a fresh test-challenger agent adds tests for wrong implementations that suite lets pass]
     RED --> BLD[the code, until the suite is green]
     BLD --> REF[refactor inside the diff]
     REF --> REV[review-code: three Opus review agents, fresh and blind to each other, one focused on security, check each acceptance criterion; a fresh verify agent keeps only proven findings]
@@ -34,7 +35,7 @@ flowchart TD
 ```
 
 1. **The story.** The agent writes the request as a story, or reads a linked issue: As a / I want / so that, a few sentences of context, numbered rules each with Given/When/Then examples in concrete values, the edge cases this change can break, and an `Out of scope` list. It asks wherever an example's result is not in the request, the code or a tool, decides and lists everything else, and builds once you say go.
-2. **Interface, then failing tests from a fresh agent.** The session writes the signatures the change needs as stubs, so the design stays with the builder. The `test-author` agent, which never sees the plan or any implementation, writes one test per example under each acceptance criterion through those stubs, confirms each fails for the stated reason, marks each with the framework's strict expected-fail marker so the check still passes, and commits them alone. A second fresh `test-author`, searching from how real callers, and careless or hostile ones, will call the code, adds tests for wrong implementations the first suite lets pass, and brings you any criterion the two read differently. Those tests, and every test that existed before, are locked: a commit that changes one other than by removing its marker is refused, whichever tool made the edit, and a pull request is refused while a marker remains. A test the code cannot satisfy is a stop, reported to you.
+2. **Interface, then failing tests, then a fresh challenger.** The session writes the signatures the change needs as stubs, so the design stays with the builder. By the `failing-tests` skill, it then writes one test per example under each acceptance criterion through those stubs, confirms each fails for the stated reason, marks each with the framework's strict expected-fail marker so the check still passes, and commits them alone. A fresh `test-challenger` agent, which never sees the plan or any implementation, searching from how real callers, and careless or hostile ones, will call the code, adds tests for wrong implementations the first suite lets pass, and brings you any criterion the two read differently. Those tests, and every test that existed before, are locked: a commit that changes one other than by removing its marker is refused, whichever tool made the edit, and a pull request is refused while a marker remains. A test the code cannot satisfy is a stop, reported to you.
 3. **The code, then a refactor.** The session writes it until the suite is green, changing only what the acceptance criteria need, then tidies the diff with every test green.
 4. **One fresh review, through `review-code`.** Three `review` agents, blind to each other, each check whether each acceptance criterion still holds, backing each finding with a failing test or a cited line, searching hardest on one focus each: correctness, tests and production, or security. A fresh `verify` agent, which never sees their reasoning, keeps only the findings a red test or a cited line proves.
 5. **Fix once.** Confirmed findings become failing tests, then fixes. A finding the fix does not settle comes to you as a question; there is no second review round.
@@ -56,8 +57,9 @@ Follow-up runs then tested each mechanism on its own:
   * **One review with a verification pass:** best judge rank of four review designs. No review was clearly worst, and a second round cost more and swung between tasks.
   * **Locked tests with a stop-and-report rule:** in three llama.cpp runs, no accepted test changed after the red commit, against up to 139 changed lines in runs without it.
 * **The stories carry what the agent cannot know.** Given only the original issue text, every arm lost hidden tests (cli 7/8 to 5/8), and an agent writing its own acceptance criteria list recovered none of them. So the `story` skill puts the user's answers into concrete acceptance criteria, and asks only where readings diverge.
-* **The interface split, after 16.0.0:** a test writer shown buggy code wrote tests that pass the bug 3.84% of the time, against 0.46% when shown fixed code (11 models, Defects4J; arXiv 2607.22883), and an agent's tests for its own repairs lowered its SWE-bench Verified score from 61.2% to 57.3% where another model's tests raised it to 65.3% (arXiv 2609.09133). No study measures who should define the interface, so the session that builds the code defines it, and the fresh `test-author` agent tests through it. The confirm step before a push was dropped.
-* **A second test author, 18.2.0:** a test designer that never saw the code raised test accuracy from 61.0% to 87.8% on HumanEval (AgentCoder, arXiv 2312.13010), and enforced diversity in generated tests raised mutation score by up to 11.23% (PolyTest, arXiv 2503.16144) and about 10% (EvoGPT, arXiv 2505.12424). Repeats of one model share most of their errors, so the second author searches from a different focus instead of rerunning the first. On the 18.1.0 guard change, one author's 14 tests passed an implementation the review then broke 10 ways, and 2 of those followed from the story alone. Both authors run on Sonnet at high effort; nothing here measures that against Opus.
+* **The interface split, after 16.0.0:** a test writer shown buggy code wrote tests that pass the bug 3.84% of the time, against 0.46% when shown fixed code (11 models, Defects4J; arXiv 2607.22883), and an agent's tests for its own repairs lowered its SWE-bench Verified score from 61.2% to 57.3% where another model's tests raised it to 65.3% (arXiv 2609.09133). No study measures who should define the interface, so the session that builds the code defines it, and a fresh `test-author` agent tested through it until 20.0.0. The confirm step before a push was dropped.
+* **A second test author, 18.2.0:** a test designer that never saw the code raised test accuracy from 61.0% to 87.8% on HumanEval (AgentCoder, arXiv 2312.13010), and enforced diversity in generated tests raised mutation score by up to 11.23% (PolyTest, arXiv 2503.16144) and about 10% (EvoGPT, arXiv 2505.12424). Repeats of one model share most of their errors, so the second author searches from a different focus instead of rerunning the first. On the 18.1.0 guard change, one author's 14 tests passed an implementation the review then broke 10 ways, and 2 of those followed from the story alone. The challenger runs on Sonnet at high effort; nothing here measures that against Opus.
+* **The session writes the first suite, 20.0.0.** A preregistered experiment gave FeatureBench tasks (a real feature removed from a real Python repository, its interface left as a stub) to an agent that planned the feature then wrote its tests, and to a fresh agent given only the spec and the stub, scored by the share of mutants of the original implementation the suite kills. On Claude Sonnet 5.5 over 63 tasks the fresh agent scored 3.3 points lower (97.5% interval -5.8 to -0.7, Wilcoxon p = 0.00001), losing 38 tasks and winning 9; on Qwen3.6 27B over 16 tasks it scored 2.3 lower, inconclusive. The main run was cut to one run per task after the pilot, so the result is exploratory. So `test-author` became the `failing-tests` skill the session follows, and only its challenge mode stays a fresh agent, as `test-challenger`, which that experiment did not test.
 * **Cut, because it measured nothing or cost more:**
   * the refute agent on another model as it stood in SDLC 15, separate setup, build and refactor agents, and the second review round;
   * the mutation pass: no gain, about $1.50 more a run;
@@ -70,9 +72,9 @@ Follow-up runs then tested each mechanism on its own:
 
 * **Testing strategy checked against the research, 17.2.0 and 17.3.0.** Two auditors compared the skills with [research/testing-expertise/BRIEF.md](../../research/testing-expertise/BRIEF.md):
   * **Mutation runs on changed lines and never gates on survivors.** 4 to 39% of mutants are equivalent and cannot be killed; Google surfaces a median of 2 survivors per change in review instead of a score gate (arXiv 2102.11378). Survivors now feed the review, and a whole-repository run moves to `./check --scheduled` with contract and real-model tests.
-  * **Real implementations over doubles.** Google found mock-heavy tests "required constant effort to maintain while rarely finding bugs", and in-memory databases diverge from production on dialect and behaviour. The test author runs real code and doubles only what a test cannot run.
+  * **Real implementations over doubles.** Google found mock-heavy tests "required constant effort to maintain while rarely finding bugs", and in-memory databases diverge from production on dialect and behaviour. The `failing-tests` skill runs real code and doubles only what a test cannot run.
   * **The review writes attack tests before reading the diff.** Tests written from the task description alone caught 25% of faults against 14% after seeing the code (arXiv 2607.05139).
-  * **Flakes are named, not retried past.** The gate reports a check that fails then passes on the same tree, new tests run five more times, and the test author bans sleeps, shared keys and order dependence.
+  * **Flakes are named, not retried past.** The gate reports a check that fails then passes on the same tree, new tests run five more times, and the `failing-tests` skill bans sleeps, shared keys and order dependence.
   * **The lock covers Swift, end-to-end and `conftest.py` files,** and the review checks test configuration that could skip or loosen a locked test.
   * **Swift red markers, tested on Swift 6.4:** `XCTExpectFailure` and Swift Testing's `withKnownIssue` both fail the run once the test passes, so both serve as the strict marker; a non-strict `XCTExpectFailure` does not count.
   * **One property test per stated invariant,** only where the repository has a property-testing library: an agent writing Hypothesis tests over 100 packages filed bug reports 56% valid (arXiv 2510.09907), and the review already flags a test that pins one value of a rule over a range.
@@ -119,13 +121,13 @@ A first headless run of this version passed 7 of 8 hidden tests on cli and 4 of 
 /plugin install SDLC@davebben-skills
 ```
 
-The seven skills surface under their own names.
+The eight skills surface under their own names.
 
 The plugin also installs hooks:
 
 * **The guard:** a hook runs story's `scripts/guard.py` before a shell command containing `git`, `merge` or `create`. It refuses a merge, a commit that changes a locked test other than by removing its expected-fail marker, and opening a pull request while a red test keeps its marker. It asks you before a `git config` command removes or replaces the tests' lock. Other ways to drop the lock, such as deleting the branch or editing `.git/config`, are left to the review, which checks that no locked test changed.
 
-It installs three named agents: `SDLC:test-author`, `SDLC:review` and `SDLC:verify`. Each agent file is that agent's whole prompt, at `skills/SDLC/agents/`, linked into the plugin by the `agents` symlink. `story` runs `review-code` on each story it builds, as you do on merge requests, your own code and designs, so every review is the same review.
+It installs three named agents: `SDLC:test-challenger`, `SDLC:review` and `SDLC:verify`. Each agent file is that agent's whole prompt, at `skills/SDLC/agents/`, linked into the plugin by the `agents` symlink. `story` runs `review-code` on each story it builds, as you do on merge requests, your own code and designs, so every review is the same review.
 
 **Any other agent** (Codex, Cursor, Windsurf, and more), via the [`skills` CLI](https://github.com/vercel-labs/skills):
 
@@ -135,6 +137,6 @@ npx skills add DaveBben/davebben-skills --skill story
 
 The `story` and `review-code` skills launch subagents whose prompts live in `skills/SDLC/agents/`, beside the skill folders rather than inside one. The `skills` CLI copies skill folders, so also copy `skills/SDLC/agents/` into the folder that holds the installed skills, as a sibling named `agents`. Other agents do not run the hooks, so they get no guard.
 
-Install `story`, `adr`, `spike`, `using-trackers`, `orient`, `guardrails` and `review-code` together, or `--all` for every skill in the repo. The canonical `SKILL.md` files live at `skills/SDLC/` in the repo root.
+Install `story`, `failing-tests`, `adr`, `spike`, `using-trackers`, `orient`, `guardrails` and `review-code` together, or `--all` for every skill in the repo. The canonical `SKILL.md` files live at `skills/SDLC/` in the repo root.
 
 MIT.
