@@ -1,9 +1,9 @@
 ---
 name: story
-description: "Use this skill before touching any file on a request to add, change, fix or remove behaviour in code that exists, and whenever work must become user stories or a story must be built. Use it on: 'add X', 'fix the bug where X', 'X is broken', 'refactor X', 'build story X', 'build this' with a link to an issue, 'pick up where we left off', 'write a story for X', 'write the acceptance criteria', 'break this down', 'I have an idea', 'turn this PRD into stories', 'review these stories', 'what should I pick up next'. Use it even when the change looks small. Writes each change as a user story with concrete acceptance criteria, agrees it with the user, then builds it test-first and opens a pull request into main."
+description: "Use this skill before touching any file on a request to add, change or remove behaviour in code that exists, and whenever work must become user stories or a story must be built. Use it on: 'add X', 'refactor X', 'build story X', 'build this' with a link to an issue, 'pick up where we left off', 'write a story for X', 'write the acceptance criteria', 'break this down', 'I have an idea', 'turn this PRD into stories', 'review these stories', 'what should I pick up next'. Use it even when the change looks small. Writes each change as a user story with concrete acceptance criteria, agrees it with the user, then builds it test-first and opens a pull request into main. Not for a reported bug; that is `bug`, which builds its fix here."
 license: MIT
 metadata:
-  version: "4.0.0"
+  version: "5.0.0"
 ---
 # Story
 
@@ -29,6 +29,7 @@ Stop for the user only to agree a story or a split, to answer an open question, 
 * **Create a story** from a request, an idea or a PRD: [references/create.md](references/create.md).
 * **Review stories** someone wrote: [references/review.md](references/review.md).
 * **Implement a story** the user agreed, or a change that needs no story: [references/implement.md](references/implement.md).
+* **A reported bug:** the `bug` skill reproduces and decides it first, then builds its fix through implement.md.
 * **Resume:** find the `story/` branch. `git config --get-all branch.<branch>.redCommit` shows whether its tests exist. Read the story from its issue, `docs/stories/<slug>.md` or the red commit's message, and continue at the first step of implement.md not done.
 * **Next story:** the first story with no open blocker and no open pull request: on a tracker (the one the request, the user or the repository names), the first such issue; without one, the first such story in `docs/stories/<slug>.md`. Every read or write of a tracker goes through the `using-trackers` skill.
 * **Check the outcome:** once every story of the feature is merged and the date on the owning story's `Measure:` line has passed, or when the user asks how a feature did. Read the measure with a tool where one reaches it, else ask the user for it. Write the value and the date on its `Result:` line and report whether it met the target. A miss becomes new stories or a decision for the user; no merged story reopens.

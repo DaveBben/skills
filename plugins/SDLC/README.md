@@ -2,11 +2,12 @@
 
 **User stories, failing tests first, one fresh review. Every other step was measured, and cut when it did not pay.**
 
-The plugin is eight skills. Plain Markdown, no build step, nothing to compile.
+The plugin is nine skills. Plain Markdown, no build step, nothing to compile.
 
 | Skill | Fires on |
 |---|---|
-| `story` | any change to code that exists, and turning work into user stories: "add X", "fix the bug where X", "X is broken", "build story X", "refactor X", "pick up where we left off", "write a story for X", "break this down", "I have an idea", "turn this PRD into stories", "review these stories", "what should I pick up next" |
+| `story` | any change to code that exists, and turning work into user stories: "add X", "build story X", "refactor X", "pick up where we left off", "write a story for X", "break this down", "I have an idea", "turn this PRD into stories", "review these stories", "what should I pick up next" |
+| `bug` | a reported bug and a bug backlog: "fix the bug where X", "X is broken", "users are getting this error", "triage our bugs", "why do we keep getting these bugs" |
 | `failing-tests` | "write the failing tests", "write the tests first", "TDD this", "add a regression test for this bug"; and every test the `story` skill writes |
 | `adr` | "write an adr", "record the why", "should I use X or Y", "we will accept that risk", "let's go with X instead of Y" |
 | `spike` | "let's prove this works first", "prototype this", "build a demo", "is X feasible", "try a few approaches and see", "do a spike" |
@@ -41,7 +42,7 @@ flowchart TD
 5. **Fix once.** Confirmed findings become failing tests, then fixes. A finding the fix does not settle comes to you as a question; there is no second review round.
 6. **Push and open the pull request.** Where `guardrails` set it up, the full check, acceptance tests included, runs before the pull request opens and refuses it on a failure. The agent reports the result and every choice it made without you, and never merges.
 
-A refactor needs no new acceptance criteria. A tracker is optional: paste an issue's link and the agent reads it; without one, a story lives in the chat and the pull request, and a feature in `docs/stories/<slug>.md`.
+A refactor needs no new acceptance criteria. A reported bug goes to `bug` first: it reproduces the bug, decides fix now, story or won't fix, builds the fix through the same steps with the reproduction as the one acceptance criterion, then names why the bug escaped and proposes the criterion, check or ADR that closes the gap. A tracker is optional: paste an issue's link and the agent reads it; without one, a story lives in the chat and the pull request, and a feature in `docs/stories/<slug>.md`.
 
 # Why it looks like this
 
@@ -121,7 +122,7 @@ A first headless run of this version passed 7 of 8 hidden tests on cli and 4 of 
 /plugin install SDLC@davebben-skills
 ```
 
-The eight skills surface under their own names.
+The nine skills surface under their own names.
 
 The plugin also installs hooks:
 
@@ -137,6 +138,6 @@ npx skills add DaveBben/davebben-skills --skill story
 
 The `story` and `review-code` skills launch subagents whose prompts live in `skills/SDLC/agents/`, beside the skill folders rather than inside one. The `skills` CLI copies skill folders, so also copy `skills/SDLC/agents/` into the folder that holds the installed skills, as a sibling named `agents`. Other agents do not run the hooks, so they get no guard.
 
-Install `story`, `failing-tests`, `adr`, `spike`, `using-trackers`, `orient`, `guardrails` and `review-code` together, or `--all` for every skill in the repo. The canonical `SKILL.md` files live at `skills/SDLC/` in the repo root.
+Install `story`, `bug`, `failing-tests`, `adr`, `spike`, `using-trackers`, `orient`, `guardrails` and `review-code` together, or `--all` for every skill in the repo. The canonical `SKILL.md` files live at `skills/SDLC/` in the repo root.
 
 MIT.

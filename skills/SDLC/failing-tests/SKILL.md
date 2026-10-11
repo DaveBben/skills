@@ -1,9 +1,9 @@
 ---
 name: failing-tests
-description: "Use this skill whenever tests must be written before the code they test exists or is fixed: the failing tests for a story's acceptance criteria, a failing test for a confirmed review finding or a reported bug, or a locked test the user corrected. Use it on: 'write the failing tests', 'write the tests first', 'red tests for this story', 'TDD this', 'add a regression test for this bug', 'this test is wrong'. Load it before writing the first test. Writes one test per example through the interface already fixed, confirms each fails for the reason its criterion states, marks each with the framework's strict expected-fail marker, commits them alone and locks them in git config."
+description: "Use this skill whenever tests must be written before the code they test exists or is fixed: the failing tests for a story's acceptance criteria, a failing test for a confirmed review finding or a reported bug, or a locked test the user corrected. Use it on: 'write the failing tests', 'write the tests first', 'red tests for this story', 'TDD this', 'TDD the X story', 'tests first for X', 'add a regression test for this bug', 'add a regression test so this bug can't come back', 'write a test that reproduces this bug, don't fix it yet', 'this test is wrong'. Use it even when the request names a story or a bug, if it asks for the tests. Load it before writing the first test. Writes one test per example through the interface already fixed, confirms each fails for the reason its criterion states, marks each with the framework's strict expected-fail marker, commits them alone and locks them in git config."
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 # Failing tests
 
