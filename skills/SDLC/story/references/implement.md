@@ -29,7 +29,7 @@
    * A test the user agrees is wrong: correct it by the `failing-tests` skill, which unlocks, commits the corrected test alone and locks it and each earlier red commit again.
 5. **Green:** run the check command. The whole suite must pass, not only the new tests, and no red test may still carry a marker.
    * Run the new test files again when a test touches time, randomness, concurrency or the network. A test whose result changes is flaky: report it as a test to correct.
-6. **Refactor** inside the diff with every test green, then run the check command again.
+6. **Refactor** inside the diff with every test green, by the `refactoring` skill (`SDLC:refactoring` in Claude Code, `../refactoring/SKILL.md` from the story skill's folder), then run the check command again.
    * Remove code no acceptance criterion asked for.
 7. **Review:** run the `review-code` skill on the branch, given the story's acceptance criteria, the merge target, the red commit's hash and the check command, and nothing from this chat. Run no second review. For each row it keeps:
    * **Finding,** blocking or not: add a failing test for it by the `failing-tests` skill, in a new test file, locked like the others; then fix it.

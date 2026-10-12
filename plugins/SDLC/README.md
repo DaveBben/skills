@@ -2,12 +2,13 @@
 
 **User stories, failing tests first, one fresh review. Every other step was measured, and cut when it did not pay.**
 
-The plugin is nine skills. Plain Markdown, no build step, nothing to compile.
+The plugin is ten skills. Plain Markdown, no build step, nothing to compile.
 
 | Skill | Fires on |
 |---|---|
-| `story` | any change to code that exists, and turning work into user stories: "add X", "build story X", "refactor X", "pick up where we left off", "write a story for X", "break this down", "I have an idea", "turn this PRD into stories", "review these stories", "what should I pick up next" |
+| `story` | any change to code that exists, and turning work into user stories: "add X", "build story X", "pick up where we left off", "write a story for X", "break this down", "I have an idea", "turn this PRD into stories", "review these stories", "what should I pick up next" |
 | `bug` | a reported bug and a bug backlog: "fix the bug where X", "X is broken", "users are getting this error", "triage our bugs", "why do we keep getting these bugs" |
+| `refactoring` | "refactor X", "should this be refactored", "what smells are in this code", "this code is messy", "make this more readable", "remove dead code", "where is our tech debt"; and the refactor step of every story |
 | `failing-tests` | "write the failing tests", "write the tests first", "TDD this", "add a regression test for this bug"; and every test the `story` skill writes |
 | `adr` | "write an adr", "record the why", "should I use X or Y", "we will accept that risk", "let's go with X instead of Y" |
 | `spike` | "let's prove this works first", "prototype this", "build a demo", "is X feasible", "try a few approaches and see", "do a spike" |
@@ -42,7 +43,7 @@ flowchart TD
 5. **Fix once.** Confirmed findings become failing tests, then fixes. A finding the fix does not settle comes to you as a question; there is no second review round.
 6. **Push and open the pull request.** Where `guardrails` set it up, the full check, acceptance tests included, runs before the pull request opens and refuses it on a failure. The agent reports the result and every choice it made without you, and never merges.
 
-A refactor needs no new acceptance criteria. A reported bug goes to `bug` first: it reproduces the bug, decides fix now, story or won't fix, builds the fix through the same steps with the reproduction as the one acceptance criterion, then names why the bug escaped and proposes the criterion, check or ADR that closes the gap. A tracker is optional: paste an issue's link and the agent reads it; without one, a story lives in the chat and the pull request, and a feature in `docs/stories/<slug>.md`.
+A refactor needs no new acceptance criteria; the `refactoring` skill decides whether one pays, names each smell, and keeps every structure commit apart from behaviour. A reported bug goes to `bug` first: it reproduces the bug, decides fix now, story or won't fix, builds the fix through the same steps with the reproduction as the one acceptance criterion, then names why the bug escaped and proposes the criterion, check or ADR that closes the gap. A tracker is optional: paste an issue's link and the agent reads it; without one, a story lives in the chat and the pull request, and a feature in `docs/stories/<slug>.md`.
 
 # Why it looks like this
 
@@ -93,6 +94,12 @@ Follow-up runs then tested each mechanism on its own:
   * **A codemap and invariants that rarely change.** matklad's [ARCHITECTURE.md](https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html), and the C4 model's context and container levels, which its author says are enough for most teams.
 
   The snapshot's first line records the commit it was traced at, so a refresh retraces only what changed since. The details load from `orient/references/architecture.md` only when a snapshot is taken.
+* **Refactoring from the research, 22.0.0.** Four research agents surveyed smells, refactoring mechanics, readability and agent refactoring; [research/refactoring-expertise/BRIEF.md](../../research/refactoring-expertise/BRIEF.md) holds the sources:
+  * **Refactor what a change touches.** Removing smells lowered change-proneness but not reliably fault-proneness over 395 releases of 30 projects (Palomba et al. 2018), so cleanup pays where code changes.
+  * **Name the smell and the refactoring.** GPT-4 found 15.6% of 180 real refactoring opportunities with a generic prompt and 86.7% with the kind named (arXiv 2411.04444).
+  * **Tests are not proof.** 7.4% of GPT-4's refactorings were unsafe, most of them semantic changes, all caught by re-applying them through a refactoring engine (same study), so the skill prefers tool refactorings and compares old and new outputs where tests are thin.
+  * **Small, separate commits.** Claude Code averaged 762.7 refactorings per refactoring commit against a developer mean of 15.3 (arXiv 2601.20160), and refactoring tangled into fixes lowered compilability (arXiv 2605.22526).
+  * **No length dogma.** Readability metrics failed to predict understandability (Scalabrino et al. 2017), and function length is disputed (Ousterhout and Martin, 2025), so a function splits only where each piece reads on its own.
 * **Writing rules moved out, 18.0.0.** The two hooks that printed `hooks/writing.md` into every session and subagent are gone. The rules for Markdown files now live in the `writing` plugin's `markdown-files` skill, which loads only when a Markdown file is written.
 
 A first headless run of this version passed 7 of 8 hidden tests on cli and 4 of 6 on zod, the same as the other arms, at $3.58 and $3.07 and 15 and 11 minutes; SDLC 15 took $4.72 and $9.67 and 22 and 46 minutes on the same tasks.
@@ -122,7 +129,7 @@ A first headless run of this version passed 7 of 8 hidden tests on cli and 4 of 
 /plugin install SDLC@davebben-skills
 ```
 
-The nine skills surface under their own names.
+The ten skills surface under their own names.
 
 The plugin also installs hooks:
 
@@ -138,6 +145,6 @@ npx skills add DaveBben/davebben-skills --skill story
 
 The `story` and `review-code` skills launch subagents whose prompts live in `skills/SDLC/agents/`, beside the skill folders rather than inside one. The `skills` CLI copies skill folders, so also copy `skills/SDLC/agents/` into the folder that holds the installed skills, as a sibling named `agents`. Other agents do not run the hooks, so they get no guard.
 
-Install `story`, `bug`, `failing-tests`, `adr`, `spike`, `using-trackers`, `orient`, `guardrails` and `review-code` together, or `--all` for every skill in the repo. The canonical `SKILL.md` files live at `skills/SDLC/` in the repo root.
+Install `story`, `bug`, `refactoring`, `failing-tests`, `adr`, `spike`, `using-trackers`, `orient`, `guardrails` and `review-code` together, or `--all` for every skill in the repo. The canonical `SKILL.md` files live at `skills/SDLC/` in the repo root.
 
 MIT.
