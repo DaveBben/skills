@@ -14,7 +14,7 @@ The plugin is ten skills. Plain Markdown, no build step, nothing to compile.
 | `spike` | "let's prove this works first", "prototype this", "build a demo", "is X feasible", "try a few approaches and see", "do a spike" |
 | `using-trackers` | "create the issues", "put this on the board", "read issue 12", "update the issue", "which issue is next"; and every tracker read or write the `story` and `spike` skills make |
 | `orient` | "write AGENTS.md", "write a CLAUDE.md", "our CLAUDE.md is too long", "orient yourself", "show me the architecture", "give me an updated view of the architecture" |
-| `guardrails` | "add a rule", "never do X", "the agent keeps making this mistake", "set up guardrails", "we have no linting", "which of our CLAUDE.md rules could be checks" |
+| `guardrails` | "add a rule", "never do X", "the agent keeps making this mistake", "set up guardrails", "we have no linting", "set up secret scanning", "which of our CLAUDE.md rules could be checks" |
 | `review-code` | "review PR 412", "review this merge request", "review my code", "review what you built", "security review", "give me feedback", "poke holes in this" |
 
 Session handoff lives in the separate [context](../context/) plugin. Plugins are independent, so nothing in SDLC calls it.

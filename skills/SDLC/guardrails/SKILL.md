@@ -1,9 +1,9 @@
 ---
 name: guardrails
-description: "Use this skill when the user wants a rule their AI agent must follow in a codebase, asks what rules, checks or hooks a repository already enforces or whether anything stops a mistake from landing, wants a rule turned into a lint, semgrep or hook check, or a repository needs its default checks set up. Use it on: 'make a rule for X', 'add a rule', 'always do X', 'never do Y', 'ban this pattern', 'the agent keeps making this mistake', 'set up guardrails', 'what rules are in my repo', 'do I have guardrails in place', 'can this be a semgrep rule', 'write a lint rule for X', 'we have no linting', 'add a commit gate', 'run the tests when claude finishes', 'which of our CLAUDE.md rules could be checks', and the bare word 'guardrails'. Load it before searching the repository. Puts each rule where it is followed most: a deterministic check first, a path-scoped rule file second, a line in AGENTS.md last. Writing AGENTS.md as a whole is the `orient` skill."
+description: "Use this skill when the user wants a rule their AI agent must follow in a codebase, asks what rules, checks or hooks a repository already enforces or whether anything stops a mistake from landing, wants a rule turned into a lint, semgrep or hook check, or a repository needs its default checks set up. Use it on: 'make a rule for X', 'add a rule', 'always do X', 'never do Y', 'ban this pattern', 'the agent keeps making this mistake', 'set up guardrails', 'what rules are in my repo', 'do I have guardrails in place', 'can this be a semgrep rule', 'write a lint rule for X', 'we have no linting', 'add a commit gate', 'set up secret scanning', 'add gitleaks', 'run the tests when claude finishes', 'which of our CLAUDE.md rules could be checks', and the bare word 'guardrails'. Load it before searching the repository. Puts each rule where it is followed most: a deterministic check first, a path-scoped rule file second, a line in AGENTS.md last. Writing AGENTS.md as a whole is the `orient` skill."
 license: MIT
 metadata:
-  version: "5.0.0"
+  version: "5.1.0"
 ---
 # Guardrails
 
@@ -23,9 +23,11 @@ Rung 2 equivalents for other agents:
 
 `./check` is the repository's check command, `./check --full` adds the slow tests, and `./check --scheduled` runs off the gates on CI's schedule. [references/defaults.md](references/defaults.md) sets up all three.
 
+Everything runs from the repository. Copy each script this skill ships into the repository and commit it, and call it by a path inside the repository (`./check`, `.claude/hooks/gate.py`, `"$CLAUDE_PROJECT_DIR"`), never by a path into this skill's folder. The user can then read and edit every check, and the checks run for a developer who never installed this skill.
+
 ## Routing
 
-* **A request to set up checks, hooks or linting,** such as 'we have no linting' or 'run the tests when claude finishes': set them up by [references/defaults.md](references/defaults.md).
+* **A request to set up checks, hooks, linting or secret scanning,** such as 'we have no linting' or 'run the tests when claude finishes': set them up by [references/defaults.md](references/defaults.md).
 * **'What rules or guardrails do I have':** list the steps `./check` runs, the hooks in `.claude/settings.json`, and the files under `.claude/rules/`, then offer the two choices below.
 * **'Which CLAUDE.md rules could be checks':** "Scan the instructions" below.
 * **The bare word 'guardrails':** offer two choices in one message, set up the default checks or scan the instructions, using the harness's multiple-choice tool where it has one (Claude Code's AskUserQuestion).
@@ -50,7 +52,7 @@ No executable `./check` at the repository root: set it up by [references/default
 6. **Watch it fail once:** introduce the violation, confirm `./check` exits non-zero with the message, then remove the violation.
 7. **Existing violations:** the user picks one of these.
    * A cleanup first, as its own change.
-   * A ratchet, which fails only when a file gains a finding: copy [scripts/ratchet.py](scripts/ratchet.py) into the repository, commit its baseline JSON, and pipe the tool's findings to it from `./check`, one `<rule><TAB><file>` line each, such as `semgrep --config .semgrep/ --json | jq -r '.results[] | "\(.check_id)\t\(.path)"' | python3 tools/ratchet.py .ratchet.json`. Semgrep's `--baseline-commit` cannot do this job: it aborts when the tree has unstaged changes, which it always has at turn end.
+   * A ratchet, which fails only when a file gains a finding: copy [scripts/ratchet.py](scripts/ratchet.py) to `tools/ratchet.py`, or the folder where the repository already keeps its scripts, commit it with its baseline JSON, and pipe the tool's findings to it from `./check`, one `<rule><TAB><file>` line each, such as `semgrep --config .semgrep/ --json | jq -r '.results[] | "\(.check_id)\t\(.path)"' | python3 tools/ratchet.py .ratchet.json`. Semgrep's `--baseline-commit` cannot do this job: it aborts when the tree has unstaged changes, which it always has at turn end.
 8. **Rung 2:** write one file per topic, holding the glob, one imperative sentence and the reason.
    * **Claude Code globs:** `*` matches within one path segment and `**` across directories, so write `"**/*.py"` to match at every depth.
 9. **Rung 3:** write one line stating what happens and what breaks when the rule is broken.

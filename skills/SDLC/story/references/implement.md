@@ -2,7 +2,7 @@
 
 * **Check command:** the `Full check:` line of `AGENTS.md`, else its `Check:` line, else what CI runs, else the README's test command.
 * **The guard:** a hook ([../scripts/guard.py](../scripts/guard.py)) denies a merge, a commit that changes a locked test other than by removing its expected-fail marker, and a pull request while a red test still carries that marker. It asks the user before a `git config` command removes or replaces the tests' lock. Where it does not run, these rules still hold.
-* **Tests:** write the tests of steps 3, 4 and 7 yourself by the `failing-tests` skill (`SDLC:failing-tests` in Claude Code), whose `SKILL.md` is at `../failing-tests/SKILL.md` from the story skill's folder.
+* **Tests:** write the tests of steps 3, 4 and 7 yourself by the `failing-tests` skill (`SDLC:failing-tests`).
 * **The `test-challenger` agent:** `SDLC:test-challenger` where the harness loads named agents, otherwise a general subagent told to follow `../agents/test-challenger.md` beside this skill's folder. Launch it fresh each time.
 * **A fix with no story:** its reproduction is the one acceptance criterion.
 * **No behaviour change:** skip steps 2 and 3. Where no test covers the code touched, commit tests that pin its current behaviour first. Run step 7 with the one criterion "every existing test passes unchanged".
@@ -29,7 +29,7 @@
    * A test the user agrees is wrong: correct it by the `failing-tests` skill, which unlocks, commits the corrected test alone and locks it and each earlier red commit again.
 5. **Green:** run the check command. The whole suite must pass, not only the new tests, and no red test may still carry a marker.
    * Run the new test files again when a test touches time, randomness, concurrency or the network. A test whose result changes is flaky: report it as a test to correct.
-6. **Refactor** inside the diff with every test green, by the `refactoring` skill (`SDLC:refactoring` in Claude Code, `../refactoring/SKILL.md` from the story skill's folder), then run the check command again.
+6. **Refactor** inside the diff with every test green, by the `refactoring` skill (`SDLC:refactoring`), then run the check command again.
    * Remove code no acceptance criterion asked for.
 7. **Review:** run the `review-code` skill on the branch, given the story's acceptance criteria, the merge target, the red commit's hash and the check command, and nothing from this chat. Run no second review. For each row it keeps:
    * **Finding,** blocking or not: add a failing test for it by the `failing-tests` skill, in a new test file, locked like the others; then fix it.

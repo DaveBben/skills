@@ -25,6 +25,29 @@ Run `./check` and `./check --full` once.
   * Fix it first, as its own change.
   * Leave the failing part out of `check` until it is fixed.
 
+## Secret scanning
+
+Every repository gets gitleaks as a pre-commit hook, because a secret that reaches a commit stays in history: deleting it later does not unexpose it.
+
+* **The hook:** where the repository already runs a hook manager (pre-commit, husky, lefthook), add gitleaks to it. Otherwise write `.pre-commit-config.yaml` and run `pre-commit install`:
+
+  ```yaml
+  repos:
+    - repo: https://github.com/gitleaks/gitleaks
+      rev: v8.30.1
+      hooks:
+        - id: gitleaks
+  ```
+
+  * **Pin `rev`** to the latest release tag, from `gh release view -R gitleaks/gitleaks` or the releases page.
+  * **The `gitleaks` hook id** builds gitleaks itself, so no install is needed. Husky or lefthook run `gitleaks git --pre-commit --redact --staged --verbose`, which needs gitleaks on the PATH.
+* **The backstop:** `./check --full` runs `gitleaks git --log-opts="<main branch>..HEAD" --redact --no-banner .`, which scans the branch's commits. It refuses a pull request carrying a commit made with `--no-verify`, or before the hook was installed. It needs gitleaks on the PATH; when it is missing, name it to add.
+* **Watch it fail once:** stage a file holding a fake token, such as `ghp_` followed by 36 random letters and digits, never a real one. Confirm the commit is refused, then delete the file.
+* **History:** run `gitleaks git --redact .` once over the whole history.
+  * **A real secret:** tell the user to rotate it first, since it is already exposed. Rewriting history is their decision.
+  * **A false positive:** add the `Fingerprint:` line the finding prints to `.gitleaksignore`, or put a `gitleaks:allow` comment on the line.
+* **Never bypass:** never pass `--no-verify` to get a commit past a finding.
+
 ## When it runs
 
 * **Claude Code:** copy [../scripts/gate.py](../scripts/gate.py) to `.claude/hooks/gate.py` and merge [../scripts/settings.json](../scripts/settings.json) into `.claude/settings.json`. It runs `./check` at turn end and `./check --full` before a pull request opens.
@@ -40,6 +63,6 @@ python3 .claude/hooks/gate.py --self-test
 
 ## Record it
 
-* **`AGENTS.md`:** under Commands, write `Check: ./check` (runs at turn end), `Full check: ./check --full` (runs before a pull request) and, when it exists, `Scheduled check: ./check --scheduled` (runs on CI's schedule).
+* **`AGENTS.md`:** under Commands, write `Check: ./check` (runs at turn end), `Full check: ./check --full` (runs before a pull request) and, when it exists, `Scheduled check: ./check --scheduled` (runs on CI's schedule). When the hook manager needs a step in each clone, write it as `Setup: pre-commit install`.
 * **No `AGENTS.md`:** create it by the `orient` skill.
-* **Commit** everything on a branch of its own.
+* **Commit** everything on a branch of its own, including `check`, every script it calls, `.claude/hooks/gate.py` and `.claude/settings.json`. `git check-ignore` must report none of them, or a fresh clone runs no checks.
