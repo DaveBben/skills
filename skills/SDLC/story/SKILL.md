@@ -3,7 +3,7 @@ name: story
 description: "Use this skill before touching any file on a request to add, change or remove behaviour in code that exists, and whenever work must become user stories or a story must be built. Use it on: 'add X', 'build story X', 'build this' with a link to an issue, 'pick up where we left off', 'write a story for X', 'write the acceptance criteria', 'break this down', 'I have an idea', 'turn this PRD into stories', 'review these stories', 'what should I pick up next'. Use it even when the change looks small. Writes each change as a user story with concrete acceptance criteria, agrees it with the user, then builds it test-first and opens a pull request into main. Not for a reported bug; that is `bug`, which builds its fix here. Not for a change to structure alone; that is `refactoring`."
 license: MIT
 metadata:
-  version: "7.0.0"
+  version: "7.1.0"
 ---
 # Story
 
@@ -23,7 +23,7 @@ A story states what a person can do once a change ships, in acceptance criteria 
 
 ## When to stop
 
-Stop for the user only to agree a story or a split, to answer an open question, at a test you cannot satisfy, and when the pull request is open. Do not stop to report progress after the tests are red, after green or after the review.
+Stop for the user only to agree a story or a split, to answer an open question, at a test you cannot satisfy, when watching the pull request ends without a merge, and when the outcome check ends. Do not stop to report progress after the tests are red, after green, after the review or after the pull request opens.
 
 ## Pick the path
 
@@ -31,9 +31,9 @@ Stop for the user only to agree a story or a split, to answer an open question, 
 * **Review stories** someone wrote: [references/review.md](references/review.md).
 * **Implement a story** the user agreed, or a change that needs no story: [references/implement.md](references/implement.md).
 * **A reported bug:** the `bug` skill reproduces and decides it first, then builds its fix through implement.md.
-* **Resume:** find the `story/` branch. `git config --get-all branch.<branch>.redCommit` shows whether its tests exist. Read the story from its issue, `docs/stories/<slug>.md` or the red commit's message, and continue at the first step of implement.md not done.
+* **Resume:** find the `story/` branch. `git config --get-all branch.<branch>.redCommit` shows whether its tests exist. Read the story from its issue, `docs/stories/<slug>.md` or the red commit's message, and continue at the first step of implement.md not done: an open pull request resumes at step 11, a merged one at step 13.
 * **Next story:** the first story with no open blocker and no open pull request: on a tracker (the one the request, the user or the repository names), the first such issue; without one, the first such story in `docs/stories/<slug>.md`. A story with an `Open questions` section is not ready: show the user its questions and stop. Every read or write of a tracker goes through the `using-trackers` skill.
-* **Check the outcome:** once every story of the feature is merged and the date on the owning story's `Measure:` line has passed, or when the user asks how a feature did. Read the measure with a tool where one reaches it, else ask the user for it. Write the value and the date on its `Result:` line and report whether it met the target. A miss becomes new stories or a decision for the user; no merged story reopens.
+* **Measure the feature:** once every story of the feature is merged and the date on the owning story's `Measure:` line has passed, or when the user asks how a feature did. Read the measure with a tool where one reaches it, else ask the user for it. Write the value and the date on its `Result:` line and report whether it met the target. A miss becomes new stories or a decision for the user; no merged story reopens.
 
 ## Size first
 

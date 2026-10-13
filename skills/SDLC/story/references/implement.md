@@ -41,9 +41,24 @@
    * Title: the story's key in brackets first when it has one, such as `[PAY-12] Refund a partial order`.
    * Body: the story, what changed and why, and how to verify it by hand.
    * When the repository runs its full check before a pull request opens, a refused open is a failing check. Fix the cause and open it again.
-9. **Report** to the user the pull request, the check's result, each finding and how it was settled, and each choice made without them. On a linked issue, comment the pull request's link by the `using-trackers` skill.
-   * After a story, end the report by telling the user to start the next story in a fresh session, so it begins with an empty context.
-10. **The user merges.** Never run a pull request merge or merge into main.
-    * Check each review comment's claim against the code before acting on it. A confirmed defect gets a failing test, then the fix.
+9. **Report** to the user the pull request, the check's result, each finding and how it was settled, and each choice made without them. On a linked issue, comment the pull request's link by the `using-trackers` skill. Then go on to step 10 without waiting.
+10. **CI:** read the pull request's pipeline and gates, such as `gh pr checks` or `glab ci status`.
+    * **A failure this branch causes:** reproduce it locally, fix it by the steps above, with a failing test first where a test can show it, and push.
+    * **A failure that also fails on main, or a runner or infrastructure fault:** report it to the user with the failing log lines, and leave it unfixed on this branch.
+11. **Watch the pull request** every 15 minutes for up to 8 hours, until it is merged or closed. Use the harness's scheduler, such as Claude Code's `/loop 15m`.
+    * **Each check:** read the pipeline as step 10 does, and read the comments that are new since the last check.
+    * **A review comment:** check its claim against the code before acting on it. A confirmed defect gets a failing test, then the fix, then a push. A question, or a claim the code does not bear out, goes to the user with its evidence.
+    * **Closed without a merge, or 8 hours with none:** report what is pending and stop.
+    * **No scheduler:** tell the user, and stop at the open pull request.
+12. **The user merges.** Never run a pull request merge or merge into main.
+13. **Outcome check:** confirm the story's acceptance criteria hold in production before the story is done.
+    * **Wait for the deploy:** a deploy job, a release or a deployment record shows the merge commit in production. When nothing shows it, ask the user.
+    * **Observe each example's `then`** in production with a tool: the route, the page, a query, the logs. Only read. An example that needs a write to production data goes to the user to run or approve.
+    * **Not observable yet,** such as a nightly job or a daily total: set a wakeup for when it is, such as a one-time run by Claude Code's `/schedule`. Without a scheduler, give the user the date and stop.
+    * **A bug fix:** the reproduction no longer reproduces in production. A change with no behaviour change ends at the merge.
+14. **Done or not:**
+    * **Every `then` observed:** the story is done. Comment the evidence on its issue and close it by the `using-trackers` skill. Without a tracker, report the evidence.
+    * **One is not:** file it by the `bug` skill as a bug linked to the story, which reproduces and fixes it through this path. The story's issue stays open, blocked by the bug's issue, and closes when the fix passes its outcome check.
+    * **Report** the result, and tell the user to start the next story in a fresh session, so it begins with an empty context.
 
 When the feature has an acceptance test, run it after each story; it is a check, not the specification.
