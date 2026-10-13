@@ -3,7 +3,7 @@ name: failing-tests
 description: "Use this skill whenever tests must be written before the code they test exists or is fixed: the failing tests for a story's acceptance criteria, a failing test for a confirmed review finding or a reported bug, or a locked test the user corrected. Use it on: 'write the failing tests', 'write the tests first', 'red tests for this story', 'TDD this', 'TDD the X story', 'tests first for X', 'add a regression test for this bug', 'add a regression test so this bug can't come back', 'write a test that reproduces this bug, don't fix it yet', 'this test is wrong'. Use it even when the request names a story or a bug, if it asks for the tests. Load it before writing the first test. Writes one test per example through the interface already fixed, confirms each fails for the reason its criterion states, marks each with the framework's strict expected-fail marker, commits them alone and locks them in git config."
 license: MIT
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 # Failing tests
 
@@ -21,6 +21,7 @@ Write a change's tests before its implementation exists, from what the change mu
 
 * **Read** the interface, the public entry points the criteria go through (a function's signature, a command's arguments, a route), and the nearby tests for the framework, fixtures and naming.
 * **Run** the existing tests of that area once and note which pass.
+* **Read `docs/glossary.md`** where it exists, the user's confirmed domain terms, and name each test with its terms.
 
 ## 2. The test list
 
@@ -53,6 +54,7 @@ Write one numbered line per test:
   * a key, row or file another test also uses: create the test's own with a unique value.
 * **Assertions:** assert exact values a person or caller sees. Never assert a private function, internal call order or a log line, and never only that something is non-empty or did not raise.
   * For text a language model generates, assert its schema and required fields, never its exact wording.
+* **An example marked `(checked by the user)`:** a person judges it by eye, so it gets no test and no `Questions:` line.
 * **Questions:** a criterion you cannot write as a test (no observable result, an undecided value), or one that needs a public name the interface lacks, gets no test. Put it on `Questions:`.
 
 ## 3. Existing tests

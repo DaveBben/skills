@@ -3,7 +3,7 @@ name: story
 description: "Use this skill before touching any file on a request to add, change or remove behaviour in code that exists, and whenever work must become user stories or a story must be built. Use it on: 'add X', 'build story X', 'build this' with a link to an issue, 'pick up where we left off', 'write a story for X', 'write the acceptance criteria', 'break this down', 'I have an idea', 'turn this PRD into stories', 'review these stories', 'what should I pick up next'. Use it even when the change looks small. Writes each change as a user story with concrete acceptance criteria, agrees it with the user, then builds it test-first and opens a pull request into main. Not for a reported bug; that is `bug`, which builds its fix here. Not for a change to structure alone; that is `refactoring`."
 license: MIT
 metadata:
-  version: "7.1.0"
+  version: "7.2.0"
 ---
 # Story
 

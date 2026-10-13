@@ -3,7 +3,7 @@ name: spike
 description: "Use this skill when the user wants to find something out that throwaway code would answer, including a question about feasibility, effort or impact asked with no request to build: a spike, a prototype, a demo, a mock-up (not a test double), an experiment, a comparison of approaches, or what adopting a library, service or integration would do to this codebase. Use it on: 'let's do a spike on X', 'let's do a demo of X', 'I want to run an experiment on X', 'prototype this', 'what would X look like in my codebase', 'how would adding X affect my code', 'how hard would it be to set up X', 'is X feasible', 'would X make Y faster', 'could we reach X using Y', 'what would it take to move to X', 'try a few approaches and see'. Load it before reading code or answering from memory about this codebase. Builds the smallest thing that answers one question in a timebox, records findings and deletes the code. Not for what a tool is or how two libraries differ in general. Not for code meant to ship; that is `story`."
 license: MIT
 metadata:
-  version: "3.1.0"
+  version: "3.2.0"
 ---
 # Spike
 
@@ -18,13 +18,13 @@ Before any code, agree three things with the user in one message:
    * Turn an open ask into a closed one: "what would it take to move to X" becomes "X runs with changes only to Y, and here is the list".
    * With no crisp question, ask one question to get it.
 2. **The finish line:** the observable signal that answers the question.
-   * For a judgement only the user can make (a mock-up, a layout, a demo), the signal is their choice or reaction. Keep the code until they have seen it.
+   * For a judgement only the user can make (a mock-up, a layout, a demo, or an interaction or animation no tool can read as text), the signal is their choice or reaction. Keep the code until they have seen it.
    * Write such a question as the user's choice, such as "the user picks layout A or B, or rejects both"; rejecting both is its failing condition.
 3. **The timebox:** a number of attempts by default; an attempt is one approach run to a result or an error.
    * Propose it for the user to correct. With several approaches, it covers all of them together.
    * For a timebox in minutes, write the start time from `date` in the findings header and check it before each attempt.
 
-When the user links a spike issue on a tracker (Jira, GitHub, GitLab or another), read the three from it by the `using-trackers` skill and ask only for what is missing or cannot fail. To file a spike on a tracker, put the three in it and nothing else, by the `using-trackers` skill.
+When the user links a spike issue on a tracker (Jira, GitHub, GitLab or another), read the three from it by the `using-trackers` skill and ask only for what is missing or cannot fail. To file a spike on a tracker, put the three in it and nothing else, by the `using-trackers` skill. When a story waits on its answer, the spike's issue blocks that story's issue.
 
 In that message, or before building when the issue left nothing to ask, tell the user the code is throwaway: deleted once they accept the findings. A demo meant to outlive the spike is code meant to ship; that is `story`.
 
@@ -39,6 +39,7 @@ git worktree add --detach <spike-path>
 
 * **Throwaway style:** hardcode, inline, copy-paste. No tests, no linter, no formatter, no fixing type errors that do not block the question.
 * **The one test allowed:** the one the question can only be observed through (a performance budget, a contract, a race).
+* **The measurement can fail:** before any candidate runs through it, show it failing on a case known to fail, such as the baseline without the candidate or an input past the threshold. Record that failing reading in `Outcome` with the candidates' readings.
 * **Several candidate approaches:** list them to the user, build one measurement first, then run each candidate through it at its smallest: in parallel subagents and worktrees where the harness allows, else one after another in separate directories. Make the choices inside one candidate alone and log them as `Decided alone` lines.
 * **Subagent findings:** you alone write the findings file. Base the recommendation on the numbers subagents return, not on their opinions.
 * **A missing tool:** install it into the scratch directory only.
@@ -92,7 +93,7 @@ Add each line the moment it surfaces, and repeat a line for each finding of its 
 | Chosen | Rejected | Why | Cost to change later | record / drop / defer |
 ```
 
-3. **Update the plan:** on the spike's issue, by the `using-trackers` skill, or under the spike's story in the feature file (`docs/stories/<slug>.md`), mark its question answered and link the findings. Apply the `Changes to the plan` line to the stories and their order. Move `defer` rows to the `Open questions` of the story each blocks.
+3. **Update the plan:** on the spike's issue, by the `using-trackers` skill, or under the spike's story in the feature file (`docs/stories/<slug>.md`), mark its question answered and link the findings. Close the spike's issue once the user accepts the findings, so the stories it blocks become ready. Apply the `Changes to the plan` line to the stories and their order. Move `defer` rows to the `Open questions` of the story each blocks.
 4. **Return to the split:** when `story` started the spike while splitting a request, return to that split with the findings.
 5. **Delete the spike code** once the user accepts the verdict, and say so in the findings.
 

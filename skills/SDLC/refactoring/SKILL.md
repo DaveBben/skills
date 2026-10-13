@@ -3,7 +3,7 @@ name: refactoring
 description: "Use this skill whenever code's structure must change while its behaviour stays the same, or code must be judged for smells, mess or readability. Use it even for one small named refactoring: a rename, an extract, an inline, a move, guard clauses, a constant for a magic number. Use it on: 'refactor X', 'should this be refactored', 'what smells are in this code', 'clean up this file', 'this code is messy', 'make this more readable', 'simplify this function', 'reduce the duplication', 'split this file', 'remove dead code', 'where is our tech debt', and a story's refactor step. Load it before reading the code. Names each smell with the lines that show it, refactors only what a change in hand or a hotspot justifies, in small steps with the tests green after each, and commits structure apart from behaviour. Not for reviewing a diff or a pull request; that is `review-code`. Not for changing behaviour; that is `story` or `bug`."
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 # Refactoring
 
@@ -62,6 +62,7 @@ The full catalogue, with how to see each smell and the named refactorings that c
 ## Refactor safely
 
 * **Green first:** run the tests before the first step. Code the refactoring touches that no test covers gets characterization tests first, committed alone.
+  * **Prove each one can fail:** break the code it pins once, such as by flipping a branch or changing a returned value, see the test go red, and revert. A test that stays green pins nothing.
 * **One hat at a time:** never change behaviour in a refactoring step. A bug found mid-refactoring is noted, the step finished or reverted, and the bug fixed afterwards in its own commit by the `bug` skill.
 * **Small named steps, never outrunning your headlights:** apply one named refactoring, run the tests, commit. A red test means revert the step; do not debug forward.
 * **Tools first:** use the language server's or IDE's rename, extract and move where one is available; a refactoring engine checks what hand edits miss.

@@ -3,7 +3,7 @@ name: orient
 description: "Use this skill when a repository's AGENTS.md or CLAUDE.md must be written, rewritten, trimmed or checked, when an agent must orient itself in an unfamiliar repository, or when the user wants to see the architecture of the code they work in. Use it on: 'write AGENTS.md', 'write a CLAUDE.md', 'set up CLAUDE.md', 'review my CLAUDE.md', 'our CLAUDE.md is too long', 'trim AGENTS.md', 'what should go in CLAUDE.md', 'orient yourself', 'familiarize yourself with this codebase', 'show me the architecture', 'what's the current architecture', 'give me an updated view of the architecture', 'what calls this service', 'write an onboarding doc'. Writes AGENTS.md at the repository root, with CLAUDE.md a symlink to it, holding only what an agent cannot learn by reading the repository, and a one-page architecture snapshot in ARCHITECTURE.md, traced from the code and every system that calls it or that it calls. Not for enforcing a rule with a linter, hook or commit check; that is `guardrails`."
 license: MIT
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 # Orient
 

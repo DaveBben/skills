@@ -3,7 +3,7 @@ name: new-project
 description: "Use this skill whenever a new software project, repository or codebase must be started, whether the user, the session or another agent wants it: a new app, service, CLI, library or script that will live in its own repository. Use it on: 'start a new project', 'new Python project', 'new Python repo', 'create a new repo for X', 'scaffold a project', 'bootstrap a service', 'set up the template for a new project', 'spin up a repo for this idea', 'I want to build X from scratch'. Load it before creating the first file or running a scaffolding tool such as `uv init`. Creates the repository from the user's template for its language, renames the template's placeholder names, and commits only once the checks pass. Not for adding checks to a repository that exists; that is `guardrails`. Not for a throwaway prototype; that is `spike`."
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 # New project
 
@@ -45,4 +45,6 @@ Report the repository's URL, its local path and anything the user must install, 
 Tell the user to start the next session inside the new repository, because its hooks and `AGENTS.md` load only in a session started there.
 Write no feature code during setup.
 The project's first behaviour is a change to code that exists, so build it by the `story` skill.
+Its first story is a tracer bullet: the thinnest slice a person can use end to end, kept and grown, unlike a throwaway prototype.
+Offer to schedule the `refactoring` skill's scheduled run for the repository, such as a weekly Claude Code routine or a CI cron job, and set it up only on the user's yes.
 A stack or library choice that costs more than a day to reverse goes to the `adr` skill.

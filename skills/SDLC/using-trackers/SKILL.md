@@ -3,7 +3,7 @@ name: using-trackers
 description: "Use this skill for every read or write of an issue tracker (Gitea, GitHub, GitLab, Jira or another): when the story or spike skill files, reads, resumes or updates an issue, or when the user asks to put work on a tracker or a board. Use it on: 'create the issues', 'file these stories', 'put this on the board', 'add it to the project', 'open an issue for this', 'read issue 12', 'update the issue', 'link these issues', 'what is blocking this', 'which issue is next'. Load it before calling a tracker's API or CLI. Finds the tracker and its credentials from the repository, files each story or spike as one labelled issue whose body is its content alone, orders issues by the tracker's own blocking relation with no epic, and reads every write back. Not for what a story or spike says; that is `story` or `spike`."
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 # Using trackers
 
@@ -34,7 +34,7 @@ metadata:
   * anything another field shows: labels, assignee, milestone.
 * **Feature-level data:** the outcome, the measure and the feature's out-of-scope lines sit on the one story that owns the outcome, as the `story` skill writes it. Add nothing at feature level.
 * **Kind label:** `story`, `spike` or `refactor` on each issue. Create the label when the repository lacks it.
-* **Order and blocking:** the tracker's own relation, never prose. Each story is blocked by the one before it in the build order, and by any other story it waits on.
+* **Order and blocking:** the tracker's own relation, never prose. Each issue is blocked by the one before it in the build order, and by any spike or story it waits on.
 
 Blocking relations, one per tracker:
 

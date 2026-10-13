@@ -119,6 +119,7 @@ Out of scope
 * **One action per example.** Its `then` and `and` lines name what a caller or a person sees, in the names the code, its tests and the glossary already use.
 * **A concept with no name yet:** propose a short name and its meaning. Once the user confirms it, use the name in the story and list it under `Decided` as `Glossary: <term>: <meaning>`. The build adds it to `docs/glossary.md`.
 * **Not a result:** a mechanism (an exception class, a lock, a log line, a call to a function).
+* **A visual result:** state it as a value a tool can read, such as an element's state, its text or a computed style. One only an eye can judge ends with `(checked by the user)`: it gets no test, and the user checks it on the branch and again in production.
 * **Past about 8 criteria:** check whether they are separate variations of one action (each kind of code, each file type), and split by variation when they are.
 * **More than three examples under one criterion:** check whether it is several rules, and split them.
 * **Existing behaviour:** leave out acceptance criteria it already covers, unless this story changes them.
@@ -133,7 +134,7 @@ Check only the paths this change can break. Name a failure or abuse path only wh
 
 The story is ready when all of these hold, and no sooner:
 
-* **Each example can become a test without asking anybody:** a starting state, one action, and a result with real values.
+* **Each example can become a test without asking anybody:** a starting state, one action, and a result with real values. An example marked `(checked by the user)` needs only the first two.
 * **No question is open:** every reading that would change an acceptance criterion is answered by the user or recorded under `Decided`, and `Open questions` is empty.
 * **It is one story:** a named role and reason, and every example's `when` is the same action by that role. An `I want` joined by "and" or "or" is two stories.
 

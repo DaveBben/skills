@@ -49,6 +49,7 @@ Link to any longer architecture document the repository already has, such as an 
 * **Define every name local to the project at first use** in one clause: a database role, an account, a pipeline ID, a story number, an adjective such as "frozen". Cut a reference that needs more than a sentence to explain, such as a file name's history.
 * **Name where each number lives:** for each number the page states that the user might change, such as how many items a run picks, give the constant or setting and its location, such as `TOP = 30` at `run.py:49`.
 * **Use the reader's words:** name a component by what it does, then give its name in the code, such as "the worker that charges cards (`billing-worker`)".
+* **Use the glossary's terms** when `docs/glossary.md`, the user's confirmed domain terms, exists: name each domain concept, such as a record or a business step, by its term. A domain concept with no term goes under open questions. Name a technical part, such as a worker or a database, by what it does.
 
 ## Delivering it
 

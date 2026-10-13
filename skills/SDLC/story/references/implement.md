@@ -12,6 +12,7 @@
 2. **Interface:** from the acceptance criteria, write the signatures the change adds or alters (functions, commands, routes, types) as stubs whose bodies only raise.
    * Commit the stubs alone.
    * Skip this step when every acceptance criterion goes through an interface that already exists.
+   * Prefer a deep module: few entry points that hide much behaviour. Add no signature that only passes a value through to another, because the locked tests will hold it in place. An adapter around a service outside the repository is the exception.
 3. **Failing tests:** write them by the `failing-tests` skill, one per example through that interface, before any implementation. Each fails for the reason its acceptance criterion states, carries the framework's strict expected-fail marker so the check command still passes, and is committed alone and locked in git config.
    * After the lock, a commit may not change a locked test, or a test that existed where the branch left main, except to remove a marker. Put a new test in a new test file.
    * **Challenge:** launch `test-challenger` with these inputs and nothing from this chat or your plan. It adds tests for wrong implementations your suite lets pass.
@@ -24,6 +25,7 @@
    * **A `Disagrees:` line:** put both readings of the criterion to the user and wait. When the user takes the challenger's reading, correct your test by the `failing-tests` skill's path for a locked test the user agrees is wrong.
    * **A framework with no marker:** the check command fails on the red tests until they pass. That failure is expected; say so when a turn-end check reports it.
 4. **Implement** until every new test passes and every test on its `At risk:` line still does.
+   * Make one red test pass at a time and run it after each edit. Never outrun your headlights, the reach of what the tests can check at once.
    * Know why each test passes. A pass you cannot explain is programming by coincidence: find the reason before you go on.
    * Remove a test's expected-fail marker once the code makes it pass; the strict marker fails the run until you do.
    * Change only what the acceptance criteria need. Add no config with one value, no interface with one implementation, and no retry, cache or flag no criterion names. The exception is an adapter around a service outside the repository, which tests double in place of that service.
@@ -37,7 +39,7 @@
    * **Finding,** blocking or not: add a failing test for it by the `failing-tests` skill, in a new test file, locked like the others; then fix it.
    * **Weak test:** add, by the `failing-tests` skill and in a new test file, a test the row's named wrong implementation fails; it may pass at once.
    * **Question,** a finding the fix does not settle, or behaviour no criterion states: put it to the user with its evidence.
-8. **Pull request:** commit and push, then open it into main once every acceptance criterion passes.
+8. **Pull request:** commit and push, then open it into main once every acceptance criterion passes. An example marked `(checked by the user)` passes when the user confirms it on the branch: show it running, such as a local run or a screenshot, and wait.
    * Title: the story's key in brackets first when it has one, such as `[PAY-12] Refund a partial order`.
    * Body: the story, what changed and why, and how to verify it by hand.
    * When the repository runs its full check before a pull request opens, a refused open is a failing check. Fix the cause and open it again.
@@ -53,7 +55,7 @@
 12. **The user merges.** Never run a pull request merge or merge into main.
 13. **Outcome check:** confirm the story's acceptance criteria hold in production before the story is done.
     * **Wait for the deploy:** a deploy job, a release or a deployment record shows the merge commit in production. When nothing shows it, ask the user.
-    * **Observe each example's `then`** in production with a tool: the route, the page, a query, the logs. Only read. An example that needs a write to production data goes to the user to run or approve.
+    * **Observe each example's `then`** in production with a tool: the route, the page, a query, the logs. Only read. An example that needs a write to production data, or one marked `checked by the user`, goes to the user.
     * **Not observable yet,** such as a nightly job or a daily total: set a wakeup for when it is, such as a one-time run by Claude Code's `/schedule`. Without a scheduler, give the user the date and stop.
     * **A bug fix:** the reproduction no longer reproduces in production. A change with no behaviour change ends at the merge.
 14. **Done or not:**

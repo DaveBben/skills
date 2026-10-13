@@ -51,6 +51,7 @@ Then run the checks below on the changed code, and only these. Run all three gro
   * pins one value of a rule that covers a range;
   * uses a fixture such as a batch of one, the same value in two fields or input already in order.
 * For a story, no test in the red commit and no test on the merge target is changed, unless the red commit's message lists it on its `Changes existing:` line.
+* For a subject that is not a story, that changes behaviour and has a merge target: create a worktree of the merge target at `attack-<n>/base` (`git worktree add attack-<n>/base <merge target>`), copy in each test file the diff adds or changes, and run them there. A test that passes there is a weak test whose wrong implementation is the merge target's code; give the run's output. Remove the worktree when done.
 * No change to test configuration (a `conftest.py`, the pytest, Jest or mutation tool's config, `./check`, a CI file) skips, deselects or loosens a test or a threshold.
 * A migration runs on the rows already there, and takes no lock or full-table rewrite that stalls callers at production's row count.
 * Two identical requests at once leave one result.

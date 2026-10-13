@@ -3,7 +3,7 @@ name: guardrails
 description: "Use this skill when the user wants a rule their AI agent must follow in a codebase, asks what rules, checks or hooks a repository already enforces or whether anything stops a mistake from landing, wants a rule turned into a lint, semgrep or hook check, or a repository needs its default checks set up. Use it on: 'make a rule for X', 'add a rule', 'always do X', 'never do Y', 'ban this pattern', 'the agent keeps making this mistake', 'set up guardrails', 'what rules are in my repo', 'do I have guardrails in place', 'can this be a semgrep rule', 'write a lint rule for X', 'we have no linting', 'add a commit gate', 'set up secret scanning', 'add gitleaks', 'run the tests when claude finishes', 'which of our CLAUDE.md rules could be checks', and the bare word 'guardrails'. Load it before searching the repository. Puts each rule where it is followed most: a deterministic check first, a path-scoped rule file second, a line in AGENTS.md last. Writing AGENTS.md as a whole is the `orient` skill."
 license: MIT
 metadata:
-  version: "5.1.0"
+  version: "5.2.0"
 ---
 # Guardrails
 
@@ -42,7 +42,7 @@ No executable `./check` at the repository root: set it up by [references/default
    * **A rule the linter already ships,** at error severity.
    * **A Semgrep rule** over source.
    * **A script** for a fact about files, config or commands.
-   * **A test** for a fact about behaviour.
+   * **A test** for a fact about behaviour. A rule about what a screen renders is a test once its output is text the test can compare, such as an accessibility audit, or a query of the rendered page checked against a value the rule states.
 3. **Agree it:** show the user the restated rule, the rung and tool chosen, and the violation it catches. Continue on their yes.
 4. **Semgrep rule:** launch a fresh subagent (in Claude Code, the Agent tool) with the absolute path of [references/semgrep.md](references/semgrep.md), the branch, the restated rule, and the violation's file and line, or, when none exists, a short snippet that would violate it.
    * **No subagent available:** read the brief and do its task yourself.

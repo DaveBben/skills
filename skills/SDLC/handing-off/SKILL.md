@@ -1,7 +1,7 @@
 ---
 name: handing-off
 metadata:
-  version: "0.6.0"
+  version: "0.7.0"
 description: "Use this skill whenever this session's work has to survive into another one, or the user says the context window is filling, full, running out, running low or rotting. Use it on: 'create a handoff', 'make a handoff', 'write a handoff document', 'your context is getting full', 'you are running out of context', 'you are running low on context', 'there's context rot', 'I want to pick this up later', 'summarise this for next time'. A remark about your context is a request for a handoff, not an observation to agree with: write the handoff. Writes one handoff document under `.claude/agents/handoff/` or `.agents/handoff/`."
 license: MIT
 ---
@@ -20,7 +20,7 @@ Write a handoff document summarizing this session so a fresh agent or human can 
 
 The reader did not see this conversation. Text that reads as complete to the writer and as a list of pointers to the reader is the failure to avoid.
 
-* **Resolve every pointer on the page.** No bare test ID, config key, abbreviation, or "the X" without one sentence saying what it is. Write "clinician", not "NP". Write "the browser panel that sends one request per keystroke", not "the panel". A pointer is a name local to this project or this session. Do not define industry-standard terms a working engineer knows: SQLite, fsync, Linux, HTTP.
+* **Resolve every pointer on the page.** No bare test ID, config key, abbreviation, or "the X" without one sentence saying what it is. Write "clinician", not "NP". Write "the browser panel that sends one request per keystroke", not "the panel". A pointer is a name local to this project or this session. A term in `docs/glossary.md`, the user's confirmed domain terms, needs no definition. A term this session coined is defined and marked unconfirmed. Do not define industry-standard terms a working engineer knows: SQLite, fsync, Linux, HTTP.
 * **Mechanism before label.** Write what physically happens ("the worker thread sits idle until the HTTP response arrives") before any name for it ("blocking"). A name never stands alone. "Racy at the margin" is a label; "two requests can both read 2, both write 3, and the cap admits one extra call" is the mechanism.
 * **Check every connective.** For each "because", "so", "therefore", "which means": confirm the left clause causes the right. When it does not, write two sentences and no connective.
 * **One rung at a time.** A claim about the system needs the component sentence, then the platform sentence, then the system sentence. Do not go from a function name to an outage in one sentence.
@@ -36,10 +36,12 @@ Use a list for parallel items. Use a paragraph when the sentences depend on each
 Read the most recent existing handoff in that directory, if one exists. Carry forward each dead end and open item it lists that this session did not resolve. Include:
 
 * **Active state:** each task in this session's task list and its status: done, in progress or not started.
-* **What was accomplished:** Concrete deliverables, written content, or code that now works that did not before.
+* **Destination,** when there is one: the issue, story or spec whose acceptance criteria define done, by link or path, never copied. With a story, the next session resumes it by the `story` skill.
+* **What was accomplished:** Concrete deliverables, written content, or code that now works that did not before, each with the test or command that shows it, where one does.
 * **Key decisions:** Major choices made, what was ruled out, and why (linking to ADRs if applicable).
 * **Dead ends:** What was tried, and what went wrong with each. Name the exact errors, roadblocks, or failure paths.
 * **Context a fresh agent needs:** File paths, source URLs, data locations, and where each credential is stored (the environment variable or vault entry), never the secret value. *If a codebase is involved,* include the current branch name and any pre-existing test failures that belong to the base branch.
-* **Where things stand:** The single concrete next step to resume the work.
+* **Open questions:** each decision still open. Copy word for word each `Needs research:` line, a question the user is researching that a story waits on.
+* **Where things stand:** The single concrete next step to resume the work. Mid test-first work, it names the failing test and the command that runs it.
 
 Name what is unfinished plainly. A handoff that reads as though everything went well is worse than none.

@@ -3,7 +3,7 @@ name: review-code
 description: "Use this skill when code must be reviewed or critiqued, whoever wrote it: a story branch the story skill built, a pull request or merge request, a diff, uncommitted changes, or a file the user wrote; or a design, a plan, an ADR or a fix idea the user made. Use it on: 'review this code', 'do a code review', 'review PR 412', 'look at this merge request', 'is this PR ready to merge', 'review my changes', 'review the diff', 'review my uncommitted changes', 'sanity check my diff before I push', 'check this file for bugs', 'review what you built', 'security review', 'give me feedback', 'poke holes in this', 'what do you think of this approach'. Load it before reading the diff or the files. Reviews it with fresh agents whose findings must be proven by a failing test or a cited line, and never rewrites the user's work. Not for written user stories or acceptance criteria; that is `story`."
 license: MIT
 metadata:
-  version: "6.0.0"
+  version: "6.1.0"
 ---
 # Review code
 
