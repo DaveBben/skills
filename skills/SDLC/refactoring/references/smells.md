@@ -5,6 +5,7 @@ Each entry gives the smell, how to see it in code, and the named refactorings th
 ## Bloaters: code grown too large to hold in mind
 
 * **Long Function:** it needs comments to mark its sections, nests more than two levels, or mixes levels of abstraction (SQL beside business rules). Cure: Extract Function, Decompose Conditional, Replace Temp with Query, Split Loop, Replace Function with Command.
+* **Deeply Nested Code** (Arrowhead, Arrow anti-pattern, Unhappy to the right): `with`/`try`/`for`/`if` blocks stack until the meaningful line drifts right into an arrow `►`; past three levels a reader cannot hold the conditions. Its measurable cousin is Cognitive Complexity (SonarSource), which penalises nesting depth where cyclomatic complexity does not. Cure: Replace Nested Conditional with Guard Clauses (invert and return or `continue` early so the main path stays at the left margin); Extract Function for a deep block, which names it and drops a level; or let the language flatten it (a comprehension, stacked context managers `with (A, B):` for nested `with`).
 * **Large Class:** many fields, or groups of fields sharing a prefix (`mark_read_client`, `mark_read_enabled`). Cure: Extract Class.
 * **Long Parameter List:** four or more parameters, or the same ones passed through several layers. Cure: Introduce Parameter Object, Preserve Whole Object, Replace Parameter with Query, Remove Flag Argument.
 * **Data Clumps:** the same three or more values travel together through several signatures. Cure: Introduce Parameter Object, Extract Class.
