@@ -104,6 +104,9 @@ Replace each one with the specific fact it stands in for.
 * **One sentence per line:** a 1-sentence edit then changes 1 line in a diff.
   In a list item, put each further sentence on its own line, indented to the item's text.
   A single line break renders as a space on GitHub pages and in most previews, so a one-sentence-per-line file still reads as a paragraph.
+* **No hard wrap:** never break a sentence across lines at a fixed column, however long it is.
+  The editor soft-wraps at its own width, and a second, fixed break leaves orphan lines of 1 to 3 words in the source.
+  When you edit a file that is already hard-wrapped, rejoin each paragraph you touch to one sentence per line.
 * **Hard line breaks:** end the line with a backslash, not 2 trailing spaces.
 * **Code fences:** tag every fence with a language, such as `bash`, `json`, or `text`.
 * **Blank lines:** put a blank line before and after every heading, list, table, and code block.
