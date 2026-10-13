@@ -2,7 +2,7 @@
 
 **User stories, failing tests first, one fresh review. Every other step was measured, and cut when it did not pay.**
 
-The plugin is ten skills. Plain Markdown, no build step, nothing to compile.
+The plugin is eleven skills. Plain Markdown, no build step, nothing to compile.
 
 | Skill | Fires on |
 |---|---|
@@ -16,6 +16,7 @@ The plugin is ten skills. Plain Markdown, no build step, nothing to compile.
 | `orient` | "write AGENTS.md", "write a CLAUDE.md", "our CLAUDE.md is too long", "orient yourself", "show me the architecture", "give me an updated view of the architecture" |
 | `guardrails` | "add a rule", "never do X", "the agent keeps making this mistake", "set up guardrails", "we have no linting", "set up secret scanning", "which of our CLAUDE.md rules could be checks" |
 | `review-code` | "review PR 412", "review this merge request", "review my code", "review what you built", "security review", "give me feedback", "poke holes in this" |
+| `new-project` | "start a new project", "new Python project", "create a new repo for X", "scaffold a project", "set up the template for a new project" |
 
 Session handoff lives in the separate [context](../context/) plugin. Plugins are independent, so nothing in SDLC calls it.
 
@@ -129,7 +130,7 @@ A first headless run of this version passed 7 of 8 hidden tests on cli and 4 of 
 /plugin install SDLC@davebben-skills
 ```
 
-The ten skills surface under their own names.
+The eleven skills surface under their own names.
 
 The plugin also installs hooks:
 
