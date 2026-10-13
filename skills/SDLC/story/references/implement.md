@@ -8,6 +8,7 @@
 * **No behaviour change:** skip steps 2 and 3. Where no test covers the code touched, commit tests that pin its current behaviour first. Run step 7 with the one criterion "every existing test passes unchanged".
 
 1. **Branch:** create a worktree on a new branch from main, and work there: `git worktree add -b <branch> <path> main`. Name the branch `story/<feature-slug>/<key>-<title-words>`, or `story/<key>-<title-words>` with no feature; use the title words alone when there is no key.
+   * **Glossary:** add each `Glossary:` line under the story's `Decided` to `docs/glossary.md`, one `<term>: <meaning>` line each, and commit it alone. When `AGENTS.md` has no pointer to the glossary, add one: read `docs/glossary.md` before naming a function, a type or a test. Name the interface, the tests and the code with the glossary's terms.
 2. **Interface:** from the acceptance criteria, write the signatures the change adds or alters (functions, commands, routes, types) as stubs whose bodies only raise.
    * Commit the stubs alone.
    * Skip this step when every acceptance criterion goes through an interface that already exists.
@@ -23,6 +24,7 @@
    * **A `Disagrees:` line:** put both readings of the criterion to the user and wait. When the user takes the challenger's reading, correct your test by the `failing-tests` skill's path for a locked test the user agrees is wrong.
    * **A framework with no marker:** the check command fails on the red tests until they pass. That failure is expected; say so when a turn-end check reports it.
 4. **Implement** until every new test passes and every test on its `At risk:` line still does.
+   * Know why each test passes. A pass you cannot explain is programming by coincidence: find the reason before you go on.
    * Remove a test's expected-fail marker once the code makes it pass; the strict marker fails the run until you do.
    * Change only what the acceptance criteria need. Add no config with one value, no interface with one implementation, and no retry, cache or flag no criterion names. The exception is an adapter around a service outside the repository, which tests double in place of that service.
    * A test you cannot satisfy for a reason that holds against the code is a stop: report the test and the reason to the user, and change nothing in it.
@@ -40,6 +42,7 @@
    * Body: the story, what changed and why, and how to verify it by hand.
    * When the repository runs its full check before a pull request opens, a refused open is a failing check. Fix the cause and open it again.
 9. **Report** to the user the pull request, the check's result, each finding and how it was settled, and each choice made without them. On a linked issue, comment the pull request's link by the `using-trackers` skill.
+   * After a story, end the report by telling the user to start the next story in a fresh session, so it begins with an empty context.
 10. **The user merges.** Never run a pull request merge or merge into main.
     * Check each review comment's claim against the code before acting on it. A confirmed defect gets a failing test, then the fix.
 

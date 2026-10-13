@@ -3,13 +3,15 @@ name: adr
 description: "Use this skill whenever a decision must survive the conversation: a choice that costs more than a day to reverse, whether the user or the agent made it (a library, a data shape, a trust or consistency boundary, a new repository), a hazard accepted without a test, or an alternative rejected. Use it on: 'adr', 'write an adr', 'make an adr', 'record this architecture decision', 'note this decision', 'this is an architectural decision', 'record the why', 'put it on record', 'we will accept that risk', 'let's go with X instead of Y'. Writes one Markdown decision record under docs/adr/ carrying the user's own reasons, the rejected alternatives and the test that detects the hazard."
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 # ADR
 
 An ADR (architecture decision record) is one Markdown file under `docs/adr/` saying what was decided, why, and what it gave up.
 
 Write it when the decision is made, not at the end of the feature.
+In Claude Code, a hook lists each ADR that is not superseded, by title and path, at the start of every session.
+
 ## Get the reasons
 
 The reasons are the user's. Never record a reason the user has not given or confirmed. Record only alternatives, mechanisms and measurements that the user or your feedback message named.

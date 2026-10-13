@@ -3,7 +3,7 @@ name: failing-tests
 description: "Use this skill whenever tests must be written before the code they test exists or is fixed: the failing tests for a story's acceptance criteria, a failing test for a confirmed review finding or a reported bug, or a locked test the user corrected. Use it on: 'write the failing tests', 'write the tests first', 'red tests for this story', 'TDD this', 'TDD the X story', 'tests first for X', 'add a regression test for this bug', 'add a regression test so this bug can't come back', 'write a test that reproduces this bug, don't fix it yet', 'this test is wrong'. Use it even when the request names a story or a bug, if it asks for the tests. Load it before writing the first test. Writes one test per example through the interface already fixed, confirms each fails for the reason its criterion states, marks each with the framework's strict expected-fail marker, commits them alone and locks them in git config."
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 # Failing tests
 
@@ -40,7 +40,7 @@ Write one numbered line per test:
   * Never use an in-memory substitute for the database, such as SQLite for Postgres. It passes on SQL, migrations, constraints and grants that production rejects.
   * Double only what a test cannot run or control: a service outside the repository (a payment provider, email, a third-party API), the clock, and randomness.
   * For those, prefer the repository's own fake, then a stub returning fixed values. Mock a call only to check a side effect on an outside service, and mock it through the repository's own adapter for that service, never the third-party library.
-* **Expected values:** take each from the criterion's words, never from what the current code does or from how you plan to build it. A test written from the code confirms that code's bugs.
+* **Expected values:** take each from the criterion's words, never from what the current code does or from how you plan to build it. A test written from the code is tautological: it confirms that code's bugs.
 * **Fixtures:** choose ones a plausible wrong implementation fails. Avoid:
   * a batch of one, or the failing item first or last;
   * the same value in two fields;

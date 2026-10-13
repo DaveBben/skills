@@ -46,7 +46,7 @@ Then run the checks below on the changed code, and only these. Run all three gro
 * **Weak test:** a wrong implementation still passes it. Name that implementation. A test is weak when it does any of these:
   * mocks the code under test;
   * doubles something the test could run for real: a collaborator in the repository, the database (an in-memory substitute such as SQLite for Postgres counts), the filesystem;
-  * takes its expected value from that code;
+  * takes its expected value from that code, so it is tautological and confirms the code's bugs. A characterization test is exempt: one committed alone before a structure commit, in a change with no behaviour change;
   * asserts nothing a caller sees;
   * pins one value of a rule that covers a range;
   * uses a fixture such as a batch of one, the same value in two fields or input already in order.

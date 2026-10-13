@@ -3,7 +3,7 @@ name: using-trackers
 description: "Use this skill for every read or write of an issue tracker (Gitea, GitHub, GitLab, Jira or another): when the story or spike skill files, reads, resumes or updates an issue, or when the user asks to put work on a tracker or a board. Use it on: 'create the issues', 'file these stories', 'put this on the board', 'add it to the project', 'open an issue for this', 'read issue 12', 'update the issue', 'link these issues', 'what is blocking this', 'which issue is next'. Load it before calling a tracker's API or CLI. Finds the tracker and its credentials from the repository, files each story or spike as one labelled issue whose body is its content alone, orders issues by the tracker's own blocking relation with no epic, and reads every write back. Not for what a story or spike says; that is `story` or `spike`."
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 # Using trackers
 
@@ -33,7 +33,7 @@ metadata:
   * process notes, such as which skill runs it or where findings go;
   * anything another field shows: labels, assignee, milestone.
 * **Feature-level data:** the outcome, the measure and the feature's out-of-scope lines sit on the one story that owns the outcome, as the `story` skill writes it. Add nothing at feature level.
-* **Kind label:** `story` or `spike` on each issue. Create the label when the repository lacks it.
+* **Kind label:** `story`, `spike` or `refactor` on each issue. Create the label when the repository lacks it.
 * **Order and blocking:** the tracker's own relation, never prose. Each story is blocked by the one before it in the build order, and by any other story it waits on.
 
 Blocking relations, one per tracker:
@@ -58,7 +58,7 @@ A board is not an issue: a new issue is not on a board until something places it
 * **Find a story's issue:** the link or key the user gave, the key in the `story/` branch name, else a search by title among issues labelled `story`.
 * **Read it whole:** the body, then every comment, since a comment can change what was agreed. Then its state, labels and relations.
 * **A feature's issues:** follow blocking relations in both directions from any one issue, or list the board or milestone the user names.
-* **Next story:** the first open issue of the feature with no open blocker and no open pull request.
+* **Next story:** the first open issue of the feature with no open blocker and no open pull request. When its body has an `Open questions` section, report that it is not ready.
 * **Edit the body** in place with the whole new text. Put findings, a pull request's link or a spike's results in a comment.
 
 ## Verify every write

@@ -13,6 +13,9 @@
       "matcher": "Edit|Write|MultiEdit",
       "hooks": [{"type": "command", "command": "f=\"${CLAUDE_PLUGIN_ROOT}/skills/orient/scripts/size_guard.py\"; [ -f \"$f\" ] && command -v python3 >/dev/null 2>&1 || exit 0; python3 \"$f\""}]
     }],
+    "SessionStart": [{
+      "hooks": [{"type": "command", "command": "f=\"${CLAUDE_PLUGIN_ROOT}/skills/adr/scripts/adr_index.py\"; [ -f \"$f\" ] && command -v python3 >/dev/null 2>&1 || exit 0; python3 \"$f\""}]
+    }],
     "PostToolUse": [{
       "matcher": "Bash",
       "hooks": [{"type": "command", "if": "Bash(*.md*)", "command": "f=\"${CLAUDE_PLUGIN_ROOT}/skills/orient/scripts/size_guard.py\"; [ -f \"$f\" ] && command -v python3 >/dev/null 2>&1 || exit 0; python3 \"$f\""}]

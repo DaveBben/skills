@@ -2,7 +2,7 @@
 
 **User stories, failing tests first, one fresh review. Every other step was measured, and cut when it did not pay.**
 
-The plugin is eleven skills. Plain Markdown, no build step, nothing to compile.
+The plugin is twelve skills. Plain Markdown, no build step, nothing to compile.
 
 | Skill | Fires on |
 |---|---|
@@ -17,8 +17,7 @@ The plugin is eleven skills. Plain Markdown, no build step, nothing to compile.
 | `guardrails` | "add a rule", "never do X", "the agent keeps making this mistake", "set up guardrails", "we have no linting", "set up secret scanning", "which of our CLAUDE.md rules could be checks" |
 | `review-code` | "review PR 412", "review this merge request", "review my code", "review what you built", "security review", "give me feedback", "poke holes in this" |
 | `new-project` | "start a new project", "new Python project", "create a new repo for X", "scaffold a project", "set up the template for a new project" |
-
-Session handoff lives in the separate [context](../context/) plugin. Plugins are independent, so nothing in SDLC calls it.
+| `handing-off` | "write a handoff", "I'm running low on context", "I want to pick this up later", "summarise this for next time" |
 
 # The workflow
 
@@ -101,6 +100,13 @@ Follow-up runs then tested each mechanism on its own:
   * **Tests are not proof.** 7.4% of GPT-4's refactorings were unsafe, most of them semantic changes, all caught by re-applying them through a refactoring engine (same study), so the skill prefers tool refactorings and compares old and new outputs where tests are thin.
   * **Small, separate commits.** Claude Code averaged 762.7 refactorings per refactoring commit against a developer mean of 15.3 (arXiv 2601.20160), and refactoring tangled into fixes lowered compilability (arXiv 2605.22526).
   * **No length dogma.** Readability metrics failed to predict understandability (Scalabrino et al. 2017), and function length is disputed (Ousterhout and Martin, 2025), so a function splits only where each piece reads on its own.
+* **Lessons from Matt Pocock's skills, 23.0.0.** From his episode of The Pragmatic Engineer, adapted to XP:
+  * **Grilling inside `story`.** The agent keeps asking until no question that changes an acceptance criterion is open, and every question ends with "I need to research this". The answer goes on the story as `Needs research:`, and the story waits until you come back, so you decide instead of the agent. When you are away, the agent decides only small choices, and anything else waits.
+  * **A glossary.** Domain terms the user confirms go in `docs/glossary.md`, and stories, tests and code use them, so prompts get shorter and a grep finds the code.
+  * **Leading words.** The skills name vertical slices, tracer bullets, programming by coincidence and not outrunning your headlights where they define each idea, because those terms are already in the model's training data.
+  * **ADR index at session start.** The hook prints titles and paths only, since every injected line costs every session.
+  * **One story per fresh session,** and a scheduled `refactoring` run that proposes one hotspot fix as a `refactor` issue.
+  * **`handing-off` moved in** from the retired `context` plugin. If you installed `context`, uninstall it, or the skill loads twice.
 * **Writing rules moved out, 18.0.0.** The two hooks that printed `hooks/writing.md` into every session and subagent are gone. The rules for Markdown files now live in the `writing` plugin's `markdown-files` skill, which loads only when a Markdown file is written.
 
 A first headless run of this version passed 7 of 8 hidden tests on cli and 4 of 6 on zod, the same as the other arms, at $3.58 and $3.07 and 15 and 11 minutes; SDLC 15 took $4.72 and $9.67 and 22 and 46 minutes on the same tasks.
@@ -130,11 +136,13 @@ A first headless run of this version passed 7 of 8 hidden tests on cli and 4 of 
 /plugin install SDLC@davebben-skills
 ```
 
-The eleven skills surface under their own names.
+The twelve skills surface under their own names.
 
 The plugin also installs hooks:
 
 * **The guard:** a hook runs story's `scripts/guard.py` before a shell command containing `git`, `merge` or `create`. It refuses a merge, a commit that changes a locked test other than by removing its expected-fail marker, and opening a pull request while a red test keeps its marker. It asks you before a `git config` command removes or replaces the tests' lock. Other ways to drop the lock, such as deleting the branch or editing `.git/config`, are left to the review, which checks that no locked test changed.
+
+* **The ADR index:** at the start of every session, a hook runs adr's `scripts/adr_index.py`, which prints one line per ADR under `docs/adr/` that has no `Superseded by:` line, its title and path, up to 40.
 
 It installs three named agents: `SDLC:test-challenger`, `SDLC:review` and `SDLC:verify`. Each agent file is that agent's whole prompt, at `skills/SDLC/agents/`, linked into the plugin by the `agents` symlink. `story` runs `review-code` on each story it builds, as you do on merge requests, your own code and designs, so every review is the same review.
 
@@ -146,6 +154,6 @@ npx skills add DaveBben/davebben-skills --skill story
 
 The `story` and `review-code` skills launch subagents whose prompts live in `skills/SDLC/agents/`, beside the skill folders rather than inside one. The `skills` CLI copies skill folders, so also copy `skills/SDLC/agents/` into the folder that holds the installed skills, as a sibling named `agents`. Other agents do not run the hooks, so they get no guard.
 
-Install `story`, `bug`, `refactoring`, `failing-tests`, `adr`, `spike`, `using-trackers`, `orient`, `guardrails` and `review-code` together, or `--all` for every skill in the repo. The canonical `SKILL.md` files live at `skills/SDLC/` in the repo root.
+Install `story`, `bug`, `refactoring`, `failing-tests`, `adr`, `spike`, `using-trackers`, `orient`, `guardrails`, `review-code`, `new-project` and `handing-off` together, or `--all` for every skill in the repo. The canonical `SKILL.md` files live at `skills/SDLC/` in the repo root.
 
 MIT.

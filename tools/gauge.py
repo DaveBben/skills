@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Measure whether the right skill auto-triggers across the SDLC and context plugins.
+"""Measure whether the right skill auto-triggers across the SDLC plugin.
 
 Self-contained: builds its own throwaway fixture repos in .gauge-fixtures/, then
 runs `claude -p` once per query with `--plugin-dir` pointed at the working copy.
@@ -45,8 +45,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PLUGIN_DIRS = [os.path.join(REPO, "plugins", "SDLC"),
-               os.path.join(REPO, "plugins", "context")]
+PLUGIN_DIRS = [os.path.join(REPO, "plugins", "SDLC")]
 # Bound the run; a skill firing anywhere inside it counts as triggered. Keep
 # this generous. These skills instruct the agent to read the ground before it
 # acts, and fires have been observed at tool call 8, so a tight bound truncates

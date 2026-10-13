@@ -9,6 +9,7 @@ Sections: Clear up ambiguity, Write the story, When to stop, Agree it, Where sto
 
 * **Draft the examples first:** an example whose `then` you cannot fill with a real value from the request, the code or a tool is a question for the user, not a guess.
 * **Another outcome possible** from the givens listed: a given is missing. Look it up or ask.
+* **A `Needs research:` line answered:** when the user comes back with the answer, move it under `Decided` with the user's reason, and check the acceptance criteria it changes.
 
 ## Write the story
 
@@ -35,7 +36,7 @@ Out of scope
 * <what a reader might expect that this story leaves out; one per line>
 
 Open questions
-* <one open decision per line, with what will force it; omit the section when none>
+* <one open decision per line, with what will force it; a question the user will research is `Needs research: <question>; options: <the options>`; omit the section when none>
 
 Decided
 * <each choice made without the user, and why, and each ADR path the adr skill wrote; omit the section when none>
@@ -115,7 +116,8 @@ Out of scope
 * **Banned words:** improve, better, faster, robust, correct, properly, handled, seamless. Write the number or the event.
 * **Each Given:** state every fact the outcome depends on, and nothing else.
 * **Boundaries:** when a rule covers a range, give an example at the limit itself, and one past it when that is a different rule.
-* **One action per example.** Its `then` and `and` lines name what a caller or a person sees, in the names the code and its tests already use.
+* **One action per example.** Its `then` and `and` lines name what a caller or a person sees, in the names the code, its tests and the glossary already use.
+* **A concept with no name yet:** propose a short name and its meaning. Once the user confirms it, use the name in the story and list it under `Decided` as `Glossary: <term>: <meaning>`. The build adds it to `docs/glossary.md`.
 * **Not a result:** a mechanism (an exception class, a lock, a log line, a call to a function).
 * **Past about 8 criteria:** check whether they are separate variations of one action (each kind of code, each file type), and split by variation when they are.
 * **More than three examples under one criterion:** check whether it is several rules, and split them.
@@ -145,5 +147,5 @@ Then stop writing.
 ## Where stories live
 
 * **With a tracker:** each story is one issue, and a feature is only its issues, ordered by the tracker's blocking relation. File, read and edit them by the `using-trackers` skill.
-* **Without one, a single story:** the red commit's message and the pull request's description hold it.
+* **Without one, a single story:** the red commit's message and the pull request's description hold it. Until it is ready to build, it lives in `docs/stories/<slug>.md` as a feature does.
 * **Without one, a feature:** it lives in `docs/stories/<slug>.md`, committed on its own branch: each story under its title, in build order.
