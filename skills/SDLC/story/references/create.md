@@ -1,15 +1,30 @@
 # Create a story
 
-Sections: Clear up ambiguity, Write the story, When to stop, Agree it, Where stories live.
+Sections: Size first, Clear up ambiguity, Write the story, Ready to build, Review it, Agree it, Where stories live.
 
-* **Read first:** the request, the code it touches and that code's tests. Read a story linked on a tracker with its comments.
-* **Several stories:** make the request a feature by [split.md](split.md) first; then create one story at a time.
+Read the request, the code it touches and that code's tests first. Read a story linked on a tracker with its comments.
+
+## Size first
+
+SKILL.md's Size first decides whether the change needs a story. When it does:
+
+* **One story:** one path end to end and one variation; every acceptance criterion's `when` is the same action by the same role.
+* **Several stories:** more than one path or variation, an acceptance criterion whose `when` is a different action or person, or an unknown that changes what gets built. Split them into a feature by [split.md](split.md), then create and build one story at a time.
 
 ## Clear up ambiguity
 
+The decision rules in SKILL.md's "Talking to the user" hold; these add how to ask.
+
+* **Keep asking** until none of these is open: what the change must and must not do, who may do it, each value an example needs, and each choice the answers raise. A `No story` change needs no questions, except a decision for the `adr` skill.
+* **Order:** ask a question only when no open question would change its answer.
+* **How to ask:** in rounds. A round asks every question that is ready, up to four, each with the recommended option first, through the harness's multiple-choice tool where it has one (Claude Code's AskUserQuestion). After each round, work out which questions are ready now.
+* **Facts in parallel:** look up a fact a question needs with a subagent where the harness has one, and ask the questions that do not wait on it meanwhile.
+* **Last option, always:** "I need to research this." Name the options and the trade-off they turn on.
+* **The user picks research:** write the question under the story's `Open questions` as `Needs research: <question>; options: <the options>`, and keep asking the rest. The story is not ready to build until the user answers it.
+* **The user cannot choose** between options a prototype would show: offer a spike by the `spike` skill.
 * **Draft the examples first:** an example whose `then` you cannot fill with a real value from the request, the code or a tool is a question for the user, not a guess.
 * **Another outcome possible** from the givens listed: a given is missing. Look it up or ask.
-* **A `Needs research:` line answered:** when the user comes back with the answer, move it under `Decided` with the user's reason, and check the acceptance criteria it changes.
+* **A `Needs research:` line answered:** move it under `Decided` with the user's reason, and check the acceptance criteria it changes.
 
 ## Write the story
 
@@ -82,8 +97,6 @@ Out of scope
 * Withdrawals in another currency.
 ```
 
-Criterion 3 states no balance: the outcome does not depend on it.
-
 A bug story in code with no end user:
 
 ```text
@@ -107,18 +120,18 @@ Out of scope
 ```
 
 * **Role:** whoever uses the changed interface (a registered customer, or in code with no end user the calling program); never "user" or the builder.
-* **`I want`:** what they can do, never a control or a design (a dropdown, a modal, a new table). The design comes after the need.
-* **Reason:** what they gain, not the feature restated. When neither the request nor the code gives one, ask; the reason decides which acceptance criteria matter.
+* **`I want`:** what they can do, never a control or a design (a dropdown, a modal, a new table).
+* **Reason:** what they gain, not the feature restated. When neither the request nor the code gives one, ask.
 * **Context:** write it from the request, the tracker or the PRD, never from your plan. Name each repository the story touches when it is more than one. A reader with nothing from this chat must be able to test from it.
 * **Acceptance criterion 1:** the outcome. For a bug, the reproduction: the starting state, the action, and what the person should see instead of what they see now.
 * **Real values:** name the input, the number, the message text, the status code.
 * **Error messages:** every error the person sees says what went wrong and what they can do next.
 * **Banned words:** improve, better, faster, robust, correct, properly, handled, seamless. Write the number or the event.
 * **Each Given:** state every fact the outcome depends on, and nothing else.
-* **Boundaries:** when a rule covers a range, give an example at the limit itself, and one past it when that is a different rule.
+* **Boundaries:** for a rule over a range, give an example at the limit, and one past it when that is a different rule.
 * **One action per example.** Its `then` and `and` lines name what a caller or a person sees, in the names the code, its tests and the glossary already use.
 * **A concept with no name yet:** propose a short name and its meaning. Once the user confirms it, use the name in the story and list it under `Decided` as `Glossary: <term>: <meaning>`. The build adds it to `docs/glossary.md`.
-* **Not a result:** a mechanism (an exception class, a lock, a log line, a call to a function).
+* **Not a result:** a mechanism, such as an exception class, a lock, a log line or a function call.
 * **A visual result:** state it as a value a tool can read, such as an element's state, its text or a computed style. One only an eye can judge ends with `(checked by the user)`: it gets no test, and the user checks it on the branch and again in production.
 * **Past about 8 criteria:** check whether they are separate variations of one action (each kind of code, each file type), and split by variation when they are.
 * **More than three examples under one criterion:** check whether it is several rules, and split them.
@@ -130,20 +143,23 @@ Check only the paths this change can break. Name a failure or abuse path only wh
 * **Write an `Out of scope` line** only for what a reader would expect this story to do.
 * **House cases:** existing data created before this change, another viewer who needs their own story, each reader of a changed API, a response that reveals a third party, an action stopped halfway that loses the person's work, each email, notification or webhook firing exactly once.
 
-## When to stop
+## Ready to build
 
-The story is ready when all of these hold, and no sooner:
+The story is ready, and you stop writing, when all of these hold:
 
 * **Each example can become a test without asking anybody:** a starting state, one action, and a result with real values. An example marked `(checked by the user)` needs only the first two.
 * **No question is open:** every reading that would change an acceptance criterion is answered by the user or recorded under `Decided`, and `Open questions` is empty.
 * **It is one story:** a named role and reason, and every example's `when` is the same action by that role. An `I want` joined by "and" or "or" is two stories.
 
-Then stop writing.
+## Review it
+
+Before showing the story, check it against each finding kind in [review.md](review.md), quoting its text as that file says.
+Fix each finding in the draft.
+Show the user any finding you could not fix, beside the story.
 
 ## Agree it
 
-* **Show the story** in one message.
-* **The agreement:** the user edits it or says go; the build starts from that.
+Show the story in one message. The user's edit or go is the agreement; build from that.
 
 ## Where stories live
 

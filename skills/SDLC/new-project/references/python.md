@@ -3,7 +3,7 @@
 The template is the GitHub template repository `DaveBben/claude-ready-python-codebase`.
 It is a src-layout package named `example_project`, managed by uv, with `./check`, Claude Code hooks, pre-commit and CI already wired.
 Its `README.md` holds the authoritative rename steps under "Rename the template".
-Follow them rather than any copy of them, because they change with the template.
+Follow them rather than any copy of them.
 
 ## Names
 
@@ -32,7 +32,7 @@ The template needs 2 tools beyond Python:
    ```
 
    Pass `--public` instead when the user chose public.
-   Without the GitHub CLI or a GitHub host, run `git clone --depth 1 https://github.com/DaveBben/claude-ready-python-codebase.git <name>`, delete its `.git` directory, then run `git init -b main`, `git add -A` and `git commit -m "Start from claude-ready-python-codebase"`, because the rename steps act only on tracked files.
+   Without the GitHub CLI or a GitHub host, run `git clone --depth 1 https://github.com/DaveBben/claude-ready-python-codebase.git <name>`, delete its `.git` directory, then run `git init -b main`, `git add -A` and `git commit -m "Start from claude-ready-python-codebase"`, since the rename steps act only on tracked files.
    Create an empty repository on the user's host and add it as `origin`.
 2. Follow every step of the cloned README's "Rename the template" section with the 3 names.
    In its step for the project's own text, write the `description` and the module docstring from the purpose, and replace `README.md` with the project's name, its purpose, and the setup and check commands from `AGENTS.md`.

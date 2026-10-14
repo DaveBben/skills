@@ -15,9 +15,9 @@ Choosing tools:
 * **Slot with nothing to run yet,** such as end-to-end tests: leave it out and say so.
 * **Task runner:** `check` calls its targets rather than repeating their commands.
 * **Mutation tools,** restricted to changed, covered lines, using the stack's own incremental or diff option.
-  * **No gate on survivors:** about 4 to 39% of mutants are equivalent, meaning no input tells them from the original, so no test can kill them.
+  * **No gate on survivors:** some are equivalent mutants no test can kill.
   * **A score gate the user asks for:** set it just under the score measured today (StrykerJS `thresholds.break`, PIT `mutationThreshold`) and raise it as the score rises.
-* **Flaky tests:** a test that fails and then passes on an unchanged tree is flaky. The gate shows the user both runs. Never run a check again to get past a failure. Quarantine a flaky test only on the user's yes, with an expiry date in the skip reason.
+* **Flaky tests:** when a test fails and then passes on an unchanged tree, the gate shows the user both runs. Never run a check again to get past a failure. Quarantine a flaky test only on the user's yes, with an expiry date in the skip reason.
 
 Run `./check` and `./check --full` once.
 
@@ -27,7 +27,7 @@ Run `./check` and `./check --full` once.
 
 ## Secret scanning
 
-Every repository gets gitleaks as a pre-commit hook, because a secret that reaches a commit stays in history: deleting it later does not unexpose it.
+Every repository gets gitleaks as a pre-commit hook.
 
 * **The hook:** where the repository already runs a hook manager (pre-commit, husky, lefthook), add gitleaks to it. Otherwise write `.pre-commit-config.yaml` and run `pre-commit install`:
 
@@ -44,7 +44,7 @@ Every repository gets gitleaks as a pre-commit hook, because a secret that reach
 * **The backstop:** `./check --full` runs `gitleaks git --log-opts="<main branch>..HEAD" --redact --no-banner .`, which scans the branch's commits. It refuses a pull request carrying a commit made with `--no-verify`, or before the hook was installed. It needs gitleaks on the PATH; when it is missing, name it to add.
 * **Watch it fail once:** stage a file holding a fake token, such as `ghp_` followed by 36 random letters and digits, never a real one. Confirm the commit is refused, then delete the file.
 * **History:** run `gitleaks git --redact .` once over the whole history.
-  * **A real secret:** tell the user to rotate it first, since it is already exposed. Rewriting history is their decision.
+  * **A real secret:** tell the user to rotate it first. Rewriting history is their decision.
   * **A false positive:** add the `Fingerprint:` line the finding prints to `.gitleaksignore`, or put a `gitleaks:allow` comment on the line.
 * **Never bypass:** never pass `--no-verify` to get a commit past a finding.
 

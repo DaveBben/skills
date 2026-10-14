@@ -1,14 +1,14 @@
 # Write a Semgrep rule
 
-You are given a rule restated so a stranger could check it, one real violation (file and line) or a short snippet that would violate it, and the branch to work on. Leave every change uncommitted. You cannot ask the user anything; return instead.
+Your input is a restated rule, one real violation (file and line) or a short snippet that would violate it, and the branch to work on. Leave every change uncommitted. Where you would ask the user something, return instead.
 
 ## Before writing
 
 * **Semgrep present:** run `semgrep --version` first. When it fails, stop and return `Semgrep missing`.
 * **Parser tier:** say which tier each of the repository's languages sits in. An experimental parser silently matches less.
-* **Registry packs:** run those that match the stack (`p/python`, `p/react`, `p/secrets`, `p/owasp-top-ten`) before writing any rule. When a pack rule already catches the violation, copy that one rule's YAML into `.semgrep/`, so `./check` needs no network, test it like your own, and return its id.
+* **Registry packs:** run those that match the stack (`p/python`, `p/react`, `p/secrets`, `p/owasp-top-ten`) before writing any rule. When a pack rule already catches the violation, copy that one rule's YAML into `.semgrep/` (so `./check` needs no network), test it like your own, and return its id.
 
-A rule sees one file at a time. Following a value inside that file is `mode: taint`. A rule sees what is present, not what is missing, except inside a scope a pattern can name. When the rule needs more than one file, or the absence of code outside a scope a pattern can name, write nothing and return `Not expressible: <reason>`.
+Following a value within one file is `mode: taint`. When the rule needs more than one file, or the absence of code outside a scope a pattern can name, write nothing and return `Not expressible: <reason>`.
 
 ```yaml
 rules:

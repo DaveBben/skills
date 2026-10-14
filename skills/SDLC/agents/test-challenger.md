@@ -16,11 +16,9 @@ The session that will build a story wrote its failing tests. You write tests for
 * the first red commit's hash: the session's tests, with their test list in its commit message;
 * the path of the `failing-tests` skill's `SKILL.md`.
 
-You have not seen the plan or the implementation.
-
 Write, mark, commit and lock every test by the `failing-tests` skill: load it by name where the harness has skills (`SDLC:failing-tests` in Claude Code), else read it at the path given. These rules come first:
 
-* **Do not read** the bodies of the functions the change touches. A test written after reading code confirms that code's bugs.
+* **Do not read** the bodies of the functions the change touches.
 * **Read** the first suite and its test list before you write your own list.
 * **Focus:** how the code's real callers will call it (other code in the repository, and any document or skill that tells a person or agent to run it), and the inputs a careless or hostile caller sends.
 * **Write a test** only for a wrong implementation from your focus that passes every test in the first suite, and name that implementation on its `rejects:` line.

@@ -1,20 +1,19 @@
 ---
 name: adr
-description: "Use this skill whenever a decision must survive the conversation: a choice that costs more than a day to reverse, whether the user or the agent made it (a library, a data shape, a trust or consistency boundary, a new repository), a hazard accepted without a test, or an alternative rejected. Use it on: 'adr', 'write an adr', 'make an adr', 'record this architecture decision', 'note this decision', 'this is an architectural decision', 'record the why', 'put it on record', 'we will accept that risk', 'let's go with X instead of Y'. Writes one Markdown decision record under docs/adr/ carrying the user's own reasons, the rejected alternatives and the test that detects the hazard."
+description: "Use this skill whenever a decision must outlive the conversation: a choice costly to reverse (a library, a data shape, a boundary, a new repository), a risk accepted without a test, or an alternative rejected. Use it on: 'adr', 'capture this adr', 'this is an architecture decision', 'record this decision', 'document why we picked X over Y', 'we're going with X instead of Y', 'we accept that risk'. Writes one decision record under docs/adr/ with the user's reasons, the rejected alternatives and the test that detects the hazard."
 license: MIT
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
 ---
 # ADR
 
 An ADR (architecture decision record) is one Markdown file under `docs/adr/` saying what was decided, why, and what it gave up.
 
 Write it when the decision is made, not at the end of the feature.
-In Claude Code, a hook lists each ADR that is not superseded, by title and path, at the start of every session.
 
 ## Get the reasons
 
-The reasons are the user's. Never record a reason the user has not given or confirmed. Record only alternatives, mechanisms and measurements that the user or your feedback message named.
+Never record a reason the user has not given or confirmed. Record only alternatives, mechanisms and measurements that the user or your feedback message named.
 
 ```text
 Before recording <decision>, correct anything wrong:
@@ -23,8 +22,7 @@ Before recording <decision>, correct anything wrong:
 3. Why not <the obvious route>? <draft>
 ```
 
-* **A decision already made:** draft the three answers from the conversation and the code, and put them to the user in one message to correct.
-* **Draft answer 3:** name the obvious route. Write "unknown" for any answer you cannot draft.
+* **A decision already made:** draft the three answers from the conversation and the code, writing "unknown" for any you cannot draft, and put them to the user in one message to correct.
 * **An open decision:** send the block with the alternatives and the tradeoff they turn on in place of the drafts. The user's answer is the reasons.
 * **The agent's own choice:** state the agent's reason, the obvious alternative and the tradeoff. Ask the user to confirm, change or replace the reason.
 * **The user defers:** record the agent's reason, marked as the agent's, with the line "The user deferred to the agent's recommendation."
@@ -38,8 +36,7 @@ Before recording <decision>, correct anything wrong:
 * **The name:** short and kebab-case, like `use-redis-for-rate-limiting.md`. When the concept has a term in `docs/glossary.md`, the user's confirmed domain terms, use that term in the title and the file name.
 * **Commit it on its own** on the current branch. On main, create a branch `adr/<decision-name>` first. Never switch the branch of a checkout with uncommitted changes; ask instead.
 * **The story it serves:** add the ADR's path under its `Decided`, in its issue by the `using-trackers` skill or in `docs/stories/<slug>.md`.
-* **An existing ADR it contradicts:** leave the old file in place and name it on the new one's `Supersedes:` line.
-* **The old ADR:** add `Superseded by: <new path>` to it.
+* **An existing ADR it contradicts:** leave the old file in place, name it on the new one's `Supersedes:` line, and add `Superseded by: <new path>` to the old one.
 
 ## Write it like this
 
@@ -69,5 +66,3 @@ the over-limit call is refused. It does not assert the cap number, which is not 
 
 **Supersedes:** none.
 ```
-
-Reasons come from the user; with none given, write no file.

@@ -1,19 +1,18 @@
 ---
 name: new-project
-description: "Use this skill whenever a new software project, repository or codebase must be started, whether the user, the session or another agent wants it: a new app, service, CLI, library or script that will live in its own repository. Use it on: 'start a new project', 'new Python project', 'new Python repo', 'create a new repo for X', 'scaffold a project', 'bootstrap a service', 'set up the template for a new project', 'spin up a repo for this idea', 'I want to build X from scratch'. Load it before creating the first file or running a scaffolding tool such as `uv init`. Creates the repository from the user's template for its language, renames the template's placeholder names, and commits only once the checks pass. Not for adding checks to a repository that exists; that is `guardrails`. Not for a throwaway prototype; that is `spike`."
+description: "Use this skill whenever a new software project or repository must be started: an app, service, CLI, library or script in its own repository. Use it on: 'start a new project', 'new Python repo', 'create a new repo for X', 'scaffold a project', 'bootstrap a service', 'spin up a repo for this idea', 'build X from scratch'. Load it before creating the first file or running `uv init`. Creates the repository from the user's template and commits once its checks pass. Not for adding checks to an existing repository; that is `guardrails`. Not for a throwaway prototype; that is `spike`."
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 # New project
 
-A new project starts from the user's template for its language, so it has the check command, the agent hooks, the CI workflow and `AGENTS.md` from its first commit.
+Start a new project from the user's template for its language.
 Never scaffold from nothing with a language's own tool, such as `uv init`, `cargo new` or `npm create`, while a template exists for that language.
 
 ## Templates
 
-Each language has its template and the steps to create from it in one reference file.
-Read the file for the project's language before running any command.
+Read the reference file below for the project's language before running any command.
 
 * **Python:** [references/python.md](references/python.md).
 * **Any other language:** no template exists yet.
@@ -42,9 +41,9 @@ The project is set up when all of these hold:
 * **Pushed:** one commit holding the rename is on the host's main branch.
 
 Report the repository's URL, its local path and anything the user must install, such as a tool version the template requires.
-Tell the user to start the next session inside the new repository, because its hooks and `AGENTS.md` load only in a session started there.
+Tell the user to start the next session inside the new repository, since its hooks and `AGENTS.md` load only there.
 Write no feature code during setup.
-The project's first behaviour is a change to code that exists, so build it by the `story` skill.
-Its first story is a tracer bullet: the thinnest slice a person can use end to end, kept and grown, unlike a throwaway prototype.
+Build the first behaviour by the `story` skill.
+Its first story is a tracer bullet (walking skeleton): the thinnest slice a person can use end to end, kept and grown.
 Offer to schedule the `refactoring` skill's scheduled run for the repository, such as a weekly Claude Code routine or a CI cron job, and set it up only on the user's yes.
 A stack or library choice that costs more than a day to reverse goes to the `adr` skill.

@@ -1,9 +1,9 @@
 ---
 name: failing-tests
-description: "Use this skill whenever tests must be written before the code they test exists or is fixed: the failing tests for a story's acceptance criteria, a failing test for a confirmed review finding or a reported bug, or a locked test the user corrected. Use it on: 'write the failing tests', 'write the tests first', 'red tests for this story', 'TDD this', 'TDD the X story', 'tests first for X', 'add a regression test for this bug', 'add a regression test so this bug can't come back', 'write a test that reproduces this bug, don't fix it yet', 'this test is wrong'. Use it even when the request names a story or a bug, if it asks for the tests. Load it before writing the first test. Writes one test per example through the interface already fixed, confirms each fails for the reason its criterion states, marks each with the framework's strict expected-fail marker, commits them alone and locks them in git config."
+description: "Use this skill whenever tests must be written before the code they test exists or is fixed: for a story's acceptance criteria, a bug or a review finding, or a locked test the user corrects. Use it on: 'write the failing tests', 'tests first', 'TDD this', 'red tests', 'write them red', 'an acceptance test that fails until the feature is implemented', 'add a regression test', 'reproduce this bug, don't fix it yet', 'this test is wrong'. Use it even when the request names a story or bug, if it asks for the tests. Writes one test per example, confirms each fails for its criterion's reason, and commits and locks them."
 license: MIT
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
 ---
 # Failing tests
 
@@ -19,9 +19,9 @@ Write a change's tests before its implementation exists, from what the change mu
 
 ## 1. Read the ground
 
-* **Read** the interface, the public entry points the criteria go through (a function's signature, a command's arguments, a route), and the nearby tests for the framework, fixtures and naming.
+* **Read** the interface and the nearby tests for the framework, fixtures and naming.
 * **Run** the existing tests of that area once and note which pass.
-* **Read `docs/glossary.md`** where it exists, the user's confirmed domain terms, and name each test with its terms.
+* **Read `docs/glossary.md`,** the user's confirmed domain terms, where it exists, and name each test with its terms.
 
 ## 2. The test list
 
@@ -32,16 +32,15 @@ Write one numbered line per test:
 ```
 
 * **One test per example under each rule:** a rule with no example gets one test with values you choose from its words. Add a further test only where it rejects a wrong implementation the others pass.
-* **A rule over a range:** test it with at least two different values, or with a property test, so code that returns the expected value for one input fails.
-* **Property test:** where an acceptance criterion states a rule over a range of inputs or an invariant (loading twice leaves the same rows, parsing then printing returns the input), and the repository already has a property-testing library such as Hypothesis or fast-check, add one property test of that rule beside its example tests.
+* **A rule over a range or an invariant:** test it with at least two different values. Where the repository already has a property-testing library, such as Hypothesis or fast-check, add one property test of the rule beside its example tests.
 * **Interface:** test only through the interface. Never invent a public name, argument or type.
 * **Level:** test each example at the lowest level whose interface shows its result. An end-to-end test covers a whole journey a person takes, and it sets up its data through the API or the database, never the UI.
 * **Real implementations:** run the real code wherever the test can, even when nearby tests mock it.
   * Use the real collaborators, the database engine production uses (started locally or in a container), the real filesystem in a temporary directory, and a real server on localhost.
-  * Never use an in-memory substitute for the database, such as SQLite for Postgres. It passes on SQL, migrations, constraints and grants that production rejects.
+  * Never use an in-memory substitute for the database, such as SQLite for Postgres.
   * Double only what a test cannot run or control: a service outside the repository (a payment provider, email, a third-party API), the clock, and randomness.
-  * For those, prefer the repository's own fake, then a stub returning fixed values. Mock a call only to check a side effect on an outside service, and mock it through the repository's own adapter for that service, never the third-party library.
-* **Expected values:** take each from the criterion's words, never from what the current code does or from how you plan to build it. A test written from the code is tautological: it confirms that code's bugs.
+  * For those, prefer the repository's own fake, then a stub returning fixed values. Mock a call only to check a side effect on an outside service, through the repository's own adapter for it: don't mock what you don't own.
+* **Expected values:** take each from the criterion's words, never from what the current code does, which makes a tautological test, or from how you plan to build it.
 * **Fixtures:** choose ones a plausible wrong implementation fails. Avoid:
   * a batch of one, or the failing item first or last;
   * the same value in two fields;
@@ -54,7 +53,7 @@ Write one numbered line per test:
   * a key, row or file another test also uses: create the test's own with a unique value.
 * **Assertions:** assert exact values a person or caller sees. Never assert a private function, internal call order or a log line, and never only that something is non-empty or did not raise.
   * For text a language model generates, assert its schema and required fields, never its exact wording.
-* **An example marked `(checked by the user)`:** a person judges it by eye, so it gets no test and no `Questions:` line.
+* **An example marked `(checked by the user)`:** gets no test and no `Questions:` line.
 * **Questions:** a criterion you cannot write as a test (no observable result, an undecided value), or one that needs a public name the interface lacks, gets no test. Put it on `Questions:`.
 
 ## 3. Existing tests
@@ -68,8 +67,8 @@ An existing test the acceptance criteria contradict is a decision.
 
 Write the tests and run them. Each must fail because the behaviour is missing, not because of a typo, an import or a fixture error. List a test that already passes as `characterizing`, or delete it when it adds nothing.
 
-1. **Mark** each failing test with the framework's strict expected-fail marker, so the suite passes while the behaviour is missing and fails once the test passes: pytest `@pytest.mark.xfail(strict=True, reason="red")`, Jest or Vitest `test.failing`, Playwright `test.fail()`, RSpec `pending`, XCTest `XCTExpectFailure("red")` as the test's first line, Swift Testing `withKnownIssue("red") {` on its own line with the closing brace written `} // red`. Mark nothing else, and leave a `characterizing` test unmarked. **No strict marker in the framework:** leave the tests unmarked; the test run fails on them until they pass, and that failure is expected.
-2. **Commit** the tests alone, on a branch other than main; on main, create a branch first, since a lock on main locks every test there. The commit message holds the story, or the acceptance criteria when there is no story, the test list and the `Changes existing:` line.
+1. **Mark** each failing test with the framework's strict expected-fail marker: pytest `@pytest.mark.xfail(strict=True, reason="red")`, Jest or Vitest `test.failing`, Playwright `test.fail()`, RSpec `pending`, XCTest `XCTExpectFailure("red")` as the test's first line, Swift Testing `withKnownIssue("red") {` on its own line with the closing brace written `} // red`. Mark nothing else, and leave a `characterizing` test unmarked. **No strict marker in the framework:** leave the tests unmarked; the test run fails on them until they pass, and that failure is expected.
+2. **Commit** the tests alone, on a branch other than main; on main, create a branch first. The commit message holds the story, or the acceptance criteria when there is no story, the test list and the `Changes existing:` line.
 3. **Hook refuses the commit** because a test fails: skip that hook alone by its id and report it. Never skip every hook.
 4. **Lock** the commit:
 
@@ -82,7 +81,7 @@ After the lock, change no locked test, and no test that existed where the branch
 ## Later tests
 
 * **A confirmed review finding:** write one test that fails on it, through the interface its criterion names, marked as above. Commit it alone in a new test file and lock it the same way.
-* **A weak test from a review:** a review row that names a wrong implementation the suite lets pass. Write, in a new test file, a test that implementation fails. It may pass at once; leave it unmarked then. Commit and lock it the same way.
+* **A weak test from a review,** a row naming a wrong implementation the suite lets pass: write, in a new test file, a test that implementation fails. It may pass at once; leave it unmarked then. Commit and lock it the same way.
 * **A locked test the user agrees is wrong:**
   1. Save `git config --get-all branch.<branch>.redCommit`.
   2. Run `git config --unset-all branch.<branch>.redCommit`, which the user approves where the guard asks.

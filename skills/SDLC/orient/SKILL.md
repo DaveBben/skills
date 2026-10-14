@@ -1,15 +1,13 @@
 ---
 name: orient
-description: "Use this skill when a repository's AGENTS.md or CLAUDE.md must be written, rewritten, trimmed or checked, when an agent must orient itself in an unfamiliar repository, or when the user wants to see the architecture of the code they work in. Use it on: 'write AGENTS.md', 'write a CLAUDE.md', 'set up CLAUDE.md', 'review my CLAUDE.md', 'our CLAUDE.md is too long', 'trim AGENTS.md', 'what should go in CLAUDE.md', 'orient yourself', 'familiarize yourself with this codebase', 'show me the architecture', 'what's the current architecture', 'give me an updated view of the architecture', 'what calls this service', 'write an onboarding doc'. Writes AGENTS.md at the repository root, with CLAUDE.md a symlink to it, holding only what an agent cannot learn by reading the repository, and a one-page architecture snapshot in ARCHITECTURE.md, traced from the code and every system that calls it or that it calls. Not for enforcing a rule with a linter, hook or commit check; that is `guardrails`."
+description: "Use this skill when a repository's AGENTS.md or CLAUDE.md must be written, reviewed, trimmed or updated, when an agent must orient itself in an unfamiliar repository, or when the user wants to see its architecture. Use it on: 'write AGENTS.md', 'set up my CLAUDE.md', 'review my CLAUDE.md', 'my CLAUDE.md is too long', 'onboard claude to this repo', 'orient yourself', 'familiarize yourself with this codebase', 'show me the architecture'. Writes AGENTS.md, with CLAUDE.md a symlink to it, holding only what an agent cannot learn from the repository, and a one-page ARCHITECTURE.md. Not for enforcing a rule with a linter or hook; that is `guardrails`."
 license: MIT
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
 ---
 # Orient
 
-`AGENTS.md` at the repository root loads into every session before its first message. Every line costs every session.
-
-Keep a line only when deleting it would cause a mistake nothing else in the repository prevents.
+`AGENTS.md` at the repository root loads into every session. Keep a line only when deleting it would cause a mistake nothing else in the repository prevents.
 
 ## What goes in
 
@@ -27,7 +25,7 @@ Keep a line only when deleting it would cause a mistake nothing else in the repo
   * A directory that looks unused and is loaded at runtime.
   * A test that already fails on main.
 * **Pointers:** the path of a document the agent would not find on its own and when to read it.
-  * **Glossary:** when `docs/glossary.md` exists, a pointer to it: read it before naming a function, a type or a test. The glossary holds one line per domain term the user confirmed, the term and its meaning, and stays out of `AGENTS.md`.
+  * **Glossary:** when `docs/glossary.md` exists, a pointer to it: read it before naming a function, a type or a test. The glossary holds one line per domain term the user confirmed, with its meaning; keep the terms out of `AGENTS.md`.
 * **Boundaries:** one `Boundaries:` line naming each system the product reads, writes or runs inside.
   * **Writers:** for each store the product reads, name who writes the data: this product, a person through its own screens, or something outside.
 * **Project tracker:** the link to the Jira or GitHub Projects board, when the team uses one.
@@ -42,8 +40,6 @@ Keep the `Check:` and `Full check:` lines as found and exempt them from the find
 
 ## Shape
 
-There is no fixed template.
-
 * **Order:** `Boundaries:` and `Architecture:` first, then only the headings that have content: Commands, Constraints, Traps, Pointers.
 * **Size:** most repositories need under 40 lines. Cap the file at 100 lines and 8 KB.
 * **Adding a line:** rewrite the file by these rules rather than appending.
@@ -52,7 +48,7 @@ There is no fixed template.
 
 ## Architecture snapshot
 
-Every run of this skill, and every request to see the architecture, writes or refreshes `ARCHITECTURE.md` at the repository root. The snapshot traces the code, every outside system that calls into it and every system it calls, and lays them out on one page a newcomer reads in five minutes. Read [references/architecture.md](references/architecture.md) before tracing. A request only to see the architecture needs only the snapshot; leave `AGENTS.md` untouched.
+Every run of this skill, and every request to see the architecture, writes or refreshes `ARCHITECTURE.md` at the repository root: a one-page trace of the code, every outside system that calls into it and every system it calls. Read [references/architecture.md](references/architecture.md) before tracing. On a request only to see the architecture, leave `AGENTS.md` untouched.
 
 ## Writing it
 

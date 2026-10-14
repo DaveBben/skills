@@ -1,8 +1,6 @@
 # Architecture snapshot
 
-`ARCHITECTURE.md` at the repository root is a one-page overview that a reader with no knowledge of the codebase finishes in about five minutes. It runs from the top down: what the system is for, what surrounds it, what it is made of, how one request moves through it, where things live, and why it is built this way.
-
-Do not use a long template such as arc42. Start from the business purpose and context, then show structure and one flow, and answer "why" before you show code. Cut anything the reader does not need to place their first change.
+`ARCHITECTURE.md` at the repository root is a one-page overview a newcomer finishes in about five minutes, laid out top down after the C4 model. Use no long template such as arc42. Cut anything the reader does not need to place their first change.
 
 ## Refreshing an existing snapshot
 
@@ -15,13 +13,13 @@ The file's first line is `<!-- orient snapshot: <commit sha> <YYYY-MM-DD> -->`, 
 
 Every box, arrow and step on the page comes from a file and line you read, or a search you ran. Record that evidence as you go.
 
-* **Inbound, inside the repository:** find every entry point. These include HTTP routes, RPC or gRPC service definitions, queue and topic consumers, webhooks, scheduled jobs, CLI commands, and a library's exported API in its package manifest.
+* **Inbound, inside the repository:** find every entry point: HTTP routes, RPC or gRPC service definitions, queue and topic consumers, webhooks, scheduled jobs, CLI commands, and a library's exported API in its package manifest.
 * **Inbound, outside the repository:** search for who calls those entry points.
   * Search the organization's other repositories for the service's hostname, route paths, topic names and package name, such as `gh search code "<route or host>" --owner <org>`.
   * Read infrastructure configuration: ingress rules, API gateway routes, DNS records, IAM or network policies that grant invoke access, and published OpenAPI or proto files.
   * Check the package registry or GitHub dependency graph for dependents of a published library.
   * When an entry point has no caller that any search found, list it as "caller not found". Name what would establish one, such as gateway access logs or tracing data.
-* **Outbound:** find everything the code calls. These include database and cache clients, HTTP clients and their base URLs, cloud SDK clients, topics it publishes to, and environment variables that hold hosts or credentials.
+* **Outbound:** find everything the code calls: database and cache clients, HTTP clients and their base URLs, cloud SDK clients, topics it publishes to, and environment variables that hold hosts or credentials.
 * **Large repositories:** split the trace by top-level module and run the parts in parallel when the agent can, such as one subagent per module. Have each part report its entry points, its outbound calls and its evidence.
 
 ## The page
@@ -29,11 +27,11 @@ Every box, arrow and step on the page comes from a file and line you read, or a 
 Write the sections in this order. Keep only what will still be true in six months; drop what changes every sprint, such as row or vote counts, test results, solver parameters and IP addresses.
 
 1. **Purpose:** two sentences. Say what the system does, and for whom, in the business's terms.
-2. **Context diagram:** one box for this system. Around it, the people who use it and every outside system from the trace. Label each arrow with what flows and how, such as "order events, Kafka". Use at most 12 boxes, and group minor callers into one box when there are more.
-3. **Container diagram:** the separately deployed or run parts inside the system, such as the web app, the API, the worker, the database and the queue. Label every arrow with the protocol and the data. Put the technology in each box.
+2. **Context diagram** (C4 level 1): one box for this system. Around it, the people who use it and every outside system from the trace. Label each arrow with what flows and how, such as "order events, Kafka". Use at most 12 boxes, and group minor callers into one box when there are more.
+3. **Container diagram** (C4 level 2): the separately deployed or run parts inside the system, such as the web app, the API, the worker, the database and the queue. Label every arrow with the protocol and the data. Put the technology in each box.
 4. **Data model:** each table, file or queue the system keeps its own state in, or reads as its main input. For each, say who writes it, what one row or record means, and the columns or fields the code uses, with their values, such as "`verdict`: true for the 30 picked, false for every other article ranked". Leave out columns the code never reads.
 5. **One request, end to end:** choose the action users perform most, or the one the business depends on. Give it as a sequence diagram and as 5 to 8 numbered steps. Each step names the file and function that handles it. After the steps, say what a repeat run does when there is nothing new, when only a little is new, and when there is less input than the system needs. Read the code for each case rather than assuming it.
-6. **Codemap:** a table of the top-level directories or modules, each with one line saying what lives there. Answer "where is the thing that does X?" without describing how each module works. Use at most 15 rows.
+6. **Codemap:** a table of the top-level directories or modules, each with one line saying what lives there, not how it works. Use at most 15 rows.
 7. **Decisions and invariants:** 3 to 7 bullets. Each states a rule or a choice and the reason behind it in one clause. Leave measurements, counts and parameters behind the link to the source. An invariant is often an absence, such as "the API never writes to the database directly; every write goes through the worker".
    * Take reasons from ADRs, commit messages (`git log -S`), pull request descriptions and code comments. Link to the source.
    * Never infer a reason. Where none is recorded, write "reason not recorded" and ask the user.
@@ -44,7 +42,7 @@ Link to any longer architecture document the repository already has, such as an 
 
 ## Writing it
 
-* **Write the diagrams in Mermaid,** which renders on GitHub, GitLab and in the HTML template. Use `flowchart LR` for the context and container diagrams and `sequenceDiagram` for the request. Quote every node label that contains punctuation, such as `api["Orders API (Go)"]`, because unquoted parentheses and colons break Mermaid parsing. When `npx` is available, render each diagram once with `npx -y @mermaid-js/mermaid-cli -i <file>.mmd -o /tmp/check.svg` to confirm it parses.
+* **Write the diagrams in Mermaid,** which renders on GitHub, GitLab and in the HTML template. Use `flowchart LR` for the context and container diagrams and `sequenceDiagram` for the request. Quote every node label that contains punctuation, such as `api["Orders API (Go)"]`; unquoted parentheses and colons break the parse. When `npx` is available, render each diagram once with `npx -y @mermaid-js/mermaid-cli -i <file>.mmd -o /tmp/check.svg` to confirm it parses.
 * **Describe the code literally:** say what each part does to the data and when. Use no analogies.
 * **Define every name local to the project at first use** in one clause: a database role, an account, a pipeline ID, a story number, an adjective such as "frozen". Cut a reference that needs more than a sentence to explain, such as a file name's history.
 * **Name where each number lives:** for each number the page states that the user might change, such as how many items a run picks, give the constant or setting and its location, such as `TOP = 30` at `run.py:49`.

@@ -1,9 +1,9 @@
 ---
 name: using-trackers
-description: "Use this skill for every read or write of an issue tracker (Gitea, GitHub, GitLab, Jira or another): when the story or spike skill files, reads, resumes or updates an issue, or when the user asks to put work on a tracker or a board. Use it on: 'create the issues', 'file these stories', 'put this on the board', 'add it to the project', 'open an issue for this', 'read issue 12', 'update the issue', 'link these issues', 'what is blocking this', 'which issue is next'. Load it before calling a tracker's API or CLI. Finds the tracker and its credentials from the repository, files each story or spike as one labelled issue whose body is its content alone, orders issues by the tracker's own blocking relation with no epic, and reads every write back. Not for what a story or spike says; that is `story` or `spike`."
+description: "Use this skill for every read or write of an issue tracker (Gitea, GitHub, GitLab, Jira or another): an issue, ticket, project, backlog or board, whether the user asks or the story or spike skill does. Use it on: 'create a story on gitea', 'create a story in the gitea backlog', 'create a story/bug on the board', 'file these stories in jira', 'open an issue for this', 'log this as an issue', 'put this on the board', 'read issue 12', 'update the issue', 'link these issues', 'what is blocking this', 'which issue is next'. Load it before calling a tracker's API or CLI. Files each story or spike as one labelled issue and reads every write back. Not for what a story says; that is `story`. Not for a git commit or push."
 license: MIT
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 # Using trackers
 
@@ -29,41 +29,30 @@ metadata:
 * **No epics:** create no epic, parent or tracking issue, on Jira too. A feature is its issues.
 * **Title field:** the story's `Title:` text, or the spike's question.
 * **Body:** the text as its skill wrote it, minus the `Title:` line. Leave out:
-  * `Part of #N` or `Blocked by #N` lines, since relations show them;
+  * `Part of #N` or `Blocked by #N` lines;
   * process notes, such as which skill runs it or where findings go;
   * anything another field shows: labels, assignee, milestone.
 * **Feature-level data:** the outcome, the measure and the feature's out-of-scope lines sit on the one story that owns the outcome, as the `story` skill writes it. Add nothing at feature level.
 * **Kind label:** `story`, `spike` or `refactor` on each issue. Create the label when the repository lacks it.
 * **Order and blocking:** the tracker's own relation, never prose. Each issue is blocked by the one before it in the build order, and by any spike or story it waits on.
 
-Blocking relations, one per tracker:
-
-* **Gitea:** issue dependencies, `POST /repos/{o}/{r}/issues/{n}/dependencies`; issue `n` is blocked by the issue in the body.
-* **GitHub:** "blocked by" relationships. Never use sub-issues; they need a parent issue, which this skill does not create.
-* **GitLab:** `blocks` issue links, on Premium and above. Free has only `relates to`: tell the user and ask.
-* **Jira:** issue links of type Blocks.
+Each tracker's blocking relation and board placement: [references/gitea.md](references/gitea.md), [references/github.md](references/github.md), [references/gitlab.md](references/gitlab.md), [references/jira.md](references/jira.md). Read only the one in use.
 
 ## Boards
 
-A board is not an issue: a new issue is not on a board until something places it there.
-
-* **Gitea:** a separate container. Check the swagger for a projects endpoint (added in v28.0.0). Where it exists: `POST /repos/{o}/{r}/projects/{id}/columns/{col}/issues/{issue_id}`, where `issue_id` is the issue's global `id`, not its `#` index. Where it does not: tell the user to tick the issues in the Issues tab, then Project, then the board's name.
-* **GitHub:** a separate container; `gh project item-add`, or the project's auto-add workflow.
-* **GitLab:** a view over labels; the label places the issue.
-* **Jira:** the board's filter places the issue.
-* **No workaround:** never call a web UI route with session cookies.
+A new issue is on no board until something places it there. Never call a web UI route with session cookies to place it.
 
 ## Read and edit later
 
 * **Find a story's issue:** the link or key the user gave, the key in the `story/` branch name, else a search by title among issues labelled `story`.
-* **Read it whole:** the body, then every comment, since a comment can change what was agreed. Then its state, labels and relations.
+* **Read it whole:** the body, then every comment, since a later comment can change what was agreed, then its state, labels and relations.
 * **A feature's issues:** follow blocking relations in both directions from any one issue, or list the board or milestone the user names.
 * **Next story:** the first open issue of the feature with no open blocker and no open pull request. When its body has an `Open questions` section, report that it is not ready.
 * **Edit the body** in place with the whole new text. Put findings, a pull request's link or a spike's results in a comment.
 
 ## Verify every write
 
-* **Read the issue back** after each write, since a tracker can accept a call and drop the label or relation: title, body, labels, relations, and board placement where one was made. Fix a difference before the next write.
+* **Read the issue back** after each write: title, body, labels, relations, and board placement where one was made. Fix a difference before the next write.
 * **Report** each issue's URL, and each step left for the user to do by hand.
 
 ## Destructive operations

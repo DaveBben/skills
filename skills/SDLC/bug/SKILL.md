@@ -1,13 +1,13 @@
 ---
 name: bug
-description: "Use this skill whenever code that exists behaves wrongly, or a list of open bugs must be sorted: a bug report, a crash, a wrong value, an error a user hit, a regression, or a bug backlog. Use it on: 'fix the bug where X', 'X is broken', 'X stopped working', 'users are getting this error', 'this returns the wrong value', 'here is a bug report', 'fix issue 42' when the issue reports a bug, 'triage our bugs', 'clean up the bug backlog', 'why do we keep getting these bugs'. Load it before reading the code. Reproduces the bug, decides fix now, story or won't fix, hands the fix to the story skill's build, then finds why the bug escaped and proposes the criterion, check or ADR that closes that gap. Not for behaviour nobody asked for before; that is `story`. Not for a test alone, with no fix asked; that is `failing-tests`."
+description: "Use this skill whenever existing code behaves wrongly or open bugs must be sorted: a bug report, crash, error, wrong value, regression, slowdown or bug backlog. Use it on: 'fix the bug where X', 'X is broken', 'X stopped working', 'users are getting this error', 'figure out why X shows an error', 'investigate why X is taking so long', 'triage our bugs', 'why do we keep getting these bugs'. Load it before reading the code. Reproduces the bug, decides fix now, story or won't fix, and closes the gap it escaped through. Not for new behaviour; that is `story`. Not for a test alone; that is `failing-tests`. Not for a smell list with no reported bug; that is `refactoring`."
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 # Bug
 
-A bug is fixed when it is found, through a test that fails on it first, and then the gap that let it through is closed. A bug never waits open "for later": it is fixed, becomes a story, or is closed as won't fix.
+Fix a bug when it is found, through a test that fails on it first, then close the gap that let it through. A bug never waits open "for later": it is fixed, becomes a story, or is closed as won't fix.
 
 ## Words used here
 
@@ -25,7 +25,7 @@ When the bug loses or exposes data, or blocks every user of a path in production
 * **Read the report whole:** a tracker issue by the `using-trackers` skill, its comments included, and every log, stack trace and step the user gave.
 * **Run it** at the lowest level that shows the fault: the command, the request, one call. Record the exact output.
 * **A fault only seen on screen** (a layout, a hover, an animation): read it as text first, such as a DOM query, a computed style, an event log or a browser tool's snapshot. When no tool shows it, ask the reporter for a screenshot or recording and the exact steps, and stop.
-* **Find where it entered** when a command does it cheaply: `git log -S '<code>'`, or `git bisect run` with the reproduction. The commit names the story whose criteria missed it.
+* **Find where it entered** when `git log -S` or `git bisect run` with the reproduction does it cheaply. The commit names the story whose criteria missed it.
 * **Cannot reproduce:** never fix blind. Ask the reporter for the missing fact by name (version, input, environment), or add the logging that would show it, and stop.
 * **Not a bug:** the code does what its acceptance criteria or contract state, and the report wants something else. Show the user the criterion the code follows; the request is a new story, by the `story` skill.
 
@@ -38,13 +38,13 @@ When the bug loses or exposes data, or blocks every user of a path in production
 
 ## 4. Fix
 
-Build the fix by the `story` skill's implement path, `../story/references/implement.md` from this skill's folder, with the reproduction as the one acceptance criterion. Its failing-tests step writes the reproduction as a test that fails for the reported reason before any code changes. Fix the cause where the wrong value is first produced, in the shared code, never in the caller that reported it.
+Build the fix by the `story` skill's implement path, `../story/references/implement.md` from this skill's folder, with the reproduction as the one acceptance criterion. Fix the cause where the wrong value is first produced, in the shared code, never in the caller that reported it.
 
 ## 5. Why it escaped
 
 Before the report, name the first of these that holds:
 
-* **Requirements:** no example covered the input that failed, such as a coupon larger than the cart. Name the missed kind of input. When `git log --grep` or the tracker shows the same kind escaped before, propose it as a rule by the `guardrails` skill, so later stories include it.
+* **Requirements:** no example covered the input that failed, such as a coupon larger than the cart. Name the missed kind of input. When `git log --grep` or the tracker shows the same kind escaped before, propose it as a rule by the `guardrails` skill.
 * **Test:** an example covered it, and its test passed the wrong code. The new locked test closes it.
 * **Design:** the file holding the fault has earlier fixes in `git log --oneline -- <file>`, or the faulty logic is duplicated. Propose a refactor as its own change.
 * **Systemic:** a program could detect this kind of fault (an unchecked null, a missing migration, a banned call). Propose the check by the `guardrails` skill.
@@ -63,7 +63,7 @@ Propose; build none of these without the user's go-ahead.
 | Issue | Decision | Why | Escape |
 ```
 
-Fix the rows marked fix now one at a time, through sections 2 to 5, each in its own fresh session. Comment `Decision: fix now` on each such issue by the `using-trackers` skill, or list them in the report when there is no tracker, so the next session finds them. End this session once the table is applied, and name the first bug to start.
+Fix the rows marked fix now one at a time, through sections 2 to 5, each in its own fresh session. Comment `Decision: fix now` on each such issue by the `using-trackers` skill, or list them in the report when there is no tracker. End this session once the table is applied, and name the first bug to start.
 
 ## Report
 

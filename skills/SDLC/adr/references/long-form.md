@@ -1,7 +1,5 @@
 # Long-form ADR
 
-Use this form only when the decision accepts a hazard or follows an incident.
-
 ```markdown
 # Protect the add-on pool with a concurrency cap, not a timeout
 
