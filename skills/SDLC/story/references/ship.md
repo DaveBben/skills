@@ -20,6 +20,11 @@ The pull request is open. Follow it to production and prove the story there.
     * **Every `then` observed:** the story is done. Comment the evidence on its issue and close it by the `using-trackers` skill. Without a tracker, report the evidence.
     * **One is not:** file it by the `bug` skill as a bug linked to the story, which reproduces and fixes it through this path. The story's issue stays open, blocked by the bug's issue, and closes when the fix passes its outcome check.
     * **Report** the result, and tell the user to start the next story in a fresh session.
+6. **Retro:** when the story's work ends, at step 5 or at any stop above, write a retro in chat.
+    * **What worked:** each step, tool or choice that saved time or caught a fault, with what it caught.
+    * **What did not:** each place time went to waste or the work went the wrong way, with its cause. Name your own mistakes as yours, apart from faults in the tooling.
+    * **Changes:** one line each, naming what to change and where: this skill, the repository's checks or `AGENTS.md`, or the harness.
+    * Keep it in chat. Write it to a file only when the user asks.
 
 ## Measure the feature
 
