@@ -14,7 +14,7 @@ The skills are plain Markdown (`SKILL.md`) and work with any skills-compatible a
 | [personalize](plugins/personalize/) | Have an agent write as you. Texts, work replies, docs and video scripts come out in your own voice, from private voice profiles you keep outside the repo. It never invents facts and never sends without your say-so. Also sets up your terminal, editor and note apps for readable text. Two skills. | live |
 | [learning](plugins/learning/) | Understand a programming or computer-science topic from a mock Stack Overflow thread, practice coding by re-implementing a merged change by hand, with hints and a critique of design, data structures and complexity, and design or review an experiment against the SIGSOFT Empirical Standards. Three skills. | live |
 | [skills-craft](plugins/skills-craft/) | Write instructions an agent actually follows. Reviews a skill or subagent prompt line by line: cuts what the model already knows or can read, keeps the conventions it cannot infer, and names failures specifically, citing the evidence for each finding. One skill. | live |
-| [writing](plugins/writing/) | Write Markdown files people can scan. Sets conclusion-first structure, descriptive headings, short sentences, rare bold, one sentence per source line, and the patterns to remove, each drawn from reading research. One skill. | live |
+| [writing](plugins/writing/) | Write Markdown files people can scan. Sets conclusion-first structure, descriptive headings, short sentences, rare bold, one paragraph per source line, and the patterns to remove, each drawn from reading research. One skill. | live |
 
 Open a plugin's folder for its own README and the detail behind it.
 
